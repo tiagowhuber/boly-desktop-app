@@ -1,0 +1,249 @@
+export const en = {
+  // home view
+  home_title: 'HOME',
+  home_welcome: 'Look at our highlighted games!',
+
+  home_title1: 'Boly',
+  home_body1: 'Revolutionising the classroom',
+  
+  home_title2: 'Technology and education',
+  home_body2: `According to the IDB, 88% of schools in LATAM do not have science laboratories and there is a trend towards an increase in the use of mobile phones by younger and younger children. Currently, 92% of children have access to and play on mobile phones, generating a battle in the classroom for students' attention and great concern among parents about the use of this technology.`,
+
+  home_title3: 'Our project',
+  home_body3: 'At boly, we understand gamers, developers and educators',
+  home_text3: 'Boly is a high-quality educational video game distribution platform that uses gamification & AI to personalize learning. We connect developers with students and schools and provide educators with tools to enhance the educational experience.',
+
+  home_meet_us: 'Meet us',
+  home_graph1_data_title: 'Without labs',
+  home_graph1_data_text: 'According to the IDB, 88% of schools in LATAM do not have science laboratories and there is a trend towards an increase in the use of mobile phones by younger and younger children.',
+  home_graph2_data_title: 'Phone access',
+  home_graph2_data_text: 'Currently, 92% of children have access to and play on mobile phones, generating a battle in the classroom for students\' attention and great concern among parents about the use of this technology.',
+
+  // navbar
+  home: 'Home',
+  games: 'Games',
+  contact: 'Contact',
+  subscription: 'Subscription',
+  developer: 'Developer',
+  my_library: 'My Library',
+  log_in: 'Log in',
+  sign_up: 'Sign up',
+
+  // footer
+  copyright_disclaimer: '© 2024. All rights reserved. All trademarks are the property of their respective owners / developers.',
+  vat_disclaimer: 'All prices include VAT (where applicable).',
+  
+  privacy_policy: 'Privacy Policy',
+  legal_info: 'Legal Info',
+  subscriber_agreement: 'Subscriber Agreement',
+  refunds: 'Refunds',
+  cookies: 'Cookies',
+
+  // games view
+  games_title: 'GAMES',
+  already_owned: 'Already owned!',
+  add_to_cart: 'Add to cart',
+  already_in_cart: 'Already in cart!',
+  remove_from_cart: 'Remove from cart?',
+  remove_from_cart_nq: 'Remove from cart',
+
+  game_platforms:'Platforms',
+  go_to_library:'Go to library',
+  see_more:'See more',
+  claim_for_free:'Claim for free',
+  general_info:'General information',
+  faq:'FAQ',
+
+  featured:'Featured',
+
+  downloadable_games:'Downloadable games',
+  web_games:'Web games',
+  downloadable_content:'Downloadable content',
+
+  // library view
+  library_title: 'LIBRARY',
+  my_games: 'My games',
+  all_games: 'All games',
+  search: 'Search',
+  filter: 'Filter',
+  download: 'Download',
+  play: 'Play',
+  completed: 'Completed',
+  user_games: "{user}'s games",
+  achievements_not_available: 'Achievements not available',
+  no_owned_games: "It looks like you don't own any games yet...",
+  browse_games: "Browse Games",
+
+  // wishlist view
+  wishlist: 'Wishlist',
+  no_wishlist_games: "Your wishlist is empty. Add games you're interested in!",
+
+  // contact view
+  contact_title: 'CONTACT',
+  name: 'Name',
+  company: 'Company',
+  phone: 'Telephone number',
+  query: 'Enter your inquiry',
+  send_query: 'Send inquiry',
+  send_query_success: 'Inquiry sent successfully!',
+  send_query_error: 'Oops! An error occurred while sending your inquiry. Please try again.',
+
+  contact_lets_talk: `Let's talk`,
+  contact_body: `At boly, we count on you to take education to the next level`,
+  contact_text: 'Do you or your team have an experience, game or application for educational purposes? Contact us or write us your enquiry so you can be part of Boly.',
+
+  // subscription view
+  subscription_plans: 'Subscription plans',
+  free: 'Free',
+  free_plan: 'Free Plan',
+  monthly_plan: 'Monthly Plan',
+  yearly_plan: 'Yearly Plan',
+  subscribe: 'Subscribe',
+  current_plan: 'Current Plan',
+  month: "Month",
+  free_feature_1: 'Ideal for beginners and explorers.',
+  free_feature_2: 'Limited access to a selection of our most popular educational games.',
+  free_feature_3: 'Designed for those who want to try how BOLY can transform the classroom and the learning process.',
+  monthly_feature_1: 'All content, with no limitations.',
+  monthly_feature_2: 'Complete access to all educational games available on our platform.',
+  monthly_feature_3: 'Perfect for families, educators and students looking to learn and play, month by month.',
+  monthly_feature_4: 'Cancel at any time.',
+  yearly_feature_1: 'For fans of continuous learning.',
+  yearly_feature_2: 'Complete access to all educational games available on our platform.',
+  yearly_feature_3: 'Exclusive benefit: Early access to new games before their initial release.',
+
+  // developer view
+  developer_title: 'DEVELOPER MANAGER',
+  developer_published: 'Your published games',
+  developer_published_desc: 'Take a look and manage your published games.',
+  developer_manage_game_data: 'Manage game data',
+  developer_manage_achievements: 'Manage achievements',
+  developer_create_preview: 'Create a game preview',
+  developer_create_preview_desc: 'If you intend to publish a game in boly, this is the place!',
+  developer_create_preview_button: 'Create preview',
+  developer_game_preview: 'Game Preview',
+
+  // game edit view
+  edit_game_title: 'GAME DATA MANAGER',
+  game_data: 'Game Data',
+  game_name: 'Game Title',
+  game_description: 'Game Description',
+  game_price: 'Price',
+
+  game_media: 'Game Media',
+  banner: 'Banner',
+  media: 'Media',
+  background: 'Background',
+
+  // achievement manager
+  ach_pass_title: 'ACHIEVEMENTS PASS',
+  ach_pass_1: 'Here you can generate your AchievementPass for Boly games!',
+  ach_pass_2: 'Generate a pass to link a game to your account and update your achievement progress.',
+  ach_pass_3: 'This code is for 1 use only, and expires in 2 minutes.',
+  generate_pass: 'Generate pass',
+  achievement_manager_title: 'ACHIEVEMENT MANAGER',
+  achievement_manager_subtitle: 'Game achievements of {game}',
+  remove_achievement: 'Remove achievement',
+  remove: 'Remove',
+  progress: 'Progress',
+  instant: 'Instant',
+  add_achievement: 'Add new achievement',
+  modal_achievements_updated: 'Successfully updated achievements!',
+  modal_achievements_error: 'Error updating achievements: {error}',
+  ach_code: 'Achievement code',
+  ach_name: 'Name',
+  ach_desc: 'Description',
+  ach_unlock: 'Unlock requirement',
+  ach_type: 'Type',
+  ach_secret: 'Secret',
+
+  ach_secret_title: 'Secret achievement',
+  ach_secret_subtitle: 'Unlock this achievement to see more details.',
+  ach_achievement_unlocked: 'Achievement Unlocked!',
+  see_achievements: 'See achievements',
+
+  // profile view
+  profile_title: 'PROFILE',
+  bio: 'Bio',
+  profile_info: "{username}'s Info",
+  role: 'Role',
+  admin: 'Admin',
+  user: 'User',
+  birthday: 'Birthday',
+  logout: 'Log out',
+  achievementpass: 'AchievementPass',
+  edit_profile: 'Edit profile',
+
+  edit_profile_title: 'EDIT PROFILE',
+  user_info: 'User Info',
+  username: 'Username',
+  enter_new_username: 'Enter a new username',
+  email: 'E-mail',
+  enter_new_email:'Enter a new email',
+  profile_biography: 'Profile biography',
+  enter_new_bio:'Enter your bio',
+  change_password: 'Change Password',
+  password: 'Password',
+  enter_old_password: 'Enter your current password',
+  enter_new_password: 'Enter a new password',
+  repeat_password: 'Repeat password',
+  profile_picture: 'Profile Picture',
+  profile_picture_upload: 'Choose a new profile picture',
+
+  // cart view
+  cart_title: 'CART',
+  cart: 'Cart',
+  total: 'Total',
+  empty_cart: 'Empty cart',
+  discount_code: 'Discount code',
+  apply_code: 'Apply discount code',
+  confirm_and_pay: 'Confirm cart and pay',
+  modal_empty_cart: 'Are you sure you want to empty the cart?',
+  modal_cart_redirect: 'Wait until we redirect you to the payment page...',
+  modal_cart_remove_item: 'Are you sure you want to remove {item} from the cart?',
+
+  // login/register view
+  login: 'Login',
+  register: 'Register',
+  login_email: 'E-mail or username',
+  repassword: 'Repeat password',
+  no_account: 'No account?',
+  yes_account: 'Already have an account?',
+  terms_of_service: 'Terms of service',
+  terms_confirm: 'I have read and accept the terms of service.',
+  modal_all_fields: 'All fields must be filled in.',
+  modal_login_success: 'Successfully logged in!',
+  modal_login_error: 'Something went wrong',
+  modal_same_passwords: 'Passwords must be the same.',
+  modal_register_success: 'Registered successfully!',
+  modal_email_taken: 'E-mail already in use!',
+  modal_weak_password: 'Password must be at least 8 characters, include an uppercase letter, and a digit.',
+  modal_invalid_email: 'Please enter a valid email address',
+
+  // post order
+  postorder_congrats: 'Congratulations! Your purchase has been successfully completed.',
+  postorder_transaction_id: 'Transaction ID',
+  postorder_date: 'Date of purchase',
+  postorder_article_list: 'The following items have been added to your account:',
+  postorder_error: 'Oh no! A transaction error has occurred.',
+
+  // misc
+  close: 'Close',
+  confirm: 'Confirm',
+  return: 'Return',
+  error: 'Error',
+  apply: 'Apply',
+  notification: 'Notification',
+  of: 'of',
+
+  // cart-related strings
+  shopping_cart: 'Shopping Cart',
+  order_summary: 'Order Summary',
+  subtotal: 'Subtotal',
+  proceed_to_checkout: 'Proceed to Checkout',
+  cart_empty: 'Your cart is empty',
+  continue_shopping: 'Continue Shopping',
+  remove: 'Remove'
+}
+
+export default en

@@ -1,0 +1,131 @@
+/* color palette from <https://github.com/vuejs/theme> */
+:root {
+  --vt-c-white: #ffffff;
+  --vt-c-white-soft: #f8f8f8;
+  --vt-c-white-mute: #f2f2f2;
+
+  --vt-c-black: #181818;
+  --vt-c-black-soft: #222222;
+  --vt-c-black-mute: #282828;
+
+  --vt-c-indigo: #2c3e50;
+
+  --vt-c-divider-light-1: rgba(60, 60, 60, 0.29);
+  --vt-c-divider-light-2: rgba(60, 60, 60, 0.12);
+  --vt-c-divider-dark-1: rgba(84, 84, 84, 0.65);
+  --vt-c-divider-dark-2: rgba(84, 84, 84, 0.48);
+
+  --vt-c-text-light-1: var(--vt-c-indigo);
+  --vt-c-text-light-2: rgba(60, 60, 60, 0.66);
+  --vt-c-text-dark-1: var(--vt-c-white);
+  --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
+
+  --boly-bg-blue: #341A95;
+  --boly-bg-dark-blue: #2A1A63;
+  --boly-bg-dark: #221742;
+  --boly-bg-darker: #130A25;
+  --boly-bg-dark-transparent: #221742B0;
+  --boly-bg-blue-transparent: #1e12502c;
+  --boly-button-blue: #2557C8;
+  --boly-button-blue-hover: #3682e7;
+  --boly-button-purple: #BC3DE4;
+  --boly-button-purple-hover: #ec85fc;
+  --boly-button-orange: #FC9904;
+  --boly-button-orange-hover: #ffb648;
+  --boly-highlight: #FC9904;
+  --boly-featured-green: #7DCB27;
+  --boly-text-inactive-blue: #5374c0;
+
+  --lightCyan: #54EFE8;
+  --lightGreen: #2aa9f3;
+  --bgGreen: #124F4F;
+  --bgGreenTransparent: #124F4F30;
+
+  --bdarkest: #101010;
+  --bdarker: #161a1e;
+  --bdark: #252528;
+
+  --darker: #181818;
+  --dark: #252525;
+  --darkhover: #25252585;
+
+  --lightdark: #303030;
+
+  --gray: #9a9a9a;
+  --light: #fbfbfb;
+  --highlight: #e58e27;
+  --highlighthover: #ffa63a;
+
+  --remove: #ff4136;
+  --removehover: #ff6060;
+}
+
+/* semantic color variables for this project */
+:root {
+  --color-background: var(--light);
+  --color-background-soft: var(--vt-c-white-soft);
+  --color-background-mute: var(--vt-c-white-mute);
+
+  --color-border: var(--vt-c-divider-light-2);
+  --color-border-hover: var(--vt-c-divider-light-1);
+
+  --color-heading: var(--bgGreen);
+
+  --section-gap: 160px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  font-weight: normal;
+}
+
+body {
+  display: grid;
+  min-height: 100vh;
+  color: var(--light);
+  background: var(--boly-bg-blue);
+  background-image: url("@renderer/assets/images/background.png");
+  background-repeat: repeat-y;
+  background-size: cover;
+  background-attachment: fixed;
+
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  font-size: 20px;
+
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background-color: #00000036;
+}
+
+button,
+a,
+[role="button"],
+input[type="button"],
+input[type="submit"],
+.add-button,
+.buy-button,
+.cart-button,
+.apply-button,
+.remove_button,
+.tab-button,
+.language-button {
+  cursor: pointer;
+}
+
+button:disabled,
+input[type="button"]:disabled,
+input[type="submit"]:disabled,
+.cart-disabled {
+  cursor: not-allowed;
+}
