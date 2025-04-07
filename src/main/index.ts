@@ -1,6 +1,10 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain,dialog } from 'electron'
 import { join } from 'path'
+import path from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+const fs = require('fs');
+const { exec } = require('child_process');
+const AdmZip = require('adm-zip');
 import icon from '../../resources/icon.png?asset'
 
 function createWindow(): void {
@@ -13,9 +17,46 @@ function createWindow(): void {
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+      sandbox: false,
+      nodeIntegration: true,
+      contextIsolation: true
     }
   })
+
+  //---
+
+  ipcMain.handle('seleccionar-archivo', async () => {
+    const result = await dialog.showOpenDialog({ properties: ['openFile'] });
+    return result.filePaths[0];
+  });
+
+  ipcMain.handle('seleccionar-carpeta', async () => {
+    const result = await dialog.showOpenDialog({ properties: ['openDirectory'] });
+    return result.filePaths[0];
+  });
+  
+  ipcMain.handle('instalar-desde-zip', async (test,rutaExe, rutaDestino) => {
+    try {
+      // const zip = new AdmZip(rutaZip);
+      // zip.extractAllTo(rutaDestino, true);
+  
+      // const lista = zip.getEntries().map(entry => entry.entryName);
+  
+      // const posibleInstalador = path.join(rutaDestino, 'setup.exe');
+      // if (fs.existsSync(posibleInstalador)) {
+        exec(`"${rutaExe}" /DIR="${rutaDestino}" /SILENT`, (err, stdout, stderr) => {
+          if (err) console.error('Error:', err.message);
+          else console.log('Resultado:', stdout);
+        });
+      // }
+      return true;
+      // return lista;
+    } catch (error) {
+      return [`Error: ${error.message}`];
+    }
+  });
+
+  //---
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.webContents.openDevTools()
