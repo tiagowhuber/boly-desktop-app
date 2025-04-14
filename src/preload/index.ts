@@ -17,7 +17,8 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('electronAPI', {
       seleccionarArchivo: () => ipcRenderer.invoke('seleccionar-archivo'),
       seleccionarCarpeta: () => ipcRenderer.invoke('seleccionar-carpeta'),
-      instalarDesdeZip: (rutaExe, rutaDestion) => ipcRenderer.invoke('instalar-desde-zip', rutaExe, rutaDestion)
+      instalarDesdeZip: (rutaExe, rutaDestion) => ipcRenderer.invoke('instalar-desde-zip', rutaExe, rutaDestion),
+      playGame:(appData) => ipcRenderer.invoke('play-game',appData)
     })
   } catch (error) {
     console.error(error)

@@ -14,7 +14,13 @@
     <ul>
       <li v-for="(item, index) in archivos" :key="index">{{ item }}</li>
     </ul>
+
+    <h1>Ejecutar Aplicaciones</h1>
+    <input type="text" id="appPath" placeholder="Ruta de la aplicación (ej: C:\Windows\System32\notepad.exe)">
+    <input type="text" id="appArgs" placeholder="Parámetros de ejecución (opcional)">
+    <button @click="play">Ejecutar</button>
   </div>
+
 </template>
 
 <script>
@@ -45,6 +51,11 @@ export default {
       window.electronAPI.instalarDesdeZip(this.rutaExe,this.rutaDestino).then((archivo) => {
         // this.archivos=archivo
 })
+    },
+    async play(){
+      const appPath = document.getElementById('appPath').value;
+            const appArgs = document.getElementById('appArgs').value;
+            window.electronAPI.playGame( {appPath, args: appArgs });
     }
   }
 };

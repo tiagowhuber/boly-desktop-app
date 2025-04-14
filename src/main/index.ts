@@ -2,12 +2,17 @@ import { app, shell, BrowserWindow, ipcMain,dialog } from 'electron'
 import { join } from 'path'
 import path from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+const { spawn } = require('child_process');
 const fs = require('fs');
 const { exec } = require('child_process');
 const AdmZip = require('adm-zip');
 import icon from '../../resources/icon.png?asset'
+import axios from 'axios'
 
-function createWindow(): void {
+
+
+
+async function createWindow(): Promise<void> {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 900,
@@ -22,12 +27,23 @@ function createWindow(): void {
       contextIsolation: true
     }
   })
-
   //---
 
   ipcMain.handle('seleccionar-archivo', async () => {
+    try {
+  //     const { Low } = await import('lowdb');
+  // const { JSONFilePreset } = await import('lowdb/node');
+  //     const db = await JSONFilePreset('db.json',{games:[{}]})
+  //     await db.read();
+  //   db.data.games.push({ gameId:"2", installPath: '"D:\Juegos\test\Body Defense.exe"'});
+  //   await db.write();
+    // addGame(2,'"D:\Juegos\test\Body Defense.exe"')
     const result = await dialog.showOpenDialog({ properties: ['openFile'] });
     return result.filePaths[0];
+    } catch (error) {
+      
+    }
+    
   });
 
   ipcMain.handle('seleccionar-carpeta', async () => {
@@ -55,7 +71,107 @@ function createWindow(): void {
       return [`Error: ${error.message}`];
     }
   });
+  // async function addGame(gameId, installPath) {
+  //   await db.read();
+  //   db.data.games.push({ gameId, installPath });
+  //   await db.write();
+  // }
 
+  ipcMain.handle("play-game",async (event, appData)=>{
+    //"D:\Juegos\test\Body Defense.exe"
+    //------------------------------------- Ejecutar juego
+    try {
+      //-
+      const body = {
+        email:"jorge.puentes225@gmail.com",
+        password:"@M123123"
+      }
+      await axios.post(`http://localhost:3001/v1/auth/`, body).then(
+        async (response)=>{
+          console.log(response.data)
+          if(response && response.data.token){
+            const req={
+              user_id:3,
+              game_id:2
+            }
+            const token = response.data.token
+            try {
+              //--
+              await axios.post(`http://localhost:3001/v1/validate/`, req, {
+                headers: { Authorization: `Bearer ${token}` }
+              }).then((validation)=>{
+                if(validation.data){
+                  console.log(validation.data)
+                  //---
+                  try {
+                    const { appPath } = appData;
+                    const args = `-game_id ${req.game_id} -user_id ${req.user_id} -key ${validation.data.tempKey} -token ${response.data.token}`
+                    console.log(args)
+                    const appProcess = spawn(appPath, args.split(' '), { shell: true });
+              
+                    appProcess.stdout.on('data', (data) => {
+                        console.log(`Output: ${data}`);
+                    });
+              
+                    appProcess.stderr.on('data', (data) => {
+                        console.error(`Error: ${data}`);
+                    });
+                } catch (error) {
+                    console.error('Failed to launch application:', error);
+                }
+                //---
+                }
+              })
+              //--
+            } catch (error) {
+              console.log("error validation")
+            }
+          }
+        }
+      )
+      //-
+    } catch (error: any) {
+      console.log("error auth")
+      throw error
+    } finally {
+    }
+    //refresh token en caso de
+    //consultar clave a api
+    return
+    try {
+      console.log(event)
+      console.log(appData)
+      const { appPath, args } = appData;
+      
+      const appProcess = spawn(appPath, args.split(' '), { shell: true });
+
+      appProcess.stdout.on('data', (data) => {
+          console.log(`Output: ${data}`);
+      });
+
+      appProcess.stderr.on('data', (data) => {
+          console.error(`Error: ${data}`);
+      });
+  } catch (error) {
+      console.error('Failed to launch application:', error);
+  }
+  })
+  ipcMain.on('launch-app', (event, appData) => {
+    try {
+        const { appPath, args } = appData;
+        const appProcess = spawn(appPath, args.split(' '), { shell: true });
+
+        appProcess.stdout.on('data', (data) => {
+            console.log(`Output: ${data}`);
+        });
+
+        appProcess.stderr.on('data', (data) => {
+            console.error(`Error: ${data}`);
+        });
+    } catch (error) {
+        console.error('Failed to launch application:', error);
+    }
+});
   //---
 
   mainWindow.on('ready-to-show', () => {
@@ -114,3 +230,22 @@ app.on('window-all-closed', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+// ipcMain.handle('add-game', async (event, game) => {
+//   await addGame(game.gameId, game.installPath);
+// });
+
+// ipcMain.handle('get-games', async () => {
+//   return await getGames();
+// });
+
+// export async function addGame(gameId, installPath) {
+//   await db.read();
+//   db.data.games.push({ gameId, installPath });
+//   await db.write();
+// }
+
+// export async function getGames() {
+//   await db.read();
+//   return db.data.games;
+// }
