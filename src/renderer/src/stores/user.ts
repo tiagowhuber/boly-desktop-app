@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { User, UserUpdateRequest, PasswordUpdateRequest } from '@renderer/types'
+import type { User, UserUpdateRequest, PasswordUpdateRequest } from '@/types'
 import axios from 'axios'
 
 const useUser = defineStore('user', {

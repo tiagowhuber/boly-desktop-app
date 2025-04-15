@@ -6,18 +6,27 @@ export const en = {
   home_title1: 'Boly',
   home_body1: 'Revolutionising the classroom',
   
-  home_title2: 'Technology and education',
-  home_body2: `According to the IDB, 88% of schools in LATAM do not have science laboratories and there is a trend towards an increase in the use of mobile phones by younger and younger children. Currently, 92% of children have access to and play on mobile phones, generating a battle in the classroom for students' attention and great concern among parents about the use of this technology.`,
-
-  home_title3: 'Our project',
-  home_body3: 'At boly, we understand gamers, developers and educators',
+  home_title2: 'Our project',
+  home_body2: `At boly, we understand gamers, developers and educators`,
   home_text3: 'Boly is a high-quality educational video game distribution platform that uses gamification & AI to personalize learning. We connect developers with students and schools and provide educators with tools to enhance the educational experience.',
 
+  home_title3: 'Technology and education',
+  home_graph1_data_text1: 'According to the IDB, 88% of schools in LATAM',
+  home_graph1_data_text2:' do not have science laboratories',
+  home_graph1_data_text3:' and there is a trend towards an increase in the use of mobile phones by younger and younger children.',
+  home_graph2_data_text1: 'Currently, 92% of children ',
+  home_graph2_data_text2:'have access to and play on mobile phones,',
+  home_graph2_data_text3:` generating a battle in the classroom for students' attention and great concern among parents about the use of this technology.`,
+
+  home_title4: "Boly en acción",
+  home_slider_text:"Desliza para ver más acción",
+
+  home_title5: `Let's talk`,
+  home_form_title: `At boly, we count on you to take education to the next level`,
+  home_form_text: 'Do you or your team have an experience, game or application for educational purposes? Contact us or write us your enquiry so you can be part of Boly.',
+
   home_meet_us: 'Meet us',
-  home_graph1_data_title: 'Without labs',
-  home_graph1_data_text: 'According to the IDB, 88% of schools in LATAM do not have science laboratories and there is a trend towards an increase in the use of mobile phones by younger and younger children.',
-  home_graph2_data_title: 'Phone access',
-  home_graph2_data_text: 'Currently, 92% of children have access to and play on mobile phones, generating a battle in the classroom for students\' attention and great concern among parents about the use of this technology.',
+
 
   // navbar
   home: 'Home',
@@ -46,6 +55,7 @@ export const en = {
   already_in_cart: 'Already in cart!',
   remove_from_cart: 'Remove from cart?',
   remove_from_cart_nq: 'Remove from cart',
+  view_in_cart: 'View in cart',
 
   game_platforms:'Platforms',
   go_to_library:'Go to library',
@@ -111,6 +121,8 @@ export const en = {
   yearly_feature_1: 'For fans of continuous learning.',
   yearly_feature_2: 'Complete access to all educational games available on our platform.',
   yearly_feature_3: 'Exclusive benefit: Early access to new games before their initial release.',
+  subscription_success: 'Subscription successful!',
+  subscription_success_message: 'Now you have access to all the games in our library!',
 
   // developer view
   developer_title: 'DEVELOPER MANAGER',
@@ -164,7 +176,7 @@ export const en = {
 
   // profile view
   profile_title: 'PROFILE',
-  bio: 'Bio',
+  bio: 'Biography',
   profile_info: "{username}'s Info",
   role: 'Role',
   admin: 'Admin',
@@ -178,7 +190,7 @@ export const en = {
   user_info: 'User Info',
   username: 'Username',
   enter_new_username: 'Enter a new username',
-  email: 'E-mail',
+  email: 'email',
   enter_new_email:'Enter a new email',
   profile_biography: 'Profile biography',
   enter_new_bio:'Enter your bio',
@@ -189,6 +201,10 @@ export const en = {
   repeat_password: 'Repeat password',
   profile_picture: 'Profile Picture',
   profile_picture_upload: 'Choose a new profile picture',
+  order_history : 'Order history',
+  no_orders: 'No orders found.',
+  your_orders: 'Your orders',
+  ordered_on: 'Ordered on',
 
   // cart view
   cart_title: 'CART',
@@ -196,7 +212,7 @@ export const en = {
   total: 'Total',
   empty_cart: 'Empty cart',
   discount_code: 'Discount code',
-  apply_code: 'Apply discount code',
+  apply_code: 'Apply discount',
   confirm_and_pay: 'Confirm cart and pay',
   modal_empty_cart: 'Are you sure you want to empty the cart?',
   modal_cart_redirect: 'Wait until we redirect you to the payment page...',
@@ -205,7 +221,7 @@ export const en = {
   // login/register view
   login: 'Login',
   register: 'Register',
-  login_email: 'E-mail or username',
+  login_email: 'email or username',
   repassword: 'Repeat password',
   no_account: 'No account?',
   yes_account: 'Already have an account?',
@@ -216,7 +232,7 @@ export const en = {
   modal_login_error: 'Something went wrong',
   modal_same_passwords: 'Passwords must be the same.',
   modal_register_success: 'Registered successfully!',
-  modal_email_taken: 'E-mail already in use!',
+  modal_email_taken: 'email already in use!',
   modal_weak_password: 'Password must be at least 8 characters, include an uppercase letter, and a digit.',
   modal_invalid_email: 'Please enter a valid email address',
 
@@ -226,6 +242,64 @@ export const en = {
   postorder_date: 'Date of purchase',
   postorder_article_list: 'The following items have been added to your account:',
   postorder_error: 'Oh no! A transaction error has occurred.',
+
+  purchase_successful: 'Purchase Successful',
+  purchase_failed: 'Purchase Failed',
+  purchase_thank_you: 'Thank you for your purchase! Your games are now available in your library.',
+  purchased_games: 'Purchased Games',
+  return_to_cart: 'Return to Cart',
+  browse_more_games: 'Browse More Games',
+  go_to_library: 'Go to Library',
+  // payment methods management  manage_payment_methods: 'My cards',
+  my_cards: 'My cards',
+  payment_methods: 'Payment Methods',
+  add_payment_method: 'Add Payment Method',
+  add_card: 'Add Card',
+  add_card_description: 'Register a new card for subscription payments.',
+  your_payment_methods: 'Your Payment Methods',
+  card_ending_in: 'Card ending in',
+  no_payment_methods: 'You don\'t have any payment methods registered yet.',
+  delete: 'Delete',
+  added_on: 'Added on',
+  back: 'Back',
+  confirm_delete: 'Confirm Deletion',
+    // subscription management
+  subscription_management: 'Subscription management',
+  available_subscriptions: 'Available subscriptions',
+  current_subscription: 'Current Subscription',
+  plan_name: 'Plan Name',
+  price: 'Price',
+  credits: 'Credits',
+  next_billing: 'Next Billing Date',
+  change_subscription: 'Change Subscription',
+  cancel_subscription: 'Cancel Subscription',
+  no_active_subscription: 'You don\'t have an active subscription.',  subscribe_now: 'Subscribe Now',
+  confirm_cancellation: 'Confirm Cancellation',
+  confirm_cancel_subscription: 'Are you sure you want to cancel your subscription? Your account will be downgraded to the free plan.',
+  account_title: 'Account',
+  subscription_title: 'Subscription',
+  payment_title: 'Payment',
+  yes_cancel: 'Yes, Cancel',
+  no_keep_subscription: 'No, Keep My Subscription',
+  confirm_delete_card: 'Are you sure you want to delete the card ending in {card}?',
+  payment_method_deleted: 'Payment method deleted successfully',
+  error_fetching_payment_methods: 'Error fetching payment methods',
+  error_creating_enrollment: 'Error creating card enrollment',
+  error_deleting_payment_method: 'Error deleting payment method',
+  card_registration_success: 'Card Registered Successfully',
+  card_registration_success_description: 'Your card has been successfully registered and is now available for one-click purchases.',
+  card_registration_error: 'Card Registration Failed',
+  card_registration_canceled: 'Card Registration Canceled',
+  missing_token: 'Missing registration token',
+  error_confirming_enrollment: 'Error confirming card enrollment',
+  view_payment_methods: 'View Payment Methods',
+  try_again: 'Try Again',
+  cancel: 'Cancel',
+  redirecting: 'Redirecting',
+  redirecting_to_webpay: 'Redirecting to WebPay for secure card registration...',
+  form_submission_error: 'Error submitting form to payment gateway',
+  renew_subscription: 'Renew Subscription',
+  expiration_date: 'Expiration Date',
 
   // misc
   close: 'Close',
@@ -243,7 +317,17 @@ export const en = {
   proceed_to_checkout: 'Proceed to Checkout',
   cart_empty: 'Your cart is empty',
   continue_shopping: 'Continue Shopping',
-  remove: 'Remove'
+  remove: 'Remove',
+  manage_payment_methods: 'Manage Payment Methods',
+
+  // achievements view
+  achievements_for: 'Achievements for',
+  loading_achievements: 'Loading achievements...',
+  no_achievements_found: 'No achievements found for this game.',
+  secret: 'Secret',
+  retry: 'Retry',
+  loading: 'Loading',
+  release_date: 'Release date'
 }
 
 export default en

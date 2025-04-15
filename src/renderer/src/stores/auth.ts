@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { jwtDecode } from "jwt-decode";
 import { useUser } from '.'
 import type { Router } from 'vue-router'
-import type { User } from '@renderer/types';
+import type { User } from '@/types';
 
 const useAuth = defineStore('auth', {
   state: () => ({

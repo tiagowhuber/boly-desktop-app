@@ -1,6 +1,6 @@
 <script setup>
-import ChevronLeft from '@renderer/components/icons/ChevronLeft.vue'
-import ChevronRight from '@renderer/components/icons/ChevronRight.vue'
+import ChevronLeft from '@/components/icons/ChevronLeft.vue'
+import ChevronRight from '@/components/icons/ChevronRight.vue'
 </script>
 
 <template>

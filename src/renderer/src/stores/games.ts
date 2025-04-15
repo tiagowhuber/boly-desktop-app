@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia'
 import UnityWebgl from 'unity-webgl'
 import axios from 'axios'
-import type { Game } from '@renderer/types'
+import type { Game } from '@/types'
+import { usePayment } from '.'
 
-export const useGames = defineStore('games', {
+const useGames = defineStore('games', {
   state: () => ({
     games: [] as Game[],
     loading: false,
@@ -11,9 +12,14 @@ export const useGames = defineStore('games', {
     webGameData: null as { loader: string; data: string; framework: string; wasm: string } | null,
     unityPlayer: null as UnityWebgl | null,
     loadingUnity: true,
-    ownershipCache: new Map() as Map<string, boolean>
+    ownershipCache: new Map() as Map<string, boolean>,
+    gameMediaCache: new Map() as Map<number, any[]>
   }),
   actions: {
+    async fetchData() {
+      await this.getAll()
+    },
+
     async getAll() {
       this.loading = true
       this.error = undefined
@@ -131,84 +137,123 @@ export const useGames = defineStore('games', {
       }
     },
 
-    async deleteGameMedia(gameId: number, mediaUrls: string[], auth: { token: string }) {
+    async getGameMedia(gameId: number, type = 'all') {
       this.loading = true
       this.error = undefined
-      try {
-        const response = await axios.post(`/v1/games/${gameId}/deleteMedia`, 
-          { mediaUrls },
-          { headers: { Authorization: `Bearer ${auth.token}` } }
-        )
-        return response.data
-      } catch (error: any) {
-        this.error = error
-        throw error
-      } finally {
-        this.loading = false
-      }
-    },
-
-    async getGameUrl(gameId: number, auth: { token: string }) {
-      console.log('GamesStore: Starting getGameUrl for game:', gameId);
-      this.loading = true
-      this.error = undefined
-      try {
-        console.log('GamesStore: Making URL request');
-        const response = await axios.post('/v1/games/url', 
-          {
-            game_id: gameId,
-            is_web: true
-          },
-          { headers: { Authorization: `Bearer ${auth.token}` } }
-        )
-        console.log('GamesStore: Received URL response');
-        
-        this.webGameData = response.data
-        if (this.webGameData) {
-          console.log('GamesStore: Creating Unity player instance');
-          this.unityPlayer = new UnityWebgl({
-            loaderUrl: this.webGameData.loader,
-            dataUrl: this.webGameData.data,
-            frameworkUrl: this.webGameData.framework,
-            codeUrl: this.webGameData.wasm
-          })
-          console.log('GamesStore: Unity player instance created');
+      
+      if (this.gameMediaCache.has(gameId)) {
+        const cachedMedia = this.gameMediaCache.get(gameId)
+        if (type === 'all') {
+          return cachedMedia
+        } else {
+          return cachedMedia?.filter(item => item.media_type === type)
         }
-        this.loadingUnity = false
+      }
+      
+      try {
+        const response = await axios.get(`/v1/media/game/${gameId}${type !== 'all' ? `?type=${type}` : ''}`)
+        
+        // Cache the media data
+        this.gameMediaCache.set(gameId, response.data)
+        
         return response.data
       } catch (error: any) {
-        console.error('GamesStore: Error in getGameUrl:', error);
+        console.error('GamesStore: Error fetching game media:', error)
         this.error = error
-        this.loadingUnity = false
+        return []
+      } finally {
+        this.loading = false
+      }
+    },
+    
+    async addGameMedia(gameId: number, mediaItems: Array<{media_url: string, media_type: 'image' | 'video', display_order?: number}>, auth: { token: string }) {
+      this.loading = true
+      this.error = undefined
+      
+      try {
+        const response = await axios.post('/v1/media/bulk-create', {
+          game_id: gameId,
+          media: mediaItems
+        }, {
+          headers: { Authorization: `Bearer ${auth.token}` }
+        })
+        
+        // Update cache
+        this.gameMediaCache.delete(gameId)
+        
+        return response.data
+      } catch (error: any) {
+        this.error = error
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+    
+    async deleteGameMedia(mediaId: number, auth: { token: string }) {
+      this.loading = true
+      this.error = undefined
+      
+      try {
+        const response = await axios.delete(`/v1/media/${mediaId}/delete`, {
+          headers: { Authorization: `Bearer ${auth.token}` }
+        })
+        
+        // Clear relevant cache entries that might contain this media
+        this.gameMediaCache.clear()
+        
+        return response.data
+      } catch (error: any) {
+        this.error = error
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+    
+    async deleteAllGameMedia(gameId: number, auth: { token: string }, mediaType?: 'image' | 'video') {
+      this.loading = true
+      this.error = undefined
+      
+      try {
+        const url = `/v1/media/game/${gameId}/delete-all${mediaType ? `?type=${mediaType}` : ''}`
+        const response = await axios.delete(url, {
+          headers: { Authorization: `Bearer ${auth.token}` }
+        })
+        
+        // Update cache
+        this.gameMediaCache.delete(gameId)
+        
+        return response.data
+      } catch (error: any) {
+        this.error = error
         throw error
       } finally {
         this.loading = false
       }
     },
 
-    async downloadGame(gameId: number, auth: { token: string }) {
+    async getTotalCost(cartItems: number[]) {
+      const filteredGames = this.games.filter(game => cartItems.includes(game.game_id))
+      const total = filteredGames.reduce((sum, game) => {
+        const price = typeof game.price === 'object' && game.price !== null ? (game.price as any).USD : 0
+        return sum + (price || 0)
+      }, 0)
+      return Math.round(total)
+    },
+
+    async addToLibrary(gameId: number, userId: number, auth: { token: string }) {
       this.loading = true
       this.error = undefined
       try {
-        const response = await axios.post(`/v1/games/${gameId}`, 
-          { game_id: gameId },
-          { 
-            headers: { Authorization: `Bearer ${auth.token}` },
-            responseType: 'blob'
-          }
-        )
-        
-        const fileName = "files_game.rar"
-        const url = window.URL.createObjectURL(new Blob([response.data]))
-        const link = document.createElement('a')
-        link.href = url
-        link.setAttribute('download', fileName)
-        document.body.appendChild(link)
-        link.click()
-        link.remove()
-        window.URL.revokeObjectURL(url)
-        
-        return true
+        const response = await axios.post(`/v1/order/user-has-game`, {
+          user_id: userId,
+          game_id: gameId,
+          temporary: 0
+        }, {
+          headers: { Authorization: `Bearer ${auth.token}` }
+        })
+        return response.data
       } catch (error: any) {
         this.error = error
         return false
@@ -217,6 +262,11 @@ export const useGames = defineStore('games', {
       }
     },
 
+    async checkOrderStatus(token: string): Promise<boolean> {
+      const paymentStore = usePayment();
+      return await paymentStore.checkOrder(token);
+    },
+    
     async claimFreeGame(gameId: number, auth: { token: string }) {
       this.loading = true
       this.error = undefined
@@ -233,15 +283,6 @@ export const useGames = defineStore('games', {
         this.loading = false
       }
     },
-
-    getTotalCost(cartItems: number[]) {
-      const filteredGames = this.games.filter(game => cartItems.includes(game.game_id))
-      const total = filteredGames.reduce((sum, game) => {
-        const price = typeof game.price === 'object' && game.price !== null ? (game.price as any).USD : 0
-        return sum + (price || 0)
-      }, 0)
-      return Math.round(total)
-    }
   }
 })
 

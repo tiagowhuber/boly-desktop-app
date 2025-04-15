@@ -1,53 +1,61 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
 import { useGames } from '.'
+import type { Achievement } from '@/types';
 
-export const useAchievements = defineStore('achievements', {
-  state: (): AchievementStore => ({
-    inspectedGame: {},
-    achievements: [],
+const useAchievements = defineStore('achievements', {
+  state: () => ({
+    inspectedGame: {} as any, 
+    achievements: [] as Achievement[],
+    userProgress: [] as any[],
     loading: true,
   }),
   actions: {
     async fetchAchievements(gameId: number, auth: { token: string }) {
       this.loading = true
+      console.log(`Fetching achievements for game ID: ${gameId}`)
       try {
-        const { data } = await axios.get(`/api/v1/achievements/game/${gameId}`, {
+        const { data } = await axios.get(`/v1/achievements/game/${gameId}`, {
           headers: {
             Authorization: `Bearer ${auth.token}`,
           },
         })
+        console.log('Fetched achievements data:', data)
         
-        this.achievements = data.achievements
-        this.inspectedGame = data.game
+        this.achievements = data
+        const gamesStore = useGames()
+        this.inspectedGame = gamesStore.games.find(g => g.game_id === gameId) || {}
+        console.log('Inspected game:', this.inspectedGame)
       } catch (error) {
-        console.error(error)
+        console.error('Error fetching achievements:', error)
       } finally {
         this.loading = false
+        console.log('Finished fetching achievements')
       }
     },
 
     async updateAchievements(auth: { token: string }) {
-      if (!this.inspectedGame?.game_id) return
 
       try {
-        const { data, status } = await axios.patch(
-          `/api/v1/achievements/${this.inspectedGame.game_id}/update-data`,
-          {
-            gameId: this.inspectedGame.game_id,
-            achievements: this.achievements,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${auth.token}`,
+        const updatePromises = this.achievements.map(achievement => 
+          axios.patch(
+            `/v1/achievements/${achievement.id}/update-data`,
+            {
+              name: achievement.name,
+              description: achievement.description,
+              game_id: achievement.gameId,
+              icon_url: achievement.icon_url,
+              progress: achievement.progress
             },
-          }
+            {
+              headers: {
+                Authorization: `Bearer ${auth.token}`,
+              },
+            }
+          )
         )
-
-        if (status !== 200) {
-          return { message: 'modal_achievements_error', error: data.message }
-        }
         
+        await Promise.all(updatePromises)
         return { message: 'modal_achievements_updated', error: '' }
       } catch (error) {
         console.error(error)
@@ -55,22 +63,33 @@ export const useAchievements = defineStore('achievements', {
       }
     },
 
-    async fetchUserProgress(gameId: number, auth: { token: string }) {
+    async fetchUserProgress(userId: number, auth: { token: string }) {
       this.loading = true
       try {
-        const { data } = await axios.get(`/api/v1/achievements/user/${gameId}`, {
+        const { data } = await axios.get(`/v1/user_has_achievements/${userId}/progress`, {
           headers: {
             Authorization: `Bearer ${auth.token}`,
           },
         })
-        
-        return data
+        console.log('Fetched user progress data:', data)
+        this.userProgress = Array.isArray(data) ? data : []
+        if (this.achievements.length > 0) {
+          this.achievements = this.achievements.map(achievement => ({
+            ...achievement,
+            current_progress: this.userProgress.find((p: { achievement_id: number, current_progress: number }) => 
+              p.achievement_id === achievement.id
+            )?.current_progress || 0
+          }))
+        }
+        return this.userProgress
       } catch (error) {
-        console.error(error)
-        return undefined
+        console.error('Error fetching user progress:', error)
+        return []
       } finally {
         this.loading = false
       }
     },
   }
 })
+
+export default useAchievements

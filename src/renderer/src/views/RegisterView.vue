@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import AlertModal from '@renderer/components/AlertModal.vue'
-import TermsModal from '@renderer/components/TermsModal.vue'
+import AlertModal from '@/components/AlertModal.vue'
+import TermsModal from '@/components/TermsModal.vue'
 import { router } from '../router/index'
 import { useI18n } from 'vue-i18n'
 import { GoogleLogin } from 'vue3-google-login'
-import { useAuth } from '@renderer/stores'
+import { useAuth } from '@/stores'
 
 interface GoogleLoginResponse {
   credential: string;
@@ -114,53 +114,121 @@ async function handleGoogleLogin(response: GoogleLoginResponse): Promise<void> {
 </script>
 
 <template>
-  <div class="register-container">
-    <div class="fields">
-      <form @submit.prevent="openTerms()">
-        <h1>{{$t('register')}}</h1>
-        <div class="form_group">
-          <input type="email" v-model="email" class="form_field" placeholder="E-mail" />
-          <label for="name" class="form_label">{{$t('email')}}</label>
+  <div class="register-page-wrapper">
+    <img src="@/assets/images/elements/11.png" alt="Decorative element" class="left-side-image" />
+    <div class="register-container">
+      <img src="@/assets/images/elements/9.png" alt="Decorative element" class="register-element-image top-image" />
+      <div class="fields">
+        <form @submit.prevent="openTerms()">
+          <h1 class="register-title">{{$t('register').toUpperCase()}}</h1>
+          <div class="form_group">
+            <input type="email" v-model="email" class="form_field" placeholder="email" />
+            <label for="name" class="form_label">{{$t('email')}}</label>
+          </div>
+          <div class="form_group">
+            <input type="text" v-model="username" class="form_field" placeholder="Username" />
+            <label for="name" class="form_label">{{$t('username')}}</label>
+          </div>
+          <div class="form_group">
+            <input type="password" v-model="password" class="form_field" placeholder="Password" />
+            <label for="name" class="form_label">{{$t('password')}}</label>
+          </div>
+          <div class="form_group">
+            <input type="password" v-model="repassword" class="form_field" placeholder="Repassword" />
+            <label for="name" class="form_label">{{$t('repassword')}}</label>
+          </div>
+          <button class="register_button_text">{{$t('register').toLocaleUpperCase()}}</button>
+          <GoogleLogin :callback="handleGoogleLogin" />
+          <Teleport to="body">
+            <AlertModal :show="showModal" @close="showModal = false">
+              <template #header>
+                <h3>{{$t('error')}}</h3>
+              </template>
+              <template #body>
+                {{ modalWarning }}
+              </template>
+            </AlertModal>
+            <TermsModal :show="showTerms" @close="showTerms = false" @confirm="showTerms = false; submit()">
+              <template #header>
+                <h3>{{$t('terms_of_service')}}</h3>
+              </template>
+            </TermsModal>
+          </Teleport>
+        </form>
+        <div class="login">
+          <p>{{$t('yes_account')}}</p>
+          <RouterLink to="/login" style="color: white; text-decoration: underline;">{{$t('login')}}</RouterLink>
         </div>
-        <div class="form_group">
-          <input type="text" v-model="username" class="form_field" placeholder="Username" />
-          <label for="name" class="form_label">{{$t('username')}}</label>
-        </div>
-        <div class="form_group">
-          <input type="password" v-model="password" class="form_field" placeholder="Password" />
-          <label for="name" class="form_label">{{$t('password')}}</label>
-        </div>
-        <div class="form_group">
-          <input type="password" v-model="repassword" class="form_field" placeholder="Repassword" />
-          <label for="name" class="form_label">{{$t('repassword')}}</label>
-        </div>
-        <button>{{$t('register')}}</button>
-        <GoogleLogin :callback="handleGoogleLogin" />
-        <Teleport to="body">
-          <AlertModal :show="showModal" @close="showModal = false">
-            <template #header>
-              <h3>{{$t('error')}}</h3>
-            </template>
-            <template #body>
-              {{ modalWarning }}
-            </template>
-          </AlertModal>
-          <TermsModal :show="showTerms" @close="showTerms = false" @confirm="showTerms = false; submit()">
-            <template #header>
-              <h3>{{$t('terms_of_service')}}</h3>
-            </template>
-          </TermsModal>
-        </Teleport>
-      </form>
-      <div class="login">
-        <p>{{$t('yes_account')}}</p>
-        <RouterLink to="/login">{{$t('login')}}</RouterLink>
       </div>
+      <img src="@/assets/images/elements/8.png" alt="Decorative element" class="register-element-image bottom-image" />
     </div>
+    <img src="@/assets/images/elements/10.png" alt="Decorative element" class="right-side-image" />
   </div>
 </template>
 
 <style scoped>
+.register-page-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  padding: 0 1rem;
+}
+
+.register-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.register-element-image {
+  margin-top: 20px;
+  width: 40px;
+  height: auto;
+}
+
+.right-side-image {
+  position: relative;
+  width: 40px;
+  height: auto;
+  margin-left: 0.5rem;
+}
+
+.left-side-image {
+  position: relative;
+  width: 40px;
+  height: auto;
+  margin-right: 0.5rem;
+}
+
+/* Media queries for responsive design */
+@media screen and (max-width: 768px) {
+  .register-page-wrapper {
+    flex-direction: column;
+  }
+
+  .right-side-image, .left-side-image {
+    width: 20px;
+    margin: 1rem 0;
+  }
+
+  .register-element-image {
+    width: 20px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .right-side-image, .left-side-image {
+    width: 20px;
+  }
+
+  .register-element-image {
+    width: 20px;
+  }
+}
 
 a{
   color: var(--lightGreen)
@@ -175,6 +243,14 @@ h1{
   font-style: italic;
 }
 
+.register-title{
+  font-size: 3rem;
+  text-align: center;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  transform: rotate(-1.5deg);
+  letter-spacing: 0.2rem;
+}
+
 .register-container {
   display: flex;
   flex-direction: column;
@@ -184,7 +260,6 @@ h1{
 
 .register-container .fields {
   min-width: 300px;
-  background-color: var(--boly-bg-dark-transparent);
   border-radius: 20px;
   padding: 2rem;
 }
@@ -199,7 +274,7 @@ h1{
 .register-container .fields .form_field {
   width: 100%;
   border: none;
-  border-bottom: 2px solid var(--boly-text-inactive-blue);
+  border-bottom: 2px solid white;
   border-radius: 0px;
   outline: 0;
   color: #fff;
@@ -222,14 +297,14 @@ h1{
   top: 0;
   display: block;
   transition: 0.2s;
-  color: var(--boly-text-inactive-blue);
+  color: white;
   pointer-events: none;
 }
 
 .register-container .fields .form_field:focus {
   padding-bottom: 6px;
   border-width: 3px;
-  border-image: linear-gradient(to right, var(--lightGreen), var(--lightGreen));
+  border-image: linear-gradient(to right, white);
   border-image-slice: 1;
 }
 
@@ -238,7 +313,7 @@ h1{
   top: 0;
   display: block;
   transition: 0.2s;
-  color: var(--lightGreen);
+  color: white;
   font-size: small;
 }
 
@@ -259,16 +334,14 @@ h1{
   height: 35px;
   padding: 0 15px;
   margin-top: 1rem;
-  float: right;
-  background-color: var(--lightGreen);
-  color: white;
-  border: none;
-  border-radius: 2px;
+  background-color: var(--boly-button-purple);
+  border-radius: 15px;
+  border: none; 
 }
 
 .register-container form button:hover {
   transition: 0.2s;
-  background-color: var(--lightCyan);
+  background-color: var(--boly-button-purple-hover );
 }
 
 .register-container form :deep(.google-button) {
@@ -286,5 +359,11 @@ h1{
   display: flex;
   align-items: center;
   color: var(--light);
+}
+
+.register_button_text {
+  font-family: 'Anton', sans-serif;
+  font-size: larger;
+  color: white;
 }
 </style>

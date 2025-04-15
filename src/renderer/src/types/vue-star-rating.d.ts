@@ -17,7 +17,7 @@ declare module 'vue-star-rating' {
   export default StarRating
 }
 
-declare module '@renderer/components/games/GameDetails.vue' {
+declare module '@/components/games/GameDetails.vue' {
   import { DefineComponent } from 'vue';
   const component: DefineComponent<{}, {}, any>;
   export default component;

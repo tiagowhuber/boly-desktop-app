@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import { useCart } from '@renderer/stores'
+import { useCart } from '@/stores'
 import TheNavbar from './components/navbar/TheNavbar.vue'
 import TheFooter from './components/footer/TheFooter.vue'
-import Loading from '@renderer/components/LoadingIcon.vue'
+import Loading from '@/components/LoadingIcon.vue'
 import { provide } from 'vue'
-import { useAuth } from '@renderer/stores'
+import { useAuth } from '@/stores'
 import { useI18n } from 'vue-i18n'
-import ModalComponent from '@renderer/components/ModalComponent.vue'
+import ModalComponent from '@/components/ModalComponent.vue'
 
 const i18n = useI18n()
 const auth = useAuth()
@@ -33,9 +33,11 @@ provide('cart', shoppingCart)
       </span>
     </template>
     <template v-else>
-      <TheNavbar />
+      <TheNavbar :color="'blue'" v-if="$route.path == '/'" style="z-index: 100!important;"/>
+      <TheNavbar :color="'pink'" v-else style="z-index: 100!important;"/>
       <RouterView class="view-container" />
-      <TheFooter :small="false" />
+      <TheFooter :small="false" :color="'dark-purple'" v-if="$route.path == '/'"/>
+      <TheFooter :small="false" :color="'blue'" v-else/>
     </template>
     <button class="lang-button" @click="$i18n.locale = $i18n.locale == 'es'? 'en' : 'es'">{{ $i18n.locale.toUpperCase() }}</button>
     <ModalComponent />
@@ -48,6 +50,7 @@ provide('cart', shoppingCart)
   position: fixed;
   bottom: 0;
   left: 0;
+  z-index: 1000; 
 
   margin: 20px;
   width: 100px;
@@ -59,6 +62,7 @@ provide('cart', shoppingCart)
   font-size: large;
   font-weight: bold;
   transition: .1s;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); 
 }
 
 .lang-button:hover{
@@ -81,7 +85,7 @@ provide('cart', shoppingCart)
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  background-image: url('@renderer/assets/images/bgPatternDark.png');
+  background-image: url('@/assets/images/light-blue-background.png');
   justify-content: center;
   align-items: center;
 }

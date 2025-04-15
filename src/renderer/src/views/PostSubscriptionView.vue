@@ -1,14 +1,14 @@
 <script setup>
-import Loading from '@renderer/components/LoadingIcon.vue'
-import SuccessIcon from '@renderer/components/icons/SuccessIcon.vue'
-import FailureIcon from '@renderer/components/icons/FailureIcon.vue'
-import CheckoutGameItem from '@renderer/components/games/CheckoutGameItem.vue'
+import Loading from '@/components/LoadingIcon.vue'
+import SuccessIcon from '@/components/icons/SuccessIcon.vue'
+import FailureIcon from '@/components/icons/FailureIcon.vue'
+import CheckoutGameItem from '@/components/games/CheckoutGameItem.vue'
 import { storeToRefs } from 'pinia'
 import { useRouter,useRoute } from 'vue-router'
 import { inject, onMounted } from 'vue'
 import { ref } from 'vue'
-import { useSubscription } from '../stores/subscription.js'
-import { useAuth } from '../stores'
+import { useSubscription } from '@/stores/subscription'
+import { useAuth } from '@/stores'
 
 const auth = useAuth()
 

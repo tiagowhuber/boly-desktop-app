@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
-import type { Developer, Auth } from '@renderer/types'
+import type { Developer, Auth } from '@/types'
 
 export const useDeveloper = defineStore('developer', {
   state: () => ({

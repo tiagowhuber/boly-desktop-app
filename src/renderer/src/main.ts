@@ -6,7 +6,7 @@ import { createI18n } from 'vue-i18n'
 import App from './App.vue'
 import router from './router'
 import i18n from './i18n'
-import { useAuth } from '@renderer/stores'
+import { useAuth } from '@/stores'
 import vue3GoogleLogin from 'vue3-google-login'
 import axios from 'axios'
 

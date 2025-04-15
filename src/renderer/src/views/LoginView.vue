@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
-import AlertModal from '@renderer/components/AlertModal.vue';
+import AlertModal from '@/components/AlertModal.vue';
 
-import { useAuth } from '@renderer/stores';
+import { useAuth } from '@/stores';
 import { useI18n } from 'vue-i18n';
 import { GoogleLogin } from 'vue3-google-login';
 import { decodeCredential } from 'vue3-google-login';
@@ -53,9 +53,9 @@ async function handleGoogleLogin(response: GoogleResponse): Promise<void> {
 
 <template>
   <div class="login-page-wrapper">
-    <img src="@renderer/assets/images/elements/11.png" alt="Decorative element" class="left-side-image" />
+    <img src="@/assets/images/elements/11.png" alt="Decorative element" class="left-side-image" />
     <div class="login-container">
-      <img src="@renderer/assets/images/elements/9.png" alt="Decorative element" class="login-element-image top-image" />
+      <img src="@/assets/images/elements/9.png" alt="Decorative element" class="login-element-image top-image" />
       <div class="fields">
         <form @submit.prevent="submit()">
           <h1 class="login-title">{{ $t('login').toUpperCase() }}</h1>
@@ -85,9 +85,9 @@ async function handleGoogleLogin(response: GoogleResponse): Promise<void> {
           <RouterLink to="/register" style="color: white; text-decoration: underline;">{{ $t('register') }}</RouterLink>
         </div>
       </div>
-      <img src="@renderer/assets/images/elements/8.png" alt="Decorative element" class="login-element-image bottom-image" />
+      <img src="@/assets/images/elements/8.png" alt="Decorative element" class="login-element-image bottom-image" />
     </div>
-    <img src="@renderer/assets/images/elements/10.png" alt="Decorative element" class="right-side-image" />
+    <img src="@/assets/images/elements/10.png" alt="Decorative element" class="right-side-image" />
   </div>
 </template>
 

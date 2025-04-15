@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import AlertModal from '@renderer/components/AlertModal.vue'
-import ConfirmModal from '@renderer/components/ConfirmModal.vue'
-import RemoveIcon from '@renderer/components/icons/IconRemove.vue'
+import AlertModal from '@/components/AlertModal.vue'
+import ConfirmModal from '@/components/ConfirmModal.vue'
+import RemoveIcon from '@/components/icons/IconRemove.vue'
 import XMarkIcon from '../icons/XMarkIcon.vue'
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useAuth } from '@renderer/stores'
-import type { Game } from '@renderer/types'
+import { useAuth } from '@/stores'
+import type { Game } from '@/types'
 
 // Type guard to check if price object has the locale key
 function hasLocalePrice(price: Record<string, any> | null, locale: string): boolean {
@@ -52,7 +52,6 @@ function getImageUrl(): string {
   if (!props.game.banner_url) {
     return '/assets/images/1.jpg'
   }
-  console.log("cart item url", props.game.banner_url)
   
   return props.game.banner_url
 }
@@ -66,7 +65,7 @@ const userId = computed(() => auth.isLoggedIn ? auth.token : null)
     <img :src="getImageUrl()" @click="GoToGame">
     <div class="details">
       <div>
-        <p>{{ props.game.name[i18n.locale.value] }}</p>
+        <p class="game-title">{{ props.game.name[i18n.locale.value] }}</p>
       </div>
     </div>
     <p class="price text_highlight">
@@ -112,7 +111,6 @@ h3 {
   align-items: center;
   background-color: var(--boly-bg-dark-transparent);
   border-radius: 20px;
-  
 }
 
 .item:hover {
@@ -221,5 +219,52 @@ h3 {
 .remove_button:hover > .icon {
   fill: var(--lightGreen);
   transition: 0.2s;
+}
+
+.game-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--light);
+  text-decoration: none;
+}
+
+/* Responsive styling for mobile phones */
+@media (max-width: 480px) {
+  .item {
+    height: auto;
+    min-height: 80px;
+    padding: 0.5rem 0;
+    flex-wrap: wrap;
+  }
+  
+  .item img {
+    height: 60px;
+    min-width: 100px;
+  }
+  
+  .details {
+    padding: 0.5rem;
+  }
+  
+  .game-title {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .price {
+    padding: 0 0.75rem;
+    font-size: 0.9rem;
+  }
+  
+  .remove_button {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .remove_button > .icon {
+    height: 20px;
+  }
 }
 </style>

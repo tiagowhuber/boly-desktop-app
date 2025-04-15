@@ -30,13 +30,19 @@
   --boly-button-blue-hover: #3682e7;
   --boly-button-purple: #BC3DE4;
   --boly-button-purple-hover: #ec85fc;
+  --boly-button-pink: #ff0099;
+  --boly-button-pink-hover: #ff4dff;
   --boly-button-orange: #FC9904;
   --boly-button-orange-hover: #ffb648;
+  --boly-button-green: #70bc64;
+  --boly-button-green-hover: #8fd381;
+  --boly-button-red: #ff4136;
+  --boly-button-red-hover: #ff6060;
   --boly-highlight: #FC9904;
   --boly-featured-green: #7DCB27;
   --boly-text-inactive-blue: #5374c0;
 
-  --lightCyan: #54EFE8;
+  --lightCyan: #042725;
   --lightGreen: #2aa9f3;
   --bgGreen: #124F4F;
   --bgGreenTransparent: #124F4F30;
@@ -87,7 +93,7 @@ body {
   min-height: 100vh;
   color: var(--light);
   background: var(--boly-bg-blue);
-  background-image: url("@renderer/assets/images/background.png");
+  background-image: url("@/assets/images/background.png");
   background-repeat: repeat-y;
   background-size: cover;
   background-attachment: fixed;

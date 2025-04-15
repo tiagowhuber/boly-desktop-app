@@ -1,13 +1,13 @@
 <script setup>
-import { useAuth, useUser } from '@renderer/stores'
+import { useAuth, useUser } from '@/stores'
 import { useRoute, useRouter } from 'vue-router'
-import EditIcon from '@renderer/components/icons/EditIcon.vue'
-import LocaleSelector from '@renderer/components/forms/LocaleSelector.vue'
-import TrashCanXMarkIcon from '@renderer/components/icons/TrashCanXMarkIcon.vue'
-import TagAbove from '@renderer/components/forms/TagAbove.vue'
-import Loading from '@renderer/components/LoadingIcon.vue'
+import EditIcon from '@/components/icons/EditIcon.vue'
+import LocaleSelector from '@/components/forms/LocaleSelector.vue'
+import TrashCanXMarkIcon from '@/components/icons/TrashCanXMarkIcon.vue'
+import TagAbove from '@/components/forms/TagAbove.vue'
+import Loading from '@/components/LoadingIcon.vue'
 import { onMounted, ref } from 'vue';
-import AlertModal from '@renderer/components/AlertModal.vue'
+import AlertModal from '@/components/AlertModal.vue'
 
 const route = useRoute()
 const router = useRouter()

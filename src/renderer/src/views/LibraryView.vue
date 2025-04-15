@@ -1,16 +1,17 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import LibraryItem from '@renderer/components/games/LibraryItem.vue'
-import Loading from '@renderer/components/LoadingIcon.vue'
+import LibraryItem from '@/components/games/LibraryItem.vue'
+import Loading from '@/components/LoadingIcon.vue'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuth, useUser, useGames } from '../stores'
+import { useAuth, useUser, useGames, useAchievements } from '../stores'
 import axios from 'axios'
-import type { Game } from '@renderer/types'
+import type { Game } from '@/types'
 
 const auth = useAuth()
 const user = useUser()
 const games = useGames()
+const achievementsStore = useAchievements()
 const router = useRouter()
 const isLoading = ref(true)
 const ownedGames = ref<Game[]>([])
@@ -116,7 +117,7 @@ h2 {
   font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   padding: 2px 40px;
   border-radius: 5px;
-  background-color: var(--boly-button-blue);
+  background-color: var(--boly-button-pink);
 }
 
 .list {
@@ -158,7 +159,7 @@ h2 {
   padding: 0.75rem 2rem;
   border: none;
   border-radius: 5px;
-  background-color: var(--boly-button-blue);
+  background-color: var(--boly-button-pink);
   color: white;
   font-family: 'Anton', Impact, sans-serif;
   font-style: italic;

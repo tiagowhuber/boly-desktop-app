@@ -1,27 +1,38 @@
-<script setup>
-import CartItem from '@renderer/components/games/CartItem.vue'
-import ConfirmModal from '@renderer/components/ConfirmModal.vue'
-import RemoveIcon from '@renderer/components/icons/IconRemove.vue'
-import Loading from '@renderer/components/LoadingIcon.vue'
-import TrashCanXMarkIcon from '@renderer/components/icons/TrashCanXMarkIcon.vue'
+<!-- <script setup lang="ts">
+import CartItem from '@/components/games/CartItem.vue'
+import ConfirmModal from '@/components/ConfirmModal.vue'
+import RemoveIcon from '@/components/icons/IconRemove.vue'
+import Loading from '@/components/LoadingIcon.vue'
+import TrashCanXMarkIcon from '@/components/icons/TrashCanXMarkIcon.vue'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
-import { inject, onMounted,watch,computed } from 'vue'
+import { inject, onMounted, watch, computed } from 'vue'
 import { ref } from 'vue'
-import { useGames } from '../stores/games.js'
-import { usePayment } from '../stores/payment.js'
-import { useAuth, useUser } from '@renderer/stores'
+import { useGames } from '../stores'
+import usePayment from '../stores/payment'
+import { useAuth, useUser } from '@/stores'
+import type { Game } from '@/types'
 
-const discountCode = ref('')
-let currentDiscountCode = ""
+interface DiscountCodeResponse {
+  percentage?: number;
+  [key: string]: any;
+}
+
+interface CartStore {
+  cart: number[];
+  clearCart: () => void;
+}
+
+const discountCode = ref<string>('')
+let currentDiscountCode: string = ""
 
 const auth = useAuth()
 const user = useUser()
 const paymentStore = usePayment()
-const { transactionUrl, token,discount,totalPrice } = storeToRefs(paymentStore)
-const showModal = ref(false)
-const shoppingCart = inject('cart')
-const { cart } = storeToRefs(shoppingCart)
+const { transactionUrl, token, discount, totalPrice } = storeToRefs(paymentStore)
+const showModal = ref<boolean>(false)
+const shoppingCart = inject<CartStore>('cart')!
+const cart = computed(() => shoppingCart.cart)
 
 const gamesStore = useGames()
 const { loading, games } = storeToRefs(gamesStore)
@@ -31,51 +42,54 @@ if(!auth.isLoggedIn && !auth.verifying){
   router.back()
 }
 
-async function reqTransaction() {
-  let userId = user.userId
-  isReadyToPay = await paymentStore.reqTransaction(shoppingCart.cart,userId,currentDiscountCode)
+async function reqTransaction(): Promise<void> {
+  const userId = user.userId || 0
+  isReadyToPay = await paymentStore.reqTransaction(shoppingCart.cart, userId, currentDiscountCode)
 }
 
-async function refreshGames() {
-  gamesStore.fetchData()
+async function refreshGames(): Promise<void> {
+  gamesStore.getAll()
 }
 
-let isReadyToPay = false
-let cartCost = 0
-let percentage = 0
-let finalCost = cartCost*(1-0.01*percentage)
-let isCodeValid = false
-let isCodeInvalid = false
+let isReadyToPay: boolean = false
+let cartCost: number = 0
+let percentage: number = 0
+let finalCost: number = cartCost * (1 - 0.01 * percentage)
+let isCodeValid: boolean = false
+let isCodeInvalid: boolean = false
+
 onMounted(() => {
-  if (shoppingCart.cart.length == 0) {
+  if (shoppingCart.cart.length === 0) {
     router.back()
   } else {
     refreshGames()
   }
 })
 
-computed({
-  checkCodeValid(){
-    return this.isCodeValid
-  },
-  checkCodeInvalid(){
-    return this.isCodeInvalid
-  },
+const checkCodeValid = computed(() => {
+  return isCodeValid
 })
 
-watch(()=> isCodeInvalid,(newVal) =>{
+const checkCodeInvalid = computed(() => {
+  return isCodeInvalid
 })
-watch(()=> gamesStore.loading,(newVal) =>{
+
+watch(() => isCodeInvalid, (newVal: boolean) => {
+  // This watcher is empty in the original code
+})
+
+watch(() => gamesStore.loading, (newVal: boolean) => {
   paymentStore.updateDiscount(0)
   const actualPrice = gamesStore.getTotalCost(shoppingCart.cart)
   paymentStore.getTotalCostWithDiscount(actualPrice)
 })
-watch(()=> paymentStore.orderId,(newVal) =>{
+
+watch(() => paymentStore.orderId, (newVal: string | number) => {
+  // This watcher is empty in the original code
 })
 
-
-async function checkDiscountCode(){
-  if(this.discountCode.length==0){
+async function checkDiscountCode(): Promise<void> {
+  if(discountCode.value.length === 0){
     paymentStore.updateDiscount(0)
     const actualPrice = gamesStore.getTotalCost(shoppingCart.cart)
     paymentStore.getTotalCostWithDiscount(actualPrice)
@@ -84,49 +98,48 @@ async function checkDiscountCode(){
     return;
   }
   try {
-    const response = await fetch(import.meta.env.VITE_APP_API_URL+'/api/v1/discount_codes/'+ this.discountCode)
+    const response = await fetch(import.meta.env.VITE_APP_API_URL+'/api/v1/discount_codes/'+ discountCode.value)
     
-    const data = await response.json()
+    const data = await response.json() as DiscountCodeResponse
     
-    percentage = data["percentage"]?data["percentage"]:0
-    isCodeValid = data["percentage"]&&data["percentage"]!=0?true:false
-    isCodeInvalid = data["percentage"]&&data["percentage"]!=0?false:true
+    percentage = data.percentage ? data.percentage : 0
+    isCodeValid = data.percentage && data.percentage !== 0 ? true : false
+    isCodeInvalid = data.percentage && data.percentage !== 0 ? false : true
     paymentStore.updateDiscount(percentage)
     const actualPrice = gamesStore.getTotalCost(shoppingCart.cart)
     paymentStore.getTotalCostWithDiscount(actualPrice)
-    currentDiscountCode = this.discountCode
+    currentDiscountCode = discountCode.value
   } catch (error) {
     paymentStore.updateDiscount(0)
     const actualPrice = gamesStore.getTotalCost(shoppingCart.cart)
     paymentStore.getTotalCostWithDiscount(actualPrice)
   }
-  
 }
 
-function Clear() {
+function Clear(): void {
   shoppingCart.clearCart()
-  this.showModal = false
+  showModal.value = false
   router.back()
 }
-</script>
+</script> -->
 
 <template>
-  <div class="loading_container" v-if="loading">
+  <!-- <div class="loading_container" v-if="loading">
     <Loading />
   </div>
   <div class="section" v-else>
     <div class="list">
       <CartItem
-        v-for="item in games.filter((x) => cart.includes(x._id))"
-        :key="item.id"
-        :item="item"
+        v-for="item in games.filter((x) => cart.includes(x.game_id))"
+        :key="item.game_id"
+        :game="item"
       />
     </div>
-    <p :value=finalCost class="total text_highlight">
+    <p :value="finalCost" class="total text_highlight">
       Total &emsp; CLP$ {{ totalPrice }}
     </p>
     <div>
-      
+
     </div>
       <label v-if="isCodeValid">Code valid</label>
       <label v-if="isCodeInvalid">Code invalid</label>
@@ -137,21 +150,21 @@ function Clear() {
           <label for="name" class="form_label"></label>
         </div>
         <div class="buttons">
-        <!-- <button>Aplicar codigo</button> -->
-        <input type="submit" class="pay_button text" value="Aplicar código" />
+        <button>Aplicar codigo</button> -->
+        <!-- <input type="submit" class="pay_button text" value="Aplicar código" />
       </div>
       </form>
     </div>
     <div class="buttons">
       <input v-if="transactionUrl" type="button" class="pay_button text"  value="Confirmar carrito" disabled/>
       <input v-else type="button" class="pay_button text" @click="reqTransaction" value="Confirmar carrito"/>
-      <form method="post" :action="transactionUrl">
+      <form method="post" :action="transactionUrl || '#'">
         <input type="hidden" name="token_ws" :value="token" />
         <input v-if="transactionUrl" type="submit" class="pay_button  text" value="Ir a pagar" />
         <input v-else type="submit" class="pay_button" value="Ir a pagar" disabled/>
       </form>
-    </div>
-  </div>
+    </div> -->
+  <!-- </div> -->
 </template>
 
 <style scoped>

@@ -1,6 +1,6 @@
 <script setup>
-import TagAbove from '@renderer/components/forms/TagAbove.vue'
-import AlertModal from '@renderer/components/AlertModal.vue'
+import TagAbove from '@/components/forms/TagAbove.vue'
+import AlertModal from '@/components/AlertModal.vue'
 import { onMounted, ref } from 'vue';
 import emailjs from '@emailjs/browser';
 import { useI18n } from 'vue-i18n';
@@ -56,7 +56,7 @@ async function SendEmail() {
     <div class="contact-form-title">
       <h3>{{ $t('contact_lets_talk').toUpperCase() }}</h3>
         <h2>{{ $t('contact_body').toUpperCase() }}</h2>
-        <p>{{ $t('contact_text') }}</p>
+        <p style="font-family: 'Poppins', sans-serif;">{{ $t('contact_text') }}</p>
       </div>
       <div class="form-container">
         <form ref="form" class="mform" @submit.prevent="SendEmail">

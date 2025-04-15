@@ -1,8 +1,8 @@
 <script setup>
-import { useAuth, useUser } from '@renderer/stores'
+import { useAuth, useUser } from '@/stores'
 import { useRouter } from 'vue-router';
 import { onMounted, watch } from 'vue';
-import EditIcon from '@renderer/components/icons/EditIcon.vue'
+import EditIcon from '@/components/icons/EditIcon.vue'
 import axios from 'axios'
 
 const router = useRouter()

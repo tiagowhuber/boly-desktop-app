@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { ref, onMounted, inject, provide, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import GameList from '@renderer/components/games/GameList.vue'
-import GameDetails from '@renderer/components/games/GameDetails.vue'
+import GameList from '@/components/games/GameList.vue'
+import GameDetails from '@/components/games/GameDetails.vue'
 import Loading from '../components/LoadingIcon.vue'
 import { useAuth } from '../stores'
 import { useI18n } from 'vue-i18n'
 import { useGames } from '../stores/'
 import axios from 'axios'
-import type { Game } from '@renderer/types'
+import type { Game } from '@/types'
 
 const i18n = useI18n()
 const auth = useAuth()

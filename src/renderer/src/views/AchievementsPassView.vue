@@ -1,9 +1,9 @@
 <script setup>
-import { useAuth, useUser } from '@renderer/stores'
+import { useAuth, useUser } from '@/stores'
 import { useRouter } from 'vue-router'
-import Loading from '@renderer/components/LoadingIcon.vue'
+import Loading from '@/components/LoadingIcon.vue'
 import { onMounted, ref } from 'vue';
-import AlertModal from '@renderer/components/AlertModal.vue'
+import AlertModal from '@/components/AlertModal.vue'
 
 const router = useRouter()
 const auth = useAuth()

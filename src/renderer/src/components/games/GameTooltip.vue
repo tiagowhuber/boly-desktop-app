@@ -1,8 +1,8 @@
 <script setup>
-import AlertModal from '@renderer/components/AlertModal.vue'
-import ConfirmModal from '@renderer/components/ConfirmModal.vue'
-import BuyIcon from '@renderer/components/icons/IconBuy.vue'
-import OkIcon from '@renderer/components/icons/TickIcon.vue'
+import AlertModal from '@/components/AlertModal.vue'
+import ConfirmModal from '@/components/ConfirmModal.vue'
+import BuyIcon from '@/components/icons/IconBuy.vue'
+import OkIcon from '@/components/icons/TickIcon.vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { inject } from 'vue'

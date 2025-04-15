@@ -99,6 +99,10 @@ a:hover {
   background-color: var(--boly-button-orange);
 }
 
+.btn-pink{
+  background-color: var(--boly-button-pink);
+}
+
 .btn-orange:hover{
   background-color: var(--boly-button-orange-hover);
 }
@@ -126,3 +130,10 @@ a:hover {
 .btn-dark:hover{
   background-color: var(--boly-bg-blue);
 }
+
+/* @media only screen and (max-width: 900px) {
+  .section > * {
+    max-width: 90vw;
+    text-align: center;
+  }
+} */

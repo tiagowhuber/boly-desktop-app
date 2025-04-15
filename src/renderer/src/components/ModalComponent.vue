@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useModal } from '@renderer/stores';
+import { useModal } from '@/stores';
 import { computed } from 'vue';
 
 const modalStore = useModal();

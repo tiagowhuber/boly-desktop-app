@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import Loading from '@renderer/components/LoadingIcon.vue'
-import { useAuth, useGames, useUser} from '@renderer/stores'
-import { computed, inject, onMounted } from 'vue'
+import Loading from '@/components/LoadingIcon.vue'
+import { useAuth, useGames, useUser} from '@/stores'
+import { computed, inject, onMounted, ref, watch, onBeforeUnmount } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n';
-import { ref } from 'vue';
 import 'vue3-carousel/dist/carousel.css'
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
 import { useRouter } from 'vue-router';
@@ -16,6 +15,7 @@ const auth = useAuth()
 const user = useUser()
 const { loading, games } = storeToRefs(gamesStore)
 const featuredGames = ref<any[]>([])
+const isMobile = ref(window.innerWidth <= 768)
 
 const gameDataBaseUrl = import.meta.env.VITE_S3_BASE_URL;
 
@@ -34,16 +34,18 @@ const featuredIds = ref<number[]>([1,2])
 const carouselRef = ref<any>();
 const currentSlide = ref<number>(0);
 
-const settings = {
+// Update carousel settings based on device type
+const settings = computed(() => ({
   itemsToShow: 1,
   snapAlign: 'center',
   wrapAround: true,
-  autoplay: 8000,
+  // autoplay: isMobile.value ? false : 8000,
+  autoplay: isMobile.value ? undefined : 8000, //TODO check this
   pauseAutoplayOnHover: true,
-  transition: 300, 
-  mouseDrag: false,
-  touchDrag: false
-}
+  transition: 300,
+  mouseDrag: isMobile.value,
+  touchDrag: true
+}))
 
 function next() {
   carouselRef.value.next();
@@ -60,6 +62,11 @@ function moveToSlide(i: number){
   carouselRef.value.updateSlidesData()
 }
 
+// Handle window resize
+const handleResize = () => {
+  isMobile.value = window.innerWidth <= 768
+}
+
 onMounted(async () => {
   await refreshGames()
   console.log('Games:', games.value);
@@ -67,6 +74,14 @@ onMounted(async () => {
   const gameMap = new Map(games.value.map((game: any) => [game.game_id, game]));
   featuredGames.value = featuredIds.value.map(id => gameMap.get(id)).filter(game => game !== undefined);
   console.log('Featured Games:', featuredGames.value);
+  
+  // Add resize event listener
+  window.addEventListener('resize', handleResize)
+})
+
+onBeforeUnmount(() => {
+  // Clean up event listener
+  window.removeEventListener('resize', handleResize)
 })
 
 function GoToGame(id: number) {
@@ -80,41 +95,40 @@ function GoToGame(id: number) {
     <Loading />
   </div>
   <div class="section" v-else>
-    <div class="carousel-container">
+    <div class="carousel-container" :class="{ 'mobile-carousel': isMobile }">
       <carousel v-bind="settings" ref="carouselRef" v-model="currentSlide">
         <slide v-for="item in featuredGames" :key="item.game_id">
-          <div class="main" v-if="item != null">
-            <div class="image-wrapper">
+          <div class="main" v-if="item != null" :class="{ 'mobile-main': isMobile }">
+            <div class="image-wrapper" :class="{ 'mobile-image': isMobile }">
               <img 
                 :src="item.banner_url" 
                 @click="GoToGame(item.game_id)"
                 loading="lazy"
               >
             </div>
-            <div class="details">
+            <div class="details" :class="{ 'mobile-details': isMobile }">
               <h3>{{ $t('featured').toUpperCase() }}</h3>
               <h2>{{ item.name[i18n.locale.value].toUpperCase() }}</h2>
               <p class="dev"> {{ $t('developer') }}</p>
-              <p class="desc">{{item.description[i18n.locale.value]}}</p>
+              <p class="desc" :class="{ 'mobile-desc': isMobile }">{{item.description[i18n.locale.value]}}</p>
               
-              <div>
-                <button class="btn-orange" @click="GoToGame(item.game_id)"> {{ $t('see_more').toUpperCase() }}</button>
+              <div :class="{ 'mobile-buttons': isMobile }">
+                <button class="btn-pink" @click="GoToGame(item.game_id)" :class="{ 'mobile-see-more': isMobile }"> {{ $t('see_more').toUpperCase() }}</button>
                 <template v-if="user.userId && !gamesStore.ownsGame(item.game_id, user.userId)">
                   <button class="btn-blue" v-if="shoppingCart.cart.includes(item.game_id)" @click="shoppingCart.removeGameFromCart({ game_id: item.game_id })">{{ $t('remove_from_cart_nq').toUpperCase() }}</button>
                   <button class="btn-purple" v-else @click="AddToCart(item)">{{ $t('add_to_cart').toUpperCase() }}</button>
                 </template>
-
               </div>
             </div>
           </div>
         </slide>
 
         <template #addons>
-          <navigation />
+          <navigation v-if="!isMobile" />
         </template>
       </carousel>
     </div>
-    <div class="nav-counter">
+    <div class="nav-counter" :class="{ 'mobile-nav-counter': isMobile }">
       <span 
         v-for="i in featuredGames.length" 
         :key="i" 
@@ -138,12 +152,25 @@ function GoToGame(id: number) {
   width: 100%;
 }
 
+.mobile-carousel {
+  margin: 0 auto;
+  max-width: 100%;
+  border-radius: 10px;
+}
+
 .image-wrapper {
   position: relative;
   width: 500px;
   height: 300px;
   overflow: hidden;
   border-radius: 15px;
+}
+
+.mobile-image {
+  width: 100%;
+  height: auto;
+  max-height: 200px;
+  border-radius: 8px;
 }
 
 .main img {
@@ -169,6 +196,12 @@ function GoToGame(id: number) {
   align-items: center;
 }
 
+.mobile-nav-counter {
+  height: 40px;
+  gap: 0.4rem;
+  font-size: 150%;
+}
+
 .nav-dot {
   transition: transform 0.2s ease, color 0.2s ease;
   user-select: none;
@@ -190,6 +223,12 @@ function GoToGame(id: number) {
   gap: 3rem;
 }
 
+.mobile-main {
+  flex-direction: column;
+  padding: 15px;
+  gap: 1rem;
+}
+
 .details{
   text-align: left;
   display: flex;
@@ -197,9 +236,18 @@ function GoToGame(id: number) {
   justify-content: center;
 }
 
+.mobile-details {
+  padding: 0 10px;
+}
+
 .details h2{
   font-family: "Anton", serif;
   font-style: italic;
+}
+
+.mobile-details h2 {
+  font-size: 1.5rem;
+  margin: 5px 0;
 }
 
 .details h3{
@@ -209,13 +257,30 @@ function GoToGame(id: number) {
   font-style: italic;
 }
 
+.mobile-details h3 {
+  font-size: 1rem;
+}
+
 .details .dev{
   color: rgba(179, 184, 212, 0.527);
   padding: 10px 0px;
 }
 
+.mobile-details .dev {
+  padding: 5px 0;
+  font-size: 0.9rem;
+}
+
 .details .desc{
   min-height: 100px;
+}
+
+.mobile-desc {
+  min-height: 50px;
+  max-height: 80px;
+  overflow-y: auto;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
 }
 
 button {
@@ -234,6 +299,43 @@ button {
 .details > div{
   display: flex;
   gap: 1rem;
+}
+
+.mobile-buttons {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.mobile-buttons button {
+  padding: 5px 10px;
+  margin-top: 5px;
+  font-size: medium;
+}
+
+.mobile-buttons .mobile-see-more {
+  width: 30%;
+  font-size: 0.9rem;
+  align-self: flex-start;
+}
+
+.mobile-buttons template {
+  flex: 1;
+  width: 100%;
+}
+
+.mobile-buttons {
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mobile-buttons button {
+  width: 100%;
+  padding: 5px 0;
+  margin-top: 5px;
+  font-size: medium;
 }
 </style>
 
@@ -261,9 +363,6 @@ button {
 .carousel-container .carousel__icon:hover {
   transform: scale(1.2);
 }
-</style>
-
-<style>
 
 .carousel-container .carousel__icon{
   fill: white;
@@ -273,5 +372,19 @@ button {
 .carousel-container .carousel__icon:hover{
   transition: .2s;
   scale: 1.5;
+}
+
+@media (max-width: 768px) {
+  .carousel__slide {
+    touch-action: pan-y;
+  }
+  
+  .carousel-container .carousel__pagination {
+    margin-top: 10px;
+  }
+  
+  .carousel-container .carousel__pagination-button {
+    padding: 5px;
+  }
 }
 </style>

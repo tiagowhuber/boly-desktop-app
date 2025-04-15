@@ -2,22 +2,23 @@
 import { ref, onMounted, inject, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import StarRating from 'vue-star-rating'
-import WindowsIcon from '@renderer/components/icons/WindowsIcon.vue'
-import LinuxIcon from '@renderer/components/icons/LinuxIcon.vue'
-import AppleIcon from '@renderer/components/icons/AppleIcon.vue'
-import CheckIcon from '@renderer/components/icons/CheckIcon.vue'
-import XMarkIcon from '@renderer/components/icons/XMarkIcon.vue'
-import NextIcon from '@renderer/components/icons/ChevronRight.vue'
+import WindowsIcon from '@/components/icons/WindowsIcon.vue'
+import LinuxIcon from '@/components/icons/LinuxIcon.vue'
+import AppleIcon from '@/components/icons/AppleIcon.vue'
+import CheckIcon from '@/components/icons/CheckIcon.vue'
+import XMarkIcon from '@/components/icons/XMarkIcon.vue'
+import NextIcon from '@/components/icons/ChevronRight.vue'
 import DownloadIcon from '../icons/DownloadIcon.vue'
 import PlayIcon from '../icons/PlayIcon.vue'
 import StarIcon from '../icons/SolidStarIcon.vue'
 import HeartIcon from '../icons/HeartIcon.vue'
+import CustomGameMediaGallery from './CustomGameMediaGallery.vue'
 import 'vue3-carousel/dist/carousel.css'
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
-import { useAuth, useUser, useGames, useCart, useDeveloper } from '@renderer/stores'
-import useWishlist from '@renderer/stores/wishlist'
+import { useAuth, useUser, useGames, useCart, useDeveloper } from '@/stores'
+import useWishlist from '@/stores/wishlist'
 import { useI18n } from 'vue-i18n'
-import type { Game } from '@renderer/types'
+import type { Game } from '@/types'
 
 // Declare vue-star-rating in types/globals.d.ts instead
 declare global {
@@ -58,6 +59,7 @@ const currentSlide = ref(0);
 const loading = ref(false);
 const developer = ref<any>(null);
 const developerStore = useDeveloper();
+const isMobile = ref(window.innerWidth <= 768);
 
 const slideTo = (val: string | number) => {
   currentSlide.value = typeof val === 'string' ? parseInt(val, 10) : val;
@@ -93,10 +95,10 @@ async function Play(): Promise<void> {
 }
 
 async function Download(): Promise<void> {
-  const success = await games.downloadGame(props.item.game_id, auth);
-  if (!success) {
-    alert("download failed");
-  }
+  // const success = await games.downloadGame(props.item.game_id, auth);
+  // if (!success) {
+  //   alert("download failed");
+  // }
 }
 
 function goToGames(): void {
@@ -209,6 +211,10 @@ onMounted(async () => {
       }
     }
   }
+  
+  window.addEventListener('resize', () => {
+    isMobile.value = window.innerWidth <= 768;
+  });
 });
 
 watch(
@@ -236,7 +242,113 @@ watch(
 </script>
 
 <template>
-  <div class="section" v-if="props.item">
+  <div v-if="isMobile">
+    <!-- Mobile Layout -->
+    <div class="mobile-container" v-if="props.item">
+      <div class="mobile-header">
+        <h1>{{ ((props.item?.name as Record<string, string>)?.[i18n.locale.value] || (props.item?.name as Record<string, string>)?.['en'] || '') }}</h1>
+        <p class="dev">{{ $t('developer') }}: {{ developer?.name || 'Unknown Developer' }}</p>
+        <star-rating 
+          :rating="4.67" 
+          :round-start-rating="false" 
+          :read-only="true" 
+          :show-rating="false" 
+          :increment="0.01"
+          :border-width="0" 
+          :star-size="20"
+          :active-color="'#FDBE11'"
+          :inactive-color="'#7F7F7F7F'"
+        />
+      </div>
+      
+      <!-- Mobile Media Gallery -->
+      <div class="mobile-gallery" v-if="props.item?.game_id">
+        <CustomGameMediaGallery 
+          :gameId="Number(props.item.game_id)" 
+          :showSectionTitles="false"
+        />
+      </div>
+      
+      <!-- Mobile Price and Actions -->
+      <div class="mobile-price-section">
+        <div class="mobile-price">
+          <p v-if="ownsCurrentGame">{{ $t('already_owned')}}</p>
+          <p v-else-if="(props.item.price as Record<string, number>)?.[i18n.locale.value] > 0">
+            {{ currency === 'USD' ? 'USD' : 'CLP' }} {{ Intl.NumberFormat(i18n.locale.value === 'en' ? 'en-US' : 'es-CL', { style: 'currency', currency: currency, currencyDisplay: 'symbol' }).format((props.item.price as Record<string, number>)[i18n.locale.value]) }}
+          </p>
+          <p v-else>{{$t('claim_for_free')}}</p>
+        </div>
+        
+        <div class="mobile-buttons">
+          <div v-if="ownsCurrentGame">
+            <button v-if="props.item.game_type_id === 2" class="btn-purple" type="button" @click="Play()">
+              {{ $t('play').toUpperCase() }} <PlayIcon/>
+            </button>
+            <button v-else class="btn-purple" type="button" @click="Download()">
+              {{ $t('download').toUpperCase() }} <DownloadIcon/>
+            </button> 
+            <button class="btn-blue" type="button" @click="GoToAchievements()">
+              {{ $t('see_achievements').toUpperCase() }} <StarIcon/>
+            </button>
+          </div>
+          <div v-else>
+            <button 
+              class="btn-blue" 
+              v-if="cart.cart.includes(props.item.game_id)" 
+              @click="router.push('/cart')"
+            >
+              {{ $t('view_in_cart').toUpperCase() }}
+            </button>
+            <button class="btn-purple" v-else @click="AddToCart(props.item)">{{ $t('add_to_cart').toUpperCase() }}</button>
+            
+            <button 
+              :class="['btn-wishlist', isInWishlist ? 'in-wishlist' : '']" 
+              @click="toggleWishlist()"
+            >
+              {{ isInWishlist ? $t('remove from wishlist').toUpperCase() : $t('add to wishlist').toUpperCase() }}
+              <HeartIcon :class="{ 'filled': isInWishlist }" />
+            </button>
+          </div>
+          <button class="btn-dark" @click="goToGames()">{{ $t('continue_shopping').toUpperCase() }}</button>
+        </div>
+      </div>
+      
+      <!-- Mobile Game Info -->
+      <div class="mobile-info">
+        <div class="mobile-info-tab">
+          <p>{{$t('general_info').toUpperCase()}}</p>
+        </div>
+        
+        <div class="mobile-dev-details">
+          <table>
+            <tr>
+              <td>{{ $t('developer') }}</td>
+              <td>{{ developer?.name || 'Unknown Developer' }}</td>
+            </tr>
+            <tr>
+              <td>{{ $t('release_date') }}</td>
+              <td>{{ props.item.release_date ? new Date(props.item.release_date).toLocaleDateString() : 'Unknown' }}</td>
+            </tr>
+            <tr>
+              <td>{{ $t('game_platforms') }}</td>
+              <td class="icon-row">
+                <WindowsIcon class="icon" />
+                <LinuxIcon class="icon" />
+                <AppleIcon class="icon" />
+              </td>
+            </tr>
+          </table>
+        </div>
+        
+        <div class="mobile-description">
+          <p>{{ (props.item.description as Record<string, string>)?.[i18n.locale.value] || (props.item.description as Record<string, string>)?.['en'] || '' }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div v-else class="section" v-if="props.item">
+    <!-- Desktop Layout -->
     <div class="details">
       {{ console.log('GameDetails: Rendering template with game:', props.item.game_id) }}
       <h1>{{ ((props.item?.name as Record<string, string>)?.[i18n.locale.value] || (props.item?.name as Record<string, string>)?.['en'] || '') }}</h1>
@@ -260,25 +372,12 @@ watch(
       </div>
 
       <div class="main-container">
-        <div class="images" v-if="game_images != null">
-          <Carousel id="gallery" class="viewport" v-bind="galleryConfig" ref="carouselRef" v-model="currentSlide">
-            <Slide v-for="(img, index) in game_images" :key="index">
-              <img :src="img.url" v-if="!img.is_video">
-              <video id="video_player" controls v-else>
-                <source :src="img.url" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-            </Slide>
-          </Carousel>
-          <div class="thumbnails">
-            <div v-for="(img, index) in game_images" :key="index" @click="slideTo(img.id)">
-              <img :src="img.url" v-if="!img.is_video">
-              <video id="video_player" v-else>
-                <source :src="img.url" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-            </div>
-          </div>
+        <!-- Replace carousel with GameMediaGallery component -->
+        <div class="images" v-if="props.item?.game_id">
+          <CustomGameMediaGallery 
+            :gameId="Number(props.item.game_id)" 
+            :showSectionTitles="false"
+          />
         </div>
         <div class="dev-details">
           <div class="developer">
@@ -331,9 +430,9 @@ watch(
               <button 
                 class="btn-blue" 
                 v-if="cart.cart.includes(props.item.game_id)" 
-                @click="cart.removeGameFromCart({ game_id: props.item.game_id })"
+                @click="router.push('/cart')"
               >
-                {{ $t('remove_from_cart').toUpperCase() }}
+                {{ $t('view_in_cart').toUpperCase() }}
               </button>
               <button class="btn-purple" v-else @click="AddToCart(props.item)">{{ $t('add_to_cart').toUpperCase() }}</button>
               
@@ -361,10 +460,28 @@ watch(
 .vue-star-rating{
   gap: .35rem;
 }
+
+::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
 </style>
 
 <style scoped>
-
+/* Desktop Styles */
 .details{
   text-align: left;
   display: flex;
@@ -405,6 +522,7 @@ watch(
 }
 
 .desc{
+  font-family: 'Poppins', sans-serif;
   width: 100%;
   margin-top: 20px;
 }
@@ -432,7 +550,6 @@ watch(
 .viewport img, .viewport video{
   border-radius: 20px;
   width: 100%;
-  
 }
 
 .thumbnails{
@@ -447,7 +564,6 @@ watch(
   border-radius: 10px;
   max-height: 135px;
   cursor: pointer;
-  
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
 }
 
@@ -565,5 +681,147 @@ button svg{
 
 .btn-wishlist svg.filled {
   fill: red;
+}
+
+/* Mobile Styles */
+.mobile-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+.mobile-header {
+  text-align: center;
+  padding: 0.5rem;
+}
+
+.mobile-header h1 {
+  font-family: "Anton", serif;
+  font-style: italic;
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.mobile-header p.dev {
+  color: rgba(179, 184, 212, 0.527);
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.mobile-gallery {
+  width: 100%;
+  margin-bottom: 0.75rem;
+}
+
+.mobile-viewport {
+  width: 100%;
+  border-radius: 15px;
+  filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.5));
+  margin-bottom: 8px;
+}
+
+.mobile-viewport img, .mobile-viewport video {
+  border-radius: 15px;
+  width: 100%;
+  height: auto;
+}
+
+.mobile-thumbnails {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  gap: 8px;
+  justify-content: center;
+}
+
+.mobile-thumbnails img, .mobile-thumbnails video {
+  border-radius: 8px;
+  width: 100%;
+  max-height: 60px;
+  cursor: pointer;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+  object-fit: cover;
+}
+
+.mobile-thumbnails > div {
+  flex: 1;
+  max-width: 33.333%;
+  overflow: hidden;
+}
+
+.mobile-price-section {
+  background-color: var(--boly-bg-dark-transparent);
+  border-radius: 15px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.mobile-price {
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.mobile-price p {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.mobile-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mobile-buttons button {
+  padding: 8px;
+  font-size: 1rem;
+  margin-top: 5px;
+}
+
+.mobile-info {
+  background-color: var(--boly-bg-blue-transparent);
+  border-radius: 15px;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+
+.mobile-info-tab {
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.mobile-info-tab p {
+  font-family: "Anton", serif;
+  margin: 0;
+}
+
+.mobile-dev-details {
+  padding: 0.75rem;
+}
+
+.mobile-dev-details table {
+  width: 100%;
+}
+
+.mobile-dev-details tr {
+  height: 30px;
+}
+
+.mobile-dev-details td:first-child {
+  font-weight: bold;
+  width: 40%;
+}
+
+.mobile-description {
+  padding: 0.75rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
 }
 </style>

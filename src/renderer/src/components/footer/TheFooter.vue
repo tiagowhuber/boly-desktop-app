@@ -1,17 +1,29 @@
 <script setup>
-import { useAuth } from '@renderer/stores'
-import BoliLogo from '../icons/BoliLogo.vue';
-import { RouterLink } from 'vue-router';
+import { useAuth } from '@/stores'
+import BoliLogo from '../icons/BoliLogoFooter.vue';
+import { RouterLink, useRoute } from 'vue-router';
+import { computed } from 'vue';
 
-const props = defineProps(['small']);
-
+// const props = defineProps(['small']);
+const route = useRoute();
 const auth = useAuth()
+
+const props = defineProps({
+  color: String,
+  small: Boolean
+})
+
+// Check if current route is login page or Register page
+const isRegisterPage = computed(() => route.path === '/register');
+const isLoginPage = computed(() => route.path === '/login');
 </script>
 
 <template>
-  <footer :style="'height: ' + (props.small ? 200 : 450) + 'px;'">
+  <footer :style="'height: ' + (props.small ? 200 : 450) + 'px;'" :class="[props.color,{ 'login-register-footer': isLoginPage || isRegisterPage }]" >
     <div class="footer-container">
-      <BoliLogo class="icon-logo" :style="'height: ' + (props.small ? 75 : 110) + 'px;'" />
+      <RouterLink to="/">
+        <BoliLogo class="icon-logo" :style="'height: ' + (props.small ? 75 : 110) + 'px;'" />
+      </RouterLink>
       <div class="disclaimer" v-if="!props.small">
         <br>
         <p>{{ $t('copyright_disclaimer') }}
@@ -41,6 +53,7 @@ const auth = useAuth()
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  margin-top: 100px;
 }
 
 .disclaimer p {
@@ -55,14 +68,44 @@ const auth = useAuth()
   margin-right: 50px;
 }
 
+@media (max-width: 768px) {
+  .icon-logo {
+    margin-right: 0px;
+    margin-top: 60px;
+    height: 60px !important;
+  }
+
+  .footer-container {
+    margin-top: 50px;
+  }
+}
+
 footer {
   display: flex;
   font-size: 1rem;
-
   width: 100%;
+  background-color: #48ace4;
+  position: relative;
+  z-index: 1;
+  margin-top: 150px;
+  clip-path: polygon(0 30%, 100% 0, 100% 100%, 0 100%);
+}
 
-  border-top: 5px solid var(--boly-button-blue);
-  background-color: var(--boly-bg-dark);
+/* Special styling for login page footer */
+.login-register-footer {
+  background-color: #3b337b;
+}
+
+.blue{
+    background-color: #48ace4;
+}
+
+.pink{
+  background-color: var(--boly-button-pink);
+}
+
+.dark-purple{
+  background: rgb(59,51,123);
 }
 
 a {

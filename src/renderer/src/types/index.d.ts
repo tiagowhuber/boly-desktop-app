@@ -4,6 +4,8 @@ export interface LocalizedString {
   [key: string]: string;
 }
 
+
+
 export interface User {
     userId?: number;
     email: string;

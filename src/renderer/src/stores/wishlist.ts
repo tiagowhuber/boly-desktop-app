@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
 import { useAuth, useUser} from '.';
-import type { WishlistItem } from '@renderer/types';
+import type { WishlistItem } from '@/types';
 
 
 const useWishlist = defineStore('wishlist', {

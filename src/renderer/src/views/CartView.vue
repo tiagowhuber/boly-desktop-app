@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import CartItem from '@renderer/components/games/CartItem.vue'
-import ConfirmModal from '@renderer/components/ConfirmModal.vue'
-import LoadingModal from '@renderer/components/LoadingModal.vue'
-import RemoveIcon from '@renderer/components/icons/IconRemove.vue'
-import Loading from '@renderer/components/LoadingIcon.vue'
-import TrashCanXMarkIcon from '@renderer/components/icons/TrashCanXMarkIcon.vue'
+import CartItem from '@/components/games/CartItem.vue'
+import ConfirmModal from '@/components/ConfirmModal.vue'
+import LoadingModal from '@/components/LoadingModal.vue'
+import RemoveIcon from '@/components/icons/IconRemove.vue'
+import Loading from '@/components/LoadingIcon.vue'
+import TrashCanXMarkIcon from '@/components/icons/TrashCanXMarkIcon.vue'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
-import { inject, onMounted, watch, computed, ref } from 'vue'
-import { useAuth, useGames, useCart, usePayment, useUser } from '@renderer/stores'
+import { inject, onMounted, watch, computed, ref, onUnmounted } from 'vue'
+import { useAuth, useGames, useCart, usePayment, useUser } from '@/stores'
 import { useI18n } from 'vue-i18n'
-import type { Game } from '@renderer/types'
+import type { Game } from '@/types'
 
 const auth = useAuth()
 const user = useUser()
@@ -18,6 +18,20 @@ const router = useRouter()
 const showModal = ref<boolean>(false)
 const discountCode = ref<string>('')
 const errorMessage = ref<string>('')
+const isMobile = ref(window.innerWidth < 768)
+
+// Update isMobile when window is resized
+const handleResize = () => {
+  isMobile.value = window.innerWidth < 768
+}
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
 
 const paymentStore = usePayment()
 const { transactionUrl, token, discount, totalPrice, isCodeValid, isCodeInvalid, loading: paymentLoading, error: paymentError } = storeToRefs(paymentStore)
@@ -76,10 +90,19 @@ async function reqTransaction(): Promise<void> {
 
   errorMessage.value = ''
   const url = window.location.origin + "/postorder/"
-  
-  try {
+    try {
+    console.log('subtotal', subtotal.value);
     showRedirectModal.value = true
-    const success = await paymentStore.reqTransaction(cart.value, user.userId ?? 0, discountCode.value, url)
+    console.log('subtotal', subtotal.value);
+    console.log('currency', currency.value);
+    const success = await paymentStore.reqTransaction(
+      cart.value,
+      user.userId ?? 0,
+      discountCode.value,
+      url,
+      subtotal.value,
+      currency.value 
+    )
     
     if (!success) {
       errorMessage.value = paymentError.value || 'Failed to process payment'
@@ -150,7 +173,7 @@ watch(() => cart.value, async () => {
   <div class="cart-container" v-else>
     <h1 class="page-title">{{ $t('shopping_cart') }}</h1>
     
-    <div v-if="cartGames.length > 0" class="cart-content">
+    <div v-if="cartGames.length > 0" class="cart-content" :class="{ 'mobile': isMobile }">
       <div class="cart-items">
         <CartItem 
           v-for="game in cartGames" 
@@ -272,6 +295,10 @@ watch(() => cart.value, async () => {
   margin-top: 2rem;
 }
 
+.cart-content.mobile {
+  grid-template-columns: 1fr;
+}
+
 .cart-items {
   background: var(--boly-bg-dark-transparent);
   border-radius: 8px;
@@ -301,7 +328,7 @@ watch(() => cart.value, async () => {
 }
 
 .cart-summary h2 {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 600;
   font-size: 1.5rem;
   margin-bottom: 1.25rem;
@@ -333,12 +360,13 @@ watch(() => cart.value, async () => {
 }
 
 .apply-button {
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.5rem;
   border-radius: 4px;
   border: none;
-  background: var(--boly-button-blue);
+  background: var(--boly-button-pink);
   color: white;
   cursor: pointer;
+  font-family: 'Poppins', sans-serif;
 }
 
 .error-text {
@@ -375,6 +403,10 @@ watch(() => cart.value, async () => {
   margin-bottom: 0.5rem;
 }
 
+.summary-row span {
+  font-family: 'Poppins', sans-serif;
+}
+
 .summary-row.total {
   margin-top: 1rem;
   padding-top: 1rem;
@@ -399,9 +431,9 @@ watch(() => cart.value, async () => {
   padding: 1.1rem;
   border-radius: 6px;
   border: none;
-  background: var(--boly-button-purple);
+  background: var(--boly-button-green);
   color: white;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 600;
   font-size: 1.1rem;
   cursor: pointer;
@@ -412,7 +444,7 @@ watch(() => cart.value, async () => {
 }
 
 .checkout-button:hover {
-  background-color: var(--boly-button-purple, #5e35b1);
+  background-color: var(--boly-button-green-hover);
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
@@ -437,10 +469,10 @@ watch(() => cart.value, async () => {
   border: none;
   background: var(--error, #f44336);
   color: white;
-  font-family: 'Montserrat', sans-serif;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+  font-family: 'Poppins', sans-serif;
 }
 
 .clear-cart:hover {
@@ -514,6 +546,55 @@ watch(() => cart.value, async () => {
   .cart-item img {
     width: 100px;
     height: 56px;
+  }
+}
+
+/* Additional phone-specific adjustments */
+@media (max-width: 480px) {
+  .cart-container {
+    padding: 1rem;
+  }
+  
+  .page-title {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+  }
+  
+  .cart-items {
+    padding: 0.75rem;
+  }
+  
+  .cart-summary {
+    padding: 1.25rem;
+  }
+  
+  .discount-form {
+    flex-direction: row;
+    align-items: center;
+  }
+  
+  .discount-input {
+    flex: 1;
+  }
+  
+  .apply-button {
+    width: auto;
+    padding: 0.5rem 0.75rem;
+    white-space: nowrap;
+  }
+  
+  .checkout-button {
+    padding: 0.85rem;
+    font-size: 1rem;
+  }
+  
+  .clear-cart {
+    padding: 0.7rem;
+    font-size: 0.9rem;
+  }
+  
+  .summary-row.total {
+    font-size: 1rem;
   }
 }
 </style>

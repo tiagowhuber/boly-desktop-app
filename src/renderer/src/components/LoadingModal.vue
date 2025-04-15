@@ -1,5 +1,5 @@
 <script setup>
-import Loading from '@renderer/components/LoadingIcon.vue'
+import Loading from '@/components/LoadingIcon.vue'
 const props = defineProps(['show'])
 </script>
 

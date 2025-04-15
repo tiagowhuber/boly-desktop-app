@@ -1,15 +1,15 @@
-<script setup lang="ts">
-import Loading from '@renderer/components/LoadingIcon.vue'
-import PlusIcon from '@renderer/components/icons/PlusIcon.vue'
-import TagAbove from '@renderer/components/forms/TagAbove.vue'
-import XMarkIcon from '@renderer/components/icons/XMarkIcon.vue'
-import DeveloperGameItem from '@renderer/components/games/DeveloperGameItem.vue'
+<!-- <script setup lang="ts">
+import Loading from '@/components/LoadingIcon.vue'
+import PlusIcon from '@/components/icons/PlusIcon.vue'
+import TagAbove from '@/components/forms/TagAbove.vue'
+import XMarkIcon from '@/components/icons/XMarkIcon.vue'
+import DeveloperGameItem from '@/components/games/DeveloperGameItem.vue'
 import { useRouter } from 'vue-router'
 import { ref, computed } from 'vue'
-import { useAuth, useUser } from '@renderer/stores'
-import { useGames } from '@renderer/stores/games'
+import { useAuth, useUser } from '@/stores'
+import { useGames } from '@/stores'
 import { storeToRefs } from 'pinia'
-import type { Game, User, Auth } from '@renderer/types'
+import type { Game, User, Auth } from '@/types'
 
 const router = useRouter()
 const auth = useAuth()
@@ -187,4 +187,6 @@ h2 {
   font-size: 0.9em;
   margin-top: 5px;
 }
-</style>
+</style> -->
+<template>
+</template>

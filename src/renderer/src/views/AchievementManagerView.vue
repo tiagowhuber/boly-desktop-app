@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import EditableGrid from '@renderer/components/forms/EditableAchievementsGrid.vue'
-import LocaleSelector from '@renderer/components/forms/LocaleSelector.vue'
-import AlertModal from '@renderer/components/AlertModal.vue'
-import ConfirmModal from '@renderer/components/ConfirmModal.vue'
-import Loading from '@renderer/components/LoadingIcon.vue'
+import EditableGrid from '@/components/forms/EditableAchievementsGrid.vue'
+import LocaleSelector from '@/components/forms/LocaleSelector.vue'
+import AlertModal from '@/components/AlertModal.vue'
+import ConfirmModal from '@/components/ConfirmModal.vue'
+import Loading from '@/components/LoadingIcon.vue'
 import { onMounted, ref } from 'vue'
-import { useAuth } from '@renderer/stores'
-import { useAchievements } from '@renderer/stores/achievements'
+import { useAuth } from '@/stores'
+import { useAchievements } from '@/stores'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import type { Achievement } from '@renderer/types'
-import type { User } from '@renderer/types'
-import useUser from '@renderer/stores/user'
+import type { Achievement } from '@/types'
+import type { User } from '@/types'
+import useUser from '@/stores/user'
 
 const i18n = useI18n()
 const selectedLocale = ref('en')

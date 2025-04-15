@@ -6,7 +6,7 @@
 <style scoped>
     .cls-1{fill:#291a31;}
     .cls-1,.cls-2,.cls-3,.cls-4{stroke-width:0px;}
-    .cls-2{fill:#087eb2;}
-    .cls-3{fill:#104f6b;}
+    .cls-2{fill:#ff66cc;}
+    .cls-3{fill:#a01872;}
     .cls-4{fill:#fff;}
 </style>

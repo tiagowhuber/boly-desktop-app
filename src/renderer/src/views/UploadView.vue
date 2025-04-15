@@ -1,7 +1,7 @@
 <script setup>
-import PlusIcon from '@renderer/components/icons/PlusIcon.vue'
-import TagAbove from '@renderer/components/forms/TagAbove.vue'
-import XMarkIcon from '@renderer/components/icons/XMarkIcon.vue'
+import PlusIcon from '@/components/icons/PlusIcon.vue'
+import TagAbove from '@/components/forms/TagAbove.vue'
+import XMarkIcon from '@/components/icons/XMarkIcon.vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth, useUser } from '../stores'

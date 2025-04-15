@@ -1,11 +1,12 @@
-<script>
+<template></template>
+<!-- <script>
 import { onMounted,watch,ref } from 'vue';
 import UnityWebgl from 'unity-webgl';
 import UnityVue from 'unity-webgl/vue';
 import { useRoute } from 'vue-router'
-import { useGames } from '@renderer/stores/games.ts'
+import { useGames } from '@/stores/games.ts'
 import { storeToRefs } from 'pinia'
-import { useAuth } from '@renderer/stores'
+import { useAuth } from '@/stores'
 
 
 
@@ -107,4 +108,4 @@ return{
 .buy-button:hover{
   background-color: var(--lightCyan);
 }
-</style>
+</style> -->

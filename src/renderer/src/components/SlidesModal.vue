@@ -1,7 +1,7 @@
 <script setup>
-import ChevronLeft from '@renderer/components/icons/ChevronLeft.vue'
-import ChevronRight from '@renderer/components/icons/ChevronRight.vue'
-import XMarkIcon from '@renderer/components/icons/XMarkIcon.vue'
+import ChevronLeft from '@/components/icons/ChevronLeft.vue'
+import ChevronRight from '@/components/icons/ChevronRight.vue'
+import XMarkIcon from '@/components/icons/XMarkIcon.vue'
 import { inject } from 'vue'
 
 const props = defineProps(['show', 'images'])

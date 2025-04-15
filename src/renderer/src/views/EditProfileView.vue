@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { useAuth, useUser } from '@renderer/stores'
+import { useAuth, useUser } from '@/stores'
 import { useRouter } from 'vue-router'
-import TagAbove from '@renderer/components/forms/TagAbove.vue'
-import { onMounted, ref } from 'vue';
-import AlertModal from '@renderer/components/AlertModal.vue'
-import SimpleLoadingIcon from '@renderer/components/icons/SimpleLoadingIcon.vue'
-import type { User, UserUpdateRequest, PasswordUpdateRequest } from '@renderer/types'
+import TagAbove from '@/components/forms/TagAbove.vue'
+import { onMounted, ref, computed, onBeforeUnmount } from 'vue';
+import AlertModal from '@/components/AlertModal.vue'
+import SimpleLoadingIcon from '@/components/icons/SimpleLoadingIcon.vue'
+import type { User, UserUpdateRequest, PasswordUpdateRequest } from '@/types'
 import axios from 'axios'
 
 const router = useRouter()
@@ -29,11 +29,27 @@ const repassword = ref<string>('')
 const birthday = ref<string>('')
 const bio = ref<string>('')
 
+// Mobile detection
+const isMobile = ref(window.innerWidth < 768)
+
+// Handle window resize
+const handleResize = () => {
+  isMobile.value = window.innerWidth < 768
+}
+
 onMounted(() => {
   username.value = user.username
   email.value = user.email
   birthday.value = user.birthday?.toString() || ''
   bio.value = user.bio || ''
+  
+  // Add resize event listener
+  window.addEventListener('resize', handleResize)
+})
+
+onBeforeUnmount(() => {
+  // Remove resize event listener
+  window.removeEventListener('resize', handleResize)
 })
 
 async function handleProfilePicUpload(event: Event): Promise<void> {
@@ -111,75 +127,167 @@ async function UpdatePassword(request: PasswordUpdateRequest): Promise<void> {
 
 <template>
   <div class="section">
-    <h1 class="title-bold">{{ $t('edit_profile_title') }}</h1>
-    <div class="mform">
-      <h2>{{ $t('user_info') }}</h2>
-      <div class="input-container">
+    <h1 class="title-bold" :class="{ 'mobile-title': isMobile }">{{ $t('edit_profile_title') }}</h1>
+    <div class="mform" :class="{ mobile: isMobile }">
+      <h2 class="section-title">{{ $t('user_info').toUpperCase() }}</h2>
+      <p class="user-email">{{ user.email }}</p>
+      
+      <!-- Mobile view for profile section -->
+      <div v-if="isMobile" class="mobile-input-container">
+        <div class="profile-pic-container">
+          <div class="profile-pic-wrapper">
+            <img 
+              :src="user.profilePictureUrl || 'https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg'" 
+              class="current-profile-pic"
+              alt="Profile picture"
+            >
+            <label for="profile-pic-input" class="edit-icon">
+              +
+            </label>
+            <input 
+              id="profile-pic-input"
+              type="file" 
+              accept="image/*"
+              @change="handleProfilePicUpload"
+              class="profile-pic-input"
+            />
+          </div>
+        </div>
+
+        <TagAbove class="form-label field-spacing">
+          {{ $t('username') }}
+          <template #child>
+            <input class="text" type="text" :placeholder="$t('enter_new_username')" v-model="username" />
+          </template>
+        </TagAbove>
+        
+        <TagAbove class="form-label field-spacing">
+          {{ $t('email') }}
+          <template #child>
+            <input class="text" type="email" :placeholder="$t('enter_new_email')" v-model="email" />
+          </template>
+        </TagAbove>
+        
+        <TagAbove class="form-label field-spacing">
+          {{ $t('birthday') }}
+          <template #child>
+            <input class="text" type="date" v-model="birthday" />
+          </template>
+        </TagAbove>
+        
+        <TagAbove class="form-label field-spacing">
+          {{ $t('bio') }}
+          <template #child>
+            <textarea class="text mobile-textarea" type="text" :placeholder="$t('enter_new_bio')" v-model="bio"></textarea>
+          </template>
+        </TagAbove>
+        
+        <button class="apply-button btn-purple mobile-button" @click="ChangeUserInfo()">
+          <SimpleLoadingIcon v-if="dataLoading" />
+          <span v-if="!dataLoading">{{ $t('apply') }}</span>
+        </button>
+      </div>
+
+      <!-- Desktop view for profile section -->
+      <div v-else class="input-container">
         <div class="halfsize">
           <TagAbove>
-            {{ $t('profile_picture') }}
             <template #child>
               <div class="profile-pic-container">
-                <img 
-                  :src="user.profilePictureUrl || 'https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg'" 
-                  class="current-profile-pic"
-                  alt="Profile picture"
-                >
-                <input 
-                  type="file" 
-                  accept="image/*"
-                  @change="handleProfilePicUpload"
-                  class="profile-pic-input"
-                />
+                <div class="profile-pic-wrapper">
+                  <img 
+                    :src="user.profilePictureUrl || 'https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg'" 
+                    class="current-profile-pic"
+                    alt="Profile picture"
+                  >
+                  <label for="profile-pic-input" class="edit-icon">
+                    +
+                  </label>
+                  <input 
+                    id="profile-pic-input"
+                    type="file" 
+                    accept="image/*"
+                    @change="handleProfilePicUpload"
+                    class="profile-pic-input"
+                  />
+                </div>
               </div>
             </template>
           </TagAbove>
-          <TagAbove>
+          <TagAbove class="form-label field-spacing">
             {{ $t('username') }}
             <template #child>
               <input class="text" type="text" :placeholder="$t('enter_new_username')" v-model="username" />
             </template>
           </TagAbove>
-          <TagAbove>
+          <TagAbove class="form-label field-spacing">
             {{ $t('email') }}
             <template #child>
               <input class="text" type="email" :placeholder="$t('enter_new_email')" v-model="email" />
             </template>
           </TagAbove>
-          <TagAbove>
+          <TagAbove class="form-label field-spacing">
             {{ $t('birthday') }}
             <template #child>
               <input class="text" type="date" v-model="birthday" />
             </template>
           </TagAbove>
+          <button class="apply-button btn-purple" @click="ChangeUserInfo()">
+            <SimpleLoadingIcon v-if="dataLoading" />
+            <span v-if="!dataLoading">{{ $t('apply') }}</span>
+          </button>
         </div>
-        <div class="halfsize">
-          <TagAbove>
+        <div class="halfsize form-label">
+          <TagAbove class ="field-spacing">
+            {{ $t('bio') }}
             {{ $t('profile_biography') }}
             <template #child>
-              <textarea class="text" type="text" :placeholder="$t('enter_new_bio')" v-model="bio"></textarea>
+                <textarea class="text" type="text" :placeholder="$t('enter_new_bio')" v-model="bio" style="height: 400px;"></textarea>
             </template>
           </TagAbove>
+          <button class="apply-button btn-purple" @click="ChangeUserInfo()">
+            <SimpleLoadingIcon v-if="dataLoading" />
+            <span v-if="!dataLoading">{{ $t('apply') }}</span>
+          </button>
         </div>
       </div>
-      <button class="apply-button btn-purple" @click="ChangeUserInfo()">
-        <SimpleLoadingIcon v-if="dataLoading" />
-        <span v-if="!dataLoading">{{ $t('apply') }}</span>
-      </button>
 
-      <h2>{{ $t('change_password') }}</h2>
-      <TagAbove class="halfsize">
-        {{ $t('password') }}
-        <template #child>
-          <input class="text" type="password" :placeholder="$t('enter_old_password')" v-model="oldpassword" />
-          <input class="text" type="password" :placeholder="$t('enter_new_password')" v-model="password" />
-          <input class="text" type="password" :placeholder="$t('repeat_password')" v-model="repassword" />
-        </template>
-      </TagAbove>
-      <button class="apply-button btn-purple" @click="ChangePassword()">
-        <SimpleLoadingIcon v-if="passwordLoading" />
-        <span v-if="!passwordLoading">{{ $t('apply') }}</span>
-      </button>
+      <h2 class="change-pass-section-title">{{ $t('change_password').toUpperCase() }}</h2>
+      
+      <!-- Mobile password section -->
+      <div v-if="isMobile" class="mobile-password-section">
+        <TagAbove class="form-label">
+          {{ $t('password') }}
+          <template #child>
+            <input class="text" type="password" :placeholder="$t('enter_old_password')" v-model="oldpassword" />
+            <input class="text password-field" type="password" :placeholder="$t('enter_new_password')" v-model="password" />
+            <input class="text password-field" type="password" :placeholder="$t('repeat_password')" v-model="repassword" />
+          </template>
+        </TagAbove>
+        <button class="apply-button btn-purple mobile-button" @click="ChangeUserInfo()">
+          <SimpleLoadingIcon v-if="dataLoading" />
+          <span v-if="!dataLoading">{{ $t('apply') }}</span>
+        </button>
+
+      </div>
+      
+      <!-- Desktop password section -->
+      <div v-else class="password-container">
+        <TagAbove class="halfsize form-label">
+          {{ $t('password') }}
+          <template #child>
+            <input class="text" type="password" :placeholder="$t('enter_old_password')" v-model="oldpassword" />
+            <input class="text" type="password" :placeholder="$t('enter_new_password')" v-model="password" />
+            <input class="text" type="password" :placeholder="$t('repeat_password')" v-model="repassword" />
+          </template>
+        </TagAbove>
+        <div class="password-button-container">
+          <button class="apply-button btn-purple" @click="ChangePassword()">
+            <SimpleLoadingIcon v-if="passwordLoading" />
+            <span v-if="!passwordLoading">{{ $t('apply') }}</span> 
+          </button>
+        </div>
+      </div>
     </div>
 
     <Teleport to="body">
@@ -200,6 +308,22 @@ async function UpdatePassword(request: PasswordUpdateRequest): Promise<void> {
   font-size: 300%;
 }
 
+.mobile-title {
+  font-size: 130%;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.section-title {
+  font-family: "Anton", serif;
+  font-size: 150%;
+}
+
+.change-pass-section-title {
+  font-family: "Anton", serif;
+  font-size: 120%;
+}
+
 h2 {
   text-align: left;
   width: 100%;
@@ -210,9 +334,23 @@ h2 {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  background-color: var(--boly-bg-dark-transparent);
+  background-color: var(--boly-bg-blue-transparent);
   padding: 30px;
   border-radius: 20px;
+ box-sizing: border-box;
+}
+
+.mform.mobile {
+  padding: 15px 10px;
+  gap: 10px;
+  max-width: 100%;
+  overflow-x: hidden;
+  background-color: var();
+}
+
+.change-password {
+  font-family: "Anton", serif;
+  font-size: 100%;
 }
 
 .halfsize {
@@ -230,17 +368,51 @@ h2 {
   gap: 1rem;
 }
 
+/* Mobile specific styles */
+.mobile-input-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.mobile-password-section {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.mobile-textarea {
+  height: 120px !important;
+  width: 100% !important;
+  box-sizing: border-box;
+}
+
+.mobile-button {
+  width: 100% !important;
+  margin-top: 10px;
+  height: 45px !important;
+  font-size: 100% !important;
+}
+
+.password-field {
+  margin-top: 8px;
+}
+
 input,
 textarea {
   resize: none;
   max-width: 100%;
   outline: none;
-  padding: 1rem 1rem;
-  border-radius: 1rem;
+  padding: 0.8rem 0.8rem;
+  border-radius: 0.8rem;
   background-color: var(--boly-bg-dark-transparent);
   color-scheme: dark;
   border: none;
   margin-top: 5px;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 textarea {
@@ -265,8 +437,27 @@ textarea {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.profile-pic-wrapper {
+  position: relative;
+  width: 150px;
+  height: 150px;
+}
+
+/* Adjust profile pic size for mobile */
+@media (max-width: 768px) {
+  .profile-pic-wrapper {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .current-profile-pic {
+    width: 120px !important;
+    height: 120px !important;
+  }
 }
 
 .current-profile-pic {
@@ -277,13 +468,95 @@ textarea {
   object-fit: cover;
 }
 
-.profile-pic-input {
-  width: 100%;
-  padding: 0.5rem;
-  background-color: var(--boly-bg-dark-transparent);
-  border: none;
-  border-radius: 5px;
-  color: var(--light);
+.edit-icon {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background-color: var(--boly-button-purple);
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.profile-pic-input {
+  display: none;
+}
+
+.user-email {
+  text-align: left;
+  font-size: 1rem;
+  color: var(--light);
+  margin-top: -15px; 
+}
+
+.form-label {
+  font-family: 'Poppins', sans-serif;
+  color: var(--white);
+}
+
+.field-spacing {
+  margin-bottom: 15px;
+}
+
+/* Additional mobile adjustments */
+@media (max-width: 768px) {
+  .section {
+    padding: 1rem 0.5rem;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+  
+  .field-spacing {
+    margin-bottom: 10px;
+  }
+  
+  input, textarea {
+    padding: 0.7rem 0.7rem;
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  .user-email {
+    font-size: 0.9rem;
+    margin-top: -10px;
+    word-break: break-word;
+  }
+  
+  .edit-icon {
+    width: 25px;
+    height: 25px;
+    font-size: 16px;
+  }
+  
+  .section-title {
+    font-size: 120%;
+  }
+  
+  .change-pass-section-title {
+    font-size: 110%;
+    margin-top: 5px;
+  }
+}
+
+.password-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.password-button-container {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 15px;
 }
 </style>

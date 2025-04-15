@@ -8,6 +8,9 @@ const useCart = defineStore('cart', {
   state: (): CartState => ({
     cart: JSON.parse(localStorage.getItem('cart') || '[]')
   }),
+  getters: {
+    getCartItems: (state) => state.cart
+  },
   actions: {
     addGameToCart(game: { game_id: number }) {
       if (!this.cart.includes(game.game_id)) {

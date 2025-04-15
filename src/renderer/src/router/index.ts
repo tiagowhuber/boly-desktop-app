@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
-// import HomeView from '../views/HomeView.vue'
-import { useAuth } from '@renderer/stores'
+import HomeView from '../views/HomeView.vue'
+import { useAuth } from '@/stores'
 
 export const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -8,8 +8,7 @@ export const router = createRouter({
     {
       path: '/',
       name: 'home',
-      // component: HomeView
-      component: () => import('../views/TestView.vue')
+      component: HomeView
     },
     {
       path: '/games',
@@ -88,11 +87,16 @@ export const router = createRouter({
       path: '/upload',
       name: 'upload',
       component: () => import('../views/UploadView.vue')
-    },
-    {
+    },    {
       path: '/library',
       name: 'library',
-      component: () => import('../views/LibraryView.vue')
+      component: () => import('../desktop-views/DesktopLibraryView.vue')
+      // component: () => import('../views/LibraryView.vue')
+    },
+    {
+      path: '/orders',
+      name: 'orders',
+      component: () => import('../views/OrderHistoryView.vue')
     },
     {
       path: '/webgame/:game',
@@ -148,6 +152,29 @@ export const router = createRouter({
       path: '/wishlist',
       name: 'wishlist',
       component: () => import('../views/WishlistView.vue'),
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/payment-methods',
+      name: 'payment-methods',
+      component: () => import('../views/PaymentMethodsView.vue'),
+      meta: {
+        requiresAuth: true
+      }
+    },    {
+      path: '/payment-methods/callback',
+      name: 'payment-methods-callback',
+      component: () => import('../views/PaymentMethodCallbackView.vue'),
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/subscription-management',
+      name: 'subscription-management',
+      component: () => import('../views/SubscriptionManagementView.vue'),
       meta: {
         requiresAuth: true
       }

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import GameItem from '@renderer/components/games/GameItem.vue'
-import Loading from '@renderer/components/LoadingIcon.vue'
-import { useGames, useAuth, useUser } from '@renderer/stores'
-import useWishlist from '@renderer/stores/wishlist'
-import { onMounted, ref, computed, watch } from 'vue'
+import GameItem from '@/components/games/GameItem.vue'
+import Loading from '@/components/LoadingIcon.vue'
+import { useGames, useAuth, useUser } from '@/stores'
+import useWishlist from '@/stores/wishlist'
+import { onMounted, ref, computed, watch, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
@@ -20,6 +20,12 @@ const { loading: wishlistLoading, items: wishlistItems } = storeToRefs(wishlistS
 
 const loading = ref(true)
 const wishlistGames = ref<any[]>([])
+const isMobile = ref(window.innerWidth <= 768)
+
+// Handle window resize for mobile detection
+const handleResize = () => {
+  isMobile.value = window.innerWidth <= 768
+}
 
 if (!auth.isLoggedIn && !auth.verifying) {
   router.back()
@@ -66,7 +72,13 @@ async function refreshData() {
 }
 
 onMounted(async () => {
+  window.addEventListener('resize', handleResize)
   await refreshData()
+})
+
+// Clean up event listener
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
 })
 
 watch([wishlistItems, games], async () => {
@@ -85,11 +97,18 @@ watch([wishlistItems, games], async () => {
     </div>
     <div class="game-count">{{ $t('all_games') }} ({{ wishlistGames.length }})</div>
     
-    <div v-if="wishlistGames.length > 0" class="list">
-      <GameItem v-for="item in wishlistGames" :key="item.game_id" :item="item" />
+    <div v-if="wishlistGames.length > 0" class="list" :class="{ 'mobile-list': isMobile }">
+      <GameItem v-for="item in wishlistGames" 
+                :key="item.game_id" 
+                :item="item" 
+                :class="{ 'mobile-item': isMobile }" />
     </div>
     <div v-else class="empty-wishlist">
       <p>{{ $t('no_wishlist_games') }}</p>
+      <button class="browse-button" @click="router.push('/games')">{{ $t('browse_games') }}</button>
+    </div>
+    
+    <div class="bottom-browse-section">
       <button class="browse-button" @click="router.push('/games')">{{ $t('browse_games') }}</button>
     </div>
   </div>
@@ -133,7 +152,7 @@ watch([wishlistItems, games], async () => {
   font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   padding: 2px 40px;
   border-radius: 5px;
-  background-color: var(--boly-button-blue);
+  background-color: var(--boly-button-pink);
 }
 
 .list {
@@ -144,6 +163,29 @@ watch([wishlistItems, games], async () => {
   flex-wrap: wrap;
   padding: 20px;
   border-radius: 20px;
+}
+
+.mobile-list {
+  gap: 1rem;
+  padding: 10px;
+}
+
+/* Style that will be applied to the GameItem component when on mobile */
+:deep(.mobile-item) {
+  transform: scale(0.85);
+  margin: -10px;
+}
+
+@media (max-width: 768px) {
+  .game-count {
+    width: 80%;
+    padding: 2px 10px;
+  }
+  
+  .wishlist-header h1 {
+    font-size: 1.5rem;
+    text-align: center;
+  }
 }
 
 .empty-wishlist {
@@ -170,7 +212,7 @@ watch([wishlistItems, games], async () => {
   padding: 0.75rem 2rem;
   border: none;
   border-radius: 5px;
-  background-color: var(--boly-button-blue);
+  background-color: var(--boly-button-pink);
   color: white;
   font-family: 'Anton', Impact, sans-serif;
   font-style: italic;
@@ -181,5 +223,11 @@ watch([wishlistItems, games], async () => {
 
 .browse-button:hover {
   opacity: 0.9;
+}
+
+.bottom-browse-section {
+  margin: 3rem auto 2rem;
+  display: flex;
+  justify-content: center;
 }
 </style>
