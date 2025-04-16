@@ -18,7 +18,8 @@ if (process.contextIsolated) {
       seleccionarArchivo: () => ipcRenderer.invoke('seleccionar-archivo'),
       seleccionarCarpeta: () => ipcRenderer.invoke('seleccionar-carpeta'),
       instalarDesdeZip: (rutaExe, rutaDestion) => ipcRenderer.invoke('instalar-desde-zip', rutaExe, rutaDestion),
-      playGame:(appData) => ipcRenderer.invoke('play-game',appData)
+      playGame:(appData) => ipcRenderer.invoke('play-game', appData),
+      searchExeFiles: (baseDir) => ipcRenderer.invoke('search-exe-files', baseDir)
     })
   } catch (error) {
     console.error(error)
@@ -30,10 +31,12 @@ if (process.contextIsolated) {
   // @ts-ignore (define in dts)
   window.api = api
   // @ts-ignore (define in dts)
-  // window.electronAPI = {
-  //   seleccionarArchivo: () => ipcRenderer.invoke('seleccionar-archivo'),
-  //   seleccionarCarpeta: () => ipcRenderer.invoke('seleccionar-carpeta'),
-  //   instalarDesdeZip: (zipPath, destPath) => ipcRenderer.invoke('instalar-desde-zip', zipPath, destPath)
-  // }
+  window.electronAPI = {
+    seleccionarArchivo: () => ipcRenderer.invoke('seleccionar-archivo'),
+    seleccionarCarpeta: () => ipcRenderer.invoke('seleccionar-carpeta'),
+    instalarDesdeZip: (rutaExe, rutaDestion) => ipcRenderer.invoke('instalar-desde-zip', rutaExe, rutaDestion),
+    playGame: (appData) => ipcRenderer.invoke('play-game', appData),
+    searchExeFiles: (baseDir) => ipcRenderer.invoke('search-exe-files', baseDir)
+  }
   
 }

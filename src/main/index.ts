@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain,dialog } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import path from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
@@ -10,7 +10,29 @@ import icon from '../../resources/icon.png?asset'
 import axios from 'axios'
 
 
-
+const searchForExecutablesRecursive = (dir: string, fileList: string[] = []): string[] => {
+  try {
+    const files = fs.readdirSync(dir);
+    
+    files.forEach((file: string) => {
+      const filePath = path.join(dir, file);
+      try {
+        if (fs.statSync(filePath).isDirectory()) {
+          searchForExecutablesRecursive(filePath, fileList);
+        } else if (file.toLowerCase().endsWith('.exe')) {
+          fileList.push(filePath);
+        }
+      } catch (err) {
+        console.error(`Error accessing ${filePath}:`, err);
+      }
+    });
+    
+    return fileList;
+  } catch (err) {
+    console.error(`Error reading directory ${dir}:`, err);
+    return fileList;
+  }
+};
 
 async function createWindow(): Promise<void> {
   // Create the browser window.
@@ -28,6 +50,22 @@ async function createWindow(): Promise<void> {
     }
   })
   //---
+
+  ipcMain.handle('search-exe-files', async (_event, baseDir) => {
+    try {
+      const searchDir = baseDir || path.join(app.getPath('documents'), 'My Games');
+      
+      if (!fs.existsSync(searchDir)) {
+        return { error: `Directory does not exist: ${searchDir}` };
+      }
+      
+      const exeFiles = searchForExecutablesRecursive(searchDir);
+      return { files: exeFiles };
+    } catch (error) {
+      console.error('Error searching for executable files:', error);
+      return { error: (error as Error).message };
+    }
+  });
 
   ipcMain.handle('seleccionar-archivo', async () => {
     try {
@@ -68,7 +106,8 @@ async function createWindow(): Promise<void> {
       return true;
       // return lista;
     } catch (error) {
-      return [`Error: ${error.message}`];
+      const err = error as Error;
+      return [`Error: ${err.message}`];
     }
   });
   // async function addGame(gameId, installPath) {
@@ -96,13 +135,13 @@ async function createWindow(): Promise<void> {
             }
             const token = response.data.token
             try {
-              //--
+              //-- 
               await axios.post(`http://localhost:3001/v1/validate/`, req, {
                 headers: { Authorization: `Bearer ${token}` }
               }).then((validation)=>{
                 if(validation.data){
                   console.log(validation.data)
-                  //---
+                  //--- 
                   try {
                     const { appPath } = appData;
                     const args = `-game_id ${req.game_id} -user_id ${req.user_id} -key ${validation.data.tempKey} -token ${response.data.token}`
@@ -122,7 +161,7 @@ async function createWindow(): Promise<void> {
                 //---
                 }
               })
-              //--
+              //-- 
             } catch (error) {
               console.log("error validation")
             }

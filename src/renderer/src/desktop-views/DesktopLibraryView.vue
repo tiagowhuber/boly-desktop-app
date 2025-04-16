@@ -5,9 +5,9 @@ import Loading from '@/components/LoadingIcon.vue'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth, useUser, useGames, useAchievements } from '../stores'
-import {useGameRoutes} from '../desktop-stores'
+import useGameRoutes from '../desktop-stores/gameRoutes'
 import axios from 'axios'
-import type { Game,LocalGame } from '@/types'
+import type { Game} from '@/types'
 
 const auth = useAuth()
 const user = useUser()
@@ -16,32 +16,26 @@ const achievementsStore = useAchievements()
 const router = useRouter()
 const isLoading = ref(true)
 const ownedGames = ref<Game[]>([])
-// const gameRoutes = useGameRoutes()
-const gameRoutes=[
-{
-      "gameId": 2,
-      "route": "\"D:Juegos\testBody Defense.exe\""
-    }
-]
+const gameRoutesStore = useGameRoutes()
+const isSearchingGames = ref(false)
+
 // Redirect if not logged in
 if (!auth.isLoggedIn) {
   router.back()
 }
 
 async function loadGames() {
-  // gameRoutes.getRouteItems
-  // console.log(gameRoutes.length)
-  // try {
-  //   const data = await fs.readFile('/db.json', 'utf-8');
-  //   const installedGames = JSON.parse(data);
-  //   console.log(installedGames);
-  //   return installedGames;
-  // } catch (err) {
-  //   console.error('Error cargando JSON:', err);
-  // }
+  isSearchingGames.value = true;
+  try {
+    console.log('Searching for games in My Games folder...');
+    await gameRoutesStore.searchForExes();
+    console.log('Found games:', gameRoutesStore.getRouteItems);
+  } catch (err) {
+    console.error('Error searching for games:', err);
+  } finally {
+    isSearchingGames.value = false;
+  }
 }
-
-loadGames();
 
 async function fetchOwnedGames() {
   if (!user.userId) return
@@ -52,19 +46,22 @@ async function fetchOwnedGames() {
       const gamesList = response.data[0]?.game || []
       console.log('Extracted games list:', gamesList)
       
+      await loadGames();
+      const localGames = gameRoutesStore.getRouteItems;
+      console.log('Local games:', localGames);
+      
+      // Filter games that are both owned and installed locally
       ownedGames.value = gamesList.filter((game: Game) => {
         if (!game.banner_url) {
           game.banner_url = 'banner.jpg'
         }
-        let found = gameRoutes.find(x=>{
-          console.log("game id: "+x.gameId+" vs other game id: "+game.game_id + "result: "+(x.gameId===game.game_id))
-          if(x.gameId==game.game_id) return x
-        })
-        console.log("asdasdasds")
-        console.log(found)
-         return found!=null
-        // return game
-        //Check if is installed
+        
+        // Check if game is installed locally (if has a matching gameId)
+        const found = localGames.find(localGame => 
+          localGame.gameId === game.game_id
+        );
+        
+        return found !== undefined;
       })
     }
   } catch (error) {
@@ -75,11 +72,11 @@ async function fetchOwnedGames() {
 onMounted(async () => {
   if (auth.isLoggedIn && user.userId) {
     try {
-      // First fetch user data
+      await loadGames()
+      
       const response = await axios.get(`/v1/users/${user.userId}`)
       if (response.status === 200) {
         user.setUser(response.data)
-        // Then fetch owned games
         await fetchOwnedGames()
       }
     } catch (error) {
