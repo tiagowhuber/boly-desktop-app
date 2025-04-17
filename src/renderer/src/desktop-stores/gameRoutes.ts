@@ -37,33 +37,29 @@ const useGameRoutes = defineStore('gameRoutes', {
     },
     saveToLocalStorage() {
       localStorage.setItem('localGames', JSON.stringify(this.localGames))
-    },
-    testSave(){
-        const game={
-            "gameId": 2,
-            "route": "\"D:Juegos\testBody Defense.exe\""
-          }
-          this.localGames.push(game)
-        this.saveToLocalStorage()
-    },
-    async searchForExes() {
+    },    async searchForExes() {
       try {
         const result = await window.electronAPI.searchExeFiles();
         
         if (result && result.files && Array.isArray(result.files)) {
           console.log('Found exe files:', result.files);
           result.files.forEach(filePath => {
-            // For now it's an arbitrary gameId. In the future, we will have to make a local gameId map or modify how they are registered locally.
-            const gameId = this.localGames.length + 1;
+            const fileName = filePath.split('\\').pop() || filePath.split('/').pop() || '';
             
-            const game = {
-              gameId,
-              route: filePath
-            };
-            
-            this.addGameToRoute(game);
+            if (fileName === "Body Defense.exe") {
+              const game = {
+                gameId: 2,
+                route: filePath
+              };
+              this.addGameToRoute(game);
+            } else if (fileName === "AtacamaScope.exe") {
+              const game = {
+                gameId: 3,
+                route: filePath
+              };
+              this.addGameToRoute(game);
+            }
           });
-          
           return this.localGames;
         } else if (result && result.error) {
           console.error('Error searching for exe files:', result.error);

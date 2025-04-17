@@ -1,29 +1,32 @@
 export const en = {
   // home view
   home_title: 'HOME',
-  home_welcome: 'Look at our highlighted games!',
+  home_welcome: 'Look at our featured games!',
 
   home_title1: 'Boly',
-  home_body1: 'Revolutionising the classroom',
+  home_body1: 'Revolutionizing the classroom',
   
-  home_title2: 'Our project',
-  home_body2: `At boly, we understand gamers, developers and educators`,
+  home_title2: 'OUR PROJECT',
+  home_body2: 'AT BOLY, WE UNDERSTAND GAMERS, DEVELOPERS AND EDUCATORS',
   home_text3: 'Boly is a high-quality educational video game distribution platform that uses gamification & AI to personalize learning. We connect developers with students and schools and provide educators with tools to enhance the educational experience.',
 
-  home_title3: 'Technology and education',
+  home_title3: 'TECHNOLOGY AND EDUCATION',
+  home_graph1_data_title: 'No laboratories',
   home_graph1_data_text1: 'According to the IDB, 88% of schools in LATAM',
-  home_graph1_data_text2:' do not have science laboratories',
-  home_graph1_data_text3:' and there is a trend towards an increase in the use of mobile phones by younger and younger children.',
+  home_graph1_data_text2: ' do not have science laboratories',
+  home_graph1_data_text3: ' and there is a trend towards an increase in the use of mobile phones by younger and younger children.',
+  
+  home_graph2_data_title: 'Phone access',
   home_graph2_data_text1: 'Currently, 92% of children ',
-  home_graph2_data_text2:'have access to and play on mobile phones,',
-  home_graph2_data_text3:` generating a battle in the classroom for students' attention and great concern among parents about the use of this technology.`,
+  home_graph2_data_text2: 'have access to and play on mobile phones,',
+  home_graph2_data_text3: ` generating a battle in the classroom for students' attention and great concern among parents about the use of this technology.`,
 
-  home_title4: "Boly en acción",
-  home_slider_text:"Desliza para ver más acción",
+  home_title4: "Boly in action",
+  home_slider_text: "Slide to see more action",
 
-  home_title5: `Let's talk`,
-  home_form_title: `At boly, we count on you to take education to the next level`,
-  home_form_text: 'Do you or your team have an experience, game or application for educational purposes? Contact us or write us your enquiry so you can be part of Boly.',
+  home_title5: `LET'S TALK`,
+  home_form_title: `At Boly, we count on you to take education to the next level`,
+  home_form_text: 'Do you or your team have an experience, game or application for educational purposes? Contact us or write us your inquiry so you can be part of Boly.',
 
   home_meet_us: 'Meet us',
 
@@ -49,8 +52,9 @@ export const en = {
   cookies: 'Cookies',
 
   // games view
-  games_title: 'GAMES',
+  games_title: 'GAMES',  
   already_owned: 'Already owned!',
+  subscription_access: 'Subscription Access',
   add_to_cart: 'Add to cart',
   already_in_cart: 'Already in cart!',
   remove_from_cart: 'Remove from cart?',
@@ -83,6 +87,8 @@ export const en = {
   achievements_not_available: 'Achievements not available',
   no_owned_games: "It looks like you don't own any games yet...",
   browse_games: "Browse Games",
+  show_all_games: 'Show all games',
+  show_installed_only: 'Show installed games',
 
   // wishlist view
   wishlist: 'Wishlist',
@@ -97,10 +103,9 @@ export const en = {
   send_query: 'Send inquiry',
   send_query_success: 'Inquiry sent successfully!',
   send_query_error: 'Oops! An error occurred while sending your inquiry. Please try again.',
-
   contact_lets_talk: `Let's talk`,
-  contact_body: `At boly, we count on you to take education to the next level`,
-  contact_text: 'Do you or your team have an experience, game or application for educational purposes? Contact us or write us your enquiry so you can be part of Boly.',
+  contact_body: `At Boly, we count on you to take education to the next level`,
+  contact_text: 'Do you or your team have an experience, game or application for educational purposes? Contact us or write us your inquiry so you can be part of Boly.',
 
   // subscription view
   subscription_plans: 'Subscription plans',
@@ -123,6 +128,7 @@ export const en = {
   yearly_feature_3: 'Exclusive benefit: Early access to new games before their initial release.',
   subscription_success: 'Subscription successful!',
   subscription_success_message: 'Now you have access to all the games in our library!',
+  subscription_processed_success: "You've got access to all games!",
 
   // developer view
   developer_title: 'DEVELOPER MANAGER',
@@ -131,7 +137,7 @@ export const en = {
   developer_manage_game_data: 'Manage game data',
   developer_manage_achievements: 'Manage achievements',
   developer_create_preview: 'Create a game preview',
-  developer_create_preview_desc: 'If you intend to publish a game in boly, this is the place!',
+  developer_create_preview_desc: 'If you intend to publish a game in Boly, this is the place!',
   developer_create_preview_button: 'Create preview',
   developer_game_preview: 'Game Preview',
 
@@ -141,7 +147,6 @@ export const en = {
   game_name: 'Game Title',
   game_description: 'Game Description',
   game_price: 'Price',
-
   game_media: 'Game Media',
   banner: 'Banner',
   media: 'Media',
@@ -151,7 +156,7 @@ export const en = {
   ach_pass_title: 'ACHIEVEMENTS PASS',
   ach_pass_1: 'Here you can generate your AchievementPass for Boly games!',
   ach_pass_2: 'Generate a pass to link a game to your account and update your achievement progress.',
-  ach_pass_3: 'This code is for 1 use only, and expires in 2 minutes.',
+  ach_pass_3: 'This code can only be used once and expires in 2 minutes.',
   generate_pass: 'Generate pass',
   achievement_manager_title: 'ACHIEVEMENT MANAGER',
   achievement_manager_subtitle: 'Game achievements of {game}',
@@ -168,9 +173,8 @@ export const en = {
   ach_unlock: 'Unlock requirement',
   ach_type: 'Type',
   ach_secret: 'Secret',
-
   ach_secret_title: 'Secret achievement',
-  ach_secret_subtitle: 'Unlock this achievement to see more details.',
+  ach_secret_subtitle: 'Unlock this achievement to reveal more details.',
   ach_achievement_unlocked: 'Achievement Unlocked!',
   see_achievements: 'See achievements',
 
@@ -185,7 +189,6 @@ export const en = {
   logout: 'Log out',
   achievementpass: 'AchievementPass',
   edit_profile: 'Edit profile',
-
   edit_profile_title: 'EDIT PROFILE',
   user_info: 'User Info',
   username: 'Username',
@@ -205,6 +208,7 @@ export const en = {
   no_orders: 'No orders found.',
   your_orders: 'Your orders',
   ordered_on: 'Ordered on',
+  order_status_failed: 'Failed',
 
   // cart view
   cart_title: 'CART',
@@ -232,7 +236,7 @@ export const en = {
   modal_login_error: 'Something went wrong',
   modal_same_passwords: 'Passwords must be the same.',
   modal_register_success: 'Registered successfully!',
-  modal_email_taken: 'email already in use!',
+  modal_email_taken: 'Email already in use!',
   modal_weak_password: 'Password must be at least 8 characters, include an uppercase letter, and a digit.',
   modal_invalid_email: 'Please enter a valid email address',
 
@@ -242,7 +246,6 @@ export const en = {
   postorder_date: 'Date of purchase',
   postorder_article_list: 'The following items have been added to your account:',
   postorder_error: 'Oh no! A transaction error has occurred.',
-
   purchase_successful: 'Purchase Successful',
   purchase_failed: 'Purchase Failed',
   purchase_thank_you: 'Thank you for your purchase! Your games are now available in your library.',
@@ -250,6 +253,7 @@ export const en = {
   return_to_cart: 'Return to Cart',
   browse_more_games: 'Browse More Games',
   go_to_library: 'Go to Library',
+
   // payment methods management  manage_payment_methods: 'My cards',
   my_cards: 'My cards',
   payment_methods: 'Payment Methods',
@@ -263,13 +267,15 @@ export const en = {
   added_on: 'Added on',
   back: 'Back',
   confirm_delete: 'Confirm Deletion',
-    // subscription management
+  redirecting_to_payment_setup: 'Redirecting to payment setup...',
+
+  // subscription management
   subscription_management: 'Subscription management',
   available_subscriptions: 'Available subscriptions',
   current_subscription: 'Current Subscription',
   plan_name: 'Plan Name',
   price: 'Price',
-  credits: 'Credits',
+  credits: 'credits',
   next_billing: 'Next Billing Date',
   change_subscription: 'Change Subscription',
   cancel_subscription: 'Cancel Subscription',
@@ -287,7 +293,8 @@ export const en = {
   error_creating_enrollment: 'Error creating card enrollment',
   error_deleting_payment_method: 'Error deleting payment method',
   card_registration_success: 'Card Registered Successfully',
-  card_registration_success_description: 'Your card has been successfully registered and is now available for one-click purchases.',
+  card_registration_success_description: 'Your card has been successfully registered.',
+  go_to_subscriptions: 'Go to Subscriptions',
   card_registration_error: 'Card Registration Failed',
   card_registration_canceled: 'Card Registration Canceled',
   missing_token: 'Missing registration token',

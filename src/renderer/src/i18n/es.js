@@ -8,47 +8,27 @@ export const es = {
   
   home_title2: 'NUESTRO PROYECTO',
   home_body2: 'EN BOLY, ENTENDEMOS A LOS JUGADORES, DESARROLLADORES Y EDUCADORES',
-  home_text3: 'Boly es una plataforma de distribución de videojuegos educativos de alta calidad que utiliza gamificación & IA para personificar el aprendizaje. Conectamos a desarrolladores con estudiantes y escuelas y ofrecemos a docentes herramientas para mejorar la experiencia educativa.',
+  home_text3: 'Boly es una plataforma de distribución de videojuegos educativos de alta calidad que utiliza gamificación & IA para personalizar el aprendizaje. Conectamos a desarrolladores con estudiantes y escuelas y ofrecemos a docentes herramientas para mejorar la experiencia educativa.',
 
   home_title3: 'TECNOLOGÍA Y EDUCACIÓN',
-  home_graph1_data_text1: 'Según el BID el 88% de las escuelas en LATAM',
-  home_graph1_data_text2:'no cuentan con laboratorios de ciencias',
-  home_graph1_data_text3:' y existe una tendencia al aumento del uso del celular en niños cada vez mas pequeños.',
-  home_graph2_data_text1: 'Actualmente el 92% de los niños ',
-  home_graph2_data_text2:'tiene acceso y juega en celulares,',
-  home_graph2_data_text3:' generando una batalla en el aula de clases por atención de los estudiantes y gran preocupación en los padres por el uso de esta tecnología.',
-
-  home_title4: "Boly en acción",
-  home_slider_text:"Desliza para ver más acción",
-
-  home_title5: "Hablemos",
-  home_form_title: "En Boly contamos contigo para llevar la educacion al siguiente nivel",
-  home_form_text: "¿Tu o tu equipo, tiene una experiencia, juego o aplicación con fines educativos? Contáctate con nosotros o escribenos tu consulta para que puedas ser parte de Boly.",
-
-  home_meet_us: 'Conócenos',
   home_graph1_data_title: 'Sin laboratorios',
+  home_graph1_data_text1: 'Según el BID, el 88% de las escuelas en LATAM',
+  home_graph1_data_text2: 'no cuentan con laboratorios de ciencias',
+  home_graph1_data_text3: ' y existe una tendencia al aumento del uso del celular en niños cada vez más pequeños.',
   
   home_graph2_data_title: 'Acceso telefónico',
-  
+  home_graph2_data_text1: 'Actualmente el 92% de los niños ',
+  home_graph2_data_text2: 'tiene acceso y juega en celulares,',
+  home_graph2_data_text3: ' generando una batalla en el aula de clases por la atención de los estudiantes y gran preocupación en los padres por el uso de esta tecnología.',
 
-  // home_title: 'INICIO',
-  // home_welcome: '¡Mira nuestros juegos destacados!',
-  
-  // home_title1: 'Boly',
-  // home_body1: 'Revolucionando el aula',
-  
-  // home_title2: 'Tecnología y educación',
-  // home_body2: 'Según el BID el 88% de las escuelas en LATAM no cuentan con laboratorios de ciencias y existe una tendencia al aumento del uso del celular en niños cada vez mas pequeños, actualmente el 92% de los niños tiene acceso y juega en celulares, generando una batalla en el aula de clases por atención de los estudiantes y gran preocupación en los padres por el uso de esta tecnología.',
+  home_title4: "Boly en acción",
+  home_slider_text: "Desliza para ver más acción",
 
-  // home_title3: 'Nuestro proyecto',
-  // home_body3: 'En boly, entendemos a los jugadores, desarrolladores y educadores',
-  // home_text3: 'Boly es una plataforma de distribución de videojuegos educativos de alta calidad que utiliza gamificación & IA para personalizar el aprendizaje. Conectamos a desarrolladores con estudiantes y escuelas y ofrecemos a docentes herramientas para mejorar la experiencia educativa.',
+  home_title5: "Hablemos",
+  home_form_title: "En Boly contamos contigo para llevar la educación al siguiente nivel",
+  home_form_text: "¿Tú o tu equipo tienen una experiencia, juego o aplicación con fines educativos? Contáctate con nosotros o escríbenos tu consulta para que puedas ser parte de Boly.",
 
-  // home_meet_us: 'Conócenos',
-  // home_graph1_data_title: 'Sin laboratorios',
-  // home_graph1_data_text: 'Según el BID el 88% de las escuelas en LATAM no cuentan con laboratorios de ciencias y existe una tendencia al aumento del uso del celular en niños cada vez mas pequeños.',
-  // home_graph2_data_title: 'Acceso telefónico',
-  // home_graph2_data_text: 'Actualmente el 92% de los niños tiene acceso y juega en celulares, generando una batalla en el aula de clases por atención de los estudiantes y gran preocupación en los padres por el uso de esta tecnología.',
+  home_meet_us: 'Conócenos',
 
   // navbar
   home: 'Inicio',
@@ -73,6 +53,7 @@ export const es = {
   // games view
   games_title: 'JUEGOS',
   already_owned: '¡Ya lo tienes!',
+  subscription_access: 'Acceso por Suscripción',
   add_to_cart: 'Añadir al carrito',
   already_in_cart: '¡Ya en el carrito!',
   remove_from_cart: '¿Quitar del carrito?',
@@ -105,6 +86,8 @@ export const es = {
   achievements_not_available: 'Logros no disponibles',
   no_owned_games: "Parece que aún no tienes ningún juego...",
   browse_games: "Explorar Juegos",
+  show_all_games: "Mostrar todos los juegos",
+  show_installed_only: "Mostrar juegos instalados",
   
   // wishlist view
   wishlist: 'Lista de Deseos',
@@ -118,11 +101,10 @@ export const es = {
   query: 'Escribe tu consulta',
   send_query: 'Enviar consulta',
   send_query_success: '¡Consulta enviada exitosamente!',
-  send_query_error: '¡Ups! Ocurrió un error al enviar tu consulta. Porfavor intenta denuevo.',
-
-  contact_lets_talk: `Hablemos`,
-  contact_body: `En boly contamos contigo para llevar la eduación al siguiente nivel`,
-  contact_text: '¿Tu o tu equipo tiene una experiencia, juego o aplicación con fines educativos? Contáctate con nosotros o escribenos tu consulta para que puedas ser parte de Boly.',
+  send_query_error: '¡Ups! Ocurrió un error al enviar tu consulta. Por favor intenta de nuevo.',
+  contact_lets_talk: 'Hablemos',
+  contact_body: 'En Boly contamos contigo para llevar la educación al siguiente nivel',
+  contact_text: '¿Tú o tu equipo tiene una experiencia, juego o aplicación con fines educativos? Contáctate con nosotros o escríbenos tu consulta para que puedas ser parte de Boly.',
   
   // subscription view
   subscription_plans: 'Planes de suscripción',
@@ -135,7 +117,7 @@ export const es = {
   month: "Mes",
   free_feature_1: 'Ideal para empezar y explorar.',
   free_feature_2: 'Acceso limitado a una selección de nuestros juegos educativos más populares.',
-  free_feature_3: 'Diseñado para quienes quiera pobar cómo BOLY puede transformar la enseñanda y el aprendizaje.',
+  free_feature_3: 'Diseñado para quienes quieran probar cómo BOLY puede transformar la enseñanza y el aprendizaje.',
   monthly_feature_1: 'Todo el contenido, sin limitaciones.',
   monthly_feature_2: 'Acceso completo a todos los videojuegos educativos disponibles en nuestra plataforma.',
   monthly_feature_3: 'Perfecto para familias, docentes y estudiantes que buscan aprender jugando, mes a mes.',
@@ -180,7 +162,7 @@ export const es = {
   remove_achievement: 'Eliminar logro',
   remove: 'Eliminar',
   progress: 'Con progreso',
-  instant: 'Instantaneo',
+  instant: 'Instantáneo',
   add_achievement: 'Añadir nuevo logro',
   modal_achievements_updated: '¡Logros actualizados con éxito!',
   modal_achievements_error: 'Error actualizando los logros: {error}',
@@ -234,9 +216,9 @@ export const es = {
   discount_code: 'Código de descuento',
   apply_code: 'Aplicar descuento',
   confirm_and_pay: 'Confirmar carrito y pagar',
-  modal_empty_cart: '¿Estas seguro que quieres vaciar el carrito?',
+  modal_empty_cart: '¿Estás seguro que quieres vaciar el carrito?',
   modal_cart_redirect: 'Espera mientras te redirigimos al portal de pago...',
-  modal_cart_remove_item: '¿Estas seguro que quieres quitar {item} del carrito?',
+  modal_cart_remove_item: '¿Estás seguro que quieres quitar {item} del carrito?',
 
   purchase_successful: 'Compra Exitosa',
   purchase_failed: 'Compra Fallida',
@@ -260,7 +242,7 @@ export const es = {
   modal_login_error: 'Algo ha ido mal.',
   modal_same_passwords: 'Las contraseñas deben ser iguales.',
   modal_register_success: '¡Usuario registrado con éxito!',
-  modal_email_taken: 'Este correo ya está en uso!',
+  modal_email_taken: '¡Este correo ya está en uso!',
   modal_weak_password: 'La contraseña debe tener al menos 8 caracteres, una mayúscula y un dígito.',
   modal_invalid_email: 'Por favor ingresa una dirección de correo válida.',
 
@@ -270,6 +252,7 @@ export const es = {
   postorder_date: 'Fecha de compra',
   postorder_article_list: 'Los siguientes articulos han sido añadidos a tu cuenta:',
   postorder_error: '¡Oh no! Ha ocurrido un error en la transacción.',
+
   // payment methods management  manage_payment_methods: 'Mis tarjetas',
   my_cards: 'Mis tarjetas',
   payment_methods: 'Métodos de Pago',
@@ -283,6 +266,8 @@ export const es = {
   added_on: 'Añadida el',
   back: 'Volver',
   confirm_delete: 'Confirmar Eliminación',
+  order_status_failed: 'Fallido',
+  redirecting_to_payment_setup: 'Redirigiendo a la configuración de pago...',
   
   // subscription management  subscription_management: 'Gestión de suscripción',
   subscription_management: 'Administrar tu suscripción',
@@ -290,7 +275,7 @@ export const es = {
   current_subscription: 'Suscripción Actual',
   plan_name: 'Nombre del Plan',
   price: 'Precio',
-  credits: 'Créditos',
+  credits: 'créditos',
   next_billing: 'Próxima facturación',
   change_subscription: 'Cambiar Suscripción',
   cancel_subscription: 'Cancelar Suscripción',
@@ -308,7 +293,8 @@ export const es = {
   error_creating_enrollment: 'Error al crear la inscripción de la tarjeta',
   error_deleting_payment_method: 'Error al eliminar el método de pago',
   card_registration_success: 'Tarjeta Registrada con Éxito',
-  card_registration_success_description: 'Tu tarjeta ha sido registrada correctamente y ahora está disponible para compras con un clic.',
+  card_registration_success_description: 'Tu tarjeta ha sido registrada correctamente.',
+  go_to_subscriptions: 'Ir a Suscripciones',
   card_registration_error: 'Falló el Registro de la Tarjeta',
   card_registration_canceled: 'Registro de Tarjeta Cancelado',
   missing_token: 'Falta el token de registro',
@@ -321,6 +307,7 @@ export const es = {
   form_submission_error: 'Error al enviar el formulario a la pasarela de pago',
   renew_subscription: 'Renovar Suscripción',
   expiration_date: 'Fecha de vencimiento',
+  subscription_processed_success: '¡Ya tienes acceso a todos los juegos!',
 
   // misc
   close: 'Cerrar',

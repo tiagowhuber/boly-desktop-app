@@ -16,8 +16,10 @@ const achievementsStore = useAchievements()
 const router = useRouter()
 const isLoading = ref(true)
 const ownedGames = ref<Game[]>([])
+const allOwnedGames = ref<Game[]>([])
 const gameRoutesStore = useGameRoutes()
 const isSearchingGames = ref(false)
+const showInstalledOnly = ref(true)
 
 // const gameRoutes = useGameRoutes()
 const gameRoutes=[
@@ -57,8 +59,7 @@ async function fetchOwnedGames() {
       const localGames = gameRoutesStore.getRouteItems;
       console.log('Local games:', localGames);
       
-      // Filter games that are both owned and installed locally
-      ownedGames.value = gamesList.filter((game: Game) => {
+      allOwnedGames.value = gamesList.map((game: Game) => {
         if (!game.banner_url) {
           game.banner_url = 'banner.jpg'
         }
@@ -67,16 +68,36 @@ async function fetchOwnedGames() {
         const found = localGames.find(localGame => 
           localGame.gameId === game.game_id
         );
-        if(found !== undefined){
-          game.game_Path=found.route
-          return found !== undefined;
+        
+        if (found !== undefined) {
+          game.game_Path = found.route;
+          game.isInstalled = true;
+        } else {
+          game.isInstalled = false;
         }
         
-      })
+        return game;
+      });
+      
+      updateDisplayedGames();
     }
   } catch (error) {
     console.error('Error fetching owned games:', error)
   }
+}
+
+// update displayed games based on filter settings
+function updateDisplayedGames() {
+  if (showInstalledOnly.value) {
+    ownedGames.value = allOwnedGames.value.filter(game => game.isInstalled);
+  } else {
+    ownedGames.value = [...allOwnedGames.value];
+  }
+}
+
+function toggleGamesView() {
+  showInstalledOnly.value = !showInstalledOnly.value;
+  updateDisplayedGames();
 }
 
 onMounted(async () => {
@@ -103,8 +124,7 @@ onMounted(async () => {
 <template>
   <div class="loading_container" v-if="isLoading">
     <Loading />
-  </div>
-  <div class="section" v-else>
+  </div>  <div class="section" v-else>
     <div class="main-container">
       <div>
         <div class="title-container">
@@ -113,6 +133,9 @@ onMounted(async () => {
       </div>
       <div class="title-container">
         <div class="game-count">{{ $t('all_games') }} ({{ ownedGames.length }})</div>
+        <button class="filter-button" @click="toggleGamesView">
+          {{ showInstalledOnly ? $t('show_all_games') : $t('show_installed_only') }}
+        </button>
       </div>
       <div v-if="ownedGames.length > 0" class="list">
         <DesktopLibraryItem v-for="item in ownedGames" :key="item.game_id" :item="item" />
@@ -206,6 +229,27 @@ h2 {
 }
 
 .browse-button:hover {
+  opacity: 0.9;
+}
+
+.filter-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.5rem;
+  border: none;
+  border-radius: 5px;
+  background-color: var(--boly-button-pink);
+  color: white;
+  font-family: 'Anton', Impact, sans-serif;
+  font-style: italic;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  margin-left: 1rem;
+}
+
+.filter-button:hover {
   opacity: 0.9;
 }
 </style>
