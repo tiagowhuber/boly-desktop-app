@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import LibraryItem from '@/components/games/LibraryItem.vue'
+import DesktopLibraryItem from '@/desktop-components/DesktopLibraryItem.vue'
 import Loading from '@/components/LoadingIcon.vue'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -19,6 +19,13 @@ const ownedGames = ref<Game[]>([])
 const gameRoutesStore = useGameRoutes()
 const isSearchingGames = ref(false)
 
+// const gameRoutes = useGameRoutes()
+const gameRoutes=[
+{
+      "gameId": 2,
+      "route": "\"D:Juegos\\test\\Body Defense.exe\""
+    }
+]
 // Redirect if not logged in
 if (!auth.isLoggedIn) {
   router.back()
@@ -60,8 +67,11 @@ async function fetchOwnedGames() {
         const found = localGames.find(localGame => 
           localGame.gameId === game.game_id
         );
+        if(found !== undefined){
+          game.game_Path=found.route
+          return found !== undefined;
+        }
         
-        return found !== undefined;
       })
     }
   } catch (error) {
@@ -105,7 +115,7 @@ onMounted(async () => {
         <div class="game-count">{{ $t('all_games') }} ({{ ownedGames.length }})</div>
       </div>
       <div v-if="ownedGames.length > 0" class="list">
-        <LibraryItem v-for="item in ownedGames" :key="item.game_id" :item="item" />
+        <DesktopLibraryItem v-for="item in ownedGames" :key="item.game_id" :item="item" />
       </div>
       <div v-else class="empty-library">
         <p>{{ $t('no_owned_games') }}</p>

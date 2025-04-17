@@ -39,6 +39,7 @@ export interface Game {
     developer_id: number;
     game_type_id: number;
     game_type: GameType;
+    game_Path: string;
 }
 
 export interface Achievement {

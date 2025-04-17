@@ -2,10 +2,10 @@ import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import path from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-const { spawn } = require('child_process');
-const fs = require('fs');
-const { exec } = require('child_process');
-const AdmZip = require('adm-zip');
+const { spawn } = require('child_process')
+const fs = require('fs')
+const { exec } = require('child_process')
+const AdmZip = require('adm-zip')
 import icon from '../../resources/icon.png?asset'
 import axios from 'axios'
 
@@ -69,108 +69,108 @@ async function createWindow(): Promise<void> {
 
   ipcMain.handle('seleccionar-archivo', async () => {
     try {
-  //     const { Low } = await import('lowdb');
-  // const { JSONFilePreset } = await import('lowdb/node');
-  //     const db = await JSONFilePreset('db.json',{games:[{}]})
-  //     await db.read();
-  //   db.data.games.push({ gameId:"2", installPath: '"D:\Juegos\test\Body Defense.exe"'});
-  //   await db.write();
-    // addGame(2,'"D:\Juegos\test\Body Defense.exe"')
-    const result = await dialog.showOpenDialog({ properties: ['openFile'] });
-    return result.filePaths[0];
-    } catch (error) {
-      
-    }
-    
-  });
+      //     const { Low } = await import('lowdb');
+      // const { JSONFilePreset } = await import('lowdb/node');
+      //     const db = await JSONFilePreset('db.json',{games:[{}]})
+      //     await db.read();
+      //   db.data.games.push({ gameId:"2", installPath: '"D:\Juegos\test\Body Defense.exe"'});
+      //   await db.write();
+      // addGame(2,'"D:\Juegos\test\Body Defense.exe"')
+      const result = await dialog.showOpenDialog({ properties: ['openFile'] })
+      return result.filePaths[0]
+    } catch (error) {}
+  })
 
   ipcMain.handle('seleccionar-carpeta', async () => {
-    const result = await dialog.showOpenDialog({ properties: ['openDirectory'] });
-    return result.filePaths[0];
-  });
-  
-  ipcMain.handle('instalar-desde-zip', async (test,rutaExe, rutaDestino) => {
+    const result = await dialog.showOpenDialog({ properties: ['openDirectory'] })
+    return result.filePaths[0]
+  })
+
+  ipcMain.handle('instalar-desde-zip', async (test, rutaExe, rutaDestino) => {
     try {
       // const zip = new AdmZip(rutaZip);
       // zip.extractAllTo(rutaDestino, true);
-  
+
       // const lista = zip.getEntries().map(entry => entry.entryName);
-  
+
       // const posibleInstalador = path.join(rutaDestino, 'setup.exe');
       // if (fs.existsSync(posibleInstalador)) {
-        exec(`"${rutaExe}" /DIR="${rutaDestino}" /SILENT`, (err, stdout, stderr) => {
-          if (err) console.error('Error:', err.message);
-          else console.log('Resultado:', stdout);
-        });
+      exec(`"${rutaExe}" /DIR="${rutaDestino}" /SILENT`, (err, stdout, stderr) => {
+        if (err) console.error('Error:', err.message)
+        else console.log('Resultado:', stdout)
+      })
       // }
-      return true;
+      return true
       // return lista;
     } catch (error) {
       const err = error as Error;
       return [`Error: ${err.message}`];
     }
-  });
+  })
   // async function addGame(gameId, installPath) {
   //   await db.read();
   //   db.data.games.push({ gameId, installPath });
   //   await db.write();
   // }
 
-  ipcMain.handle("play-game",async (event, appData)=>{
+  ipcMain.handle('play-game', async (event, appData) => {
+    //Params needed:
+    //-auth token
+    //-user_id
+    //-game_id
+    //-game_route
+    //This has to be called from each DesktopLibraryItem component
     //"D:\Juegos\test\Body Defense.exe"
     //------------------------------------- Ejecutar juego
+    console.log('clicked and event triggered')
     try {
       //-
-      const body = {
-        email:"jorge.puentes225@gmail.com",
-        password:"@M123123"
+
+      const { appPath, game_id, token } = appData
+      console.log("path "+appPath)
+      console.log("gameid "+game_id)
+      console.log("token "+token)
+      const req = {
+        game_id: game_id,
+        token:token
       }
-      await axios.post(`http://localhost:3001/v1/auth/`, body).then(
-        async (response)=>{
-          console.log(response.data)
-          if(response && response.data.token){
-            const req={
-              user_id:3,
-              game_id:2
+      try {
+        //--
+        await axios
+          .post(`http://localhost:3000/v1/validate/`, req, {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+          .then((validation) => {
+            if (validation.data) {
+              console.log(validation.data)
+              //---
+              try {
+                const args = `-game_id ${req.game_id} -key ${validation.data.tempKey} -token ${token}`
+                // const args = `-game_id ${req.game_id} -user_id ${req.user_id} -key ${validation.data.tempKey} -token ${response.data.token}`
+                console.log(args)
+                const appProcess = spawn(appPath, args.split(' '), { shell: true })
+
+                appProcess.stdout.on('data', (data) => {
+                  console.log(`Output: ${data}`)
+                })
+
+                appProcess.stderr.on('data', (data) => {
+                  console.error(`Error: ${data}`)
+                })
+              } catch (error) {
+                console.error('Failed to launch application:', error)
+              }
+              //---
             }
-            const token = response.data.token
-            try {
-              //-- 
-              await axios.post(`http://localhost:3001/v1/validate/`, req, {
-                headers: { Authorization: `Bearer ${token}` }
-              }).then((validation)=>{
-                if(validation.data){
-                  console.log(validation.data)
-                  //--- 
-                  try {
-                    const { appPath } = appData;
-                    const args = `-game_id ${req.game_id} -user_id ${req.user_id} -key ${validation.data.tempKey} -token ${response.data.token}`
-                    console.log(args)
-                    const appProcess = spawn(appPath, args.split(' '), { shell: true });
-              
-                    appProcess.stdout.on('data', (data) => {
-                        console.log(`Output: ${data}`);
-                    });
-              
-                    appProcess.stderr.on('data', (data) => {
-                        console.error(`Error: ${data}`);
-                    });
-                } catch (error) {
-                    console.error('Failed to launch application:', error);
-                }
-                //---
-                }
-              })
-              //-- 
-            } catch (error) {
-              console.log("error validation")
-            }
-          }
-        }
-      )
+          })
+        //--
+      } catch (error) {
+        console.log('error validation')
+      }
+
       //-
     } catch (error: any) {
-      console.log("error auth")
+      console.log('error auth')
       throw error
     } finally {
     }
@@ -180,37 +180,37 @@ async function createWindow(): Promise<void> {
     try {
       console.log(event)
       console.log(appData)
-      const { appPath, args } = appData;
-      
-      const appProcess = spawn(appPath, args.split(' '), { shell: true });
+      const { appPath, args } = appData
+
+      const appProcess = spawn(appPath, args.split(' '), { shell: true })
 
       appProcess.stdout.on('data', (data) => {
-          console.log(`Output: ${data}`);
-      });
+        console.log(`Output: ${data}`)
+      })
 
       appProcess.stderr.on('data', (data) => {
-          console.error(`Error: ${data}`);
-      });
-  } catch (error) {
-      console.error('Failed to launch application:', error);
-  }
+        console.error(`Error: ${data}`)
+      })
+    } catch (error) {
+      console.error('Failed to launch application:', error)
+    }
   })
   ipcMain.on('launch-app', (event, appData) => {
     try {
-        const { appPath, args } = appData;
-        const appProcess = spawn(appPath, args.split(' '), { shell: true });
+      const { appPath, args } = appData
+      const appProcess = spawn(appPath, args.split(' '), { shell: true })
 
-        appProcess.stdout.on('data', (data) => {
-            console.log(`Output: ${data}`);
-        });
+      appProcess.stdout.on('data', (data) => {
+        console.log(`Output: ${data}`)
+      })
 
-        appProcess.stderr.on('data', (data) => {
-            console.error(`Error: ${data}`);
-        });
+      appProcess.stderr.on('data', (data) => {
+        console.error(`Error: ${data}`)
+      })
     } catch (error) {
-        console.error('Failed to launch application:', error);
+      console.error('Failed to launch application:', error)
     }
-});
+  })
   //---
 
   mainWindow.on('ready-to-show', () => {
@@ -288,3 +288,55 @@ app.on('window-all-closed', () => {
 //   await db.read();
 //   return db.data.games;
 // }
+
+//-------------
+/*
+const body = {
+        email:"jorge.puentes225@gmail.com",
+        password:"@M123123"
+      }
+
+      await axios.post(`http://localhost:3001/v1/auth/`, body).then(
+        async (response)=>{
+          console.log(response.data)
+          if(response && response.data.token){
+            const { appPath,game_id } = appData;
+            const req={
+              // user_id:3,
+              game_id:game_id
+            }
+            try {
+              //--
+              await axios.post(`http://localhost:3001/v1/validate/`, req, {
+                headers: { Authorization: `Bearer ${auth.token}` }
+              }).then((validation)=>{
+                if(validation.data){
+                  console.log(validation.data)
+                  //---
+                  try {
+                    const args = `-game_id ${req.game_id} -key ${validation.data.tempKey} -token ${response.data.token}`
+                    // const args = `-game_id ${req.game_id} -user_id ${req.user_id} -key ${validation.data.tempKey} -token ${response.data.token}`
+                    console.log(args)
+                    const appProcess = spawn(appPath, args.split(' '), { shell: true });
+              
+                    appProcess.stdout.on('data', (data) => {
+                        console.log(`Output: ${data}`);
+                    });
+              
+                    appProcess.stderr.on('data', (data) => {
+                        console.error(`Error: ${data}`);
+                    });
+                } catch (error) {
+                    console.error('Failed to launch application:', error);
+                }
+                //---
+                }
+              })
+              //--
+            } catch (error) {
+              console.log("error validation")
+            }
+          }
+        }
+      )
+*/
