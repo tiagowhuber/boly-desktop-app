@@ -6,7 +6,6 @@ import AlertModal from '@/components/AlertModal.vue';
 import { useAuth } from '@/stores';
 import { useI18n } from 'vue-i18n';
 import { GoogleLogin } from 'vue3-google-login';
-import { decodeCredential } from 'vue3-google-login';
 
 interface GoogleResponse {
   credential: string;

@@ -126,13 +126,18 @@ const useAuth = defineStore('auth', {
         console.log(error)
       }
     },
-    async register(email: string, username: string, password: string) {
-      const response = await fetch(import.meta.env.VITE_APP_API_URL + '/v1/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, username, password })
-      });
-      return response;
+  async register(email: string, username: string, password: string) {
+      try {
+        const response = await axios.post('/v1/users', {
+          email,
+          username,
+          password
+        });
+        return response;
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
     },
     logout() {
       const user = useUser()

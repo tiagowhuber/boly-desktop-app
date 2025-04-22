@@ -9,6 +9,15 @@ const AdmZip = require('adm-zip')
 import icon from '../../resources/icon.png?asset'
 import axios from 'axios'
 
+let mainWindow
+
+if (process.defaultApp) {
+  if (process.argv.length >= 2) {
+    app.setAsDefaultProtocolClient('electron-fiddle', process.execPath, [path.resolve(process.argv[1])])
+  }
+} else {
+  app.setAsDefaultProtocolClient('electron-fiddle')
+}
 
 const searchForExecutablesRecursive = (dir: string, fileList: string[] = []): string[] => {
   try {
@@ -36,7 +45,7 @@ const searchForExecutablesRecursive = (dir: string, fileList: string[] = []): st
 
 async function createWindow(): Promise<void> {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 900,
     height: 670,
     show: false,
@@ -230,6 +239,22 @@ async function createWindow(): Promise<void> {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+}
+
+const gotTheLock = app.requestSingleInstanceLock()
+
+if (!gotTheLock) {
+  app.quit()
+} else {
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    // Someone tried to run a second instance, we should focus our window.
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore()
+      mainWindow.focus()
+    }
+    // the commandLine is array of strings in which last element is deep link url
+    dialog.showErrorBox('Welcome Back', `You arrived from: ${commandLine.pop()}`)
+  })
 }
 
 // This method will be called when Electron has finished
