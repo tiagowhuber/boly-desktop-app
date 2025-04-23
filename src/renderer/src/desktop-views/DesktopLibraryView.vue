@@ -57,7 +57,7 @@ async function fetchOwnedGames() {
       
       await loadGames();
       const localGames = gameRoutesStore.getRouteItems;
-      console.log('Local games:', localGames);
+      console.log('Local games:', JSON.stringify(localGames));
       
       allOwnedGames.value = gamesList.map((game: Game) => {
         if (!game.banner_url) {

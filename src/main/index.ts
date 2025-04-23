@@ -19,6 +19,29 @@ if (process.defaultApp) {
   app.setAsDefaultProtocolClient('boly-app')
 }
 
+async function downloadTempFile(url: string): Promise<string> {
+  const requestUrl = process.env.VITE_APP_API_URL+"/v1/games/generate-url"
+  // const downloadUrl = await axios({
+  //   method:'post',
+  //   requestUrl,
+    
+  // })
+  const tempPath = path.join(app.getPath('temp'), `descarga_${Date.now()}.tmp`);
+  const writer = fs.createWriteStream(tempPath);
+  console.log("temp path: "+tempPath)
+  const response = await axios({
+    method: 'get',
+    url,
+    responseType: 'stream',
+  });
+
+  return new Promise((resolve, reject) => {
+    response.data.pipe(writer);
+    writer.on('finish', () => resolve(tempPath));
+    writer.on('error', reject);
+  });
+}
+
 const searchForExecutablesRecursive = (dir: string, fileList: string[] = []): string[] => {
   try {
     const files = fs.readdirSync(dir);
@@ -146,7 +169,7 @@ async function createWindow(): Promise<void> {
       try {
         //--
         await axios
-          .post(`http://localhost:3000/v1/validate/`, req, {
+          .post(`${import.meta.env.VITE_APP_API_URL}/v1/validate/`, req, {
             headers: { Authorization: `Bearer ${token}` }
           })
           .then((validation) => {
@@ -155,9 +178,8 @@ async function createWindow(): Promise<void> {
               //---
               try {
                 const args = `-game_id ${req.game_id} -key ${validation.data.tempKey} -token ${token}`
-                // const args = `-game_id ${req.game_id} -user_id ${req.user_id} -key ${validation.data.tempKey} -token ${response.data.token}`
                 console.log(args)
-                const appProcess = spawn(appPath, args.split(' '), { shell: true })
+                const appProcess = spawn("\""+appPath+"\"", args.split(' '), { shell: true })
 
                 appProcess.stdout.on('data', (data) => {
                   console.log(`Output: ${data}`)
@@ -185,24 +207,7 @@ async function createWindow(): Promise<void> {
     }
     //refresh token en caso de
     //consultar clave a api
-    return
-    try {
-      console.log(event)
-      console.log(appData)
-      const { appPath, args } = appData
-
-      const appProcess = spawn(appPath, args.split(' '), { shell: true })
-
-      appProcess.stdout.on('data', (data) => {
-        console.log(`Output: ${data}`)
-      })
-
-      appProcess.stderr.on('data', (data) => {
-        console.error(`Error: ${data}`)
-      })
-    } catch (error) {
-      console.error('Failed to launch application:', error)
-    }
+    
   })
   ipcMain.on('launch-app', (event, appData) => {
     try {

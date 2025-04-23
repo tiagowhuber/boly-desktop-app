@@ -19,8 +19,16 @@ const useGameRoutes = defineStore('gameRoutes', {
   actions: {
     addGameToRoute(game: { gameId: number,route:string }) {
       // Check if game is already installed
-      const existingGame = this.localGames.find(g => g.gameId === game.gameId || g.route === game.route);
+      console.log("adding: "+game.route)
+      if(this.localGames.length>0)
+      {
+        console.log(JSON.stringify(this.localGames))
+        const existingGame = this.localGames.find(g => g.gameId === game.gameId || g.route === game.route);
       if (!existingGame) {
+        this.localGames.push(game)
+        this.saveToLocalStorage()
+      }
+      }else{
         this.localGames.push(game)
         this.saveToLocalStorage()
       }
@@ -36,8 +44,10 @@ const useGameRoutes = defineStore('gameRoutes', {
       this.saveToLocalStorage()
     },
     saveToLocalStorage() {
+      console.log("saving")
       localStorage.setItem('localGames', JSON.stringify(this.localGames))
-    },    async searchForExes() {
+    },    
+    async searchForExes() {
       try {
         const result = await window.electronAPI.searchExeFiles();
         
