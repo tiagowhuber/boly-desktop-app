@@ -36,6 +36,8 @@ if (!auth.isLoggedIn) {
 async function loadGames() {
   isSearchingGames.value = true;
   try {
+    console.log('Clearing previous game routes...');
+    await gameRoutesStore.clearRoute();
     console.log('Searching for games in My Games folder...');
     await gameRoutesStore.searchForExes();
     console.log('Found games:', gameRoutesStore.getRouteItems);
@@ -57,6 +59,8 @@ async function fetchOwnedGames() {
       
       await loadGames();
       const localGames = gameRoutesStore.getRouteItems;
+      const localUninstallers = gameRoutesStore.getUninstallerItems;
+      console.log('Local uninstallers:', JSON.stringify(localUninstallers));
       console.log('Local games:', JSON.stringify(localGames));
       
       allOwnedGames.value = gamesList.map((game: Game) => {
@@ -103,7 +107,6 @@ function toggleGamesView() {
 onMounted(async () => {
   if (auth.isLoggedIn && user.userId) {
     try {
-      await loadGames()
       
       const response = await axios.get(`/v1/users/${user.userId}`)
       if (response.status === 200) {
