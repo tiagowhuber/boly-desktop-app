@@ -84,6 +84,7 @@ export const es = {
   completed: 'Completado',
   user_games: "Juegos de {user}",
   achievements_not_available: 'Logros no disponibles',
+  no_achievements: 'No hay logros para este juego.',
   no_owned_games: "Parece que aún no tienes ningún juego...",
   browse_games: "Explorar Juegos",
   show_all_games: "Mostrar todos los juegos",

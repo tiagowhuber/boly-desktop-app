@@ -99,13 +99,7 @@ function navigateToGameDetails() {
     <img :src="props.item.banner_url" class="game-banner" />
     <div class="game-info">
       <div class="title-section">
-        <h3>{{ props.item.name[i18n.locale.value] }}</h3>
-        <div class="completion-indicator" v-if="!achievementsLoading && hasAchievements">
-          <div class="completion-bar">
-            <div class="completion-progress" :style="{width: `${gameCompletionPercentage}%`}"></div>
-          </div>
-          <span class="completion-text">{{ gameCompletionPercentage }}%</span>
-        </div>
+        <h3>{{ props.item.name[i18n.locale.value].toUpperCase() }}</h3>
       </div>
       
       <div class="divider"></div>
@@ -146,13 +140,14 @@ function navigateToGameDetails() {
       <div class="divider"></div>
       
       <div class="game-actions">
-        <button v-if="props.item.game_type_id === 2" class="action-button play-button" @click.stop="Play">
-          <span class="button-text">{{ $t('play') }}</span>
-          <PlayIcon class="icon" />
-        </button>
-        <button v-else class="action-button download-button" :disabled="loading" @click.stop="Play">
-          <span class="button-text">{{ loading ? $t('downloading') : $t('download') }}</span>
-          <DownloadIcon class="icon" />
+        <button 
+          :class="['action-button', props.item.isInstalled ? 'play-button' : 'download-button']" 
+          :disabled="!props.item.isInstalled && loading" 
+          @click.stop="props.item.isInstalled ? Play() : Download()"
+        >
+          <span class="button-text">{{ props.item.isInstalled ? $t('play') : (loading ? $t('downloading') : $t('download')) }}</span>
+          <PlayIcon v-if="props.item.isInstalled" class="icon" />
+          <DownloadIcon v-else class="icon" />
         </button>
       </div>
     </div>
@@ -184,29 +179,18 @@ function navigateToGameDetails() {
 }
 
 .game-info {
-  background: linear-gradient(to bottom, var(--color-background-soft) 0%, rgba(30, 30, 40, 0.95) 100%);
+  background: white;
   padding: 0;
   display: flex;
   flex-direction: column;
 }
 
-/* Title section with completion indicator */
-.title-section {
-  padding: 1rem 1.2rem 0.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 .title-section h3 {
+  font-family: 'Poppins', sans-serif;
+  font-size: larger;
+  color: black;
+  font-weight: bold;
   margin: 0;
-  font-family: 'Anton', Impact, sans-serif;
-  font-style: italic;
-  font-size: 1.3rem;
-  color: white;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
-  flex: 1;
 }
 
 .completion-indicator {
@@ -244,7 +228,8 @@ function navigateToGameDetails() {
 
 /* Achievements section */
 .achievements-section {
-  padding: 0.5rem 1rem;
+  padding: 0rem 1rem;
+  margin-bottom: 10px;
 }
 
 .section-label {
@@ -259,7 +244,7 @@ function navigateToGameDetails() {
 .achievements-container {
   min-height: 50px;
   display: flex;
-  justify-content: center;
+  justify-content: start;
   align-items: center;
   background: rgba(0, 0, 0, 0.15);
   border-radius: 8px;
@@ -268,7 +253,7 @@ function navigateToGameDetails() {
 
 .achievements-icons {
   display: flex;
-  justify-content: center;
+  justify-content: start;
   gap: 10px;
 }
 
@@ -308,7 +293,6 @@ function navigateToGameDetails() {
 
 .achievement-icon-wrapper:hover .achievement-tooltip {
   display: block;
-  transform: translateY(-5px);
   opacity: 1;
 }
 
@@ -372,9 +356,10 @@ function navigateToGameDetails() {
 }
 
 .no-achievements {
+  font-family: 'Poppins', sans-serif;
   font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.5);
-  font-style: italic;
+  color: black;
+  font-style: normal;
 }
 
 .achievements-loading {
@@ -450,28 +435,30 @@ function navigateToGameDetails() {
 }
 
 .play-button {
-  background: linear-gradient(to bottom right, #2e7fd1, #1e5ea8);
+  background-color: #48ace4;
   color: white;
 }
 
 .play-button:hover {
   transform: translateY(-2px) scale(1.02);
   box-shadow: 0 6px 12px rgba(30, 100, 200, 0.4);
-  background: linear-gradient(to bottom right, #3b8ae0, #2568b9);
+  background-color: #5ebdf5;
 }
 
 .download-button {
-  background: linear-gradient(to bottom right, #464850, #2c2e35);
+  font-family: 'Poppins', sans-serif;
+  background: var(--boly-button-pink);
   color: white;
 }
 
 .download-button:hover {
   transform: translateY(-2px) scale(1.02);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-  background: linear-gradient(to bottom right, #525460, #383a43);
+  background: var(--boly-button-pink);
 }
 
 .button-text {
+  font-family: 'Poppins', sans-serif;
   position: relative;
   z-index: 1;
 }

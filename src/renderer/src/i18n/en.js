@@ -85,6 +85,7 @@ export const en = {
   completed: 'Completed',
   user_games: "{user}'s games",
   achievements_not_available: 'Achievements not available',
+  no_achievements: 'No achievements for this game.',
   no_owned_games: "It looks like you don't own any games yet...",
   browse_games: "Browse Games",
   show_all_games: 'Show all games',

@@ -2,7 +2,7 @@
 import { useI18n } from 'vue-i18n'
 import DesktopLibraryItem from '@/desktop-components/DesktopLibraryItem.vue'
 import Loading from '@/components/LoadingIcon.vue'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue' 
 import { useRouter } from 'vue-router'
 import { useAuth, useUser, useGames, useAchievements } from '../stores'
 import useGameRoutes from '../desktop-stores/gameRoutes'
@@ -21,14 +21,6 @@ const gameRoutesStore = useGameRoutes()
 const isSearchingGames = ref(false)
 const showInstalledOnly = ref(true)
 
-// const gameRoutes = useGameRoutes()
-const gameRoutes=[
-{
-      "gameId": 2,
-      "route": "\"D:Juegos\\test\\Body Defense.exe\""
-    }
-]
-// Redirect if not logged in
 if (!auth.isLoggedIn) {
   router.back()
 }
@@ -50,39 +42,39 @@ async function loadGames() {
 
 async function fetchOwnedGames() {
   if (!user.userId) return
-  
+
   try {
     const response = await axios.get(`/v1/games/user/${user.userId}`)
     if (response.status === 200 && response.data) {
       const gamesList = response.data[0]?.game || []
       console.log('Extracted games list:', gamesList)
-      
+
       await loadGames();
       const localGames = gameRoutesStore.getRouteItems;
       const localUninstallers = gameRoutesStore.getUninstallerItems;
       console.log('Local uninstallers:', JSON.stringify(localUninstallers));
       console.log('Local games:', JSON.stringify(localGames));
-      
+
       allOwnedGames.value = gamesList.map((game: Game) => {
         if (!game.banner_url) {
           game.banner_url = 'banner.jpg'
         }
-        
+
         // Check if game is installed locally (if has a matching gameId)
-        const found = localGames.find(localGame => 
+        const found = localGames.find(localGame =>
           localGame.gameId === game.game_id
         );
-        
+
         if (found !== undefined) {
           game.game_Path = found.route;
           game.isInstalled = true;
         } else {
           game.isInstalled = false;
         }
-        
+
         return game;
       });
-      
+
       updateDisplayedGames();
     }
   } catch (error) {
@@ -90,7 +82,6 @@ async function fetchOwnedGames() {
   }
 }
 
-// update displayed games based on filter settings
 function updateDisplayedGames() {
   if (showInstalledOnly.value) {
     ownedGames.value = allOwnedGames.value.filter(game => game.isInstalled);
@@ -99,15 +90,16 @@ function updateDisplayedGames() {
   }
 }
 
-function toggleGamesView() {
-  showInstalledOnly.value = !showInstalledOnly.value;
+function setFilter(installedOnly: boolean) {
+  showInstalledOnly.value = installedOnly;
   updateDisplayedGames();
 }
+
 
 onMounted(async () => {
   if (auth.isLoggedIn && user.userId) {
     try {
-      
+
       const response = await axios.get(`/v1/users/${user.userId}`)
       if (response.status === 200) {
         user.setUser(response.data)
@@ -127,18 +119,31 @@ onMounted(async () => {
 <template>
   <div class="loading_container" v-if="isLoading">
     <Loading />
-  </div>  <div class="section" v-else>
+  </div>
+  <div class="section" v-else>
     <div class="main-container">
       <div>
         <div class="title-container">
           <h1>{{ $t('user_games', { user: user.username }) }}</h1>
         </div>
       </div>
-      <div class="title-container">
-        <div class="game-count">{{ $t('all_games') }} ({{ ownedGames.length }})</div>
-        <button class="filter-button" @click="toggleGamesView">
-          {{ showInstalledOnly ? $t('show_all_games') : $t('show_installed_only') }}
-        </button>
+      <div class="title-container filter-controls">
+        <div class="filter-buttons">
+          <button
+            class="filter-button"
+            :class="{ active: showInstalledOnly }"
+            @click="setFilter(true)"
+          >
+            {{ $t('show_installed_only') }}
+          </button>
+          <button
+            class="filter-button"
+            :class="{ active: !showInstalledOnly }"
+            @click="setFilter(false)"
+          >
+            {{ $t('show_all_games') }}
+          </button>
+        </div>
       </div>
       <div v-if="ownedGames.length > 0" class="list">
         <DesktopLibraryItem v-for="item in ownedGames" :key="item.game_id" :item="item" />
@@ -162,9 +167,18 @@ h2 {
 .title-container {
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: center; 
   align-items: center;
+  margin-bottom: 20px; 
 }
+
+.title-container.filter-controls {
+  justify-content: space-around; 
+  width: 100%; 
+  padding: 0 40px; 
+  box-sizing: border-box; 
+}
+
 
 .title-container h1 {
   font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
@@ -175,13 +189,19 @@ h2 {
 }
 
 .game-count {
-  text-align: center;
-  width: 300px;
   font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-  padding: 2px 40px;
+  padding: 5px 15px;
   border-radius: 5px;
   background-color: var(--boly-button-pink);
+  color: white;
+  white-space: nowrap; 
 }
+
+.filter-buttons {
+  display: flex;
+  gap: 10px; 
+}
+
 
 .list {
   flex: 1;
@@ -248,11 +268,16 @@ h2 {
   font-style: italic;
   font-size: 1rem;
   cursor: pointer;
-  transition: opacity 0.2s;
-  margin-left: 1rem;
+  transition: background-color 0.2s, opacity 0.2s; 
+  margin-left: 0;
 }
 
 .filter-button:hover {
   opacity: 0.9;
+}
+
+.filter-button.active {
+  background-color: #48ace4; 
+  opacity: 1; 
 }
 </style>
