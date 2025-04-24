@@ -72,17 +72,7 @@ async function Play() {
 
 
 async function Download() {
-  if (loading.value) return
-  loading.value = true
-  try {
-    if (props.item.game_id && auth.token) {
-      //await games.downloadGame(props.item.game_id, { token: auth.token })
-    }
-  } catch (error) {
-    console.error('Error downloading game:', error)
-  } finally {
-    loading.value = false
-  }
+  if (props.item.game_id) window.electronAPI.downloadGame({game_id:props.item.game_id,token:auth.token,gameName:props.item.name.es})
 }
 
 function navigateToGameDetails() {
