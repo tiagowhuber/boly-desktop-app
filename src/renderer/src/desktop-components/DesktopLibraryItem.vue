@@ -137,7 +137,6 @@ function navigateToGameDetails() {
         </div>
       </div>
       
-      <div class="divider"></div>
       
       <div class="game-actions">
         <button 
