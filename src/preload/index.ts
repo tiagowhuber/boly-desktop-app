@@ -19,6 +19,7 @@ if (process.contextIsolated) {
       seleccionarCarpeta: () => ipcRenderer.invoke('seleccionar-carpeta'),
       instalarDesdeZip: (rutaExe, rutaDestion) => ipcRenderer.invoke('instalar-desde-zip', rutaExe, rutaDestion),
       playGame:(appData) => ipcRenderer.invoke('play-game', appData),
+      downloadGame:(appData) => ipcRenderer.invoke('download-game', appData),
       searchExeFiles: (baseDir) => ipcRenderer.invoke('search-exe-files', baseDir)
     })
   } catch (error) {
@@ -36,6 +37,7 @@ if (process.contextIsolated) {
     seleccionarCarpeta: () => ipcRenderer.invoke('seleccionar-carpeta'),
     instalarDesdeZip: (rutaExe, rutaDestion) => ipcRenderer.invoke('instalar-desde-zip', rutaExe, rutaDestion),
     playGame: (appData) => ipcRenderer.invoke('play-game', appData),
+    downloadGame:(appData) => ipcRenderer.invoke('download-game', appData),
     searchExeFiles: (baseDir) => ipcRenderer.invoke('search-exe-files', baseDir)
   }
   

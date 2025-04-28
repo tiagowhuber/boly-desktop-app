@@ -19,52 +19,102 @@ if (process.defaultApp) {
   app.setAsDefaultProtocolClient('boly-app')
 }
 
-async function downloadTempFile(url: string): Promise<string> {
-  const requestUrl = process.env.VITE_APP_API_URL+"/v1/games/generate-url"
-  // const downloadUrl = await axios({
-  //   method:'post',
-  //   requestUrl,
-    
-  // })
-  const tempPath = path.join(app.getPath('temp'), `descarga_${Date.now()}.tmp`);
-  const writer = fs.createWriteStream(tempPath);
-  console.log("temp path: "+tempPath)
+async function downloadTempFile(token: string, game_id: number, gameName: string) {
+  const req = { token, game_id, is_web: false }
+  //Solicitar url a api
+  const responseUrl = await axios.post(`${import.meta.env.VITE_APP_API_URL}/v1/games/url`, req, {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+  if (!responseUrl.data) {
+    return
+  }
+
+  const tempPath = path.join(app.getPath('temp'), `descarga_${Date.now()}.exe`)
+  const writer = fs.createWriteStream(tempPath)
+  console.log('temp path: ' + tempPath)
+  //Intentar descargar archivo
   const response = await axios({
     method: 'get',
-    url,
-    responseType: 'stream',
-  });
+    url: responseUrl.data.url,
+    responseType: 'stream'
+  })
+  const totalLength = parseInt(response.headers['content-length'] || '0', 10);
 
-  return new Promise((resolve, reject) => {
-    response.data.pipe(writer);
-    writer.on('finish', () => resolve(tempPath));
-    writer.on('error', reject);
+  let downloaded = 0;
+
+  response.data.on('data', (chunk: Buffer) => {
+    downloaded += chunk.length;
+    const percent = ((downloaded / totalLength) * 100).toFixed(2);
+    process.stdout.write(`\r📥 Descargando... ${percent}%`);
   });
+  const gameNameNoSymbols = gameName.replace(/[^\w\sáéíóúÁÉÍÓÚñÑ]/g, '');
+  return new Promise((resolve, reject) => {
+    response.data.pipe(writer)
+    writer.on('finish', () => {
+      const gamePath = path.join(app.getPath('documents'), `My Games\\${gameNameNoSymbols}`)
+      //Install game
+      installGame(tempPath, gamePath)
+      resolve(tempPath)
+      //Remove installer
+    })
+    writer.on('error', reject)
+  })
+}
+
+function deleteFile(filePath: string) {
+  fs.unlink(filePath, (err) => {
+    if (err) {
+      console.error('Error al eliminar el archivo:', err)
+    } else {
+      console.log('Archivo eliminado:', filePath)
+    }
+  })
+}
+
+async function installGame(installerRoute: string, destinationRoute: string) {
+  try {
+    const command = `"${installerRoute}" /DIR="${destinationRoute}" /SILENT`
+    console.log(command)
+    exec(command, (err, stdout, stderr) => {
+      if (err) console.error('Error:', err.message)
+      else {
+        console.log('Resultado:', stdout)
+        //Remove temp files
+        deleteFile(installerRoute)
+      }
+    })
+    // }
+    return true
+    // return lista;
+  } catch (error) {
+    const err = error as Error
+    return [`Error: ${err.message}`]
+  }
 }
 
 const searchForExecutablesRecursive = (dir: string, fileList: string[] = []): string[] => {
   try {
-    const files = fs.readdirSync(dir);
-    
+    const files = fs.readdirSync(dir)
+
     files.forEach((file: string) => {
-      const filePath = path.join(dir, file);
+      const filePath = path.join(dir, file)
       try {
         if (fs.statSync(filePath).isDirectory()) {
-          searchForExecutablesRecursive(filePath, fileList);
+          searchForExecutablesRecursive(filePath, fileList)
         } else if (file.toLowerCase().endsWith('.exe')) {
-          fileList.push(filePath);
+          fileList.push(filePath)
         }
       } catch (err) {
-        console.error(`Error accessing ${filePath}:`, err);
+        console.error(`Error accessing ${filePath}:`, err)
       }
-    });
-    
-    return fileList;
+    })
+
+    return fileList
   } catch (err) {
-    console.error(`Error reading directory ${dir}:`, err);
-    return fileList;
+    console.error(`Error reading directory ${dir}:`, err)
+    return fileList
   }
-};
+}
 
 async function createWindow(): Promise<void> {
   // Create the browser window.
@@ -85,19 +135,19 @@ async function createWindow(): Promise<void> {
 
   ipcMain.handle('search-exe-files', async (_event, baseDir) => {
     try {
-      const searchDir = baseDir || path.join(app.getPath('documents'), 'My Games');
-      
+      const searchDir = baseDir || path.join(app.getPath('documents'), 'My Games')
+
       if (!fs.existsSync(searchDir)) {
-        return { error: `Directory does not exist: ${searchDir}` };
+        return { error: `Directory does not exist: ${searchDir}` }
       }
-      
-      const exeFiles = searchForExecutablesRecursive(searchDir);
-      return { files: exeFiles };
+
+      const exeFiles = searchForExecutablesRecursive(searchDir)
+      return { files: exeFiles }
     } catch (error) {
-      console.error('Error searching for executable files:', error);
-      return { error: (error as Error).message };
+      console.error('Error searching for executable files:', error)
+      return { error: (error as Error).message }
     }
-  });
+  })
 
   ipcMain.handle('seleccionar-archivo', async () => {
     try {
@@ -135,8 +185,8 @@ async function createWindow(): Promise<void> {
       return true
       // return lista;
     } catch (error) {
-      const err = error as Error;
-      return [`Error: ${err.message}`];
+      const err = error as Error
+      return [`Error: ${err.message}`]
     }
   })
   // async function addGame(gameId, installPath) {
@@ -144,6 +194,10 @@ async function createWindow(): Promise<void> {
   //   db.data.games.push({ gameId, installPath });
   //   await db.write();
   // }
+  ipcMain.handle('download-game', async (event, appData) => {
+    const { game_id, token,gameName } = appData
+    downloadTempFile(token, game_id,gameName)
+  })
 
   ipcMain.handle('play-game', async (event, appData) => {
     //Params needed:
@@ -155,16 +209,18 @@ async function createWindow(): Promise<void> {
     //"D:\Juegos\test\Body Defense.exe"
     //------------------------------------- Ejecutar juego
     console.log('clicked and event triggered')
+    const { appPath, game_id, token } = appData
+    // downloadTempFile(token,game_id)
+    // return;
     try {
       //-
 
-      const { appPath, game_id, token } = appData
-      console.log("path "+appPath)
-      console.log("gameid "+game_id)
-      console.log("token "+token)
+      console.log('path ' + appPath)
+      console.log('gameid ' + game_id)
+      console.log('token ' + token)
       const req = {
         game_id: game_id,
-        token:token
+        token: token
       }
       try {
         //--
@@ -179,7 +235,7 @@ async function createWindow(): Promise<void> {
               try {
                 const args = `-game_id ${req.game_id} -key ${validation.data.tempKey} -token ${token}`
                 console.log(args)
-                const appProcess = spawn("\""+appPath+"\"", args.split(' '), { shell: true })
+                const appProcess = spawn('"' + appPath + '"', args.split(' '), { shell: true })
 
                 appProcess.stdout.on('data', (data) => {
                   console.log(`Output: ${data}`)
@@ -207,7 +263,6 @@ async function createWindow(): Promise<void> {
     }
     //refresh token en caso de
     //consultar clave a api
-    
   })
   ipcMain.on('launch-app', (event, appData) => {
     try {

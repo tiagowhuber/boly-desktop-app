@@ -92,6 +92,9 @@ function updateDisplayedGames() {
 
 function setFilter(installedOnly: boolean) {
   showInstalledOnly.value = installedOnly;
+  if (installedOnly) {
+    loadGames();
+  }
   updateDisplayedGames();
 }
 
