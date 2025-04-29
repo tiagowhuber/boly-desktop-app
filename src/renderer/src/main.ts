@@ -7,6 +7,7 @@ import App from './App.vue'
 import router from './router'
 import i18n from './i18n'
 import { useAuth } from '@/stores'
+import useDownloadStore from '@/desktop-stores/download'
 import vue3GoogleLogin from 'vue3-google-login'
 import axios from 'axios'
 
@@ -21,6 +22,8 @@ app.use(router)
 app.use(i18n)
 
 const auth = useAuth()
+const downloadStore = useDownloadStore()
+downloadStore.setupDownloadListeners()
 
 axios.defaults.baseURL = import.meta.env.VITE_APP_API_URL
 axios.interceptors.request.use((config) => {  

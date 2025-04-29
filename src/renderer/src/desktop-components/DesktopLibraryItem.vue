@@ -60,6 +60,20 @@ async function fetchGameAchievements() {
 
 onMounted(() => {
   fetchGameAchievements();
+ //todo: use the download store 
+  window.electronAPI.onDownloadComplete((data) => {
+    if (data.gameId === props.item.game_id) {
+      loading.value = false;
+      props.item.isInstalled = true;
+      props.item.game_Path = data.installPath;
+    }
+  });
+  
+  window.electronAPI.onDownloadError((data) => {
+    if (data.gameId === props.item.game_id) {
+      loading.value = false;
+    }
+  });
 });
 
 async function Play() {
@@ -72,7 +86,23 @@ async function Play() {
 
 
 async function Download() {
-  if (props.item.game_id) window.electronAPI.downloadGame({game_id:props.item.game_id,token:auth.token,gameName:props.item.name.es})
+  if (loading.value) return;
+  loading.value = true;
+  
+  try {
+    if (props.item.game_id) {
+      const gameName = props.item.name[i18n.locale.value] || props.item.name.es || "Game";
+      
+      window.electronAPI.downloadGame({
+        game_id: props.item.game_id,
+        token: auth.token,
+        gameName: gameName
+      });
+    }
+  } catch (error) {
+    console.error('Error initiating download:', error);
+    loading.value = false;
+  }
 }
 
 function navigateToGameDetails() {

@@ -20,45 +20,97 @@ if (process.defaultApp) {
 }
 
 async function downloadTempFile(token: string, game_id: number, gameName: string) {
-  const req = { token, game_id, is_web: false }
-  //Solicitar url a api
-  const responseUrl = await axios.post(`${import.meta.env.VITE_APP_API_URL}/v1/games/url`, req, {
-    headers: { Authorization: `Bearer ${token}` }
-  })
-  if (!responseUrl.data) {
-    return
-  }
+  const req = { token, game_id, is_web: false };
+  try {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('download-started', { 
+        gameId: game_id,
+        gameName: gameName
+      });
+    }
 
-  const tempPath = path.join(app.getPath('temp'), `descarga_${Date.now()}.exe`)
-  const writer = fs.createWriteStream(tempPath)
-  console.log('temp path: ' + tempPath)
-  //Intentar descargar archivo
-  const response = await axios({
-    method: 'get',
-    url: responseUrl.data.url,
-    responseType: 'stream'
-  })
-  const totalLength = parseInt(response.headers['content-length'] || '0', 10);
-
-  let downloaded = 0;
-
-  response.data.on('data', (chunk: Buffer) => {
-    downloaded += chunk.length;
-    const percent = ((downloaded / totalLength) * 100).toFixed(2);
-    process.stdout.write(`\r📥 Descargando... ${percent}%`);
-  });
-  const gameNameNoSymbols = gameName.replace(/[^\w\sáéíóúÁÉÍÓÚñÑ]/g, '');
-  return new Promise((resolve, reject) => {
-    response.data.pipe(writer)
-    writer.on('finish', () => {
-      const gamePath = path.join(app.getPath('documents'), `My Games\\${gameNameNoSymbols}`)
-      //Install game
-      installGame(tempPath, gamePath)
-      resolve(tempPath)
-      //Remove installer
+    //Solicitar url a api
+    // @ts-ignore
+    const responseUrl = await axios.post(`${import.meta.env.VITE_APP_API_URL}/v1/games/url`, req, {
+      headers: { Authorization: `Bearer ${token}` }
     })
-    writer.on('error', reject)
-  })
+    
+    if (!responseUrl.data) {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('download-error', { 
+          gameId: game_id,
+          error: 'Failed to get download URL'
+        });
+      }
+      return;
+    }
+
+    const tempPath = path.join(app.getPath('temp'), `descarga_${Date.now()}.exe`)
+    const writer = fs.createWriteStream(tempPath)
+    console.log('temp path: ' + tempPath)
+    
+    //Intentar descargar archivo
+    const response = await axios({
+      method: 'get',
+      url: responseUrl.data.url,
+      responseType: 'stream'
+    })    
+    const totalLength = parseInt(response.headers['content-length'] || '0', 10);
+
+    let downloaded = 0;
+    let lastProgressUpdate = Date.now();
+    const UPDATE_INTERVAL = 100;
+
+    response.data.on('data', (chunk: Buffer) => {
+      downloaded += chunk.length;
+      const percent = (downloaded / totalLength) * 100;
+      process.stdout.write(`\r📥 Descargando... ${percent.toFixed(2)}%`);
+      
+      const now = Date.now();
+      if (now - lastProgressUpdate > UPDATE_INTERVAL && mainWindow && !mainWindow.isDestroyed()) {
+        lastProgressUpdate = now;
+        mainWindow.webContents.send('download-progress', { 
+          gameId: game_id,
+          progress: percent,
+          downloaded: downloaded,
+          total: totalLength
+        });
+      }
+    });
+    
+    const gameNameNoSymbols = gameName.replace(/[^\w\sáéíóúÁÉÍÓÚñÑ]/g, '');
+    return new Promise((resolve, reject) => {
+      response.data.pipe(writer)
+      writer.on('finish', () => {
+        const gamePath = path.join(app.getPath('documents'), `My Games\\${gameNameNoSymbols}`)
+        mainWindow.webContents.send('download-complete', { 
+          gameId: game_id,
+          installPath: gamePath
+        });
+        
+        //Install game
+        installGame(tempPath, gamePath)
+        resolve(tempPath)
+        //Remove installer
+      })
+      writer.on('error', (err) => {
+        mainWindow.webContents.send('download-error', { 
+          gameId: game_id,
+          error: err.message
+        });
+        reject(err);
+      })
+    })  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('download-error', { 
+        gameId: game_id,
+        error: errorMessage
+      });
+    }
+    console.error('Download error:', errorMessage);
+    throw error;
+  }
 }
 
 function deleteFile(filePath: string) {
@@ -148,7 +200,7 @@ async function createWindow(): Promise<void> {
       return { error: (error as Error).message }
     }
   })
-
+  
   ipcMain.handle('seleccionar-archivo', async () => {
     try {
       //     const { Low } = await import('lowdb');
@@ -160,7 +212,10 @@ async function createWindow(): Promise<void> {
       // addGame(2,'"D:\Juegos\test\Body Defense.exe"')
       const result = await dialog.showOpenDialog({ properties: ['openFile'] })
       return result.filePaths[0]
-    } catch (error) {}
+    } catch (error) {
+      console.error('Error selecting file:', error);
+      return null;
+    }
   })
 
   ipcMain.handle('seleccionar-carpeta', async () => {
@@ -224,7 +279,7 @@ async function createWindow(): Promise<void> {
       }
       try {
         //--
-        await axios
+        await axios// @ts-ignore
           .post(`${import.meta.env.VITE_APP_API_URL}/v1/validate/`, req, {
             headers: { Authorization: `Bearer ${token}` }
           })

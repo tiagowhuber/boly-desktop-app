@@ -4,13 +4,16 @@ import { useCart } from '@/stores'
 import TheNavbar from './components/navbar/TheNavbar.vue'
 import TheFooter from './components/footer/TheFooter.vue'
 import Loading from '@/components/LoadingIcon.vue'
+import DownloadProgressBar from '@/components/DownloadProgressBar.vue'
 import { provide } from 'vue'
 import { useAuth } from '@/stores'
+import useDownloadStore from '@/desktop-stores/download'
 import { useI18n } from 'vue-i18n'
 import ModalComponent from '@/components/ModalComponent.vue'
 
 const i18n = useI18n()
 const auth = useAuth()
+const downloadStore = useDownloadStore()
 
 auth.checkToken()
 
@@ -38,9 +41,15 @@ provide('cart', shoppingCart)
       <RouterView class="view-container" />
       <TheFooter :small="false" :color="'dark-purple'" v-if="$route.path == '/'"/>
       <TheFooter :small="false" :color="'blue'" v-else/>
-    </template>
+  </template>
     <button class="lang-button" @click="$i18n.locale = $i18n.locale == 'es'? 'en' : 'es'">{{ $i18n.locale.toUpperCase() }}</button>
     <ModalComponent />
+    
+    <DownloadProgressBar
+      :progress="downloadStore.downloadProgress"
+      :gameName="downloadStore.downloadingGameName"
+      :isVisible="downloadStore.isDownloading"
+    />
   </template>
 </template>
 

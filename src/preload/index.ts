@@ -13,21 +13,39 @@ console.log("contextIsolated: "+process.contextIsolated)
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', api)
+    contextBridge.exposeInMainWorld('api', api)   
     contextBridge.exposeInMainWorld('electronAPI', {
       seleccionarArchivo: () => ipcRenderer.invoke('seleccionar-archivo'),
       seleccionarCarpeta: () => ipcRenderer.invoke('seleccionar-carpeta'),
       instalarDesdeZip: (rutaExe, rutaDestion) => ipcRenderer.invoke('instalar-desde-zip', rutaExe, rutaDestion),
       playGame:(appData) => ipcRenderer.invoke('play-game', appData),
       downloadGame:(appData) => ipcRenderer.invoke('download-game', appData),
-      searchExeFiles: (baseDir) => ipcRenderer.invoke('search-exe-files', baseDir)
-    })
+      searchExeFiles: (baseDir) => ipcRenderer.invoke('search-exe-files', baseDir),
+      // Download event listeners
+      onDownloadStarted: (callback) => {
+        ipcRenderer.on('download-started', (_event, ...args) => callback(...args));
+      },
+      onDownloadProgress: (callback) => {
+        ipcRenderer.on('download-progress', (_event, ...args) => callback(...args));
+      },
+      onDownloadComplete: (callback) => {
+        ipcRenderer.on('download-complete', (_event, ...args) => callback(...args));
+      },
+      onDownloadError: (callback) => {
+        ipcRenderer.on('download-error', (_event, ...args) => callback(...args));
+      },
+      // Cleanup
+      removeAllListeners: (channel) => {
+        if (['download-started', 'download-progress', 'download-complete', 'download-error'].includes(channel)) {
+          ipcRenderer.removeAllListeners(channel);
+        }
+      }
+    });
   } catch (error) {
     console.error(error)
   }
 } else {
-  
-  // @ts-ignore (define in dts)
+    // @ts-ignore (define in dts)
   window.electron = electronAPI
   // @ts-ignore (define in dts)
   window.api = api
@@ -38,7 +56,26 @@ if (process.contextIsolated) {
     instalarDesdeZip: (rutaExe, rutaDestion) => ipcRenderer.invoke('instalar-desde-zip', rutaExe, rutaDestion),
     playGame: (appData) => ipcRenderer.invoke('play-game', appData),
     downloadGame:(appData) => ipcRenderer.invoke('download-game', appData),
-    searchExeFiles: (baseDir) => ipcRenderer.invoke('search-exe-files', baseDir)
+    searchExeFiles: (baseDir) => ipcRenderer.invoke('search-exe-files', baseDir),
+    // Download event listeners
+    onDownloadStarted: (callback) => {
+      ipcRenderer.on('download-started', (_event, ...args) => callback(...args));
+    },
+    onDownloadProgress: (callback) => {
+      ipcRenderer.on('download-progress', (_event, ...args) => callback(...args));
+    },
+    onDownloadComplete: (callback) => {
+      ipcRenderer.on('download-complete', (_event, ...args) => callback(...args));
+    },
+    onDownloadError: (callback) => {
+      ipcRenderer.on('download-error', (_event, ...args) => callback(...args));
+    },
+    // Cleanup
+    removeAllListeners: (channel) => {
+      if (['download-started', 'download-progress', 'download-complete', 'download-error'].includes(channel)) {
+        ipcRenderer.removeAllListeners(channel);
+      }
+    }
   }
   
 }

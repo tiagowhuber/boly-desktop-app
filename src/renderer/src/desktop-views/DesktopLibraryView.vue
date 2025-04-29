@@ -2,27 +2,51 @@
 import { useI18n } from 'vue-i18n'
 import DesktopLibraryItem from '@/desktop-components/DesktopLibraryItem.vue'
 import Loading from '@/components/LoadingIcon.vue'
-import { onMounted, ref, computed } from 'vue' 
+import { onMounted, ref, onBeforeUnmount } from 'vue' 
 import { useRouter } from 'vue-router'
-import { useAuth, useUser, useGames, useAchievements } from '../stores'
+import { useAuth, useUser } from '../stores'
 import useGameRoutes from '../desktop-stores/gameRoutes'
 import axios from 'axios'
 import type { Game} from '@/types'
 
 const auth = useAuth()
 const user = useUser()
-const games = useGames()
-const achievementsStore = useAchievements()
+//const games = useGames()
+//const achievementsStore = useAchievements()
+const gameRoutesStore = useGameRoutes()
 const router = useRouter()
 const isLoading = ref(true)
 const ownedGames = ref<Game[]>([])
 const allOwnedGames = ref<Game[]>([])
-const gameRoutesStore = useGameRoutes()
 const isSearchingGames = ref(false)
 const showInstalledOnly = ref(true)
 
 if (!auth.isLoggedIn) {
   router.back()
+}
+
+function setupLibraryDownloadHandlers() {
+  // todo: wait for instalation before loadgames
+  window.electronAPI.onDownloadComplete((data) => {
+    console.log('Library detected download complete:', data);
+    
+    const gameIndex = allOwnedGames.value.findIndex(g => g.game_id === data.gameId);
+    if (gameIndex !== -1) {
+      allOwnedGames.value[gameIndex].isInstalled = true;
+      allOwnedGames.value[gameIndex].game_Path = data.installPath;
+      updateDisplayedGames();
+    }
+    
+    loadGames();
+  });
+}
+
+function cleanupLibraryDownloadHandlers() {
+  try {
+    window.electronAPI.removeAllListeners('download-complete');
+  } catch (error) {
+    console.error('Error cleaning up library download handlers:', error);
+  }
 }
 
 async function loadGames() {
@@ -98,11 +122,10 @@ function setFilter(installedOnly: boolean) {
   updateDisplayedGames();
 }
 
-
 onMounted(async () => {
   if (auth.isLoggedIn && user.userId) {
     try {
-
+      setupLibraryDownloadHandlers();
       const response = await axios.get(`/v1/users/${user.userId}`)
       if (response.status === 200) {
         user.setUser(response.data)
@@ -116,6 +139,10 @@ onMounted(async () => {
   } else {
     isLoading.value = false
   }
+})
+
+onBeforeUnmount(() => {
+  cleanupLibraryDownloadHandlers();
 })
 </script>
 
@@ -150,7 +177,7 @@ onMounted(async () => {
       </div>
       <div v-if="ownedGames.length > 0" class="list">
         <DesktopLibraryItem v-for="item in ownedGames" :key="item.game_id" :item="item" />
-      </div>
+      </div>     
       <div v-else class="empty-library">
         <p>{{ $t('no_owned_games') }}</p>
         <button class="browse-button" @click="router.push('/games')">{{ $t('browse_games') }}</button>
