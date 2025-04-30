@@ -1,55 +1,56 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { RouterLink, useRouter } from 'vue-router';
-import AlertModal from '@/components/AlertModal.vue';
+import { ref } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
+import AlertModal from '@/components/AlertModal.vue'
 
-import { useAuth } from '@/stores';
-import { useI18n } from 'vue-i18n';
-import { GoogleLogin } from 'vue3-google-login';
+import { useAuth } from '@/stores'
+import { useI18n } from 'vue-i18n'
+import { GoogleLogin } from 'vue3-google-login'
 
 interface GoogleResponse {
-  credential: string;
+  credential: string
 }
 
-const i18n = useI18n();
+const i18n = useI18n()
 
-const auth = useAuth();
-const router = useRouter();
+const auth = useAuth()
+const router = useRouter()
 
-const showModal = ref<boolean>(false);
-const modalWarning = ref<string>('');
+const showModal = ref<boolean>(false)
+const modalWarning = ref<string>('')
 
-const email = ref<string>('');
-const password = ref<string>('');
+const email = ref<string>('')
+const password = ref<string>('')
 
 function modalCallback(): void {
-  showModal.value = false;
-  if (auth.isLoggedIn) router.push('/');
+  showModal.value = false
+  if (auth.isLoggedIn) router.push('/')
 }
 
 async function submit(): Promise<void> {
-  console.log("submit");
+  console.log('submit')
   if (email.value.length === 0 || password.value.length === 0) {
-    showModal.value = true;
-    modalWarning.value = i18n.t("modal_all_fields") as string;
-    return;
+    showModal.value = true
+    modalWarning.value = i18n.t('modal_all_fields') as string
+    return
   }
 
-  await auth.login(email.value, password.value, router);
+  await auth.login(email.value, password.value, router)
 
   if (auth.isLoggedIn) {
-    router.push('/');
+    router.push('/')
   } else {
-    showModal.value = true;
-    modalWarning.value = (i18n.t("error") as string) + ': ' + (i18n.t("invalid_credentials") as string);
+    showModal.value = true
+    modalWarning.value =
+      (i18n.t('error') as string) + ': ' + (i18n.t('invalid_credentials') as string)
   }
 }
 
 async function handleGoogleLogin(response: GoogleResponse): Promise<void> {
-  await auth.googleLogin(response.credential, router);
+  await auth.googleLogin(response.credential, router)
 }
-async function signGoogle(){
-  window.electronAPI.loginWithGoogle();
+async function signGoogle() {
+  window.electronAPI.loginWithGoogle()
 }
 </script>
 
@@ -57,7 +58,11 @@ async function signGoogle(){
   <div class="login-page-wrapper">
     <img src="@/assets/images/elements/11.png" alt="Decorative element" class="left-side-image" />
     <div class="login-container">
-      <img src="@/assets/images/elements/9.png" alt="Decorative element" class="login-element-image top-image" />
+      <img
+        src="@/assets/images/elements/9.png"
+        alt="Decorative element"
+        class="login-element-image top-image"
+      />
       <div class="fields">
         <form @submit.prevent="submit()">
           <h1 class="login-title">{{ $t('login').toUpperCase() }}</h1>
@@ -70,10 +75,7 @@ async function signGoogle(){
             <label for="name" class="form_label">{{ $t('password') }}</label>
           </div>
           <button class="login_button_text">{{ $t('login').toUpperCase() }}</button>
-            <div class="google-login">
-            <button v-on:click="signGoogle"></button>
-            <!-- <GoogleLogin :callback="handleGoogleLogin" /> -->
-            </div>
+
           <Teleport to="body">
             <AlertModal :show="showModal" @close="modalCallback">
               <template #header>
@@ -83,12 +85,26 @@ async function signGoogle(){
             </AlertModal>
           </Teleport>
         </form>
+        <div class="login-container">
+          <form>
+          <button class="login_button_text" v-on:click="signGoogle">
+            {{ $t('login_google').toUpperCase() }}
+          </button>
+        </form>
+          <!-- <GoogleLogin :callback="handleGoogleLogin" /> -->
+        </div>
         <div class="register">
           <p>{{ $t('no_account') }}</p>
-          <RouterLink to="/register" style="color: white; text-decoration: underline;">{{ $t('register') }}</RouterLink>
+          <RouterLink to="/register" style="color: white; text-decoration: underline">{{
+            $t('register')
+          }}</RouterLink>
         </div>
       </div>
-      <img src="@/assets/images/elements/8.png" alt="Decorative element" class="login-element-image bottom-image" />
+      <img
+        src="@/assets/images/elements/8.png"
+        alt="Decorative element"
+        class="login-element-image bottom-image"
+      />
     </div>
     <img src="@/assets/images/elements/10.png" alt="Decorative element" class="right-side-image" />
   </div>
@@ -96,11 +112,11 @@ async function signGoogle(){
 
 <style scoped>
 a {
-  color: var(--lightGreen)
+  color: var(--lightGreen);
 }
 
 a:hover {
-  color: var(--lightCyan)
+  color: var(--lightCyan);
 }
 
 h1 {
@@ -161,7 +177,7 @@ h1 {
   color: transparent;
 }
 
-.login-container .fields .form_field:placeholder-shown~.form_label {
+.login-container .fields .form_field:placeholder-shown ~ .form_label {
   cursor: text;
   top: 20px;
 }
@@ -183,7 +199,7 @@ h1 {
   border-image-slice: 1;
 }
 
-.login-container .fields .form_field:focus~.form_label {
+.login-container .fields .form_field:focus ~ .form_label {
   position: absolute;
   top: 0;
   display: block;
@@ -219,7 +235,7 @@ h1 {
 
 .login-container form button:hover {
   transition: 0.2s;
-  background-color: var(--boly-button-purple-hover );
+  background-color: var(--boly-button-purple-hover);
 }
 
 .login-container form :deep(.google-button) {
@@ -275,26 +291,28 @@ h1 {
   .login-page-wrapper {
     flex-direction: column;
   }
-  
-  .right-side-image, .left-side-image {
+
+  .right-side-image,
+  .left-side-image {
     width: 20px;
     margin: 1rem 0;
   }
-  
+
   .login-element-image {
     width: 20px;
   }
 }
 
 @media screen and (max-width: 480px) {
-  .right-side-image, .left-side-image {
+  .right-side-image,
+  .left-side-image {
     width: 20px;
   }
-  
+
   .login-element-image {
     width: 20px;
   }
-  
+
   .login-title {
     font-size: 2rem;
   }

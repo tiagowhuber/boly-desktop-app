@@ -236,6 +236,7 @@ export const es = {
 
   // login/register view
   login: 'Iniciar sesión',
+  login_google:'Iniciar sesión con Google',
   register: 'Registrarse',
   login_email: 'email o usuario',
   repassword: 'Repetir contraseña',

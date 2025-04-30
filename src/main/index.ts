@@ -40,31 +40,8 @@ let authWindow
 let router
 
 async function requestLoginGoogle(){
-  authWindow = new BrowserWindow({
-    width: 500,
-    height: 600,
-    show: true,
-    autoHideMenuBar: true,
-    webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
-      sandbox: false,
-      nodeIntegration: true,
-      contextIsolation: true
-    }
-  });
-  // config.state = auth.setRandomGoogleAuthToken();
-  // const responseUrl = await axios.get(`https://accounts.google.com/o/oauth2/v2/auth`, {params:config})
-  console.log()
   const queryString = new URLSearchParams(config).toString();
-  console.log(queryString)
-  authWindow.loadURL(`https://accounts.google.com/o/oauth2/v2/auth?${queryString}`);
-}
-
-function resolveGoogleLogin(){
-  // authWindow.close();
-  // router.push("/")
-  // if (mainWindow.isMinimized()) mainWindow.restore()
-  //   mainWindow.focus()
+  mainWindow.loadURL(`https://accounts.google.com/o/oauth2/v2/auth?${queryString}`);
 }
 
 if (process.defaultApp) {

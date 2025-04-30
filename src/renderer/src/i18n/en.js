@@ -230,6 +230,7 @@ export const en = {
 
   // login/register view
   login: 'Login',
+  login_google:'Login with Google',
   register: 'Register',
   login_email: 'email or username',
   repassword: 'Repeat password',
