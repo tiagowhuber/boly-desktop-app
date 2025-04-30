@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
-import { useGames, useAuth, useAchievements } from '@/stores'
+//import { useRouter } from 'vue-router'
+import { useAuth, useAchievements } from '@/stores'
 import type { Game, Achievement } from '@/types'
 import PlayIcon from '@/components/icons/PlayIcon.vue'
+import LoadingSpinnerIcon from '@/components/icons/LoadingSpinnerIcon.vue'
 import DownloadIcon from '@/components/icons/DownloadIcon.vue'
 
 const props = defineProps<{
@@ -12,17 +13,18 @@ const props = defineProps<{
 }>()
 
 const i18n = useI18n()
-const router = useRouter()
-const games = useGames()
+//const router = useRouter()
+//const games = useGames()
 const auth = useAuth()
 const achievementsStore = useAchievements()
 const loading = ref(false)
+const isDownloading = ref(false)
 const gameAchievements = ref<Achievement[]>([])
 const achievementsLoading = ref(true)
 
 console.log('LibraryItem received game:', props.item)
 
-const gameDataBaseUrl = import.meta.env.VITE_S3_BASE_URL + '/' + props.item.game_id + '/'
+//const gameDataBaseUrl = import.meta.env.VITE_S3_BASE_URL + '/' + props.item.game_id + '/'
 
 
 const displayedAchievements = computed(() => {
@@ -33,16 +35,16 @@ const hasAchievements = computed(() => {
   return gameAchievements.value.length > 0;
 });
 
-const gameCompletionPercentage = computed(() => {
-  if (!gameAchievements.value.length) return 0;
+// const gameCompletionPercentage = computed(() => {
+//   if (!gameAchievements.value.length) return 0;
   
-  const totalAchievements = gameAchievements.value.length;
-  const completedAchievements = gameAchievements.value.filter(a => 
-    a.progress === 100 || a.progress === undefined
-  ).length;
+//   const totalAchievements = gameAchievements.value.length;
+//   const completedAchievements = gameAchievements.value.filter(a => 
+//     a.progress === 100 || a.progress === undefined
+//   ).length;
   
-  return Math.floor((completedAchievements / totalAchievements) * 100);
-});
+//   return Math.floor((completedAchievements / totalAchievements) * 100);
+// });
 
 async function fetchGameAchievements() {
   if (!props.item.game_id || !auth.token) return;
@@ -64,6 +66,7 @@ onMounted(() => {
   window.electronAPI.onDownloadComplete((data) => {
     if (data.gameId === props.item.game_id) {
       loading.value = false;
+      isDownloading.value = false;
       props.item.isInstalled = true;
       props.item.game_Path = data.installPath;
     }
@@ -72,6 +75,7 @@ onMounted(() => {
   window.electronAPI.onDownloadError((data) => {
     if (data.gameId === props.item.game_id) {
       loading.value = false;
+      isDownloading.value = false;
     }
   });
 });
@@ -86,8 +90,9 @@ async function Play() {
 
 
 async function Download() {
-  if (loading.value) return;
+  if (loading.value || isDownloading.value) return;
   loading.value = true;
+  isDownloading.value = true;
   
   try {
     if (props.item.game_id) {
@@ -102,14 +107,15 @@ async function Download() {
   } catch (error) {
     console.error('Error initiating download:', error);
     loading.value = false;
+    isDownloading.value = false;
   }
 }
 
-function navigateToGameDetails() {
-  if (props.item.game_id) {
-    router.push(`/games/${props.item.game_id}`)
-  }
-}
+// function navigateToGameDetails() {
+//   if (props.item.game_id) {
+//     router.push(`/games/${props.item.game_id}`)
+//   }
+// }
 </script>
 
 
@@ -156,16 +162,14 @@ function navigateToGameDetails() {
           </div>
         </div>
       </div>
-      
-      
-      <div class="game-actions">
+          <div class="game-actions">
         <button 
-          :class="['action-button', props.item.isInstalled ? 'play-button' : 'download-button']" 
-          :disabled="!props.item.isInstalled && loading" 
-          @click.stop="props.item.isInstalled ? Play() : Download()"
-        >
-          <span class="button-text">{{ props.item.isInstalled ? $t('play') : (loading ? $t('downloading') : $t('download')) }}</span>
+          :class="['action-button', props.item.isInstalled ? 'play-button' : (isDownloading ? 'downloading-button' : 'download-button')]" 
+          :disabled="loading || isDownloading" 
+          @click.stop="props.item.isInstalled ? Play() : Download()"        >
+          <span class="button-text">{{ props.item.isInstalled ? $t('play') : (isDownloading ? $t('downloading') : $t('download')) }}</span>
           <PlayIcon v-if="props.item.isInstalled" class="icon" />
+          <LoadingSpinnerIcon v-else-if="isDownloading" class="icon" />
           <DownloadIcon v-else class="icon" />
         </button>
       </div>
@@ -474,6 +478,53 @@ function navigateToGameDetails() {
   transform: translateY(-2px) scale(1.02);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
   background: var(--boly-button-pink);
+}
+
+.downloading-button {
+  font-family: 'Poppins', sans-serif;
+  background: #ffa500; 
+  color: white;
+  cursor: progress;
+  position: relative;
+  overflow: hidden;
+}
+
+.downloading-button .icon {
+  animation: pulse-glow 2s infinite ease-in-out;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.7));
+  }
+  50% {
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 1));
+  }
+}
+
+.downloading-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  animation: shine 1.5s infinite;
+}
+
+@keyframes shine {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.downloading-button:hover {
+  transform: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .button-text {
