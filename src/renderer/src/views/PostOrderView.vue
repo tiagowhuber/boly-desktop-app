@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter, RouterLink } from 'vue-router';
 import { useAuth, useUser, useGames, useCart, usePayment, useOrder } from '@/stores';
 import Loading from '@/components/LoadingIcon.vue';
 import LibraryItem from '@/components/games/LibraryItem.vue';
@@ -19,6 +19,8 @@ const isLoading = ref(true);
 const purchasedGames = ref<Game[]>([]);
 const isRejected = ref(false);
 const errorMessage = ref('');
+const processedOrderToken = localStorage.getItem('processed_order_token');
+const isProcessed = ref(processedOrderToken === route.query.token_ws?.toString());
 
 onMounted(async () => {
   if (!auth.isLoggedIn) {
@@ -27,17 +29,23 @@ onMounted(async () => {
     return;
   }
 
+  if (isProcessed.value) {
+    isLoading.value = false;
+    return;
+  }
+
   try {
-    const gameIds = cart.getCartItems;
-    console.log('PostOrderView: Received game IDs:', gameIds);
-    
-    if (gameIds.length === 0 || !user.userId) {
-      console.log('PostOrderView: No valid game IDs found or no user ID');
-      router.push('/');
-      return;
-    }    // Check if there's a token in the URL params
     const token = route.query.token_ws;
+    
     if (token) {
+      const gameIds = cart.getCartItems;
+      console.log('PostOrderView: Received game IDs:', gameIds);
+      
+      if (gameIds.length === 0 || !user.userId) {
+        console.log('PostOrderView: No valid game IDs found or no user ID');
+        router.push('/');
+        return;
+      }
       try {
         const orderSuccess = await payment.checkOrder(token as string);
         if (!orderSuccess) {
@@ -63,14 +71,12 @@ onMounted(async () => {
           
           console.log('PostOrderView: Processing order ID:', orderId);
           
-          // Add games to user's library
           await Promise.all(
             gameIds.map(gameId => 
               games.addToLibrary(gameId, user.userId as number, { token: auth.token })
             )
           );
 
-          // create order_has_game relationships for each game
           const orderGamePromises = gameIds.map(gameId => 
             order.updateOrderHasGame({
               order_id: orderId, 
@@ -78,7 +84,6 @@ onMounted(async () => {
             })
           );
           
-          // Wait for all order-game relationships to be created
           const orderGameResults = await Promise.all(orderGamePromises);
           
           
@@ -86,14 +91,15 @@ onMounted(async () => {
             if (!result.success) {
               console.error(`Failed to create order-game relationship for game ID ${gameIds[index]}: ${result.message}`);
             }
-          });
-
-          const gamesData = await Promise.all(
+          });          const gamesData = await Promise.all(
             gameIds.map(id => games.getById(id))
-          );
-
-          purchasedGames.value = gamesData.filter((game): game is Game => game !== null);
+          );          purchasedGames.value = gamesData.filter((game): game is Game => game !== null);
           cart.clearCart();
+          // Save the processed token to localStorage to prevent reprocessing
+          if (token) {
+            localStorage.setItem('processed_order_token', token.toString());
+          }
+          isProcessed.value = true;
         } catch (error) {
           console.error('Error adding games to library:', error);
           isRejected.value = true;
@@ -129,11 +135,10 @@ onMounted(async () => {
       </div>
       <div class="error-message">
         <p>{{ errorMessage }}</p>
-      </div>
-      <div class="actions">
-        <button class="action-button" @click="router.push('/cart')">
+      </div>      <div class="actions">
+        <RouterLink to="/cart" class="action-button">
           {{ $t('return_to_cart') }}
-        </button>
+        </RouterLink>
       </div>
     </div>
   </div>
@@ -150,14 +155,13 @@ onMounted(async () => {
       </div>
       <div class="list">
         <LibraryItem v-for="game in purchasedGames" :key="game.game_id" :item="game" />
-      </div>
-      <div class="actions">
-        <button class="action-button" @click="router.push('/library')">
+      </div>      <div class="actions">
+        <RouterLink to="/library" class="action-button">
           {{ $t('go_to_library') }}
-        </button>
-        <button class="action-button" @click="router.push('/games')">
+        </RouterLink>
+        <RouterLink to="/games" class="action-button">
           {{ $t('browse_more_games') }}
-        </button>
+        </RouterLink>
       </div>
     </div>
   </div>
