@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-//import { useRouter } from 'vue-router'
 import { useAuth, useAchievements } from '@/stores'
 import type { Game, Achievement } from '@/types'
 import PlayIcon from '@/components/icons/PlayIcon.vue'
@@ -19,6 +18,7 @@ const auth = useAuth()
 const achievementsStore = useAchievements()
 const loading = ref(false)
 const isDownloading = ref(false)
+const isInstalling = ref(false)
 const gameAchievements = ref<Achievement[]>([])
 const achievementsLoading = ref(true)
 
@@ -67,8 +67,9 @@ onMounted(() => {
     if (data.gameId === props.item.game_id) {
       loading.value = false;
       isDownloading.value = false;
-      props.item.isInstalled = true;
+      props.item.isInstalled = false;
       props.item.game_Path = data.installPath;
+      isInstalling.value = true;
     }
   });
   
@@ -76,6 +77,33 @@ onMounted(() => {
     if (data.gameId === props.item.game_id) {
       loading.value = false;
       isDownloading.value = false;
+      isInstalling.value = false;
+    }
+  });
+
+  window.electronAPI.onInstallStarted((data) => {
+    if (data.gameId === props.item.game_id) {
+      loading.value = true;
+      isInstalling.value = true;
+    }
+  });
+
+  window.electronAPI.onInstallComplete((data) => {
+    if (data.gameId === props.item.game_id) {
+      loading.value = false;
+      isInstalling.value = false;
+      isDownloading.value = false;
+      props.item.isInstalled = true;
+      props.item.game_Path = data.installPath;
+      console.log('Setting game path to:', props.item.game_Path);
+      
+    }
+  });
+
+  window.electronAPI.onInstallError((data) => {
+    if (data.gameId === props.item.game_id) {
+      loading.value = false;
+      isInstalling.value = false;
     }
   });
 });
@@ -164,12 +192,12 @@ async function Download() {
       </div>
           <div class="game-actions">
         <button 
-          :class="['action-button', props.item.isInstalled ? 'play-button' : (isDownloading ? 'downloading-button' : 'download-button')]" 
-          :disabled="loading || isDownloading" 
+          :class="['action-button', props.item.isInstalled ? 'play-button' : (isDownloading ? 'downloading-button' : (isInstalling ? 'installing-button' : 'download-button'))]" 
+          :disabled="loading || isDownloading || isInstalling" 
           @click.stop="props.item.isInstalled ? Play() : Download()"        >
-          <span class="button-text">{{ props.item.isInstalled ? $t('play') : (isDownloading ? $t('downloading') : $t('download')) }}</span>
+          <span class="button-text">{{ props.item.isInstalled ? $t('play') : (isDownloading ? $t('downloading') : (isInstalling ? $t('installing') : $t('download'))) }}</span>
           <PlayIcon v-if="props.item.isInstalled" class="icon" />
-          <LoadingSpinnerIcon v-else-if="isDownloading" class="icon" />
+          <LoadingSpinnerIcon v-else-if="isDownloading || isInstalling" class="icon" />
           <DownloadIcon v-else class="icon" />
         </button>
       </div>
@@ -482,14 +510,24 @@ async function Download() {
 
 .downloading-button {
   font-family: 'Poppins', sans-serif;
-  background: #ffa500; 
+  background: var(--boly-button-green); 
   color: white;
   cursor: progress;
   position: relative;
   overflow: hidden;
 }
 
-.downloading-button .icon {
+.installing-button {
+  font-family: 'Poppins', sans-serif;
+  background: var(--boly-button-green); 
+  color: white;
+  cursor: progress;
+  position: relative;
+  overflow: hidden;
+}
+
+.downloading-button .icon,
+.installing-button .icon {
   animation: pulse-glow 2s infinite ease-in-out;
 }
 
@@ -502,7 +540,8 @@ async function Download() {
   }
 }
 
-.downloading-button::after {
+.downloading-button::after,
+.installing-button::after {
   content: '';
   position: absolute;
   top: 0;
@@ -522,7 +561,8 @@ async function Download() {
   }
 }
 
-.downloading-button:hover {
+.downloading-button:hover,
+.installing-button:hover {
   transform: none;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }

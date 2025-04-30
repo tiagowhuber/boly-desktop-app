@@ -15,6 +15,9 @@ interface ElectronAPIExtended {
   onDownloadProgress: (callback: (data: { gameId: number; progress: number; downloaded: number; total: number }) => void) => void;
   onDownloadComplete: (callback: (data: { gameId: number; installPath: string }) => void) => void;
   onDownloadError: (callback: (data: { gameId: number; error: string }) => void) => void;
+  onInstallStarted: (callback: (data: { gameId: number; installPath: string }) => void) => void;
+  onInstallError: (callback: (data: { gameId: number; error: string }) => void) => void;
+  onInstallComplete: (callback: (data: { gameId: number; installPath: string }) => void) => void;
   
   // Cleanup listeners
   removeAllListeners: (channel: string) => void;

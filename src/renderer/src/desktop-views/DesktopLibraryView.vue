@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useI18n } from 'vue-i18n'
+//import { useI18n } from 'vue-i18n'
 import DesktopLibraryItem from '@/desktop-components/DesktopLibraryItem.vue'
 import Loading from '@/components/LoadingIcon.vue'
 import { onMounted, ref, onBeforeUnmount } from 'vue' 
@@ -26,24 +26,48 @@ if (!auth.isLoggedIn) {
 }
 
 function setupLibraryDownloadHandlers() {
-  // todo: wait for instalation before loadgames
-  window.electronAPI.onDownloadComplete((data) => {
-    console.log('Library detected download complete:', data);
+  window.electronAPI.onInstallStarted((data) => {
+    console.log('Library detected install started:', data);
+    
+    const gameIndex = allOwnedGames.value.findIndex(g => g.game_id === data.gameId);
+    if (gameIndex !== -1) {
+      allOwnedGames.value[gameIndex].isInstalling = true;
+      updateDisplayedGames();
+    }
+  });
+  window.electronAPI.onInstallComplete((data) => {
+    console.log('Library detected install complete:', data);
     
     const gameIndex = allOwnedGames.value.findIndex(g => g.game_id === data.gameId);
     if (gameIndex !== -1) {
       allOwnedGames.value[gameIndex].isInstalled = true;
+      allOwnedGames.value[gameIndex].isInstalling = false;
       allOwnedGames.value[gameIndex].game_Path = data.installPath;
+      console.log('Setting game path to:', allOwnedGames.value[gameIndex].game_Path);
+      
       updateDisplayedGames();
     }
     
     loadGames();
   });
+  
+  window.electronAPI.onInstallError((data) => {
+    console.error('Library detected install error:', data);
+    
+    const gameIndex = allOwnedGames.value.findIndex(g => g.game_id === data.gameId);
+    if (gameIndex !== -1) {
+      allOwnedGames.value[gameIndex].isInstalling = false;
+      allOwnedGames.value[gameIndex].installError = data.error || 'Unknown installation error';
+      updateDisplayedGames();
+    }
+  });
 }
 
 function cleanupLibraryDownloadHandlers() {
   try {
-    window.electronAPI.removeAllListeners('download-complete');
+    window.electronAPI.removeAllListeners('install-complete');
+    window.electronAPI.removeAllListeners('install-started');
+    window.electronAPI.removeAllListeners('install-error');
   } catch (error) {
     console.error('Error cleaning up library download handlers:', error);
   }
@@ -95,6 +119,9 @@ async function fetchOwnedGames() {
         } else {
           game.isInstalled = false;
         }
+        
+        game.isInstalling = false;
+        game.installError = undefined;
 
         return game;
       });

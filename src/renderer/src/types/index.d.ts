@@ -40,7 +40,12 @@ export interface Game {
     game_type_id: number;
     game_type: GameType;
     game_Path: string;
+    isDownloaded?: boolean;
+    isDownloading?: boolean;
+    downloadError?: string;
     isInstalled?: boolean;
+    isInstalling?: boolean;
+    installError?: string;
 }
 
 export interface Achievement {

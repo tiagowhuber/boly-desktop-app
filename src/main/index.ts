@@ -89,7 +89,7 @@ async function downloadTempFile(token: string, game_id: number, gameName: string
         });
         
         //Install game
-        installGame(tempPath, gamePath)
+        installGame(tempPath, gamePath, game_id)
         resolve(tempPath)
         //Remove installer
       })
@@ -123,16 +123,36 @@ function deleteFile(filePath: string) {
   })
 }
 
-async function installGame(installerRoute: string, destinationRoute: string) {
+async function installGame(installerRoute: string, destinationRoute: string, game_id: number) {
   try {
+    mainWindow.webContents.send('install-started', {
+      gameId: game_id,
+      installPath: destinationRoute
+    });
     const command = `"${installerRoute}" /DIR="${destinationRoute}" /SILENT`
     console.log(command)
     exec(command, (err, stdout, stderr) => {
-      if (err) console.error('Error:', err.message)
-      else {
+      if (err) {
+        console.error('Error:', err.message)
+        mainWindow.webContents.send('install-error', {
+          gameId: game_id,
+          error: err.message,
+          installPath: destinationRoute
+        });
+      } else {
         console.log('Resultado:', stdout)
         //Remove temp files
         deleteFile(installerRoute)
+        
+        const exeFiles = searchForExecutablesRecursive(destinationRoute)
+        console.log('Found executable files:', exeFiles)
+        // This might be bugged
+        const exePath = exeFiles.length > 0 ? exeFiles[0] : destinationRoute;
+        
+        mainWindow.webContents.send('install-complete', {
+          gameId: game_id,
+          installPath: exePath
+        });
       }
     })
     // }

@@ -1,5 +1,6 @@
 import { contextBridge,ipcRenderer  } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+//import { on } from 'events';
 // @ts-ignore (define in dts)
 window.ipcRenderer = require('electron').ipcRenderer;
 
@@ -34,9 +35,18 @@ if (process.contextIsolated) {
       onDownloadError: (callback) => {
         ipcRenderer.on('download-error', (_event, ...args) => callback(...args));
       },
+      onInstallStarted: (callback) => {
+        ipcRenderer.on('install-started', (_event, ...args) => callback(...args));
+      },
+      onInstallError: (callback) => {
+        ipcRenderer.on('install-error', (_event, ...args) => callback(...args));
+      },
+      onInstallComplete: (callback) => {
+        ipcRenderer.on('install-complete', (_event, ...args) => callback(...args));
+      },
       // Cleanup
       removeAllListeners: (channel) => {
-        if (['download-started', 'download-progress', 'download-complete', 'download-error'].includes(channel)) {
+        if (['download-started', 'download-progress', 'download-complete', 'download-error', 'install-started', 'install-error', 'install-complete'].includes(channel)) {
           ipcRenderer.removeAllListeners(channel);
         }
       }
@@ -70,9 +80,18 @@ if (process.contextIsolated) {
     onDownloadError: (callback) => {
       ipcRenderer.on('download-error', (_event, ...args) => callback(...args));
     },
+    onInstallStarted: (callback) => {
+      ipcRenderer.on('install-started', (_event, ...args) => callback(...args));
+    },
+    onInstallError: (callback) => {
+      ipcRenderer.on('install-error', (_event, ...args) => callback(...args));
+    },
+    onInstallComplete: (callback) => {
+      ipcRenderer.on('install-complete', (_event, ...args) => callback(...args));
+    },
     // Cleanup
     removeAllListeners: (channel) => {
-      if (['download-started', 'download-progress', 'download-complete', 'download-error'].includes(channel)) {
+      if (['download-started', 'download-progress', 'download-complete', 'download-error', 'install-started', 'install-error', 'install-complete'].includes(channel)) {
         ipcRenderer.removeAllListeners(channel);
       }
     }

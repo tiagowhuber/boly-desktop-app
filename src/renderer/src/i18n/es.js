@@ -84,6 +84,7 @@ export const es = {
   downloading_game: 'Descargando {game}',
   download_complete: 'Descarga Completa',
   download_error: 'Error de Descarga',
+  installing: 'Instalando',
   play: 'Jugar',
   completed: 'Completado',
   user_games: "Juegos de {user}",

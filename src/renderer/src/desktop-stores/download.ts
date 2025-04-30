@@ -6,6 +6,7 @@ const useDownloadStore = defineStore('download', () => {
   const downloadProgress = ref(0);
   const downloadingGameName = ref('');
   const downloadingGameId = ref(0);
+  const isInstalling = ref(false);
   
   function setupDownloadListeners() {
     // Clear any existing listeners first
@@ -42,6 +43,21 @@ const useDownloadStore = defineStore('download', () => {
         }, 5000);
       }
     });
+
+    window.electronAPI.onInstallStarted((data) => {
+      console.log('Install started:', data);
+      isInstalling.value = false;
+    });
+
+    window.electronAPI.onInstallError((data) => {
+      console.error('Install error:', data);
+      isInstalling.value = false;
+    });
+
+    window.electronAPI.onInstallComplete((data) => {
+      console.log('Install complete:', data);
+      isInstalling.value = true;
+    });
   }
 
   function cleanupDownloadListeners() {
@@ -50,6 +66,9 @@ const useDownloadStore = defineStore('download', () => {
       window.electronAPI.removeAllListeners('download-progress');
       window.electronAPI.removeAllListeners('download-complete');
       window.electronAPI.removeAllListeners('download-error');
+      window.electronAPI.removeAllListeners('install-started');
+      window.electronAPI.removeAllListeners('install-error');
+      window.electronAPI.removeAllListeners('install-complete');
     } catch (error) {
       console.error('Error cleaning up download listeners:', error);
     }
@@ -60,6 +79,7 @@ const useDownloadStore = defineStore('download', () => {
     downloadProgress,
     downloadingGameName,
     downloadingGameId,
+    isInstalling,
     setupDownloadListeners,
     cleanupDownloadListeners
   };

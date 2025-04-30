@@ -85,6 +85,7 @@ export const en = {
   downloading_game: 'Downloading {game}',
   download_complete: 'Download Complete',
   download_error: 'Download Error',
+  installing: 'Installing',
   play: 'Play',
   completed: 'Completed',
   user_games: "{user}'s games",
