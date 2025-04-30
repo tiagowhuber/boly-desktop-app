@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Loading from '@/components/LoadingIcon.vue'
+import AlertModal from '@/components/AlertModal.vue'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import { ref, onMounted, computed, onBeforeUnmount } from 'vue'
@@ -313,25 +314,29 @@ const buttonClass = (plan: string) => {
           </button>
         </div>
       </div>
-    </div>
-
-    <!-- Modal to show subscription success -->
-    <div v-if="showModal" class="modal">
-      <div class="modal-content" :class="{ 'mobile-modal-content': isMobile }">
-        <h2>{{ t('subscription_success') }}</h2>
-        <p>{{ t('subscription_success_message') }}</p>
-        <button class="btn-blue" :class="{ 'mobile-button': isMobile }" @click="showModal = false">{{ t('close') }}</button>
-      </div>
-    </div>
-    
-    <!-- Enrollment Redirect Modal -->
-    <div v-if="showEnrollmentRedirectModal" class="modal">
-      <div class="modal-content" :class="{ 'mobile-modal-content': isMobile }">
-        <h2>{{ t('redirecting') }}</h2>
-        <p>{{ t('redirecting_to_payment_setup') }}</p>
-        <Loading />
-      </div>
-    </div>
+    </div>    <!-- Modal to show subscription success -->
+    <Teleport to="body">
+      <AlertModal :show="showModal" @close="showModal = false">
+        <template #header>
+          <h3>{{ t('subscription_success') }}</h3>
+        </template>
+        <template #body>
+          <p>{{ t('subscription_success_message') }}</p>
+        </template>
+      </AlertModal>
+    </Teleport>
+      <!-- Enrollment Redirect Modal -->
+    <Teleport to="body">
+      <AlertModal :show="showEnrollmentRedirectModal" @close="showEnrollmentRedirectModal = false">
+        <template #header>
+          <h3>{{ t('redirecting') }}</h3>
+        </template>
+        <template #body>
+          <p>{{ t('redirecting_to_payment_setup') }}</p>
+          <Loading />
+        </template>
+      </AlertModal>
+    </Teleport>
     
     <!-- WebPay OneClick Form (hidden) -->
     <form 
@@ -471,8 +476,8 @@ button {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   background-color: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;

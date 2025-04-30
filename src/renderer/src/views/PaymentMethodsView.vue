@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Loading from '@/components/LoadingIcon.vue'
+import AlertModal from '@/components/AlertModal.vue'
 import { useAuth, useUser, usePayment } from '@/stores'
 import { onMounted, ref, computed, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
@@ -177,27 +178,33 @@ const getCardIcon = (cardType: string): string => {
       </div>
     </div>
     <button @click="router.go(-1)" class="back-button">{{ t('back') }}</button>
-    
-    <!-- Delete Confirmation Modal -->
-    <div v-if="showDeleteModal" class="modal">
-      <div class="modal-content" :class="{ 'mobile-modal-content': isMobile }">
-        <h2>{{ t('confirm_delete') }}</h2>
-        <p>{{ t('confirm_delete_card', { card: deletingMethod?.last_four_digits }) }}</p>
-        <div class="modal-buttons">
-          <button @click="closeDeleteModal" class="btn-blue">{{ t('cancel') }}</button>
-          <button @click="deletePaymentMethod" class="btn-red">{{ t('delete') }}</button>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Enrollment Redirect Modal -->
-    <div v-if="showEnrollmentRedirectModal" class="modal">
-      <div class="modal-content" :class="{ 'mobile-modal-content': isMobile }">
-        <h2>{{ t('redirecting') }}</h2>
-        <p>{{ t('redirecting_to_webpay') }}</p>
-        <Loading />
-      </div>
-    </div>
+      <!-- Delete Confirmation Modal -->
+    <Teleport to="body">
+      <AlertModal :show="showDeleteModal" @close="closeDeleteModal">
+        <template #header>
+          <h3>{{ t('confirm_delete') }}</h3>
+        </template>
+        <template #body>
+          <p>{{ t('confirm_delete_card', { card: deletingMethod?.last_four_digits }) }}</p>
+          <div class="modal-buttons">
+            <button @click="closeDeleteModal" class="btn-blue">{{ t('cancel') }}</button>
+            <button @click="deletePaymentMethod" class="btn-red">{{ t('delete') }}</button>
+          </div>
+        </template>
+      </AlertModal>
+    </Teleport>
+      <!-- Enrollment Redirect Modal -->
+    <Teleport to="body">
+      <AlertModal :show="showEnrollmentRedirectModal" @close="showEnrollmentRedirectModal = false">
+        <template #header>
+          <h3>{{ t('redirecting') }}</h3>
+        </template>
+        <template #body>
+          <p>{{ t('redirecting_to_webpay') }}</p>
+          <Loading />
+        </template>
+      </AlertModal>
+    </Teleport>
     
     <!-- WebPay OneClick Form (hidden) -->
     <form 
