@@ -13,7 +13,7 @@ const orderStore = useOrder();
 const { t } = useI18n();
 
 const loading = computed(() => orderStore.loading);
-const orders = computed(() => orderStore.userOrders);
+const orders = computed(() => orderStore.userOrders.slice().reverse());
 const error = ref<string | null>(null);
 const success = ref<string | null>(null);
 const isMobile = ref(window.innerWidth < 768);

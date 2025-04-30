@@ -36,11 +36,11 @@ const filteredGames = computed(() => {
   const result = games.value.filter(game => {
     switch(activeTab.value) {
       case 'downloadable':
-        return game.game_type_id === 1;
+        return game.game_type_id === 3;
       case 'web':
         return game.game_type_id === 2;
       case 'dlc':
-        return game.game_type_id === 3;
+        return game.game_type_id === 1;
       default:
         return true;
     }
