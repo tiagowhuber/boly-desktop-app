@@ -38,8 +38,19 @@ onMounted(async () => {
     console.warn('Token mismatch', { savedToken, tbkToken })
   }
 
+  await auth.checkToken()
+  
   if (!user.username) {
-    console.error('Username not available')
+    console.log('User data not immediately available, waiting...')
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    if (!auth.isLoggedIn) {
+      await auth.refreshToken()
+    }
+  }
+  
+  if (!user.username) {
+    console.error('Username not available after waiting')
     error.value = true
     errorMessage.value = t('missing_username')
     return

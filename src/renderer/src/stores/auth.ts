@@ -64,21 +64,23 @@ const useAuth = defineStore('auth', {
         console.log(error)
         console.error(error);
       }
-    },
+    },    
+    
+    async checkToken(forceLoad = false) {
+      if (!forceLoad) {
+        // Prevent multiple simultaneous checks
+        if (this.verifying) {
+          return;
+        }
 
-    async checkToken() {
-      // Prevent multiple simultaneous checks
-      if (this.verifying) {
-        return;
-      }
-
-      // Only check once every 5 seconds maximum
-      const now = Date.now();
-      if (now - this.lastTokenCheck < 5000) {
-        return;
+        // Only check once every 5 seconds maximum
+        const now = Date.now();
+        if (now - this.lastTokenCheck < 5000) {
+          return;
+        }
       }
       
-      this.lastTokenCheck = now;
+      this.lastTokenCheck = Date.now();
       this.verifying = true;
       
       try {
@@ -97,13 +99,25 @@ const useAuth = defineStore('auth', {
           this.isLoggedIn = true
           this.token = localStorage.getItem('token')!
           axios.defaults.headers.common['Authorization'] = `Bearer ${this.token}`
+          
+          if (forceLoad && user.userId) {
+            try {
+              const response = await axios.get(`/v1/users/${user.userId}`)
+              if (response.status === 200) {
+                user.setUser(response.data)
+              }
+            } catch (userError) {
+              console.error('Error fetching complete user data:', userError)
+            }
+          }
         }
       } catch (error) {
-        console.log(error)
+        console.error('Token validation error:', error)
         // Clear invalid token state
         this.token = ''
         localStorage.removeItem('token')
         this.isLoggedIn = false
+        throw error; 
       } finally {
         this.verifying = false
       }
@@ -126,14 +140,14 @@ const useAuth = defineStore('auth', {
         console.log(error)
       }
     },
-  async register(email: string, username: string, password: string) {
+    async register(email: string, username: string, password: string) {
       try {
         const response = await axios.post('/v1/users', {
           email,
           username,
           password
-        });
-        return response;
+      });
+      return response;
       } catch (error) {
         console.error(error);
         throw error;

@@ -196,14 +196,26 @@ export const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const auth = useAuth()
-  await auth.checkToken()
   
-  if (to.meta.requiresAuth && !auth.isLoggedIn) {
-    next('/login')
-  } else if (to.path === '/account' && !auth.isLoggedIn) {
-    next('/login')
-  } else {
-    next()
+  try {
+    await auth.checkToken(true)
+    
+    if (to.meta.requiresAuth && !auth.isLoggedIn) {
+      next('/login')
+    } else if (to.path === '/account' && !auth.isLoggedIn) {
+      next('/login')
+    } else {
+      next()
+    }
+  } catch (error) {
+    console.error('Auth error in router guard:', error)
+    
+
+    if (to.meta.requiresAuth || to.path === '/account') {
+      next('/login')
+    } else {
+      next()
+    }
   }
 })
 
