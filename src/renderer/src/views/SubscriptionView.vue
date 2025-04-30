@@ -81,8 +81,11 @@ const fetchPaymentMethods = async () => {
   }
 }
 
-const addPaymentMethod = async () => {
+const addPaymentMethod = async (planType: string) => {
   try {
+    // Store the selected plan in localStorage for after payment method enrollment
+    localStorage.setItem('pendingSubscriptionPlan', planType)
+    
     showEnrollmentRedirectModal.value = true
 
     await paymentStore.createEnrollment(
@@ -129,7 +132,7 @@ async function handleSubscription(planType: string) {
       }
       
       if ((planType === 'monthly' || planType === 'yearly') && !hasPaymentMethods.value) {
-        addPaymentMethod()
+        addPaymentMethod(planType)
         return
       }
       
@@ -212,7 +215,7 @@ const buttonClass = (plan: string) => {
     <div v-if="!isMobile" class="plan-container">
       <div class="plan">
         <h2>{{ t('free_plan').toUpperCase() }}</h2>
-        <div class="credits">200 créditos</div>
+        <div class="credits">200 {{ t('credits') }}</div>
         <div class="details">
           <li>{{ t('free_feature_1') }}</li>
           <li>{{ t('free_feature_2') }}</li>
@@ -227,7 +230,7 @@ const buttonClass = (plan: string) => {
       </div>
       <div class="plan">
         <h2>{{ t('monthly_plan').toUpperCase() }}</h2>
-        <div class="credits">1000 créditos</div>
+        <div class="credits">1000 {{ t('credits') }}</div>
         <div class="details">
           <li>{{ t('monthly_feature_1') }}</li>
           <li>{{ t('monthly_feature_2') }}</li>
@@ -243,7 +246,7 @@ const buttonClass = (plan: string) => {
       </div>
       <div class="plan">
         <h2>{{ t('yearly_plan').toUpperCase() }}</h2>
-        <div class="credits">12000 créditos</div>
+        <div class="credits">12000 {{ t('credits') }}</div>
         <div class="details">
           <li>{{ t('yearly_feature_1') }}</li>
           <li>{{ t('yearly_feature_2') }}</li>
@@ -262,7 +265,7 @@ const buttonClass = (plan: string) => {
     <div v-else class="mobile-plan-container">
       <div class="mobile-plan">
         <h2>{{ t('free_plan').toUpperCase() }}</h2>
-        <div class="mobile-credits">200 créditos</div>
+        <div class="mobile-credits">200 {{ t('credits') }}</div>
         <div class="mobile-details">
           <li>{{ t('free_feature_1') }}</li>
           <li>{{ t('free_feature_2') }}</li>
@@ -280,7 +283,7 @@ const buttonClass = (plan: string) => {
       
       <div class="mobile-plan">
         <h2>{{ t('monthly_plan').toUpperCase() }}</h2>
-        <div class="mobile-credits">1000 créditos</div>
+        <div class="mobile-credits">1000 {{ t('credits') }}</div>
         <div class="mobile-details">
           <li>{{ t('monthly_feature_1') }}</li>
           <li>{{ t('monthly_feature_2') }}</li>
@@ -299,7 +302,7 @@ const buttonClass = (plan: string) => {
       
       <div class="mobile-plan">
         <h2>{{ t('yearly_plan').toUpperCase() }}</h2>
-        <div class="mobile-credits">12000 créditos</div>
+        <div class="mobile-credits">12000 {{ t('credits') }}</div>
         <div class="mobile-details">
           <li>{{ t('yearly_feature_1') }}</li>
           <li>{{ t('yearly_feature_2') }}</li>
