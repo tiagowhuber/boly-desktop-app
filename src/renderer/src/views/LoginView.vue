@@ -86,8 +86,8 @@ async function signGoogle() {
           </Teleport>
         </form>
         <div class="login-container">
-          <form>
-          <button class="login_button_text" v-on:click="signGoogle">
+          <form @submit.prevent="signGoogle()">
+          <button class="login_button_text" >
             {{ $t('login_google').toUpperCase() }}
           </button>
         </form>
