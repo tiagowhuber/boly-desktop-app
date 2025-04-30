@@ -22,13 +22,11 @@ const subscriptionProcessed = ref(false)
 const subscriptionSuccess = ref(false)
 const returnUrl = ref('/payment-methods')
 
-// On component mount, confirm the enrollment
 onMounted(async () => {
   window.addEventListener('resize', () => {
     isMobile.value = window.innerWidth < 768
   })
 
-  // Check for returnTo in the URL
   const queryParams = new URLSearchParams(window.location.search)
   const returnTo = queryParams.get('returnTo')
   if (returnTo) {
@@ -66,50 +64,48 @@ onMounted(async () => {
     errorMessage.value = t('missing_username')
     return
   }
-  
-  try {
-    // Confirm payment method enrollment
-    await paymentStore.confirmEnrollment(tbkToken, user.username, auth.token)
+    try {
+    if (!user.userId) {
+      throw new Error('User ID is undefined')
+    }
+    await paymentStore.fetchPaymentMethods(user.userId, auth.token)
+    
+    if (paymentStore.paymentMethods.length === 0) {
+      await paymentStore.confirmEnrollment(tbkToken, user.username, auth.token)
+      await paymentStore.fetchPaymentMethods(user.userId, auth.token)
+    }
+    
     success.value = true
     error.value = false
     
-    // Check if there's a pending subscription plan
     const pendingPlan = localStorage.getItem('pendingSubscriptionPlan')
-    if (pendingPlan && user.userId) {
+    if (pendingPlan && user.userId && paymentStore.paymentMethods.length > 0) {
       try {
-        // Fetch the newly added payment methods
-        await paymentStore.fetchPaymentMethods(user.userId, auth.token)
-        
-        if (paymentStore.paymentMethods.length > 0) {
-          const planId = getPlanIdFromType(pendingPlan)
-          if (planId) {
-            const amount = getAmountForPlan(pendingPlan)
-            const currency = locale.value === 'en' ? 'USD' : 'CLP'
-            
-            // Subscribe the user with the first payment method
-            const paymentMethod = paymentStore.paymentMethods[0]
-            const subscribed = await subscriptionStore.subscribeWithOneClick(
-              user.userId,
-              planId,
-              user.username,
-              paymentMethod.tbk_user,
-              amount,
-              { token: auth.token },
-              currency
-            )
-            
-            subscriptionProcessed.value = true
-            subscriptionSuccess.value = subscribed
-            
-            // Clear the pending subscription plan
-            localStorage.removeItem('pendingSubscriptionPlan')
-            
-            if (subscribed) {
-              // Redirect to the subscription page after a delay
-              setTimeout(() => {
-                router.push(returnUrl.value)
-              }, 1500)
-            }
+        const planId = getPlanIdFromType(pendingPlan)
+        if (planId) {
+          const amount = getAmountForPlan(pendingPlan)
+          const currency = locale.value === 'en' ? 'USD' : 'CLP'
+          
+          const paymentMethod = paymentStore.paymentMethods[0]
+          const subscribed = await subscriptionStore.subscribeWithOneClick(
+            user.userId,
+            planId,
+            user.username,
+            paymentMethod.tbk_user,
+            amount,
+            { token: auth.token },
+            currency
+          )
+          
+          subscriptionProcessed.value = true
+          subscriptionSuccess.value = subscribed
+          
+          localStorage.removeItem('pendingSubscriptionPlan')
+          
+          if (subscribed) {
+            setTimeout(() => {
+              router.push(returnUrl.value)
+            }, 2000)
           }
         }
       } catch (err) {
@@ -126,7 +122,6 @@ onMounted(async () => {
     }
     success.value = false
     
-    // Clear pending subscription on error
     localStorage.removeItem('pendingSubscriptionPlan')
   }
 })
