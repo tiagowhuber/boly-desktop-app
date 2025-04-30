@@ -31,6 +31,7 @@ const shoppingCart = useCart()
 const isMobile = ref(window.innerWidth <= 768)
 
 const ownsCurrentGame = ref(false)
+const hasSubscriptionAccess = ref(false)
 
 const currency = computed(() => {
   return i18n.locale.value === 'en' ? 'USD' : 'CLP'
@@ -46,7 +47,9 @@ onMounted(async () => {
     const userId = Number(user.userId);
     const gameId = Number(props.item.game_id);
     if (!isNaN(userId) && !isNaN(gameId)) {
-      ownsCurrentGame.value = await games.ownsGame(gameId, userId);
+      const accessInfo = await games.ownsGame(gameId, userId);
+      ownsCurrentGame.value = accessInfo.owned;
+      hasSubscriptionAccess.value = accessInfo.subscriptionAccess;
     }
   }
   
@@ -107,11 +110,13 @@ function GoToGame() {
       @click="GoToGame"/>
       
       <p v-if="ownsCurrentGame" :class="{ 'mobile-text': isMobile }">{{ $t('already_owned')}}</p>
+      <p v-else-if="hasSubscriptionAccess" :class="{ 'mobile-text': isMobile }">{{ $t('subscription_access')}}</p>
       <p class="game-name" :class="{ 'mobile-game-name': isMobile }">{{ props.item.name[i18n.locale.value].toUpperCase() }}</p>
-      <p class="game-dev" :class="{ 'mobile-text': isMobile }">{{ $t('developer') }}</p>
-
+      <p class="game-dev" :class="{ 'mobile-text': isMobile }">{{ $t('developer') }}</p>  
+          
       <div class="price" :class="{ 'mobile-price': isMobile }">
         <p v-if="ownsCurrentGame" :class="{ 'mobile-price-text': isMobile }">{{ $t('already_owned')}}</p>
+        <p v-else-if="hasSubscriptionAccess" :class="{ 'mobile-price-text': isMobile }">{{ $t('subscription_access')}}</p>
         <p v-else-if="props.item.price[i18n.locale.value] > 0" :class="{ 'mobile-price-text': isMobile }">
           {{ currency === 'USD' ? 'USD' : 'CLP' }} {{ Intl.NumberFormat(i18n.locale.value === 'en' ? 'en-US' : 'es-CL', { style: 'currency', currency: currency, currencyDisplay: 'symbol' }).format(props.item.price[i18n.locale.value]) }}
         </p>

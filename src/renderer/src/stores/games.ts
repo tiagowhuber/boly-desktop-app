@@ -4,7 +4,7 @@ import axios from 'axios'
 import type { Game } from '@/types'
 import { usePayment } from '.'
 
-const useGames = defineStore('games', {
+const useGames = defineStore('games', {  
   state: () => ({
     games: [] as Game[],
     loading: false,
@@ -12,7 +12,7 @@ const useGames = defineStore('games', {
     webGameData: null as { loader: string; data: string; framework: string; wasm: string } | null,
     unityPlayer: null as UnityWebgl | null,
     loadingUnity: true,
-    ownershipCache: new Map() as Map<string, boolean>,
+    ownershipCache: new Map() as Map<string, { owned: boolean, subscriptionAccess: boolean }>,
     gameMediaCache: new Map() as Map<number, any[]>
   }),
   actions: {
@@ -50,30 +50,35 @@ const useGames = defineStore('games', {
       }
     },
 
-    async ownsGame(gameId: number, userId: number): Promise<boolean> {
+    async ownsGame(gameId: number, userId: number): Promise<{ owned: boolean, subscriptionAccess: boolean }> {
       // Validate inputs
       if (!gameId || !userId) {
         console.warn('GamesStore: Invalid game or user ID:', { gameId, userId });
-        return false;
+        return { owned: false, subscriptionAccess: false };
       }
 
       const cacheKey = `${gameId}-${userId}`;
       if (this.ownershipCache.has(cacheKey)) {
-        return this.ownershipCache.get(cacheKey) ?? false;
+        return this.ownershipCache.get(cacheKey) ?? { owned: false, subscriptionAccess: false };
       }
 
       console.log(`GamesStore: Checking if user ${userId} owns game ${gameId}`);
       try {
         const response = await axios.get(`/v1/games/check-ownership/${gameId}/${userId}`);
         console.log('GamesStore: Ownership check response:', response.data);
-        // Check if the response contains a game_id, which indicates ownership
-        const result = !!response.data?.game_id;
+        
+        // Check for direct ownership vs subscription access
+        const result = {
+          owned: !!response.data?.game_id && !response.data?.subscription_access,
+          subscriptionAccess: !!response.data?.subscription_access
+        };
+        
         this.ownershipCache.set(cacheKey, result);
         return result;
       } catch (error: any) {
         console.error('GamesStore: Error checking ownership:', error);
-        this.ownershipCache.set(cacheKey, false);
-        return false;
+        this.ownershipCache.set(cacheKey, { owned: false, subscriptionAccess: false });
+        return { owned: false, subscriptionAccess: false };
       }
     },
 

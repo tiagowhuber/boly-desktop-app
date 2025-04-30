@@ -155,6 +155,7 @@ function AddToCart(item: Game): void {
 }
 
 const ownsCurrentGame = ref(false);
+const hasSubscriptionAccess = ref(false);
 const isInWishlist = ref(false);
 
 async function fetchDeveloperDetails(developerId: number): Promise<void> {
@@ -201,12 +202,13 @@ onMounted(async () => {
     if (props.item.developer_id) {
       await fetchDeveloperDetails(props.item.developer_id);
     }
-    
-    if (auth.isLoggedIn && user.userId) {
+      if (auth.isLoggedIn && user.userId) {
       const userId = Number(user.userId);
       const gameId = Number(props.item.game_id);
       if (!isNaN(userId) && !isNaN(gameId)) {
-        ownsCurrentGame.value = await games.ownsGame(gameId, userId);
+        const accessInfo = await games.ownsGame(gameId, userId);
+        ownsCurrentGame.value = accessInfo.owned;
+        hasSubscriptionAccess.value = accessInfo.subscriptionAccess;
         isInWishlist.value = wishlist.isInWishlist(props.item.game_id.toString());
       }
     }
@@ -227,12 +229,13 @@ watch(
       if (newItem.developer_id) {
         await fetchDeveloperDetails(newItem.developer_id);
       }
-      
-      if (auth.isLoggedIn && user.userId) {
+        if (auth.isLoggedIn && user.userId) {
         const userId = Number(user.userId);
         const gameId = Number(newItem.game_id);
         if (!isNaN(userId) && !isNaN(gameId)) {
-          ownsCurrentGame.value = await games.ownsGame(gameId, userId);
+          const accessInfo = await games.ownsGame(gameId, userId);
+          ownsCurrentGame.value = accessInfo.owned;
+          hasSubscriptionAccess.value = accessInfo.subscriptionAccess;
           isInWishlist.value = wishlist.isInWishlist(newItem.game_id.toString());
         }
       }
@@ -270,17 +273,18 @@ watch(
       </div>
       
       <!-- Mobile Price and Actions -->
-      <div class="mobile-price-section">
+      <div class="mobile-price-section">        
         <div class="mobile-price">
           <p v-if="ownsCurrentGame">{{ $t('already_owned')}}</p>
+          <p v-else-if="hasSubscriptionAccess">{{ $t('subscription_access')}}</p>
           <p v-else-if="(props.item.price as Record<string, number>)?.[i18n.locale.value] > 0">
             {{ currency === 'USD' ? 'USD' : 'CLP' }} {{ Intl.NumberFormat(i18n.locale.value === 'en' ? 'en-US' : 'es-CL', { style: 'currency', currency: currency, currencyDisplay: 'symbol' }).format((props.item.price as Record<string, number>)[i18n.locale.value]) }}
           </p>
           <p v-else>{{$t('claim_for_free')}}</p>
         </div>
-        
-        <div class="mobile-buttons">
-          <div v-if="ownsCurrentGame">
+
+          <div class="mobile-buttons">
+          <div v-if="ownsCurrentGame || hasSubscriptionAccess">
             <button v-if="props.item.game_type_id === 2" class="btn-purple" type="button" @click="Play()">
               {{ $t('play').toUpperCase() }} <PlayIcon/>
             </button>
@@ -403,19 +407,20 @@ watch(
                 </td>
               </tr>
             </table>
-          </div>
+          </div>          
 
           <div class="price">
             <p v-if="ownsCurrentGame">{{ $t('already_owned')}}</p>
+            <p v-else-if="hasSubscriptionAccess">{{ $t('subscription_access')}}</p>
             <p v-else-if="(props.item.price as Record<string, number>)?.[i18n.locale.value] > 0">
               {{ currency === 'USD' ? 'USD' : 'CLP' }} {{ Intl.NumberFormat(i18n.locale.value === 'en' ? 'en-US' : 'es-CL', { style: 'currency', currency: currency, currencyDisplay: 'symbol' }).format((props.item.price as Record<string, number>)[i18n.locale.value]) }}
             </p>
             <p v-else>{{$t('claim_for_free')}}</p>
-          </div>
+          </div>          
 
           <div class="buttons">
-            <div v-if="ownsCurrentGame">
-              <button v-if="props.item.game_type_id === 2" class="btn-purple" type="button" @click="Play()" v-on:click.stop>
+            <div v-if="ownsCurrentGame || hasSubscriptionAccess">
+              <button v-if="props.item.game_type_id === 6" class="btn-purple" type="button" @click="Play()" v-on:click.stop>
                 {{ $t('play').toUpperCase() }} <PlayIcon/>
               </button>
               <button v-else class="btn-purple" type="button" @click="Download()" v-on:click.stop>
