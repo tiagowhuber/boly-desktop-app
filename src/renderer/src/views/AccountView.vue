@@ -3,7 +3,7 @@ import Loading from '@/components/LoadingIcon.vue'
 import { useAuth, useUser } from '@/stores'
 import { RouterLink, useRouter } from 'vue-router'
 import DiagonalPencilIcon from '@/components/icons/DiagonalPencilIcon.vue'
-import XMarkIcon from '@/components/icons/XMarkIcon.vue'
+import DoorIcon from '@/components/icons/DoorIcon.vue'
 import KingIcon from '@/components/icons/ManageIcon.vue'
 import BolyIcon from '@/components/icons/FlowerIcon.vue'
 import CreditCardIcon from '@/components/icons/CreditCardIcon.vue'
@@ -81,7 +81,7 @@ const AchievementPass = (): void => {
           </RouterLink>
           <button class="button btn-blue" @click="logout">
             <div class="button-content">
-              <XMarkIcon class="button-icon" />
+              <DoorIcon class="button-icon" />
               <span>{{ $t('logout')}}</span>
               <RightArrowIcon class="button-icon arrow-icon" />
             </div>
@@ -162,7 +162,7 @@ const AchievementPass = (): void => {
                 </RouterLink>
                 <button class="button btn-blue" style="cursor: pointer;" @click="logout">
                   <div class="button-content">
-                    <XMarkIcon class="button-icon" />
+                    <DoorIcon class="button-icon" />
                     <span>{{ $t('logout')}}</span>
                     <RightArrowIcon class="button-icon arrow-icon" />
                   </div>
