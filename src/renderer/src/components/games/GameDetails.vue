@@ -251,7 +251,7 @@ watch(
       <div class="mobile-header">
         <h1>{{ ((props.item?.name as Record<string, string>)?.[i18n.locale.value] || (props.item?.name as Record<string, string>)?.['en'] || '') }}</h1>
         <p class="dev">{{ $t('developer') }}: {{ developer?.name || 'Unknown Developer' }}</p>
-        <star-rating 
+        <!-- <star-rating 
           :rating="4.67" 
           :round-start-rating="false" 
           :read-only="true" 
@@ -261,7 +261,7 @@ watch(
           :star-size="20"
           :active-color="'#FDBE11'"
           :inactive-color="'#7F7F7F7F'"
-        />
+        /> -->
       </div>
       
       <!-- Mobile Media Gallery -->
@@ -337,8 +337,8 @@ watch(
               <td>{{ $t('game_platforms') }}</td>
               <td class="icon-row">
                 <WindowsIcon class="icon" />
-                <LinuxIcon class="icon" />
-                <AppleIcon class="icon" />
+                <!-- <LinuxIcon class="icon" />
+                <AppleIcon class="icon" /> -->
               </td>
             </tr>
           </table>
@@ -358,7 +358,7 @@ watch(
       <h1>{{ ((props.item?.name as Record<string, string>)?.[i18n.locale.value] || (props.item?.name as Record<string, string>)?.['en'] || '') }}</h1>
       <p class="dev">{{ $t('developer') }}</p>
       <br>
-      <star-rating 
+      <!-- <star-rating 
       :rating="4.67" 
       :round-start-rating="false" 
       :read-only="true" 
@@ -368,7 +368,7 @@ watch(
       :star-size="30"
       :active-color="'#FDBE11'"
       :inactive-color="'#7F7F7F7F'"
-      />
+      /> -->
       <div class="info-faq">
         <p>{{$t('general_info').toUpperCase()}}</p>
         <p>|</p>
@@ -402,12 +402,12 @@ watch(
                 <td>{{ $t('game_platforms') }}</td>
                 <td class="icon-row">
                   <WindowsIcon class="icon" />
-                  <LinuxIcon class="icon" />
-                  <AppleIcon class="icon" />
+                  <!-- <LinuxIcon class="icon" />
+                  <AppleIcon class="icon" /> -->
                 </td>
               </tr>
             </table>
-          </div>          
+          </div>       
 
           <div class="price">
             <p v-if="ownsCurrentGame">{{ $t('already_owned')}}</p>
@@ -416,11 +416,11 @@ watch(
               {{ currency === 'USD' ? 'USD' : 'CLP' }} {{ Intl.NumberFormat(i18n.locale.value === 'en' ? 'en-US' : 'es-CL', { style: 'currency', currency: currency, currencyDisplay: 'symbol' }).format((props.item.price as Record<string, number>)[i18n.locale.value]) }}
             </p>
             <p v-else>{{$t('claim_for_free')}}</p>
-          </div>          
-
-          <div class="buttons">
+          </div>       
+            
+           <div class="buttons">
             <div v-if="ownsCurrentGame || hasSubscriptionAccess">
-              <button v-if="props.item.game_type_id === 6" class="btn-purple" type="button" @click="Play()" v-on:click.stop>
+              <button v-if="props.item.game_type_id === 2" class="btn-purple" type="button" @click="Play()" v-on:click.stop>
                 {{ $t('play').toUpperCase() }} <PlayIcon/>
               </button>
               <button v-else class="btn-purple" type="button" @click="Download()" v-on:click.stop>
