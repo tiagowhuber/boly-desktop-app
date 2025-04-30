@@ -22,6 +22,8 @@ if (process.contextIsolated) {
       playGame:(appData) => ipcRenderer.invoke('play-game', appData),
       downloadGame:(appData) => ipcRenderer.invoke('download-game', appData),
       searchExeFiles: (baseDir) => ipcRenderer.invoke('search-exe-files', baseDir),
+      loginWithGoogle: ()=> ipcRenderer.invoke('login-with-google'),
+      resolveGoogleLogin:()=>ipcRenderer.invoke('resolve-with-google'),
       // Download event listeners
       onDownloadStarted: (callback) => {
         ipcRenderer.on('download-started', (_event, ...args) => callback(...args));
@@ -67,6 +69,8 @@ if (process.contextIsolated) {
     playGame: (appData) => ipcRenderer.invoke('play-game', appData),
     downloadGame:(appData) => ipcRenderer.invoke('download-game', appData),
     searchExeFiles: (baseDir) => ipcRenderer.invoke('search-exe-files', baseDir),
+    loginWithGoogle: ()=> ipcRenderer.invoke('login-with-google'),
+    resolveGoogleLogin:()=>ipcRenderer.invoke('resolve-with-google'),
     // Download event listeners
     onDownloadStarted: (callback) => {
       ipcRenderer.on('download-started', (_event, ...args) => callback(...args));

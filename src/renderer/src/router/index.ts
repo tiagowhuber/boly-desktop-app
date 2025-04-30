@@ -178,6 +178,11 @@ export const router = createRouter({
       meta: {
         requiresAuth: true
       }
+    },
+    {
+      path: '/post-google-login',
+      name: '/post-google-login',
+      component: () => import ('../desktop-views/PostGoogleAuth.vue')
     }
   ],
   scrollBehavior(to, from, savedPosition) {

@@ -48,6 +48,9 @@ async function submit(): Promise<void> {
 async function handleGoogleLogin(response: GoogleResponse): Promise<void> {
   await auth.googleLogin(response.credential, router);
 }
+async function signGoogle(){
+  window.electronAPI.loginWithGoogle();
+}
 </script>
 
 <template>
@@ -68,7 +71,8 @@ async function handleGoogleLogin(response: GoogleResponse): Promise<void> {
           </div>
           <button class="login_button_text">{{ $t('login').toUpperCase() }}</button>
             <div class="google-login">
-            <GoogleLogin :callback="handleGoogleLogin" />
+            <button v-on:click="signGoogle"></button>
+            <!-- <GoogleLogin :callback="handleGoogleLogin" /> -->
             </div>
           <Teleport to="body">
             <AlertModal :show="showModal" @close="modalCallback">

@@ -1,5 +1,5 @@
 import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
-import { join } from 'path'
+import { join, resolve } from 'path'
 import path from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 const { spawn } = require('child_process')
@@ -9,7 +9,63 @@ const AdmZip = require('adm-zip')
 import icon from '../../resources/icon.png?asset'
 import axios from 'axios'
 
+const config = {
+  client_id: import.meta.env.VITE_APP_GOOGLE_CLIENT_ID,
+  // clientSecret: import.meta.env.VITE_APP_GOOGLE_CLIENT_SECRET,
+  // authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+  // tokenUrl: 'https://oauth2.googleapis.com/token',
+  // useBasicAuthorizationHeader: false,
+  redirect_uri: 'http://localhost:5173/post-google-login',
+  response_type:"code",
+  scope:"email profile",
+  code_challenge:import.meta.env.VITE_APP_GOOGLE_CODE,
+  state:""
+}
+
+
+const windowParams = {
+  alwaysOnTop: true,
+  autoHideMenuBar: true,
+  webPreferences: {
+    nodeIntegration: false
+  }
+}
+
+const options = {
+  scope: 'profile email'
+}
+
 let mainWindow
+let authWindow
+let router
+
+async function requestLoginGoogle(){
+  authWindow = new BrowserWindow({
+    width: 500,
+    height: 600,
+    show: true,
+    autoHideMenuBar: true,
+    webPreferences: {
+      preload: join(__dirname, '../preload/index.js'),
+      sandbox: false,
+      nodeIntegration: true,
+      contextIsolation: true
+    }
+  });
+  // config.state = auth.setRandomGoogleAuthToken();
+  // const responseUrl = await axios.get(`https://accounts.google.com/o/oauth2/v2/auth`, {params:config})
+  console.log()
+  const queryString = new URLSearchParams(config).toString();
+  console.log(queryString)
+  authWindow.loadURL(`https://accounts.google.com/o/oauth2/v2/auth?${queryString}`);
+}
+
+function resolveGoogleLogin(){
+  // authWindow.close();
+  // router.push("/")
+  // if (mainWindow.isMinimized()) mainWindow.restore()
+  //   mainWindow.focus()
+}
 
 if (process.defaultApp) {
   if (process.argv.length >= 2) {
@@ -204,6 +260,15 @@ async function createWindow(): Promise<void> {
     }
   })
   //---
+  
+  ipcMain.handle('login-with-google', () => {
+    // router=_router
+    requestLoginGoogle()
+  })
+
+  ipcMain.handle('resolve-with-google', () => {
+    resolveGoogleLogin()
+  })
 
   ipcMain.handle('search-exe-files', async (_event, baseDir) => {
     try {
