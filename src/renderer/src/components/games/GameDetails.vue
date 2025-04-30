@@ -283,7 +283,7 @@ watch(
           <p v-else>{{$t('claim_for_free')}}</p>
         </div>
 
-          <div class="mobile-buttons">
+        <div class="mobile-buttons">
           <div v-if="ownsCurrentGame || hasSubscriptionAccess">
             <button v-if="props.item.game_type_id === 2" class="btn-purple" type="button" @click="Play()">
               {{ $t('play').toUpperCase() }} <PlayIcon/>
@@ -336,9 +336,9 @@ watch(
             <tr>
               <td>{{ $t('game_platforms') }}</td>
               <td class="icon-row">
-                <WindowsIcon class="icon" />
-                <!-- <LinuxIcon class="icon" />
-                <AppleIcon class="icon" /> -->
+                <WindowsIcon v-if="props.item.game_type_id === 3 || props.item.game_type_id === 2" class="icon" />
+                <AppleIcon v-if="props.item.game_type_id === 2" class="icon" />
+                <!-- <LinuxIcon class="icon" /> -->
               </td>
             </tr>
           </table>
@@ -401,13 +401,13 @@ watch(
               <tr>
                 <td>{{ $t('game_platforms') }}</td>
                 <td class="icon-row">
-                  <WindowsIcon class="icon" />
-                  <!-- <LinuxIcon class="icon" />
-                  <AppleIcon class="icon" /> -->
+                  <WindowsIcon v-if="props.item.game_type_id === 3 || props.item.game_type_id === 2" class="icon" />
+                  <AppleIcon v-if="props.item.game_type_id === 2" class="icon" />
+                  <!-- <LinuxIcon class="icon" /> -->
                 </td>
               </tr>
             </table>
-          </div>       
+          </div>
 
           <div class="price">
             <p v-if="ownsCurrentGame">{{ $t('already_owned')}}</p>
@@ -416,9 +416,9 @@ watch(
               {{ currency === 'USD' ? 'USD' : 'CLP' }} {{ Intl.NumberFormat(i18n.locale.value === 'en' ? 'en-US' : 'es-CL', { style: 'currency', currency: currency, currencyDisplay: 'symbol' }).format((props.item.price as Record<string, number>)[i18n.locale.value]) }}
             </p>
             <p v-else>{{$t('claim_for_free')}}</p>
-          </div>       
-            
-           <div class="buttons">
+          </div>
+
+          <div class="buttons">
             <div v-if="ownsCurrentGame || hasSubscriptionAccess">
               <button v-if="props.item.game_type_id === 2" class="btn-purple" type="button" @click="Play()" v-on:click.stop>
                 {{ $t('play').toUpperCase() }} <PlayIcon/>

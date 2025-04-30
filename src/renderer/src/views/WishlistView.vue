@@ -32,6 +32,7 @@ if (!auth.isLoggedIn && !auth.verifying) {
 }
 
 async function filterWishlistGames() {
+
   if (!games.value.length || !wishlistItems.value.length) {
     wishlistGames.value = []
     return
@@ -40,15 +41,15 @@ async function filterWishlistGames() {
   const gamesInWishlist = games.value.filter(game => 
     wishlistItems.value.some(item => item.game_game_id === game.game_id)
   )
-
   const filteredGames = []
   for (const game of gamesInWishlist) {
-    const isOwned = user.userId !== undefined ? await gamesStore.ownsGame(game.game_id, user.userId) : false
-    if (!isOwned) {
+    const ownership = user.userId !== undefined ? await gamesStore.ownsGame(game.game_id, user.userId) : { owned: false, subscriptionAccess: false }
+    if (!ownership.owned) {
       filteredGames.push(game)
     }
   }
   
+  console.log('Final wishlist games (after ownership check):', filteredGames.length, filteredGames); 
   wishlistGames.value = filteredGames
 }
 

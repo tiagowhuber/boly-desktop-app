@@ -109,7 +109,8 @@ function GoToGame(id: number) {
             <div class="details" :class="{ 'mobile-details': isMobile }">
               <h3>{{ $t('featured').toUpperCase() }}</h3>
               <h2>{{ item.name[i18n.locale.value].toUpperCase() }}</h2>
-              <p class="dev"> {{ $t('developer') }}</p>
+              <!-- hardcoded bc item.developer is the id. will fix later -->
+              <p class="dev"> {{ $t('ff studios') }}</p>
               <p class="desc" :class="{ 'mobile-desc': isMobile }">{{item.description[i18n.locale.value]}}</p>
               
               <div :class="{ 'mobile-buttons': isMobile }">
@@ -234,10 +235,12 @@ function GoToGame(id: number) {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  max-width: 50%;
 }
 
 .mobile-details {
   padding: 0 10px;
+  max-width: 100%;
 }
 
 .details h2{
