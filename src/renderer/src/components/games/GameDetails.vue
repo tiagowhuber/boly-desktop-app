@@ -1,20 +1,13 @@
 <script setup lang="ts">
-import { ref, onMounted, inject, watch, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import StarRating from 'vue-star-rating'
+import { ref, onMounted, watch, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import WindowsIcon from '@/components/icons/WindowsIcon.vue'
-import LinuxIcon from '@/components/icons/LinuxIcon.vue'
 import AppleIcon from '@/components/icons/AppleIcon.vue'
-import CheckIcon from '@/components/icons/CheckIcon.vue'
-import XMarkIcon from '@/components/icons/XMarkIcon.vue'
-import NextIcon from '@/components/icons/ChevronRight.vue'
 import DownloadIcon from '../icons/DownloadIcon.vue'
 import PlayIcon from '../icons/PlayIcon.vue'
 import StarIcon from '../icons/SolidStarIcon.vue'
 import HeartIcon from '../icons/HeartIcon.vue'
 import CustomGameMediaGallery from './CustomGameMediaGallery.vue'
-import 'vue3-carousel/dist/carousel.css'
-import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
 import { useAuth, useUser, useGames, useCart, useDeveloper } from '@/stores'
 import useWishlist from '@/stores/wishlist'
 import { useI18n } from 'vue-i18n'
@@ -33,14 +26,6 @@ interface GameMedia {
   is_video: boolean;
 }
 
-interface LocalizedText {
-  [key: string]: string;
-}
-
-interface Props {
-  item: Game;
-}
-
 const props = defineProps<{ item: Game }>();
 console.log('GameDetails props:', props);
 const i18n = useI18n();
@@ -51,40 +36,14 @@ const router = useRouter();
 const games = useGames();
 const wishlist = useWishlist();
 
-const game = ref<Game>({} as Game);
-const gameDataBaseUrl = ref('');
-const hoveringButton1 = ref(false);
-const carouselRef = ref();
-const currentSlide = ref(0);
-const loading = ref(false);
 const developer = ref<any>(null);
 const developerStore = useDeveloper();
-const isMobile = ref(window.innerWidth <= 768);
-
-const slideTo = (val: string | number) => {
-  currentSlide.value = typeof val === 'string' ? parseInt(val, 10) : val;
-};
 
 const currency = computed(() => {
   return i18n.locale.value === 'en' ? 'USD' : 'CLP'
-})
-
-const galleryConfig = {
-  itemsToShow: 1,
-  mouseDrag: false,
-  touchDrag: false,
-  wrapAround: false,
-};
+});
 
 const game_images = ref<GameMedia[]>([]);
-
-function addToCart(game: Game): void {
-  cart.addGameToCart({ game_id: game.game_id });
-}
-
-function goToLibrary(): void {
-  router.push('/library');
-}
 
 function GoToAchievements(): void {
   router.push('/games/' + props.item.game_id + '/achievements');
@@ -103,29 +62,6 @@ async function Download(): Promise<void> {
 
 function goToGames(): void {
   router.push('/games');
-}
-
-async function ClaimFree(game_id: string): Promise<boolean> {
-  if (!auth.isLoggedIn) {
-    router.push('/login');
-    return false;
-  }
-
-  loading.value = true;
-  try {
-    const result = await games.claimFreeGame(Number(game_id), auth);
-    if (result) {
-      alert(JSON.stringify(result));
-      router.go(0);
-      return true;
-    }
-    return false;
-  } catch (error) {
-    console.log("error in transaction request ", error);
-    return false;
-  } finally {
-    loading.value = false;
-  }
 }
 
 function updateGameImages(): void {
@@ -150,7 +86,7 @@ function updateGameImages(): void {
   }
 }
 
-function AddToCart(item: Game): void {
+function AddToCart(): void {
   cart.addGameToCart({ game_id: props.item.game_id });
 }
 
@@ -202,7 +138,8 @@ onMounted(async () => {
     if (props.item.developer_id) {
       await fetchDeveloperDetails(props.item.developer_id);
     }
-      if (auth.isLoggedIn && user.userId) {
+    
+    if (auth.isLoggedIn && user.userId) {
       const userId = Number(user.userId);
       const gameId = Number(props.item.game_id);
       if (!isNaN(userId) && !isNaN(gameId)) {
@@ -213,10 +150,6 @@ onMounted(async () => {
       }
     }
   }
-  
-  window.addEventListener('resize', () => {
-    isMobile.value = window.innerWidth <= 768;
-  });
 });
 
 watch(
@@ -229,7 +162,8 @@ watch(
       if (newItem.developer_id) {
         await fetchDeveloperDetails(newItem.developer_id);
       }
-        if (auth.isLoggedIn && user.userId) {
+      
+      if (auth.isLoggedIn && user.userId) {
         const userId = Number(user.userId);
         const gameId = Number(newItem.game_id);
         if (!isNaN(userId) && !isNaN(gameId)) {
@@ -245,130 +179,12 @@ watch(
 </script>
 
 <template>
-  <div v-if="isMobile">
-    <!-- Mobile Layout -->
-    <div class="mobile-container" v-if="props.item">
-      <div class="mobile-header">
-        <h1>{{ ((props.item?.name as Record<string, string>)?.[i18n.locale.value] || (props.item?.name as Record<string, string>)?.['en'] || '') }}</h1>
-        <p class="dev">{{ $t('developer') }}: {{ developer?.name || 'Unknown Developer' }}</p>
-        <!-- <star-rating 
-          :rating="4.67" 
-          :round-start-rating="false" 
-          :read-only="true" 
-          :show-rating="false" 
-          :increment="0.01"
-          :border-width="0" 
-          :star-size="20"
-          :active-color="'#FDBE11'"
-          :inactive-color="'#7F7F7F7F'"
-        /> -->
-      </div>
-      
-      <!-- Mobile Media Gallery -->
-      <div class="mobile-gallery" v-if="props.item?.game_id">
-        <CustomGameMediaGallery 
-          :gameId="Number(props.item.game_id)" 
-          :showSectionTitles="false"
-        />
-      </div>
-      
-      <!-- Mobile Price and Actions -->
-      <div class="mobile-price-section">        
-        <div class="mobile-price">
-          <p v-if="ownsCurrentGame">{{ $t('already_owned')}}</p>
-          <p v-else-if="hasSubscriptionAccess">{{ $t('subscription_access')}}</p>
-          <p v-else-if="(props.item.price as Record<string, number>)?.[i18n.locale.value] > 0">
-            {{ currency === 'USD' ? 'USD' : 'CLP' }} {{ Intl.NumberFormat(i18n.locale.value === 'en' ? 'en-US' : 'es-CL', { style: 'currency', currency: currency, currencyDisplay: 'symbol' }).format((props.item.price as Record<string, number>)[i18n.locale.value]) }}
-          </p>
-          <p v-else>{{$t('claim_for_free')}}</p>
-        </div>
-
-        <div class="mobile-buttons">
-          <div v-if="ownsCurrentGame || hasSubscriptionAccess">
-            <button v-if="props.item.game_type_id === 2" class="btn-purple" type="button" @click="Play()">
-              {{ $t('play').toUpperCase() }} <PlayIcon/>
-            </button>
-            <button v-else class="btn-purple" type="button" @click="Download()">
-              {{ $t('download').toUpperCase() }} <DownloadIcon/>
-            </button> 
-            <button class="btn-blue" type="button" @click="GoToAchievements()">
-              {{ $t('see_achievements').toUpperCase() }} <StarIcon/>
-            </button>
-          </div>
-          <div v-else>
-            <button 
-              class="btn-blue" 
-              v-if="cart.cart.includes(props.item.game_id)" 
-              @click="router.push('/cart')"
-            >
-              {{ $t('view_in_cart').toUpperCase() }}
-            </button>
-            <button class="btn-purple" v-else @click="AddToCart(props.item)">{{ $t('add_to_cart').toUpperCase() }}</button>
-            
-            <button 
-              :class="['btn-wishlist', isInWishlist ? 'in-wishlist' : '']" 
-              @click="toggleWishlist()"
-            >
-              {{ isInWishlist ? $t('remove from wishlist').toUpperCase() : $t('add to wishlist').toUpperCase() }}
-              <HeartIcon :class="{ 'filled': isInWishlist }" />
-            </button>
-          </div>
-          <button class="btn-dark" @click="goToGames()">{{ $t('continue_shopping').toUpperCase() }}</button>
-        </div>
-      </div>
-      
-      <!-- Mobile Game Info -->
-      <div class="mobile-info">
-        <div class="mobile-info-tab">
-          <p>{{$t('general_info').toUpperCase()}}</p>
-        </div>
-        
-        <div class="mobile-dev-details">
-          <table>
-            <tr>
-              <td>{{ $t('developer') }}</td>
-              <td>{{ developer?.name || 'Unknown Developer' }}</td>
-            </tr>
-            <tr>
-              <td>{{ $t('release_date') }}</td>
-              <td>{{ props.item.release_date ? new Date(props.item.release_date).toLocaleDateString() : 'Unknown' }}</td>
-            </tr>
-            <tr>
-              <td>{{ $t('game_platforms') }}</td>
-              <td class="icon-row">
-                <WindowsIcon v-if="props.item.game_type_id === 3 || props.item.game_type_id === 2" class="icon" />
-                <AppleIcon v-if="props.item.game_type_id === 2" class="icon" />
-                <!-- <LinuxIcon class="icon" /> -->
-              </td>
-            </tr>
-          </table>
-        </div>
-        
-        <div class="mobile-description">
-          <p>{{ (props.item.description as Record<string, string>)?.[i18n.locale.value] || (props.item.description as Record<string, string>)?.['en'] || '' }}</p>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div v-else class="section" v-if="props.item">
-    <!-- Desktop Layout -->
+  <div class="section" v-if="props.item">
     <div class="details">
       {{ console.log('GameDetails: Rendering template with game:', props.item.game_id) }}
       <h1>{{ ((props.item?.name as Record<string, string>)?.[i18n.locale.value] || (props.item?.name as Record<string, string>)?.['en'] || '') }}</h1>
       <p class="dev">{{ $t('developer') }}</p>
       <br>
-      <!-- <star-rating 
-      :rating="4.67" 
-      :round-start-rating="false" 
-      :read-only="true" 
-      :show-rating="false" 
-      :increment="0.01"
-      :border-width="0" 
-      :star-size="30"
-      :active-color="'#FDBE11'"
-      :inactive-color="'#7F7F7F7F'"
-      /> -->
       <div class="info-faq">
         <p>{{$t('general_info').toUpperCase()}}</p>
         <p>|</p>
@@ -439,7 +255,9 @@ watch(
               >
                 {{ $t('view_in_cart').toUpperCase() }}
               </button>
-              <button class="btn-purple" v-else @click="AddToCart(props.item)">{{ $t('add_to_cart').toUpperCase() }}</button>
+              <button class="btn-purple" v-else @click="AddToCart">
+                {{ $t('add_to_cart').toUpperCase() }}
+              </button>
               
               <button 
                 :class="['btn-wishlist', isInWishlist ? 'in-wishlist' : '']" 
@@ -486,7 +304,6 @@ watch(
 </style>
 
 <style scoped>
-/* Desktop Styles */
 .details{
   text-align: left;
   display: flex;
@@ -539,6 +356,8 @@ watch(
 
 .main-container{
   width: 100%;
+  display: flex;
+  gap: 1rem;
 }
 
 .images{
@@ -686,147 +505,5 @@ button svg{
 
 .btn-wishlist svg.filled {
   fill: red;
-}
-
-/* Mobile Styles */
-.mobile-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding: 0.5rem;
-  width: 100%;
-  max-width: 100vw;
-  box-sizing: border-box;
-  margin: 0;
-  overflow-x: hidden;
-}
-
-.mobile-header {
-  text-align: center;
-  padding: 0.5rem;
-}
-
-.mobile-header h1 {
-  font-family: "Anton", serif;
-  font-style: italic;
-  font-size: 1.5rem;
-  margin-bottom: 0.25rem;
-}
-
-.mobile-header p.dev {
-  color: rgba(179, 184, 212, 0.527);
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
-}
-
-.mobile-gallery {
-  width: 100%;
-  margin-bottom: 0.75rem;
-}
-
-.mobile-viewport {
-  width: 100%;
-  border-radius: 15px;
-  filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.5));
-  margin-bottom: 8px;
-}
-
-.mobile-viewport img, .mobile-viewport video {
-  border-radius: 15px;
-  width: 100%;
-  height: auto;
-}
-
-.mobile-thumbnails {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  gap: 8px;
-  justify-content: center;
-}
-
-.mobile-thumbnails img, .mobile-thumbnails video {
-  border-radius: 8px;
-  width: 100%;
-  max-height: 60px;
-  cursor: pointer;
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
-  object-fit: cover;
-}
-
-.mobile-thumbnails > div {
-  flex: 1;
-  max-width: 33.333%;
-  overflow: hidden;
-}
-
-.mobile-price-section {
-  background-color: var(--boly-bg-dark-transparent);
-  border-radius: 15px;
-  padding: 0.75rem;
-  margin-bottom: 0.75rem;
-}
-
-.mobile-price {
-  text-align: center;
-  margin-bottom: 0.5rem;
-}
-
-.mobile-price p {
-  font-size: 1.1rem;
-  font-weight: bold;
-}
-
-.mobile-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.mobile-buttons button {
-  padding: 8px;
-  font-size: 1rem;
-  margin-top: 5px;
-}
-
-.mobile-info {
-  background-color: var(--boly-bg-blue-transparent);
-  border-radius: 15px;
-  overflow: hidden;
-  margin-bottom: 0.75rem;
-}
-
-.mobile-info-tab {
-  background-color: rgba(0, 0, 0, 0.3);
-  padding: 0.5rem;
-  text-align: center;
-}
-
-.mobile-info-tab p {
-  font-family: "Anton", serif;
-  margin: 0;
-}
-
-.mobile-dev-details {
-  padding: 0.75rem;
-}
-
-.mobile-dev-details table {
-  width: 100%;
-}
-
-.mobile-dev-details tr {
-  height: 30px;
-}
-
-.mobile-dev-details td:first-child {
-  font-weight: bold;
-  width: 40%;
-}
-
-.mobile-description {
-  padding: 0.75rem;
-  font-size: 0.9rem;
-  line-height: 1.4;
 }
 </style>
