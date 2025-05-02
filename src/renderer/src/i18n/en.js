@@ -94,7 +94,11 @@ export const en = {
   no_owned_games: "It looks like you don't own any games yet...",
   browse_games: "Browse Games",
   show_all_games: 'Show all games',
-  show_installed_only: 'Show installed games',
+  show_all_owned_games: 'All my Library',
+  show_installed_only: 'My Installed Games',
+  subscription_games: 'Subscription Access',
+  no_subscription_games: 'No subscription games available',
+  view_in_library: 'View in library',
 
   // wishlist view
   wishlist: 'Wishlist',

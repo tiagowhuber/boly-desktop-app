@@ -4,14 +4,16 @@ import DesktopLibraryItem from '@/desktop-components/DesktopLibraryItem.vue'
 import Loading from '@/components/LoadingIcon.vue'
 import { onMounted, ref, onBeforeUnmount } from 'vue' 
 import { useRouter } from 'vue-router'
-import { useAuth, useUser } from '../stores'
+import { useAuth, useUser, useSubscription, useGames } from '../stores'
 import useGameRoutes from '../desktop-stores/gameRoutes'
 import axios from 'axios'
-import type { Game} from '@/types'
+import type { Game, Subscription} from '@/types'
+import { storeToRefs } from 'pinia'
 
 const auth = useAuth()
 const user = useUser()
-//const games = useGames()
+const subscriptionStore = useSubscription()
+const games = useGames()
 //const achievementsStore = useAchievements()
 const gameRoutesStore = useGameRoutes()
 const router = useRouter()
@@ -19,7 +21,10 @@ const isLoading = ref(true)
 const ownedGames = ref<Game[]>([])
 const allOwnedGames = ref<Game[]>([])
 const isSearchingGames = ref(false)
-const showInstalledOnly = ref(true)
+const showInstalledOnly = ref(false)
+const showSubscriptionGames = ref(false)
+const currentSubscription = ref<Subscription | null>(null)
+const { subscriptions, error, loading } = storeToRefs(subscriptionStore)
 
 if (!auth.isLoggedIn) {
   router.back()
@@ -92,7 +97,7 @@ async function fetchOwnedGames() {
   if (!user.userId) return
 
   try {
-    const response = await axios.get(`/v1/games/user/${user.userId}`)
+    const response = await axios.get(`/v1/games/user/${user.userId}`)//fix here
     if (response.status === 200 && response.data) {
       const gamesList = response.data[0]?.game || []
       console.log('Extracted games list:', gamesList)
@@ -134,18 +139,28 @@ async function fetchOwnedGames() {
 }
 
 function updateDisplayedGames() {
-  if (showInstalledOnly.value) {
+  if (showSubscriptionGames.value) {
+    games.getAll().then(() => {
+      ownedGames.value = games.games;
+    });
+  } else if (showInstalledOnly.value) {
     ownedGames.value = allOwnedGames.value.filter(game => game.isInstalled);
   } else {
     ownedGames.value = [...allOwnedGames.value];
   }
 }
 
-function setFilter(installedOnly: boolean) {
-  showInstalledOnly.value = installedOnly;
-  if (installedOnly) {
-    loadGames();
+function setFilter(filterType: 'installed' | 'owned' | 'subscription') {
+  showInstalledOnly.value = false;
+  showSubscriptionGames.value = false;
+  
+  if (filterType === 'installed') {
+    showInstalledOnly.value = true;
+    loadGames(); 
+  } else if (filterType === 'subscription') {
+    showSubscriptionGames.value = true;
   }
+  
   updateDisplayedGames();
 }
 
@@ -157,12 +172,29 @@ onMounted(async () => {
       if (response.status === 200) {
         user.setUser(response.data)
         await fetchOwnedGames()
+        games.getAll().catch(err => {
+          console.error('Error pre-fetching all games:', err)
+        })
       }
     } catch (error) {
       console.error('Error fetching user data:', error)
+    }
+
+    try {
+      const success = await subscriptionStore.getUserSubscriptions(user.userId, { token: auth.token })
+      
+      if (success && subscriptions.value.length > 0) {
+        const activeSubscription = subscriptions.value.find(sub => sub.is_active === 1)
+        if (activeSubscription) {
+          currentSubscription.value = activeSubscription
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching subscription data:', error)
     } finally {
       isLoading.value = false
     }
+
   } else {
     isLoading.value = false
   }
@@ -183,22 +215,45 @@ onBeforeUnmount(() => {
         <div class="title-container">
           <h1>{{ $t('user_games', { user: user.username }) }}</h1>
         </div>
-      </div>
+      </div>      
       <div class="title-container filter-controls">
-        <div class="filter-buttons">
+        <div v-if="currentSubscription?.plan_id != 1 && currentSubscription?.is_active" class="filter-buttons">
           <button
             class="filter-button"
             :class="{ active: showInstalledOnly }"
-            @click="setFilter(true)"
+            @click="setFilter('installed')"
+          >
+            {{ $t('show_installed_only') }}
+          </button>
+          <button
+            class="filter-button"
+            :class="{ active: !showInstalledOnly && !showSubscriptionGames }"
+            @click="setFilter('owned')"
+          >
+            {{ $t('show_all_owned_games') }}
+          </button>          
+          <button
+            class="filter-button"
+            :class="{ active: showSubscriptionGames }"
+            @click="setFilter('subscription')"
+          >
+            {{ $t('subscription_games') }}
+          </button>
+        </div>
+        <div v-else class="filter-buttons">
+          <button
+            class="filter-button"
+            :class="{ active: showInstalledOnly }"
+            @click="setFilter('installed')"
           >
             {{ $t('show_installed_only') }}
           </button>
           <button
             class="filter-button"
             :class="{ active: !showInstalledOnly }"
-            @click="setFilter(false)"
+            @click="setFilter('owned')"
           >
-            {{ $t('show_all_games') }}
+            {{ $t('show_all_owned_games') }}
           </button>
         </div>
       </div>
@@ -206,7 +261,7 @@ onBeforeUnmount(() => {
         <DesktopLibraryItem v-for="item in ownedGames" :key="item.game_id" :item="item" />
       </div>     
       <div v-else class="empty-library">
-        <p>{{ $t('no_owned_games') }}</p>
+        <p>{{ showSubscriptionGames ? $t('no_subscription_games') : $t('no_owned_games') }}</p>
         <button class="browse-button" @click="router.push('/games')">{{ $t('browse_games') }}</button>
       </div>
     </div>

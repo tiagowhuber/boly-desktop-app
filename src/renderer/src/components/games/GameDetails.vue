@@ -3,8 +3,6 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import WindowsIcon from '@/components/icons/WindowsIcon.vue'
 import AppleIcon from '@/components/icons/AppleIcon.vue'
-import DownloadIcon from '../icons/DownloadIcon.vue'
-import PlayIcon from '../icons/PlayIcon.vue'
 import StarIcon from '../icons/SolidStarIcon.vue'
 import HeartIcon from '../icons/HeartIcon.vue'
 import CustomGameMediaGallery from './CustomGameMediaGallery.vue'
@@ -49,15 +47,8 @@ function GoToAchievements(): void {
   router.push('/games/' + props.item.game_id + '/achievements');
 }
 
-async function Play(): Promise<void> {
-  router.push('/webgame/' + props.item.game_id);
-}
-
-async function Download(): Promise<void> {
-  // const success = await games.downloadGame(props.item.game_id, auth);
-  // if (!success) {
-  //   alert("download failed");
-  // }
+function goToLibrary(): void {
+  router.push('/library');
 }
 
 function goToGames(): void {
@@ -236,12 +227,9 @@ watch(
 
           <div class="buttons">
             <div v-if="ownsCurrentGame || hasSubscriptionAccess">
-              <button v-if="props.item.game_type_id === 2" class="btn-purple" type="button" @click="Play()" v-on:click.stop>
-                {{ $t('play').toUpperCase() }} <PlayIcon/>
+              <button class="btn-purple" type="button" @click="goToLibrary" v-on:click.stop>
+                {{ $t('view_in_library').toUpperCase() }}
               </button>
-              <button v-else class="btn-purple" type="button" @click="Download()" v-on:click.stop>
-                {{ $t('download').toUpperCase() }} <DownloadIcon/>
-              </button> 
 
               <button class="btn-blue" type="button" @click="GoToAchievements()" v-on:click.stop>
                 {{ $t('see_achievements').toUpperCase() }} <StarIcon/>

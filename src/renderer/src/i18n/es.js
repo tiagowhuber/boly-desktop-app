@@ -92,9 +92,11 @@ export const es = {
   no_achievements: 'No hay logros para este juego.',
   no_owned_games: "Parece que aún no tienes ningún juego...",
   browse_games: "Explorar Juegos",
-  show_all_games: "Mostrar todos los juegos",
-  show_installed_only: "Mostrar juegos instalados",
-  
+  show_all_games: "Toda mi librería",
+  show_all_owned_games: "Toda mi Librería",
+  show_installed_only: "Mis juegos Instalados",
+  subscription_games: "Accesibles por Suscripción",
+
   // wishlist view
   wishlist: 'Lista de Deseos',
   no_wishlist_games: "Tu lista de deseos está vacía. ¡Añade juegos que te interesen!",
@@ -233,6 +235,7 @@ export const es = {
   return_to_cart: 'Volver al Carrito',
   browse_more_games: 'Explorar Más Juegos',
   go_to_library: 'Ir a la Biblioteca',
+  view_in_library: 'Ver en la Biblioteca',
 
   // login/register view
   login: 'Iniciar sesión',

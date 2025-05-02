@@ -4,8 +4,6 @@ export interface LocalizedString {
   [key: string]: string;
 }
 
-
-
 export interface User {
     userId?: number;
     email: string;
@@ -65,6 +63,7 @@ export interface Achievement {
   gameId: number
   icon_url?: string
   progress?: number
+  current_progress?: number
 }
 
 export interface AchievementStoreState {
@@ -96,6 +95,9 @@ export interface SubscriptionState {
   subscriptions: Subscription[]
   loading: boolean
   error: string | null
+  paymentResult: any | null
+  transactionStatus: any | null
+  cancelSuccess: boolean
 }
 
 export interface Subscription {
@@ -103,6 +105,7 @@ export interface Subscription {
   user_id: number
   plan_id: number
   is_active: number
+  auto_renew: number
   active_until: Date
 }
 
@@ -113,6 +116,18 @@ export interface SubscriptionResponse {
 
 export interface AuthToken {
   token: string
+}
+
+export interface PaymentMethod {
+  payment_method_id: number;
+  user_id: number;
+  provider: string;
+  tbk_user: string;
+  card_type: string;
+  last_four_digits: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface PaymentState {
@@ -130,6 +145,11 @@ export interface PaymentState {
   isCodeInvalid: boolean;
   loading: boolean;
   error: string | null;
+  paymentMethods: PaymentMethod[];
+  enrollmentToken: string;
+  enrollmentUrl: string;
+  enrollmentLoading: boolean;
+  enrollmentError: string | null;
 }
 
 export interface WishlistItem {
@@ -144,6 +164,23 @@ export interface Developer {
   picture_url?: string
   banner_url?: string
   description?: Record<string, string>
+}
+
+export interface Order {
+  order_id: number;
+  discount_code?: string;
+  final_amount: {
+    amount: number;
+    currency: string;
+  };
+  state: string;
+  session_id?: string;
+  token: string;
+  created_at: Date;
+  updated_at: Date;
+  user_id: number;
+  subscription_id?: number;
+  payment_method_id?: number;
 }
 
 export interface Auth {
