@@ -84,13 +84,16 @@ async function signGoogle() {
               <template #body> {{ modalWarning }} </template>
             </AlertModal>
           </Teleport>
-        </form>
-        <div class="login-container">
+        </form>        
+        <div class="google-login">
           <form @submit.prevent="signGoogle()">
-          <button class="login_button_text" >
-            {{ $t('login_google').toUpperCase() }}
-          </button>
-        </form>
+            <button class="google-login-button">
+              <div class="google-logo-container">
+                <img src="@/assets/svgs/google.svg" alt="Google" class="google-logo">
+              </div>
+              <span class="google-text">{{ $t('login_google') }}</span>
+            </button>
+          </form>
           <!-- <GoogleLogin :callback="handleGoogleLogin" /> -->
         </div>
         <div class="register">
@@ -262,8 +265,86 @@ h1 {
 }
 
 .google-login {
-  display: flex;
+  display: stretch;
+}
+
+.google-sign-in-button {
+  display: stretch;
+  align-items: center;
   justify-content: center;
+  background-color: white;
+  color: rgba(0, 0, 0, 0.54);
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
+  height: 40px;
+  padding: 0;
+  width: 100%;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.21px;
+  transition: background-color 0.218s, border-color 0.218s, box-shadow 0.218s;
+  cursor: pointer;
+}
+
+.google-sign-in-button:hover {
+  background-color: #f7f8f8;
+  border-color: #d2d2d2;
+  box-shadow: 0 1px 1px 0 rgba(66, 133, 244, 0.3),
+              0 1px 3px 1px rgba(66, 133, 244, 0.15);
+}
+
+.google-sign-in-button:active {
+  background-color: #f1f1f1;
+}
+
+.google-icon {
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+}
+
+.google-text {
+  padding-right: 12px;
+  flex-grow: 1;
+  text-align: center;
+}
+
+.google-login-button {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  width: 100%;
+  margin-top: 1rem;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  background-color: white;
+  color: rgba(0, 0, 0, 0.54);
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.21px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
+  transition: background-color 0.218s, border-color 0.218s, box-shadow 0.218s;
+  position: relative;
+  overflow: visible;
+  padding: 0;
+}
+
+.google-login-button:hover {
+  background-color: #f7f8f8;
+  border-color: #d2d2d2;
+  box-shadow: 0 1px 1px 0 rgba(66, 133, 244, 0.3),
+              0 1px 3px 1px rgba(66, 133, 244, 0.15);
+}
+
+.google-logo {
+  margin-left: 30px;
+  width: 18px;
+  height: 18px;
+  display: block;
 }
 
 .login-element-image {
