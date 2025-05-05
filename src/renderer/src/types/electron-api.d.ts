@@ -9,6 +9,8 @@ interface ElectronAPIExtended {
   playGame: (appData: { game_id: number; appPath: string; token: string }) => Promise<void>;
   downloadGame: (appData: { game_id: number; token: string; gameName: string }) => Promise<void>;
   searchExeFiles: (baseDir?: string) => Promise<{ files?: string[]; error?: string }>;
+  loginWithGoogle: () => Promise<void>;
+  resolveGoogleLogin: () => Promise<void>;
   
   // Download event listeners
   onDownloadStarted: (callback: (data: { gameId: number; gameName: string }) => void) => void;

@@ -5,12 +5,7 @@ import AlertModal from '@/components/AlertModal.vue'
 import TermsModal from '@/components/TermsModal.vue'
 import { router } from '../router/index'
 import { useI18n } from 'vue-i18n'
-import { GoogleLogin } from 'vue3-google-login'
 import { useAuth } from '@/stores'
-
-interface GoogleLoginResponse {
-  credential: string;
-}
 
 const i18n = useI18n();
 const auth = useAuth();
@@ -85,7 +80,6 @@ async function submit(): Promise<void> {
     password: password.value, 
     repassword: repassword.value 
   });
-
   try {
     const response = await auth.register(email.value, username.value, password.value);
     if (response) {
@@ -99,8 +93,7 @@ async function submit(): Promise<void> {
       } else if (response.status === 409) {
         modalWarning.value = i18n.t("modal_email_taken");
       } else {
-        const data = await response.json();
-        modalWarning.value = data.message || i18n.t("modal_register_error");
+        modalWarning.value = response.data?.message || i18n.t("modal_register_error");
       }
     }
   } catch (error) {
@@ -108,8 +101,8 @@ async function submit(): Promise<void> {
   }
 }
 
-async function handleGoogleLogin(response: GoogleLoginResponse): Promise<void> {
-  await auth.googleLogin(response.credential, router)
+async function signGoogle() {
+  window.electronAPI.loginWithGoogle()
 }
 </script>
 
@@ -136,9 +129,8 @@ async function handleGoogleLogin(response: GoogleLoginResponse): Promise<void> {
           <div class="form_group">
             <input type="password" v-model="repassword" class="form_field" placeholder="Repassword" />
             <label for="name" class="form_label">{{$t('repassword')}}</label>
-          </div>
-          <button class="register_button_text">{{$t('register').toLocaleUpperCase()}}</button>
-          <GoogleLogin :callback="handleGoogleLogin" />
+          </div>          <button class="register_button_text">{{$t('register').toLocaleUpperCase()}}</button>
+          
           <Teleport to="body">
             <AlertModal :show="showModal" @close="showModal = false">
               <template #header>
@@ -151,10 +143,20 @@ async function handleGoogleLogin(response: GoogleLoginResponse): Promise<void> {
             <TermsModal :show="showTerms" @close="showTerms = false" @confirm="showTerms = false; submit()">
               <template #header>
                 <h3>{{$t('terms_of_service')}}</h3>
-              </template>
-            </TermsModal>
+              </template>            </TermsModal>
           </Teleport>
         </form>
+        <div class="google-login">
+          <form @submit.prevent="signGoogle()">
+            <button class="google-login-button">
+              <div class="google-logo-container">
+                <img src="@/assets/svgs/google.svg" alt="Google" class="google-logo">
+              </div>
+              <span class="google-text">{{ $t('login_google') }}</span>
+            </button>
+          </form>
+          <!-- <GoogleLogin :callback="handleGoogleLogin" /> -->
+        </div>
         <div class="login">
           <p>{{$t('yes_account')}}</p>
           <RouterLink to="/login" style="color: white; text-decoration: underline;">{{$t('login')}}</RouterLink>
@@ -354,10 +356,95 @@ h1{
   align-items: center;
 }
 
+.google-login {
+  display: stretch;
+}
+
+.google-sign-in-button {
+  display: stretch;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  color: rgba(0, 0, 0, 0.54);
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
+  height: 40px;
+  padding: 0;
+  width: 100%;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.21px;
+  transition: background-color 0.218s, border-color 0.218s, box-shadow 0.218s;
+  cursor: pointer;
+}
+
+.google-sign-in-button:hover {
+  background-color: #f7f8f8;
+  border-color: #d2d2d2;
+  box-shadow: 0 1px 1px 0 rgba(66, 133, 244, 0.3),
+              0 1px 3px 1px rgba(66, 133, 244, 0.15);
+}
+
+.google-sign-in-button:active {
+  background-color: #f1f1f1;
+}
+
+.google-icon {
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+}
+
+.google-text {
+  padding-right: 12px;
+  flex-grow: 1;
+  text-align: center;
+  color: white;
+}
+
+.google-login-button {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  width: 100%;
+  margin-top: 1rem;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  background-color: white;
+  color: rgba(0, 0, 0, 0.54);
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.21px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
+  transition: background-color 0.218s, border-color 0.218s, box-shadow 0.218s;
+  position: relative;
+  overflow: visible;
+  padding: 0;
+}
+
+.google-login-button:hover {
+  background-color: #f7f8f8;
+  border-color: #d2d2d2;
+  box-shadow: 0 1px 1px 0 rgba(66, 133, 244, 0.3),
+              0 1px 3px 1px rgba(66, 133, 244, 0.15);
+}
+
+.google-logo {
+  margin-left: 30px;
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
 .register-container .login {
   font-size: small;
   display: flex;
   align-items: center;
+  justify-content: center;
   color: var(--light);
 }
 
