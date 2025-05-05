@@ -1,17 +1,14 @@
 <script lang="ts" setup>
-import { useI18n } from 'vue-i18n'
 import LibraryItem from '@/components/games/LibraryItem.vue'
 import Loading from '@/components/LoadingIcon.vue'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuth, useUser, useGames, useAchievements } from '../stores'
+import { useAuth, useUser } from '../stores'
 import axios from 'axios'
 import type { Game } from '@/types'
 
 const auth = useAuth()
 const user = useUser()
-const games = useGames()
-const achievementsStore = useAchievements()
 const router = useRouter()
 const isLoading = ref(true)
 const ownedGames = ref<Game[]>([])

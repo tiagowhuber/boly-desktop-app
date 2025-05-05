@@ -55,10 +55,6 @@ const fetchOrders = async () => {
   }
 };
 
-const viewOrderDetails = (order: Order) => {
-  selectedOrder.value = order;
-  showOrderDetailsModal.value = true;
-};
 
 const closeOrderDetailsModal = () => {
   showOrderDetailsModal.value = false;

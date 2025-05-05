@@ -10,15 +10,12 @@ import { useAchievements } from '@/stores'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import type { Achievement } from '@/types'
-import type { User } from '@/types'
-import useUser from '@/stores/user'
 
 const i18n = useI18n()
 const selectedLocale = ref('en')
 
 const router = useRouter()
 const auth = useAuth()
-const userStore = useUser()
 
 if(!auth.isLoggedIn){
   router.back()
@@ -118,7 +115,7 @@ const getLocalizedGameName = (locale: string): string => {
 
       <EditableGrid @remove-achievement="removeHandler" @add-achievement="addHandler"
         :data="achievementStore.achievements"
-        :columns="gridColumns"
+        :columns="[...gridColumns]"
         :columnNames="gridColumnNames"
         :filter-key="searchQuery"
         :locale="selectedLocale">

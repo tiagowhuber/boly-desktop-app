@@ -115,7 +115,7 @@ async function handleSubscription(planType: string) {
     try {
       // For free subscription, just create it without payment
       if (planType === 'free') {
-        const planId = Object.entries(PLAN_TYPES).find(([id, type]) => type === planType)?.[0]
+        const planId = Object.entries(PLAN_TYPES).find(([_id, type]) => type === planType)?.[0]
         
         if (!planId) {
           console.error('Invalid plan type')
@@ -135,9 +135,9 @@ async function handleSubscription(planType: string) {
         addPaymentMethod(planType)
         return
       }
-      
-      const planId = Object.entries(PLAN_TYPES).find(([id, type]) => type === planType)?.[0]
-      
+
+      const planId = Object.entries(PLAN_TYPES).find(([_id, type]) => type === planType)?.[0]
+
       if (!planId) {
         console.error('Invalid plan type')
         return

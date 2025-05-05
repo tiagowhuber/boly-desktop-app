@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import Loading from '@/components/LoadingIcon.vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useAuth, useUser, usePayment, useSubscription } from '@/stores'
 import { onMounted, ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
-const route = useRoute()
 const auth = useAuth()
 const user = useUser()
 const paymentStore = usePayment()
@@ -141,7 +140,7 @@ const getPlanIdFromType = (planType: string): number => {
     3: 'yearly'
   }
   
-  const planEntry = Object.entries(PLAN_TYPES).find(([id, type]) => type === planType)
+  const planEntry = Object.entries(PLAN_TYPES).find(([_id, type]) => type === planType)
   return planEntry ? parseInt(planEntry[0]) : 0
 }
 

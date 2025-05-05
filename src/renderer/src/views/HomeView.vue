@@ -1,20 +1,12 @@
 <script setup lang="ts">
-import InfoCard from '@/components/InfoCard.vue';
-import ContactForm from '@/components/ContactForm.vue';
-import { RouterLink } from 'vue-router';
 
 import { ref, onMounted } from 'vue';
-import DataCard from '@/components/DataCard.vue';
 
 import emailjs from '@emailjs/browser';
 import { useI18n } from 'vue-i18n';
 const i18n = useI18n();
 
-import finalWebVideo from '@/assets/webm/finalweb.webm?url';
-import TheLogo from '../components/logo/TheLogo.vue'
 
-
-const { t } = useI18n();
 const isMobile = ref(window.innerWidth <= 768);
 
 onMounted(() => {

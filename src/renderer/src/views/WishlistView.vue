@@ -3,7 +3,7 @@ import GameItem from '@/components/games/GameItem.vue'
 import Loading from '@/components/LoadingIcon.vue'
 import { useGames, useAuth, useUser } from '@/stores'
 import useWishlist from '@/stores/wishlist'
-import { onMounted, ref, computed, watch, onUnmounted } from 'vue'
+import { onMounted, ref, watch, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
@@ -15,7 +15,9 @@ const user = useUser()
 const gamesStore = useGames()
 const wishlistStore = useWishlist()
 
+//@ts-ignore
 const { loading: gamesLoading, games } = storeToRefs(gamesStore)
+//@ts-ignore
 const { loading: wishlistLoading, items: wishlistItems } = storeToRefs(wishlistStore)
 
 const loading = ref(true)
@@ -41,7 +43,7 @@ async function filterWishlistGames() {
   const gamesInWishlist = games.value.filter(game => 
     wishlistItems.value.some(item => item.game_game_id === game.game_id)
   )
-  const filteredGames = []
+  const filteredGames: typeof games.value = []
   for (const game of gamesInWishlist) {
     const ownership = user.userId !== undefined ? await gamesStore.ownsGame(game.game_id, user.userId) : { owned: false, subscriptionAccess: false }
     if (!ownership.owned) {

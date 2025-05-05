@@ -6,7 +6,6 @@ import { ref, onMounted, computed, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useSubscription, useAuth, useUser, usePayment } from '@/stores'
 import type { Subscription, PaymentMethod } from '@/types'
-import ConfirmModal from '@/components/ConfirmModal.vue'
 
 const auth = useAuth()
 const user = useUser()
@@ -27,11 +26,6 @@ const PLAN_TYPES = {
   3: 'yearly'
 }
 
-const PLAN_NAMES = {
-  'free': 'Free Plan',
-  'monthly': 'Monthly Plan',
-  'yearly': 'Yearly Plan'
-}
 
 const currentPlanType = computed(() => {
   if (!currentSubscription.value) return 'none'
@@ -135,9 +129,6 @@ const goToPaymentMethods = () => {
   router.push('/payment-methods')
 }
 
-const showCancelConfirmation = () => {
-  showCancelModal.value = true
-}
 
 const cancelSubscription = async () => {
   if (!auth.isLoggedIn || !currentSubscription.value) {
