@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import TheLogo from '../logo/TheLogo.vue'
 import CartIcon from '../icons/CartIcon.vue'
-import UserIcon from '../icons/UserIcon.vue'
-import KingIcon from '../icons/KingIcon.vue'
 import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuth, useUser, useCart } from '@/stores'

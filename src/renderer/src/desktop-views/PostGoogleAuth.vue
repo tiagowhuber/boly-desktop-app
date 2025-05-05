@@ -18,6 +18,9 @@ onMounted(async () => {
 
   //Accedemos a los valores
   var auth_code = urlParams.get('code')
+  if (!auth_code) {
+    throw new Error('No authorization code received from Google')
+  }
 
   const data = new URLSearchParams({
     client_id: import.meta.env.VITE_APP_GOOGLE_CLIENT_ID,

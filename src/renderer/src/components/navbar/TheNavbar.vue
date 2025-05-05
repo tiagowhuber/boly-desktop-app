@@ -12,7 +12,7 @@ const auth = useAuth()
 const user = useUser()
 
 const isMobile = ref(window.innerWidth <= 768)
-
+//@ts-ignore
 router.beforeEach((to, from, next) => {
   auth.checkToken()
   next()

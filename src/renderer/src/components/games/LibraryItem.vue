@@ -2,7 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { useGames, useAuth, useAchievements } from '@/stores'
+import { useAuth, useAchievements } from '@/stores'
 import type { Game, Achievement } from '@/types'
 import PlayIcon from '@/components/icons/PlayIcon.vue'
 import DownloadIcon from '@/components/icons/DownloadIcon.vue'
@@ -13,7 +13,6 @@ const props = defineProps<{
 
 const i18n = useI18n()
 const router = useRouter()
-const games = useGames()
 const auth = useAuth()
 const achievementsStore = useAchievements()
 const loading = ref(false)
@@ -22,7 +21,6 @@ const achievementsLoading = ref(true)
 
 console.log('LibraryItem received game:', props.item)
 
-const gameDataBaseUrl = import.meta.env.VITE_S3_BASE_URL + '/' + props.item.game_id + '/'
 
 
 const displayedAchievements = computed(() => {

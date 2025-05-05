@@ -1,12 +1,17 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+//@ts-ignore
+import { ref } from 'vue';
 
 interface MobileTemplateProps {
   title?: string;
   footer?: boolean;
 }
 
+//@ts-ignore
 const props = defineProps<MobileTemplateProps>()
+if(false){
+  console.log(props.title)
+}
 
 const emit = defineEmits<{
   (e: 'back'): void
