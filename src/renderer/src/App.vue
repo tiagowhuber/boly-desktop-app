@@ -8,10 +8,8 @@ import DownloadProgressBar from '@/components/DownloadProgressBar.vue'
 import { provide } from 'vue'
 import { useAuth } from '@/stores'
 import useDownloadStore from '@/desktop-stores/download'
-import { useI18n } from 'vue-i18n'
 import ModalComponent from '@/components/ModalComponent.vue'
 
-const i18n = useI18n()
 const auth = useAuth()
 const downloadStore = useDownloadStore()
 
@@ -99,7 +97,4 @@ provide('cart', shoppingCart)
   align-items: center;
 }
 
-.view-container-login RouterView{
-
-}
 </style>

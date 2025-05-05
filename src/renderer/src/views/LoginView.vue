@@ -5,11 +5,6 @@ import AlertModal from '@/components/AlertModal.vue'
 
 import { useAuth } from '@/stores'
 import { useI18n } from 'vue-i18n'
-import { GoogleLogin } from 'vue3-google-login'
-
-interface GoogleResponse {
-  credential: string
-}
 
 const i18n = useI18n()
 
@@ -46,9 +41,6 @@ async function submit(): Promise<void> {
   }
 }
 
-async function handleGoogleLogin(response: GoogleResponse): Promise<void> {
-  await auth.googleLogin(response.credential, router)
-}
 async function signGoogle() {
   window.electronAPI.loginWithGoogle()
 }

@@ -4,9 +4,7 @@ import Loading from '@/components/LoadingIcon.vue'
 import { useGames } from '@/stores'
 import { onMounted, ref, computed, watch, onBeforeUnmount, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useI18n } from 'vue-i18n';
 
-const i18n = useI18n();
 const gamesStore = useGames()
 const { loading, games } = storeToRefs(gamesStore)
 

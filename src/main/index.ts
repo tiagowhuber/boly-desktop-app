@@ -1,15 +1,15 @@
 import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
-import { join, resolve } from 'path'
+import { join } from 'path'
 import path from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 const { spawn } = require('child_process')
 const fs = require('fs')
 const { exec } = require('child_process')
-const AdmZip = require('adm-zip')
 import icon from '../../resources/icon.png?asset'
 import axios from 'axios'
 
 const config = {
+  //@ts-ignore
   client_id: import.meta.env.VITE_APP_GOOGLE_CLIENT_ID,
   // clientSecret: import.meta.env.VITE_APP_GOOGLE_CLIENT_SECRET,
   // authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
@@ -18,26 +18,14 @@ const config = {
   redirect_uri: 'http://localhost:5173/post-google-login',
   response_type:"code",
   scope:"email profile",
+  //@ts-ignore
   code_challenge:import.meta.env.VITE_APP_GOOGLE_CODE,
   state:""
 }
 
 
-const windowParams = {
-  alwaysOnTop: true,
-  autoHideMenuBar: true,
-  webPreferences: {
-    nodeIntegration: false
-  }
-}
-
-const options = {
-  scope: 'profile email'
-}
 
 let mainWindow
-let authWindow
-let router
 
 async function requestLoginGoogle(){
   const queryString = new URLSearchParams(config).toString();
@@ -164,7 +152,7 @@ async function installGame(installerRoute: string, destinationRoute: string, gam
     });
     const command = `"${installerRoute}" /DIR="${destinationRoute}" /SILENT`
     console.log(command)
-    exec(command, (err, stdout, stderr) => {
+    exec(command, (err, stdout) => {
       if (err) {
         console.error('Error:', err.message)
         mainWindow.webContents.send('install-error', {
@@ -244,7 +232,7 @@ async function createWindow(): Promise<void> {
   })
 
   ipcMain.handle('resolve-with-google', () => {
-    resolveGoogleLogin()
+    //resolveGoogleLogin()
   })
 
   ipcMain.handle('search-exe-files', async (_event, baseDir) => {
@@ -285,7 +273,7 @@ async function createWindow(): Promise<void> {
     return result.filePaths[0]
   })
 
-  ipcMain.handle('instalar-desde-zip', async (test, rutaExe, rutaDestino) => {
+  ipcMain.handle('instalar-desde-zip', async ( rutaExe, rutaDestino) => {
     try {
       // const zip = new AdmZip(rutaZip);
       // zip.extractAllTo(rutaDestino, true);
@@ -294,7 +282,7 @@ async function createWindow(): Promise<void> {
 
       // const posibleInstalador = path.join(rutaDestino, 'setup.exe');
       // if (fs.existsSync(posibleInstalador)) {
-      exec(`"${rutaExe}" /DIR="${rutaDestino}" /SILENT`, (err, stdout, stderr) => {
+      exec(`"${rutaExe}" /DIR="${rutaDestino}" /SILENT`, (err, stdout) => {
         if (err) console.error('Error:', err.message)
         else console.log('Resultado:', stdout)
       })
@@ -311,12 +299,12 @@ async function createWindow(): Promise<void> {
   //   db.data.games.push({ gameId, installPath });
   //   await db.write();
   // }
-  ipcMain.handle('download-game', async (event, appData) => {
+  ipcMain.handle('download-game', async (_event, appData) => {
     const { game_id, token,gameName } = appData
     downloadTempFile(token, game_id,gameName)
   })
 
-  ipcMain.handle('play-game', async (event, appData) => {
+  ipcMain.handle('play-game', async (_event, appData) => {
     //Params needed:
     //-auth token
     //-user_id
@@ -381,7 +369,7 @@ async function createWindow(): Promise<void> {
     //refresh token en caso de
     //consultar clave a api
   })
-  ipcMain.on('launch-app', (event, appData) => {
+  ipcMain.on('launch-app', (_event, appData) => {
     try {
       const { appPath, args } = appData
       const appProcess = spawn(appPath, args.split(' '), { shell: true })
@@ -423,14 +411,14 @@ const gotTheLock = app.requestSingleInstanceLock()
 if (!gotTheLock) {
   app.quit()
 } else {
-  app.on('second-instance', (event, commandLine, workingDirectory) => {
+  app.on('second-instance', (_event, argv) => {
     // Someone tried to run a second instance, we should focus our window.
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore()
       mainWindow.focus()
     }
-    // the commandLine is array of strings in which last element is deep link url
-    dialog.showErrorBox('Welcome Back', `You arrived from: ${commandLine.pop()}`)
+    // argv contains the command line arguments
+    dialog.showErrorBox('Welcome Back', `You arrived from: ${argv[argv.length - 1]}`)
   })
 }
 

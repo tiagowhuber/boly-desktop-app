@@ -1,12 +1,9 @@
 <script setup lang="ts">
-import AlertModal from '@/components/AlertModal.vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
-import RemoveIcon from '@/components/icons/IconRemove.vue'
 import XMarkIcon from '../icons/XMarkIcon.vue'
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useAuth } from '@/stores'
 import type { Game } from '@/types'
 
 // Type guard to check if price object has the locale key
@@ -16,7 +13,6 @@ function hasLocalePrice(price: Record<string, any> | null, locale: string): bool
 
 const i18n = useI18n()
 const router = useRouter()
-const auth = useAuth()
 
 const showModal = ref(false)
 const props = defineProps<{
@@ -26,9 +22,6 @@ const props = defineProps<{
 const currency = computed(() => {
   return i18n.locale.value === 'en' ? 'USD' : 'CLP'
 })
-
-const s3BaseUrl = computed(() => import.meta.env.VITE_S3_BASE_URL)
-const gameDataBaseUrl = computed(() => `${s3BaseUrl.value}/${props.game.game_id}/`)
 
 const emit = defineEmits<{
   (e: 'remove', game: Game): void
@@ -57,7 +50,6 @@ function getImageUrl(): string {
 }
 
 // Safe user ID access
-const userId = computed(() => auth.isLoggedIn ? auth.token : null)
 </script>
 
 <template>

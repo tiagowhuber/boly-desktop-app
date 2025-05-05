@@ -1,23 +1,21 @@
 <script setup lang="ts">
 import Loading from '@/components/LoadingIcon.vue'
-import { useAuth, useGames, useUser} from '@/stores'
-import { computed, inject, onMounted, ref, watch, onBeforeUnmount } from 'vue'
+import { useGames, useUser} from '@/stores'
+import { computed, inject, onMounted, ref, onBeforeUnmount } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n';
 import 'vue3-carousel/dist/carousel.css'
-import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
+import { Carousel, Slide, Navigation } from 'vue3-carousel'
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const i18n = useI18n();
 const gamesStore = useGames()
-const auth = useAuth()
 const user = useUser()
 const { loading, games } = storeToRefs(gamesStore)
 const featuredGames = ref<any[]>([])
 const isMobile = ref(window.innerWidth <= 768)
 
-const gameDataBaseUrl = import.meta.env.VITE_S3_BASE_URL;
 
 async function refreshGames() {
   await gamesStore.getAll()
@@ -47,15 +45,6 @@ const settings = computed(() => ({
   touchDrag: true
 }))
 
-function next() {
-  carouselRef.value.next();
-  carouselRef.value.updateSlidesData()
-}
-
-function prev() {
-  carouselRef.value.prev();
-  carouselRef.value.updateSlidesData()
-}
 
 function moveToSlide(i: number){
   carouselRef.value.slideTo(i);
