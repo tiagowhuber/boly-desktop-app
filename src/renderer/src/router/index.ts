@@ -185,6 +185,7 @@ export const router = createRouter({
       component: () => import ('../desktop-views/PostGoogleAuth.vue')
     }
   ],
+  //@ts-ignore
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
       return savedPosition
@@ -194,6 +195,7 @@ export const router = createRouter({
   }
 })
 
+//@ts-ignore
 router.beforeEach(async (to, from, next) => {
   const auth = useAuth()
   

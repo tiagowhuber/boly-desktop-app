@@ -5,8 +5,7 @@ const useModal = defineStore('modal', {
     isVisible: false,
     title: '',
     message: '',
-    // timeout: null as NodeJS.Timeout | null,
-    timeout: null as number | null,
+    timeout: null as NodeJS.Timeout | null,
   }),
   
   actions: {

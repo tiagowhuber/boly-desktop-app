@@ -85,7 +85,7 @@ export const useDeveloper = defineStore('developer', {
       }
     },
 
-    async deleteDeveloper(developerId: number, auth: Auth) {
+    async deleteDeveloper(developerId: number, auth: Auth): Promise<boolean> {
       try {
         if (!auth.isLoggedIn) {
           throw new Error('Authentication required')
@@ -101,6 +101,7 @@ export const useDeveloper = defineStore('developer', {
           await this.fetchAllDevelopers()
           return true
         }
+        return false
       } catch (error: any) {
         console.error(`Error deleting developer ${developerId}:`, error)
         this.error = error.response?.data?.message || 'Could not delete developer'

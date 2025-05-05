@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { SubscriptionState, Subscription, SubscriptionResponse, AuthToken } from '@/types'
+import type { SubscriptionState, SubscriptionResponse, AuthToken } from '@/types'
 import axios from 'axios'
 
 export const useSubscription = defineStore('subscription', {  state: (): SubscriptionState => ({
