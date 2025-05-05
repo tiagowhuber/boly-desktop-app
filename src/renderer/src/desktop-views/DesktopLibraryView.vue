@@ -24,7 +24,7 @@ const isSearchingGames = ref(false)
 const showInstalledOnly = ref(false)
 const showSubscriptionGames = ref(false)
 const currentSubscription = ref<Subscription | null>(null)
-const { subscriptions, error, loading } = storeToRefs(subscriptionStore)
+const { subscriptions } = storeToRefs(subscriptionStore)
 
 if (!auth.isLoggedIn) {
   router.back()
@@ -97,23 +97,17 @@ async function fetchOwnedGames() {
   if (!user.userId) return
 
   try {
-    const response = await axios.get(`/v1/games/user/${user.userId}`)//fix here
-    if (response.status === 200 && response.data) {
-      const gamesList = response.data[0]?.game || []
-      console.log('Extracted games list:', gamesList)
-
+    if (currentSubscription.value?.plan_id != 1 && currentSubscription.value?.is_active) {
+      console.log('User has active subscription. Loading all games.');
+      await games.getAll();
       await loadGames();
       const localGames = gameRoutesStore.getRouteItems;
-      const localUninstallers = gameRoutesStore.getUninstallerItems;
-      console.log('Local uninstallers:', JSON.stringify(localUninstallers));
-      console.log('Local games:', JSON.stringify(localGames));
-
-      allOwnedGames.value = gamesList.map((game: Game) => {
+      
+      allOwnedGames.value = games.games.map((game: Game) => {
         if (!game.banner_url) {
           game.banner_url = 'banner.jpg'
         }
 
-        // Check if game is installed locally (if has a matching gameId)
         const found = localGames.find(localGame =>
           localGame.gameId === game.game_id
         );
@@ -130,9 +124,45 @@ async function fetchOwnedGames() {
 
         return game;
       });
+    } else {
+      // Code path for users without active subscription
+      const response = await axios.get(`/v1/games/user/${user.userId}`)
+      if (response.status === 200 && response.data) {
+        const gamesList = response.data[0]?.game || []
+        console.log('Extracted games list:', gamesList)
 
-      updateDisplayedGames();
+        await loadGames();
+        const localGames = gameRoutesStore.getRouteItems;
+        const localUninstallers = gameRoutesStore.getUninstallerItems;
+        console.log('Local uninstallers:', JSON.stringify(localUninstallers));
+        console.log('Local games:', JSON.stringify(localGames));
+
+        allOwnedGames.value = gamesList.map((game: Game) => {
+          if (!game.banner_url) {
+            game.banner_url = 'banner.jpg'
+          }
+
+          // Check if game is installed locally (if has a matching gameId)
+          const found = localGames.find(localGame =>
+            localGame.gameId === game.game_id
+          );
+
+          if (found !== undefined) {
+            game.game_Path = found.route;
+            game.isInstalled = true;
+          } else {
+            game.isInstalled = false;
+          }
+          
+          game.isInstalling = false;
+          game.installError = undefined;
+
+          return game;
+        });
+      }
     }
+
+    updateDisplayedGames();
   } catch (error) {
     console.error('Error fetching owned games:', error)
   }
@@ -168,19 +198,6 @@ onMounted(async () => {
   if (auth.isLoggedIn && user.userId) {
     try {
       setupLibraryDownloadHandlers();
-      const response = await axios.get(`/v1/users/${user.userId}`)
-      if (response.status === 200) {
-        user.setUser(response.data)
-        await fetchOwnedGames()
-        games.getAll().catch(err => {
-          console.error('Error pre-fetching all games:', err)
-        })
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error)
-    }
-
-    try {
       const success = await subscriptionStore.getUserSubscriptions(user.userId, { token: auth.token })
       
       if (success && subscriptions.value.length > 0) {
@@ -193,6 +210,19 @@ onMounted(async () => {
       console.error('Error fetching subscription data:', error)
     } finally {
       isLoading.value = false
+    }
+
+    try {
+      const response = await axios.get(`/v1/users/${user.userId}`)
+      if (response.status === 200) {
+        user.setUser(response.data)
+        await fetchOwnedGames()
+        games.getAll().catch(err => {
+          console.error('Error pre-fetching all games:', err)
+        })
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error)
     }
 
   } else {
@@ -217,7 +247,7 @@ onBeforeUnmount(() => {
         </div>
       </div>      
       <div class="title-container filter-controls">
-        <div v-if="currentSubscription?.plan_id != 1 && currentSubscription?.is_active" class="filter-buttons">
+        <div class="filter-buttons">
           <button
             class="filter-button"
             :class="{ active: showInstalledOnly }"
@@ -231,29 +261,14 @@ onBeforeUnmount(() => {
             @click="setFilter('owned')"
           >
             {{ $t('show_all_owned_games') }}
-          </button>          
+          </button>
           <button
+            v-if="currentSubscription?.plan_id != 1 && currentSubscription?.is_active && false"
             class="filter-button"
             :class="{ active: showSubscriptionGames }"
             @click="setFilter('subscription')"
           >
             {{ $t('subscription_games') }}
-          </button>
-        </div>
-        <div v-else class="filter-buttons">
-          <button
-            class="filter-button"
-            :class="{ active: showInstalledOnly }"
-            @click="setFilter('installed')"
-          >
-            {{ $t('show_installed_only') }}
-          </button>
-          <button
-            class="filter-button"
-            :class="{ active: !showInstalledOnly }"
-            @click="setFilter('owned')"
-          >
-            {{ $t('show_all_owned_games') }}
           </button>
         </div>
       </div>

@@ -82,6 +82,23 @@ const useGames = defineStore('games', {
       }
     },
 
+    async getUserGames(userId: number) {
+      this.loading = true
+      this.error = undefined
+      try {
+        const response = await axios.get(`/v1/games/user/${userId}`)
+        return response.data.map((game: any) => ({
+          ...game,
+          game_type: game.game_type || { name: 'Unknown' }
+        }))
+      } catch (error: any) {
+        this.error = error
+        return []
+      } finally {
+        this.loading = false
+      }
+    },
+
     async getGameType(gameId: number) {
       this.loading = true
       this.error = undefined

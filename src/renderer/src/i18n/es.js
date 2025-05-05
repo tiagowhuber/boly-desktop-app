@@ -93,7 +93,7 @@ export const es = {
   no_owned_games: "Parece que aún no tienes ningún juego...",
   browse_games: "Explorar Juegos",
   show_all_games: "Toda mi librería",
-  show_all_owned_games: "Toda mi Librería",
+  show_all_owned_games: "Mi Librería",
   show_installed_only: "Mis juegos Instalados",
   subscription_games: "Accesibles por Suscripción",
 
