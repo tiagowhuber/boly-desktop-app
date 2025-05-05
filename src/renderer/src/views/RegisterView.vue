@@ -129,7 +129,8 @@ async function signGoogle() {
           <div class="form_group">
             <input type="password" v-model="repassword" class="form_field" placeholder="Repassword" />
             <label for="name" class="form_label">{{$t('repassword')}}</label>
-          </div>          <button class="register_button_text">{{$t('register').toLocaleUpperCase()}}</button>
+          </div>          
+          <button class="register_button_text">{{$t('register').toLocaleUpperCase()}}</button>
           
           <Teleport to="body">
             <AlertModal :show="showModal" @close="showModal = false">
@@ -143,7 +144,8 @@ async function signGoogle() {
             <TermsModal :show="showTerms" @close="showTerms = false" @confirm="showTerms = false; submit()">
               <template #header>
                 <h3>{{$t('terms_of_service')}}</h3>
-              </template>            </TermsModal>
+              </template>            
+            </TermsModal>
           </Teleport>
         </form>
         <div class="google-login">
