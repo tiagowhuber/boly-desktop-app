@@ -1,17 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted, inject, provide, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import GameList from '@/components/games/GameList.vue'
 import GameDetails from '@/components/games/GameDetails.vue'
 import Loading from '../components/LoadingIcon.vue'
-import { useAuth } from '../stores'
-import { useI18n } from 'vue-i18n'
-import { useGames } from '../stores/'
 import axios from 'axios'
 import type { Game } from '@/types'
 
-const i18n = useI18n()
-const auth = useAuth()
 
 const route = useRoute()
 
@@ -19,7 +14,6 @@ const game = ref<Game | null>(null)
 const loading = ref(true)
 const error = ref<string | null>(null)
 
-const gamesStore = useGames()
 const router = useRouter()
 
 watch(
@@ -57,7 +51,8 @@ async function UpdateData(gameId: string): Promise<void> {
       release_date: gameData.release_date,
       developer_id: gameData.developer_id,
       game_type_id: gameData.game_type_id,
-      game_type: gameData.game_type
+      game_type: gameData.game_type,
+      game_Path: gameData.game_Path,
     }
   } catch (err: unknown) {
     error.value = err instanceof Error ? err.message : 'An error occurred'

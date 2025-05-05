@@ -4,15 +4,13 @@ import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuth, useAchievements, useGames, useUser} from '@/stores'
 import type { Achievement, Game} from '@/types'
-import { storeToRefs } from 'pinia'
 
 const route = useRoute()
-const { t, locale } = useI18n()
+const { locale } = useI18n()
 const achievementsStore = useAchievements()
 const authStore = useAuth()
 const user = useUser()
 const gamesStore = useGames()
-const { games } = storeToRefs(gamesStore)
 
 const error = ref<string | null>(null)
 const game = ref<Game | null>(null)

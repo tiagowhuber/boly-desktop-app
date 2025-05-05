@@ -7,7 +7,7 @@ import Loading from '@/components/LoadingIcon.vue'
 import TrashCanXMarkIcon from '@/components/icons/TrashCanXMarkIcon.vue'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
-import { inject, onMounted, watch, computed, ref, onUnmounted } from 'vue'
+import { onMounted, watch, computed, ref, onUnmounted } from 'vue'
 import { useAuth, useGames, useCart, usePayment, useUser } from '@/stores'
 import { useI18n } from 'vue-i18n'
 import type { Game } from '@/types'
@@ -34,7 +34,7 @@ onUnmounted(() => {
 })
 
 const paymentStore = usePayment()
-const { transactionUrl, token, discount, totalPrice, isCodeValid, isCodeInvalid, loading: paymentLoading, error: paymentError } = storeToRefs(paymentStore)
+const { transactionUrl, token, discount, isCodeValid, isCodeInvalid, loading: paymentLoading, error: paymentError } = storeToRefs(paymentStore)
 
 const cartStore = useCart()
 const { cart } = storeToRefs(cartStore)

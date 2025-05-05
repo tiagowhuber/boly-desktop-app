@@ -2,10 +2,10 @@
 import { useAuth, useUser } from '@/stores'
 import { useRouter } from 'vue-router'
 import TagAbove from '@/components/forms/TagAbove.vue'
-import { onMounted, ref, computed, onBeforeUnmount } from 'vue';
+import { onMounted, ref, onBeforeUnmount } from 'vue';
 import AlertModal from '@/components/AlertModal.vue'
 import SimpleLoadingIcon from '@/components/icons/SimpleLoadingIcon.vue'
-import type { User, UserUpdateRequest, PasswordUpdateRequest } from '@/types'
+import type { UserUpdateRequest, PasswordUpdateRequest } from '@/types'
 import axios from 'axios'
 
 const router = useRouter()

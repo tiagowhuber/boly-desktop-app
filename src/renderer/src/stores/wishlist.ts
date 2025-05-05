@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
-import { useAuth, useUser} from '.';
+import { useUser} from '.';
 import type { WishlistItem } from '@/types';
 
 
@@ -16,7 +16,6 @@ const useWishlist = defineStore('wishlist', {
       this.loading = true;
       this.error = null;
       try {
-        const auth = useAuth();
         const user = useUser();
         const userId = user.userId;
         
@@ -38,7 +37,6 @@ const useWishlist = defineStore('wishlist', {
       this.loading = true;
       this.error = null;
       try {
-        const auth = useAuth();
         const user = useUser();
         const userId = user.userId;
         
@@ -65,7 +63,6 @@ const useWishlist = defineStore('wishlist', {
       this.loading = true;
       this.error = null;
       try {
-        const auth = useAuth();
         const user = useUser();
         const userId = user.userId;
         

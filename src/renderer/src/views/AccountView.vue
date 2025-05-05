@@ -47,9 +47,9 @@ const EditProfile = (): void => {
   router.push("/edit")
 }
 
-const AchievementPass = (): void => {
-  router.push("/ach-pass")
-}
+// const AchievementPass = (): void => {
+//   router.push("/ach-pass")
+// }
 </script>
 
 <template>

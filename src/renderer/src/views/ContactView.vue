@@ -29,9 +29,9 @@ onMounted(async () => {
 });
 
 // Function to handle back action from mobile template
-const handleBack = () => {
-  window.history.back();
-};
+// const handleBack = () => {
+//   window.history.back();
+// };
 </script>
 
 <template>
