@@ -32,12 +32,15 @@ async function requestLoginGoogle(){
   mainWindow.loadURL(`https://accounts.google.com/o/oauth2/v2/auth?${queryString}`);
 }
 
+// Register both protocols: boly-app for deep linking and boly for API requests
 if (process.defaultApp) {
   if (process.argv.length >= 2) {
     app.setAsDefaultProtocolClient('boly-app', process.execPath, [path.resolve(process.argv[1])])
+    app.setAsDefaultProtocolClient('boly', process.execPath, [path.resolve(process.argv[1])])
   }
 } else {
   app.setAsDefaultProtocolClient('boly-app')
+  app.setAsDefaultProtocolClient('boly')
 }
 
 async function downloadTempFile(token: string, game_id: number, gameName: string) {
@@ -52,7 +55,8 @@ async function downloadTempFile(token: string, game_id: number, gameName: string
 
     //Solicitar url a api
     // @ts-ignore
-    const responseUrl = await axios.post(`${import.meta.env.VITE_APP_API_URL}/v1/games/url`, req, {
+    const apiBaseUrl = import.meta.env.VITE_APP_API_URL;
+    const responseUrl = await axios.post(`${apiBaseUrl}/v1/games/url`, req, {
       headers: { Authorization: `Bearer ${token}` }
     })
     
@@ -209,6 +213,8 @@ const searchForExecutablesRecursive = (dir: string, fileList: string[] = []): st
   }
 }
 
+// Protocol handler code moved to IPC handler for better integration
+
 async function createWindow(): Promise<void> {
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -221,7 +227,8 @@ async function createWindow(): Promise<void> {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
       nodeIntegration: true,
-      contextIsolation: true
+      contextIsolation: true,
+      //devTools: false
     }
   })
   //---
@@ -230,6 +237,38 @@ async function createWindow(): Promise<void> {
     // router=_router
     requestLoginGoogle()
   })
+
+  // handlers for custom protocol API requests
+  ipcMain.handle('api-request', async (_event, options) => {
+    try {
+      const { method, path, data, headers } = options;
+      
+      // Get the API URL from environment variables
+      // @ts-ignore
+      const apiBaseUrl = import.meta.env.VITE_APP_API_URL;
+      
+      // final URL
+      const url = `${apiBaseUrl}${path}`;
+      
+      // Make the actual API request
+      const response = await axios({
+        url,
+        method,
+        data,
+        headers
+      });
+      
+      return response.data;
+    } catch (error: any) {
+      console.error('API request error:', error);
+      return {
+        error: true,
+        status: error.response?.status,
+        message: error.message,
+        data: error.response?.data
+      };
+    }
+  });
 
   ipcMain.handle('resolve-with-google', () => {
     //resolveGoogleLogin()
@@ -319,19 +358,21 @@ async function createWindow(): Promise<void> {
     // downloadTempFile(token,game_id)
     // return;
     try {
-      //-
-
-      console.log('path ' + appPath)
+      //-      console.log('path ' + appPath)
       console.log('gameid ' + game_id)
       console.log('token ' + token)
+      
       const req = {
         game_id: game_id,
         token: token
       }
+      
       try {
         //--
-        await axios// @ts-ignore
-          .post(`${import.meta.env.VITE_APP_API_URL}/v1/validate/`, req, {
+        // @ts-ignore
+        const apiBaseUrl = import.meta.env.VITE_APP_API_URL;
+        await axios
+          .post(`${apiBaseUrl}/v1/validate/`, req, {
             headers: { Authorization: `Bearer ${token}` }
           })
           .then((validation) => {
@@ -403,9 +444,14 @@ async function createWindow(): Promise<void> {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
-    
-    // Handle navigation events to ensure proper routing in production
+      // Handle navigation events to ensure proper routing in production
     mainWindow.webContents.on('did-finish-load', () => {
+      // Check for and handle any pending deep link URLs
+      if (process.env.PENDING_DEEP_LINK_URL) {
+        const url = process.env.PENDING_DEEP_LINK_URL;
+        mainWindow.webContents.send('deep-link-url', url);
+        delete process.env.PENDING_DEEP_LINK_URL;
+      }
       mainWindow.show()
     })
   }
@@ -415,17 +461,40 @@ const gotTheLock = app.requestSingleInstanceLock()
 
 if (!gotTheLock) {
   app.quit()
-} else {
-  app.on('second-instance', (_event, argv) => {
+} else {  app.on('second-instance', (_event, argv) => {
     // Someone tried to run a second instance, we should focus our window.
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore()
       mainWindow.focus()
     }
-    // argv contains the command line arguments
-    dialog.showErrorBox('Welcome Back', `You arrived from: ${argv[argv.length - 1]}`)
+    
+    // Process deep link URL if present
+    const deepLinkUrl = argv.find(arg => arg.startsWith('boly-app://') || arg.startsWith('boly://'));
+    if (deepLinkUrl) {
+      // Send the URL to the renderer process
+      mainWindow.webContents.send('deep-link-url', deepLinkUrl);
+    } else {
+      // Legacy message for non-protocol launches
+      dialog.showErrorBox('Welcome Back', `You arrived from: ${argv[argv.length - 1]}`);
+    }
   })
 }
+
+// Handle macOS open-url events for protocol handlers
+app.on('open-url', (event, url) => {
+  event.preventDefault();
+  
+  if (url.startsWith('boly-app://') || url.startsWith('boly://')) {
+    // If app is already running with a window, send the URL
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('deep-link-url', url);
+    } else {
+      // Store the URL to process after window creation
+      // This can happen if the app isn't running yet
+      process.env.PENDING_DEEP_LINK_URL = url;
+    }
+  }
+});
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.

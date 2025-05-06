@@ -12,18 +12,22 @@ const api = {}
 // just add to the DOM global.
 console.log("contextIsolated: "+process.contextIsolated)
 if (process.contextIsolated) {
-  try {
+  try {    
     contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', api)   
+    contextBridge.exposeInMainWorld('api', api)
     contextBridge.exposeInMainWorld('electronAPI', {
       seleccionarArchivo: () => ipcRenderer.invoke('seleccionar-archivo'),
       seleccionarCarpeta: () => ipcRenderer.invoke('seleccionar-carpeta'),
       instalarDesdeZip: (rutaExe, rutaDestion) => ipcRenderer.invoke('instalar-desde-zip', rutaExe, rutaDestion),
       playGame:(appData) => ipcRenderer.invoke('play-game', appData),
       downloadGame:(appData) => ipcRenderer.invoke('download-game', appData),
-      searchExeFiles: (baseDir) => ipcRenderer.invoke('search-exe-files', baseDir),
+      searchExeFiles: (baseDir) => ipcRenderer.invoke('search-exe-files', baseDir),      
       loginWithGoogle: ()=> ipcRenderer.invoke('login-with-google'),
       resolveGoogleLogin:()=>ipcRenderer.invoke('resolve-with-google'),
+      apiRequest: (options) => ipcRenderer.invoke('api-request', options),
+      onDeepLinkUrl: (callback) => {
+        ipcRenderer.on('deep-link-url', (_event, url) => callback(url));
+      },
       // Download event listeners
       onDownloadStarted: (callback) => {
         ipcRenderer.on('download-started', (_event, ...args) => callback(...args));

@@ -34,13 +34,65 @@ const auth = useAuth()
 const downloadStore = useDownloadStore()
 downloadStore.setupDownloadListeners()
 
-axios.defaults.baseURL = import.meta.env.VITE_APP_API_URL
-axios.interceptors.request.use((config) => {  
+
+// Set up custom protocol axios adapter for app://boly
+// This will route all API requests through the custom protocol handler
+axios.defaults.baseURL = 'app://boly'
+
+// Create a custom axios interceptor to use IPC for API requests
+axios.interceptors.request.use(async (config) => {
   const token = localStorage.getItem('token')
   if (token) {
     auth.checkToken()
   }
-  return config
+  
+  // Only intercept URLs that use the custom protocol
+  if (config.url?.startsWith('app://boly') || !config.url?.includes('://')) {
+    try {
+      const path = config.url?.replace('app://boly', '') || '';
+      
+      const headers = config.headers || {};
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+      
+      const result = await window.electron.ipcRenderer.invoke('api-request', {
+        method: config.method || 'get',
+        path: path.startsWith('/') ? path : `/${path}`,
+        data: config.data,
+        headers
+      });
+      
+      // Create a response-like object
+      if (result.error) {
+        throw { 
+          response: { 
+            status: result.status, 
+            data: result.data 
+          }, 
+          message: result.message 
+        };
+      }
+      
+      // This creates a resolved promise, effectively cancelling the original request
+      // and replacing it with our result
+      return {
+        ...config,
+        adapter: () => Promise.resolve({
+          data: result,
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config
+        })
+      };
+    } catch (error) {
+      console.error('Error with custom protocol request:', error);
+      throw error;
+    }
+  }
+  
+  return config;
 })
 
 app.mount('#app')

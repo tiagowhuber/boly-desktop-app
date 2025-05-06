@@ -8,7 +8,14 @@ interface ElectronAPIExtended {
   downloadGame: (appData: {game_id: number, token: string, gameName: string}) => Promise<any>;
   searchExeFiles: (baseDir?: string) => Promise<{files?: string[], error?: string}>;
   loginWithGoogle: () => Promise<void>;
-  resolveGoogleLogin: () => Promise<void>;
+  resolveGoogleLogin: () => Promise<void>;  // API request handler for custom protocol
+  apiRequest: (options: {
+    method: string;
+    path: string;
+    data?: any;
+    headers?: Record<string, string>;
+  }) => Promise<any>;
+  onDeepLinkUrl: (callback: (url: string) => void) => void;
 }
 
 declare global {
