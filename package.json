@@ -13,13 +13,31 @@
     "typecheck": "npm run typecheck:node && npm run typecheck:web",
     "start": "electron-vite preview",
     "dev": "electron-vite dev",
-    "build": "npm run typecheck && electron-vite build",
+    "build": "electron-builder",
     "postinstall": "electron-builder install-app-deps",
     "build:unpack": "npm run build && electron-builder --dir",
     "build:win": "npm run build && electron-builder --win",
     "build:mac": "npm run build && electron-builder --mac",
     "build:linux": "npm run build && electron-builder --linux"
   },
+
+  "build": {
+    "appId": "Boly",
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "src/renderer/src/assets/images/icon.ico"
+    },
+    "nsis" : {
+      "oneClick": true,
+      "installerIcon": "src/renderer/src/assets/images/icon.ico",
+      "uninstallerIcon": "src/renderer/src/assets/images/icon.ico",
+      "uninstallDisplayName": "Boly-Uninstaller",
+      "allowToChangeInstallationDirectory": false
+    }
+  },
+
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
     "@electron-toolkit/utils": "^4.0.0",

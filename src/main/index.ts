@@ -212,8 +212,8 @@ const searchForExecutablesRecursive = (dir: string, fileList: string[] = []): st
 async function createWindow(): Promise<void> {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    width: 1920,
+    height: 1080,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -234,6 +234,7 @@ async function createWindow(): Promise<void> {
   ipcMain.handle('resolve-with-google', () => {
     //resolveGoogleLogin()
   })
+
 
   ipcMain.handle('search-exe-files', async (_event, baseDir) => {
     try {
@@ -388,7 +389,7 @@ async function createWindow(): Promise<void> {
   //---
 
   mainWindow.on('ready-to-show', () => {
-    mainWindow.webContents.openDevTools()
+      mainWindow.webContents.openDevTools()
     mainWindow.show()
   })
 
@@ -396,7 +397,7 @@ async function createWindow(): Promise<void> {
     shell.openExternal(details.url)
     return { action: 'deny' }
   })
-
+  
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
