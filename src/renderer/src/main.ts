@@ -10,6 +10,16 @@ import useDownloadStore from '@/desktop-stores/download'
 import vue3GoogleLogin from 'vue3-google-login'
 import axios from 'axios'
 
+if (process.env.NODE_ENV === 'production') {
+  window.addEventListener('error', (event) => {
+    console.error('Global error caught:', event.error)
+  })
+  
+  window.addEventListener('unhandledrejection', (event) => {
+    console.error('Unhandled promise rejection:', event.reason)
+  })
+}
+
 const pinia = createPinia()
 const app = createApp(App)
 

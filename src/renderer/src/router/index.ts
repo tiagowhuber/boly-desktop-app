@@ -1,9 +1,15 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, createMemoryHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import { useAuth } from '@/stores'
 
+// Use createMemoryHistory for Electron production build to avoid issues with file:// protocol
+// and createWebHistory for development
+const history = process.env.NODE_ENV === 'production' 
+  ? createMemoryHistory(process.env.BASE_URL)
+  : createWebHistory(import.meta.env.BASE_URL)
+
 export const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history,
   routes: [
     {
       path: '/',

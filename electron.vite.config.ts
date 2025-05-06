@@ -15,6 +15,17 @@ export default defineConfig({
         '@': resolve('src/renderer/src')
       }
     },
-    plugins: [vue()]
+    plugins: [vue()],
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['vue', 'vue-router', 'pinia'],
+          }
+        }
+      }
+    },
+    // Fix for the base URL in production
+    base: './'
   }
 })

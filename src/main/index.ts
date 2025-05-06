@@ -397,13 +397,17 @@ async function createWindow(): Promise<void> {
     shell.openExternal(details.url)
     return { action: 'deny' }
   })
-  
-  // HMR for renderer base on electron-vite cli.
+    // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+    
+    // Handle navigation events to ensure proper routing in production
+    mainWindow.webContents.on('did-finish-load', () => {
+      mainWindow.show()
+    })
   }
 }
 
