@@ -7,6 +7,28 @@ const fs = require('fs')
 const { exec } = require('child_process')
 import icon from '../../resources/icon.png?asset'
 import axios from 'axios'
+require('dotenv').config();
+const { autoUpdater } = require('electron-updater');
+
+// Configure auto updater
+autoUpdater.autoDownload = false; 
+autoUpdater.autoInstallOnAppQuit = true;
+autoUpdater.logger = console;
+autoUpdater.allowPrerelease = false;
+autoUpdater.forceDevUpdateConfig = true;
+autoUpdater.requestHeaders = {
+  'User-Agent': 'Boly-Desktop-App'
+};
+// token should use the environment variable but for some reason when building it doesnt work
+autoUpdater.setFeedURL({
+     provider: 'github',
+     repo: 'boly-desktop-app',
+     owner: 'tiagowhuber',
+     private: true,
+     token : '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',
+     //token: process.env.GH_TOKEN
+   })
+
 
 const config = {
   //@ts-ignore
@@ -214,6 +236,14 @@ const searchForExecutablesRecursive = (dir: string, fileList: string[] = []): st
 }
 
 // Protocol handler code moved to IPC handler for better integration
+function showMessage(message: string) {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    console.log('Sending message to main window:', message)
+    mainWindow.webContents.send('update-message', message)
+  } else {
+    dialog.showErrorBox('Update Message', message)
+  }
+}
 
 async function createWindow(): Promise<void> {
   // Create the browser window.
@@ -236,6 +266,10 @@ async function createWindow(): Promise<void> {
   ipcMain.handle('login-with-google', () => {
     // router=_router
     requestLoginGoogle()
+  })
+
+  ipcMain.handle('get-version', () => {
+    return autoUpdater.currentVersion.version;
   })
 
   // handlers for custom protocol API requests
@@ -512,95 +546,90 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
-
+  
+  ipcMain.handle('check-updates', () => {
+    console.log('Manually checking for updates...')
+    autoUpdater.checkForUpdates()
+    return 'Checking for updates...'
+  })
   createWindow()
 
-  app.on('activate', function () {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+  // Set up auto-updater event handlers
+  autoUpdater.on('checking-for-update', () => {
+    showMessage('Checking for updates...')
+    console.log('Checking for updates...')
   })
+
+  autoUpdater.on('update-available', () => {
+    showMessage('Update available')
+    console.log('Update available')
+    autoUpdater.downloadUpdate()
+      .catch((err) => {
+        console.error('Download error:', err)
+        showMessage('Download error: ' + err.message)
+      })
+  })
+
+  autoUpdater.on('update-not-available', () => {
+    console.log('Update not available')
+    showMessage('No updates available')
+  })
+
+  autoUpdater.on('error', (error) => {
+    console.error('Error checking for updates:', error)
+    showMessage('Error checking for updates: ' + error.message)
+    
+    if (error.message.includes('404') && error.message.includes('github.com')) {
+      showMessage('Update error: Could not access GitHub repository. Please ensure you have the correct repository configuration and GH_TOKEN environment variable set.')
+    } else {
+      showMessage('Error checking for updates: ' + error.message)
+    }
+  })
+
+  autoUpdater.on('download-progress', (progressObj) => {
+    const message = `Download speed: ${progressObj.bytesPerSecond} - Downloaded ${progressObj.percent}% (${progressObj.transferred}/${progressObj.total})`;
+    console.log(message)
+    showMessage(message)
+  })
+
+  autoUpdater.on('update-downloaded', () => {
+    console.log('Update downloaded. Ready to quit and install.');
+    showMessage('Update downloaded - The application is ready to quit and install.'); // Inform user
+
+    // Give a very short delay for the message to potentially be seen,
+    // though the app will quit quickly.
+    // setTimeout(() => {
+    //   try {
+    //     console.log('Calling autoUpdater.quitAndInstall().');
+    //     autoUpdater.quitAndInstall();
+    //   } catch (error) {
+    //     console.error('Failed to quit and install:', error);
+    //     showMessage('Error during update installation. Please restart the app manually. ');
+    //   }
+    // }, 1000); // 1 second delay
+  })
+
+  // Start checking for updates
+  try {
+    console.log('Current version:', autoUpdater.currentVersion.version)
+    mainWindow.webContents.send('get-version', autoUpdater.currentVersion.version)
+    
+    // // Check for updates after a delay
+    // setTimeout(() => {
+    //   autoUpdater.checkForUpdates()
+    //     .catch(err => {
+    //       console.error('Error initiating update check:', err)
+    //       showMessage('Error initiating update check: ' + err.message)
+    //     })
+    // }, 3000)
+  } catch (error) {
+    console.error('Error in update setup:', error)
+  }
 })
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
 })
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
-
-// ipcMain.handle('add-game', async (event, game) => {
-//   await addGame(game.gameId, game.installPath);
-// });
-
-// ipcMain.handle('get-games', async () => {
-//   return await getGames();
-// });
-
-// export async function addGame(gameId, installPath) {
-//   await db.read();
-//   db.data.games.push({ gameId, installPath });
-//   await db.write();
-// }
-
-// export async function getGames() {
-//   await db.read();
-//   return db.data.games;
-// }
-
-//-------------
-/*
-const body = {
-        email:"jorge.puentes225@gmail.com",
-        password:"@M123123"
-      }
-
-      await axios.post(`http://localhost:3001/v1/auth/`, body).then(
-        async (response)=>{
-          console.log(response.data)
-          if(response && response.data.token){
-            const { appPath,game_id } = appData;
-            const req={
-              // user_id:3,
-              game_id:game_id
-            }
-            try {
-              //--
-              await axios.post(`http://localhost:3001/v1/validate/`, req, {
-                headers: { Authorization: `Bearer ${auth.token}` }
-              }).then((validation)=>{
-                if(validation.data){
-                  console.log(validation.data)
-                  //---
-                  try {
-                    const args = `-game_id ${req.game_id} -key ${validation.data.tempKey} -token ${response.data.token}`
-                    // const args = `-game_id ${req.game_id} -user_id ${req.user_id} -key ${validation.data.tempKey} -token ${response.data.token}`
-                    console.log(args)
-                    const appProcess = spawn(appPath, args.split(' '), { shell: true });
-              
-                    appProcess.stdout.on('data', (data) => {
-                        console.log(`Output: ${data}`);
-                    });
-              
-                    appProcess.stderr.on('data', (data) => {
-                        console.error(`Error: ${data}`);
-                    });
-                } catch (error) {
-                    console.error('Failed to launch application:', error);
-                }
-                //---
-                }
-              })
-              //--
-            } catch (error) {
-              console.log("error validation")
-            }
-          }
-        }
-      )
-*/

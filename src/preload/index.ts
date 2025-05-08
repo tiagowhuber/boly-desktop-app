@@ -25,10 +25,14 @@ if (process.contextIsolated) {
       loginWithGoogle: ()=> ipcRenderer.invoke('login-with-google'),
       resolveGoogleLogin:()=>ipcRenderer.invoke('resolve-with-google'),
       apiRequest: (options) => ipcRenderer.invoke('api-request', options),
+      checkUpdates: () => ipcRenderer.invoke('check-updates'),
+      getVersion: () => ipcRenderer.invoke('get-version'), 
       onDeepLinkUrl: (callback) => {
         ipcRenderer.on('deep-link-url', (_event, url) => callback(url));
       },
-      // Download event listeners
+      updateMessage: (callback) => {
+        ipcRenderer.on('update-message', (_event, ...args) => callback(...args));
+      },
       onDownloadStarted: (callback) => {
         ipcRenderer.on('download-started', (_event, ...args) => callback(...args));
       },
@@ -50,7 +54,6 @@ if (process.contextIsolated) {
       onInstallComplete: (callback) => {
         ipcRenderer.on('install-complete', (_event, ...args) => callback(...args));
       },
-      // Cleanup
       removeAllListeners: (channel) => {
         if (['download-started', 'download-progress', 'download-complete', 'download-error', 'install-started', 'install-error', 'install-complete'].includes(channel)) {
           ipcRenderer.removeAllListeners(channel);
@@ -65,7 +68,7 @@ if (process.contextIsolated) {
   window.electron = electronAPI
   // @ts-ignore (define in dts)
   window.api = api
-  // @ts-ignore (define in dts)
+  // @ts-ignore (define in dts)  
   window.electronAPI = {
     seleccionarArchivo: () => ipcRenderer.invoke('seleccionar-archivo'),
     seleccionarCarpeta: () => ipcRenderer.invoke('seleccionar-carpeta'),
@@ -75,7 +78,15 @@ if (process.contextIsolated) {
     searchExeFiles: (baseDir) => ipcRenderer.invoke('search-exe-files', baseDir),
     loginWithGoogle: ()=> ipcRenderer.invoke('login-with-google'),
     resolveGoogleLogin:()=>ipcRenderer.invoke('resolve-with-google'),
-    // Download event listeners
+    apiRequest: (options) => ipcRenderer.invoke('api-request', options),
+    checkUpdates: () => ipcRenderer.invoke('check-updates'), 
+    getVersion: () => ipcRenderer.invoke('get-version'), // Added proper method to get version
+    onDeepLinkUrl: (callback) => {
+      ipcRenderer.on('deep-link-url', (_event, url) => callback(url));
+    },
+    updateMessage: (callback) => {
+      ipcRenderer.on('update-message', (_event, ...args) => callback(...args));
+    },
     onDownloadStarted: (callback) => {
       ipcRenderer.on('download-started', (_event, ...args) => callback(...args));
     },
@@ -97,7 +108,6 @@ if (process.contextIsolated) {
     onInstallComplete: (callback) => {
       ipcRenderer.on('install-complete', (_event, ...args) => callback(...args));
     },
-    // Cleanup
     removeAllListeners: (channel) => {
       if (['download-started', 'download-progress', 'download-complete', 'download-error', 'install-started', 'install-error', 'install-complete'].includes(channel)) {
         ipcRenderer.removeAllListeners(channel);

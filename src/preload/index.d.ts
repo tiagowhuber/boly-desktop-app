@@ -14,8 +14,10 @@ interface ElectronAPIExtended {
     path: string;
     data?: any;
     headers?: Record<string, string>;
-  }) => Promise<any>;
-  onDeepLinkUrl: (callback: (url: string) => void) => void;
+  }) => Promise<any>;  onDeepLinkUrl: (callback: (url: string) => void) => void;
+  updateMessage: (callback: (message: string) => void) => void;
+  checkUpdates: (callback: (message: string) => void) => void;
+  getVersion: (callback: (version: string) => void) => void;
 }
 
 declare global {

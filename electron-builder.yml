@@ -1,7 +1,15 @@
-appId: com.electron.app
-productName: boly
+appId: com.boly.app
+productName: Boly
 directories:
   buildResources: build
+  
+# Auto update configuration
+publish:
+  provider: github
+  owner: tiagowhuber
+  repo: boly-desktop-app
+  private: true
+  releaseType: release
 files:
   - '!**/.vscode/*'
   - '!src/*'
@@ -9,6 +17,7 @@ files:
   - '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
   - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+  #- '!{setup-updates.ps1,publish-release.ps1}'
 asarUnpack:
   - resources/**
 win:

@@ -11,6 +11,9 @@ interface ElectronAPIExtended {
   searchExeFiles: (baseDir?: string) => Promise<{ files?: string[]; error?: string }>;
   loginWithGoogle: () => Promise<void>;
   resolveGoogleLogin: () => Promise<void>;
+  updateMessage: (callback: (message: string) => void) => void;
+  checkUpdates: () => Promise<string>;
+  getVersion: () => Promise<string>;
   
   // Download event listeners
   onDownloadStarted: (callback: (data: { gameId: number; gameName: string }) => void) => void;

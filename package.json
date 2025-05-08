@@ -1,6 +1,6 @@
 {
   "name": "boly",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "An Electron application with Vue and TypeScript",
   "main": "./out/main/index.js",
   "author": "example.com",
@@ -20,7 +20,17 @@
     "build:mac": "npm run build && electron-builder --mac",
     "build:linux": "npm run build && electron-builder --linux"
   },
-
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tiagowhuber/boly-desktop-app.git"
+  },
+  "publish": {
+    "provider": "github",
+    "releaseType": "release",
+    "private": false,
+    "owner": "tiagowhuber",
+    "repo": "boly-desktop-app"
+  },
   "build": {
     "appId": "Boly",
     "win": {
@@ -29,7 +39,7 @@
       ],
       "icon": "src/renderer/src/assets/images/icon.ico"
     },
-    "nsis" : {
+    "nsis": {
       "oneClick": true,
       "installerIcon": "src/renderer/src/assets/images/icon.ico",
       "uninstallerIcon": "src/renderer/src/assets/images/icon.ico",
@@ -37,7 +47,6 @@
       "allowToChangeInstallationDirectory": false
     }
   },
-
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
     "@electron-toolkit/utils": "^4.0.0",
@@ -46,9 +55,10 @@
     "@vue/cli": "^5.0.8",
     "adm-zip": "^0.5.9",
     "axios": "^1.7.2",
+    "dotenv": "^16.5.0",
     "echarts": "^5.6.0",
     "electron-store": "^10.0.1",
-    "electron-updater": "^6.3.9",
+    "electron-updater": "^6.6.2",
     "emailjs-com": "^3.2.0",
     "jwt-decode": "^4.0.0",
     "lodash": "^4.17.21",
@@ -66,7 +76,8 @@
     "vue-router": "^4.3.3",
     "vue-star-rating": "^2.1.0",
     "vue3-carousel": "^0.5.1",
-    "vue3-google-login": "^2.0.33"
+    "vue3-google-login": "^2.0.33",
+    "yaml": "^2.7.1"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "3.0.0",

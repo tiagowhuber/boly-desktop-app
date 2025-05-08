@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 
 import emailjs from '@emailjs/browser';
 import { useI18n } from 'vue-i18n';
@@ -8,12 +8,68 @@ const i18n = useI18n();
 
 
 const isMobile = ref(window.innerWidth <= 768);
+const updateStatus = ref('');
+const currentVersion = ref('')
 
 onMounted(() => {
   window.addEventListener('resize', () => {
     isMobile.value = window.innerWidth <= 768;
   });
+  
+  console.log("Checking electronAPI availability:", window.electronAPI);
+  console.log("Checking updateMessage availability:", window.electronAPI?.updateMessage);
+  
+  // Add the update message listener
+  if (window.electronAPI && window.electronAPI.updateMessage) {
+    console.log("Setting up updateMessage listener");
+    window.electronAPI.updateMessage((message: string) => {
+      console.log("Update message received:", message);
+      updateStatus.value = message;
+    });
+    
+    // Get current version using the proper method
+    if (window.electronAPI.getVersion) {
+      window.electronAPI.getVersion().then((version: string) => {
+        console.log("Current version received:", version);
+        currentVersion.value = version;
+      }).catch((error: any) => {
+        console.error("Error getting version:", error);
+      });
+    } else {
+      console.error("getVersion function not available");
+    }
+    
+    checkForUpdates();
+  } else {
+    console.error("electronAPI or updateMessage function not available");
+    updateStatus.value = "Update system not available";
+  }
 });
+
+// Remove event listeners when component is unmounted
+onUnmounted(() => {
+  window.removeEventListener('resize', () => {
+    isMobile.value = window.innerWidth <= 768;
+  });
+  
+  // removeAllListeners method:
+});
+
+async function checkForUpdates() {
+  try {
+    if (window.electronAPI && window.electronAPI.checkUpdates) {
+      const result = await window.electronAPI.checkUpdates();
+      console.log("Check for updates result:", result);
+      updateStatus.value = result;
+    } else {
+      console.error("checkUpdates function not available");
+      updateStatus.value = "Update check not available";
+    }
+  } catch (error) {
+    console.error("Error checking for updates:", error);
+    updateStatus.value = "Error checking for updates";
+  }
+}
 
 //contact form
 const form = ref(null)
@@ -72,6 +128,14 @@ async function SendEmail() {
       <h2>{{ $t('home_body1').toUpperCase() }}</h2>
     </div>
   </div>
+  
+  <!-- Add update status display and check button -->
+  <div class="update-status-container">
+    <p class="update-status">{{ updateStatus }}</p>
+    <button class="update-button" @click="checkForUpdates">{{ $t('check_for_updates') || 'Check for updates' }}</button>
+    <p class="version">{{ currentVersion }}</p>
+  </div>
+
   <div class="section color-green main">
 
   </div>
@@ -201,6 +265,41 @@ async function SendEmail() {
 <style scoped>
 body {
   overflow-x: hidden;
+}
+
+.update-status-container {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.update-status {
+  margin: 0;
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.update-button {
+  margin-top: 8px;
+  background-color: #b533c7;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.update-button:hover {
+  background-color: #9d2fad;
 }
 
 .section {
