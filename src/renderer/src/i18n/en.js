@@ -99,6 +99,8 @@ export const en = {
   subscription_games: 'Subscription Access',
   no_subscription_games: 'No subscription games available',
   view_in_library: 'View in library',
+  update_info: 'Update Info',
+  check_for_updates: 'Check for updates',
 
   // wishlist view
   wishlist: 'Wishlist',

@@ -96,6 +96,8 @@ export const es = {
   show_all_owned_games: "Mi Librería",
   show_installed_only: "Mis juegos Instalados",
   subscription_games: "Accesibles por Suscripción",
+  update_info: 'Info de Actualización',
+  check_for_updates: 'Buscar actualizaciones',
 
   // wishlist view
   wishlist: 'Lista de Deseos',
