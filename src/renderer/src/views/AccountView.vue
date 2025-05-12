@@ -9,6 +9,8 @@ import BolyIcon from '@/components/icons/FlowerIcon.vue'
 import CreditCardIcon from '@/components/icons/CreditCardIcon.vue'
 import IconDocumentation from '@/components/icons/IconDocumentation.vue'
 import RightArrowIcon from '@/components/icons/RightArrowIcon.vue'
+import WishlistIcon from '@/components/icons/WishlistIcon.vue'
+import GameStatsIcon from '@/components/icons/GameStatsIcon.vue'
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
 
@@ -128,6 +130,26 @@ const EditProfile = (): void => {
           </RouterLink>
         </div>
       </div>
+
+      <div class="mobile-section">
+        <h2 class="mobile-section-title">{{ $t('games_title') }}</h2>
+        <div class="mobile-button-stack">
+          <RouterLink to="/wishlist" class="button btn-pink">
+            <div class="button-content">
+              <WishlistIcon class="button-icon" />
+              <span>{{ $t('wishlist')}}</span>
+              <RightArrowIcon class="button-icon arrow-icon" />
+            </div>
+          </RouterLink>
+          <RouterLink to="/game-stats" class="button btn-blue">
+            <div class="button-content">
+              <GameStatsIcon class="button-icon" />
+              <span>{{ $t('game_stats')}}</span>
+              <RightArrowIcon class="button-icon arrow-icon" />
+            </div>
+          </RouterLink>
+        </div>
+      </div>
     </div>
   </div>
   <div v-else>
@@ -191,7 +213,8 @@ const EditProfile = (): void => {
 
             <div class="account-section">
               <h2 class="section-title">{{ $t('payment_title') }}</h2>
-              <div class="button-stack"><RouterLink to="/payment-methods" class="button btn-pink">
+              <div class="button-stack">
+                <RouterLink to="/payment-methods" class="button btn-pink">
                   <div class="button-content">
                     <CreditCardIcon class="button-icon" />
                     <span>{{ $t('my_cards')}}</span>
@@ -202,6 +225,26 @@ const EditProfile = (): void => {
                   <div class="button-content">
                     <IconDocumentation class="button-icon" />
                     <span>{{ $t('order_history')}}</span>
+                    <RightArrowIcon class="button-icon arrow-icon" />
+                  </div>
+                </RouterLink>
+              </div>
+            </div>
+
+            <div class="account-section">
+              <h2 class="section-title">{{ $t('games_title') }}</h2>
+              <div class="button-stack">
+                <RouterLink to="/wishlist" class="button btn-pink">
+                  <div class="button-content">
+                    <WishlistIcon class="button-icon" />
+                    <span>{{ $t('wishlist')}}</span>
+                    <RightArrowIcon class="button-icon arrow-icon" />
+                  </div>
+                </RouterLink>
+                <RouterLink to="/game-stats" class="button btn-blue">
+                  <div class="button-content">
+                    <GameStatsIcon class="button-icon" />
+                    <span>{{ $t('game_stats')}}</span>
                     <RightArrowIcon class="button-icon arrow-icon" />
                   </div>
                 </RouterLink>

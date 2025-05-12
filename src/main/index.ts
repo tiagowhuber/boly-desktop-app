@@ -25,8 +25,8 @@ autoUpdater.setFeedURL({
      repo: 'boly-desktop-app',
      owner: 'tiagowhuber',
      private: true,
-     token : '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',
-     //token: process.env.GH_TOKEN
+     token: process.env.GH_TOKEN
+     // token: 
    })
 
 
@@ -258,7 +258,7 @@ async function createWindow(): Promise<void> {
       sandbox: false,
       nodeIntegration: true,
       contextIsolation: true,
-      //devTools: false
+      devTools: false
     }
   })
   //---

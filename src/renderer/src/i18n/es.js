@@ -199,7 +199,7 @@ export const es = {
   logout: 'Cerrar sesión',
   achievementpass: 'AchievementPass',
   edit_profile: 'Editar perfil',
-
+  game_stats: 'Estadísticas de juego',
   edit_profile_title: 'EDITAR PERFIL',
   user_info: 'Información del usuario',
   username: 'Nombre de usuario',

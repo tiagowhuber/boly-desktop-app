@@ -221,6 +221,7 @@ export const en = {
   your_orders: 'Your orders',
   ordered_on: 'Ordered on',
   order_status_failed: 'Failed',
+  game_stats: 'Game stats',
 
   // cart view
   cart_title: 'CART',

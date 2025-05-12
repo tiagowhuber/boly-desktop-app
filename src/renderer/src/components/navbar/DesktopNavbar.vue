@@ -67,11 +67,11 @@ function isActive(path: string) {
                    v-if="auth.isLoggedIn">
           <p>{{ $t('my_library') }}</p>
         </RouterLink>
-        <RouterLink :class="{ active: isActive('/wishlist') }" 
+        <!-- <RouterLink :class="{ active: isActive('/wishlist') }" 
                    to="/wishlist" 
                    v-if="auth.isLoggedIn">
           <p>{{ $t('wishlist') }}</p>
-        </RouterLink>
+        </RouterLink> -->
       </div>
       
       <div class="user-navigation">
