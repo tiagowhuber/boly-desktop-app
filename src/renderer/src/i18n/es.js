@@ -217,6 +217,8 @@ export const es = {
   no_orders: 'No tienes pedidos realizados.',
   your_orders: 'Tus pedidos',
   ordered_on: 'Pedido el',
+  help: 'Ayuda',
+  help_text: 'Soporte de Boly',
 
   // cart view
   cart_title: 'CARRITO',

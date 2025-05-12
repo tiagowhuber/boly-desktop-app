@@ -11,6 +11,7 @@ import IconDocumentation from '@/components/icons/IconDocumentation.vue'
 import RightArrowIcon from '@/components/icons/RightArrowIcon.vue'
 import WishlistIcon from '@/components/icons/WishlistIcon.vue'
 import GameStatsIcon from '@/components/icons/GameStatsIcon.vue'
+import HelpIcon from '@/components/icons/HelpIcon.vue'
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
 
@@ -150,6 +151,19 @@ const EditProfile = (): void => {
           </RouterLink>
         </div>
       </div>
+
+      <div class="mobile-section">
+        <h2 class="mobile-section-title">{{ $t('help') }}</h2>
+        <div class="mobile-button-stack">
+          <RouterLink to="/contact" class="button btn-pink">
+            <div class="button-content">
+              <HelpIcon class="button-icon" />
+              <span>{{ $t('help_text')}}</span>
+              <RightArrowIcon class="button-icon arrow-icon" />
+            </div>
+          </RouterLink>
+        </div>
+      </div>
     </div>
   </div>
   <div v-else>
@@ -245,6 +259,19 @@ const EditProfile = (): void => {
                   <div class="button-content">
                     <GameStatsIcon class="button-icon" />
                     <span>{{ $t('game_stats')}}</span>
+                    <RightArrowIcon class="button-icon arrow-icon" />
+                  </div>
+                </RouterLink>
+              </div>
+            </div>
+
+            <div class="account-section">
+              <h2 class="section-title">{{ $t('help') }}</h2>
+              <div class="button-stack">
+                <RouterLink to="/contact" class="button btn-pink">
+                  <div class="button-content">
+                    <HelpIcon class="button-icon" />
+                    <span>{{ $t('help_text')}}</span>
                     <RightArrowIcon class="button-icon arrow-icon" />
                   </div>
                 </RouterLink>

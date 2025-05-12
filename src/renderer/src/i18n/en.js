@@ -222,6 +222,8 @@ export const en = {
   ordered_on: 'Ordered on',
   order_status_failed: 'Failed',
   game_stats: 'Game stats',
+  help: 'Help',
+  help_text: 'Boly support',
 
   // cart view
   cart_title: 'CART',
