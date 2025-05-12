@@ -135,7 +135,8 @@ function GoToGame() {
             <XMarkIcon class="icon" v-else/> 
           </button>
 
-          <button class="add-button" :class="{ 'mobile-add-button': isMobile }" v-else-if="props.item.price[i18n.locale.value] > 0" @click="AddToCart">
+          <button class="add-button" :class="{ 'mobile-add-button': isMobile }" v-else-if="props.item.price[i18n.locale.value] > 0" @click="">
+          <!-- <button class="add-button" :class="{ 'mobile-add-button': isMobile }" v-else-if="props.item.price[i18n.locale.value] > 0" @click="AddToCart"> -->
             <CartIcon class="icon" v-if="!buttonHovered"/>
             <PlusIcon class="icon" v-else/>
           </button>
