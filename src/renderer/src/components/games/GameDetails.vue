@@ -77,9 +77,9 @@ function updateGameImages(): void {
   }
 }
 
-function AddToCart(): void {
-  cart.addGameToCart({ game_id: props.item.game_id });
-}
+// function AddToCart(): void {
+//   cart.addGameToCart({ game_id: props.item.game_id });
+// }
 
 const ownsCurrentGame = ref(false);
 const hasSubscriptionAccess = ref(false);
@@ -219,10 +219,11 @@ watch(
           <div class="price">
             <p v-if="ownsCurrentGame">{{ $t('already_owned')}}</p>
             <p v-else-if="hasSubscriptionAccess">{{ $t('subscription_access')}}</p>
-            <p v-else-if="(props.item.price as Record<string, number>)?.[i18n.locale.value] > 0">
+            <!-- <p v-else-if="(props.item.price as Record<string, number>)?.[i18n.locale.value] > 0">
               {{ currency === 'USD' ? 'USD' : 'CLP' }} {{ Intl.NumberFormat(i18n.locale.value === 'en' ? 'en-US' : 'es-CL', { style: 'currency', currency: currency, currencyDisplay: 'symbol' }).format((props.item.price as Record<string, number>)[i18n.locale.value]) }}
             </p>
-            <p v-else>{{$t('claim_for_free')}}</p>
+            <p v-else>{{$t('claim_for_free')}}</p> -->
+            <p v-else>{{$t('coming_soon')}}</p>
           </div>
 
           <div class="buttons">
@@ -243,9 +244,9 @@ watch(
               >
                 {{ $t('view_in_cart').toUpperCase() }}
               </button>
-              <button class="btn-purple" v-else @click="AddToCart">
+              <!-- <button class="btn-purple" v-else @click="AddToCart">
                 {{ $t('add_to_cart').toUpperCase() }}
-              </button>
+              </button> -->
               
               <button 
                 :class="['btn-wishlist', isInWishlist ? 'in-wishlist' : '']" 

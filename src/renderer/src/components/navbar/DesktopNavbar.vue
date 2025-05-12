@@ -49,9 +49,6 @@ function isActive(path: string) {
         <RouterLink :class="{ active: isActive('/games') }" to="/games">
           <p>{{ $t('games') }}</p>
         </RouterLink>
-        <RouterLink :class="{ active: isActive('/contact') }" to="/contact">
-          <p>{{ $t('contact') }}</p>
-        </RouterLink>
         <RouterLink :class="{ active: isActive('/subscription') }" to="/subscription">
           <p>{{ $t('subscription') }}</p>
         </RouterLink>

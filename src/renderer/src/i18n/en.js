@@ -60,6 +60,7 @@ export const en = {
   remove_from_cart: 'Remove from cart?',
   remove_from_cart_nq: 'Remove from cart',
   view_in_cart: 'View in cart',
+  coming_soon: 'Coming soon!',
 
   game_platforms:'Platforms',
   go_to_library:'Go to library',

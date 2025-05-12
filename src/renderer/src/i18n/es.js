@@ -59,6 +59,7 @@ export const es = {
   remove_from_cart: '¿Quitar del carrito?',
   remove_from_cart_nq: 'Quitar del carrito',
   view_in_cart: 'Ver en el carrito',
+  coming_soon: 'Próximamente...',
 
   game_platforms:'Plataformas',
   go_to_library:'Ver en biblioteca',
