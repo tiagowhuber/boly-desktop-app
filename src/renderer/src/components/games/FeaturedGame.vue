@@ -27,7 +27,7 @@ function AddToCart(item: any) {
   shoppingCart.addGameToCart({ game_id: item.game_id })
 }
 
-const featuredIds = ref<number[]>([1,2])
+const featuredIds = ref<number[]>([2,5])
 
 const carouselRef = ref<any>();
 const currentSlide = ref<number>(0);

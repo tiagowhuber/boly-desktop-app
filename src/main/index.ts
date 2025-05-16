@@ -15,18 +15,19 @@ autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = true;
 autoUpdater.logger = console;
 autoUpdater.allowPrerelease = false;
-// autoUpdater.forceDevUpdateConfig = true;
+//autoUpdater.forceDevUpdateConfig = true;
 autoUpdater.requestHeaders = {
   'User-Agent': 'Boly-Desktop-App'
 };
 // token should use the environment variable but for some reason when building it doesnt work
+// the token is read only so it should be safe to use it like this, fuck it
 autoUpdater.setFeedURL({
      provider: 'github',
      repo: 'boly-desktop-app',
      owner: 'tiagowhuber',
      private: true,
-     token: process.env.GH_TOKEN
-     // token: 
+     //token: process.env.GH_TOKEN
+     token: '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'
    })
 
 
@@ -245,6 +246,58 @@ function showMessage(message: string) {
   }
 }
 
+interface ActiveGameSession {
+  pid: number;
+  game_id: number;
+  token: string;
+  sessionStartTime: number;
+  lastRecordedPlayTimeMinutes: number; 
+  intervalId?: NodeJS.Timeout; 
+}
+let activeGameSession: ActiveGameSession | null = null;
+const PLAYTIME_UPDATE_INTERVAL_MS = 60 * 1000; // every 1 minute
+
+async function fetchInitialPlayTime(token: string, game_id: number): Promise<number> {
+  try {
+    // @ts-ignore
+    const apiBaseUrl = import.meta.env.VITE_APP_API_URL;
+    const response = await axios.get(`${apiBaseUrl}/v1/games/${game_id}/playtime`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (response.data && typeof response.data.play_time === 'number') {
+      return response.data.play_time; 
+    }
+    return 0;
+  } catch (error) {
+    console.error('Failed to fetch initial playtime:', error);
+    return 0; // Default to 0 if fetch fails. This is not a really good solution for now because it might reset the time played to 0. fix later
+  }
+}
+
+async function sendPlayTimeUpdate(token: string, game_id: number, totalPlayTimeMinutes: number) {
+  try {
+    // @ts-ignore
+    const apiBaseUrl = import.meta.env.VITE_APP_API_URL;
+    await axios.post(`${apiBaseUrl}/v1/games/updatePlayTime`, {
+      game_id: game_id,
+      play_time: Math.round(totalPlayTimeMinutes) 
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    console.log(`Playtime updated for game ${game_id}: ${totalPlayTimeMinutes} minutes`);
+  } catch (error) {
+    console.error('Failed to send playtime update:', error);
+  }
+}
+
+function stopPlaytimeTracking() {
+  if (activeGameSession && activeGameSession.intervalId) {
+    clearInterval(activeGameSession.intervalId);
+  }
+  activeGameSession = null;
+  console.log('Playtime tracking stopped.');
+}
+
 async function createWindow(): Promise<void> {
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -258,7 +311,7 @@ async function createWindow(): Promise<void> {
       sandbox: false,
       nodeIntegration: true,
       contextIsolation: true,
-      devTools: false
+      devTools: true
     }
   })
   //---
@@ -374,91 +427,127 @@ async function createWindow(): Promise<void> {
   //   await db.write();
   // }
   ipcMain.handle('download-game', async (_event, appData) => {
-    const { game_id, token,gameName } = appData
-    downloadTempFile(token, game_id,gameName)
+    const { game_id, token, gameName } = appData
+    downloadTempFile(token, game_id, gameName)
   })
 
   ipcMain.handle('play-game', async (_event, appData) => {
-    //Params needed:
-    //-auth token
-    //-user_id
-    //-game_id
-    //-game_route
-    //This has to be called from each DesktopLibraryItem component
-    //"D:\Juegos\test\Body Defense.exe"
-    //------------------------------------- Ejecutar juego
-    console.log('clicked and event triggered')
-    const { appPath, game_id, token } = appData
-    // downloadTempFile(token,game_id)
-    // return;
+    console.log('Play game event triggered');
+    console.log('token: ' + appData.token)
+    const { appPath, game_id, token } = appData;
+
+    if (activeGameSession) {
+      console.warn('Another game session is already active. Please stop it first.');
+      return { error: 'Another game session is active.' };
+    }
+
     try {
-      //-      console.log('path ' + appPath)
-      console.log('gameid ' + game_id)
-      console.log('token ' + token)
-      
-      const req = {
+      console.log('Game path: ' + appPath);
+      console.log('Game ID: ' + game_id);
+
+      const reqValidate = {
         game_id: game_id,
         token: token
-      }
-      
-      try {
-        //--
-        // @ts-ignore
-        const apiBaseUrl = import.meta.env.VITE_APP_API_URL;
-        await axios
-          .post(`${apiBaseUrl}/v1/validate/`, req, {
-            headers: { Authorization: `Bearer ${token}` }
-          })
-          .then((validation) => {
-            if (validation.data) {
-              console.log(validation.data)
-              //---
-              try {
-                const args = `-game_id ${req.game_id} -key ${validation.data.tempKey} -token ${token}`
-                console.log(args)
-                const appProcess = spawn('"' + appPath + '"', args.split(' '), { shell: true })
+      };
 
-                appProcess.stdout.on('data', (data) => {
-                  console.log(`Output: ${data}`)
-                })
+      // @ts-ignore
+      const apiBaseUrl = import.meta.env.VITE_APP_API_URL;
+      const validationResponse = await axios.post(`${apiBaseUrl}/v1/validate/`, reqValidate, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
-                appProcess.stderr.on('data', (data) => {
-                  console.error(`Error: ${data}`)
-                })
-              } catch (error) {
-                console.error('Failed to launch application:', error)
-              }
-              //---
+      if (validationResponse.data && validationResponse.data.tempKey) {
+        console.log('Validation successful:', validationResponse.data);
+
+        const lastRecordedPlayTimeMinutes = await fetchInitialPlayTime(token, game_id);
+        console.log(`Initial playtime for game ${game_id}: ${lastRecordedPlayTimeMinutes} minutes`);
+
+        const args = `-game_id ${reqValidate.game_id} -key ${validationResponse.data.tempKey} -token ${token}`;
+        console.log('Launching game with args:', args);
+        const appProcess = spawn('"' + appPath + '"', args.split(' '), { shell: true, detached: false });
+
+        if (!appProcess.pid) {
+          console.error('Failed to launch application or get PID.');
+          return { error: 'Failed to launch game process.' };
+        }
+
+        console.log(`Game started with PID: ${appProcess.pid}`);
+        activeGameSession = {
+          pid: appProcess.pid,
+          game_id: game_id,
+          token: token,
+          sessionStartTime: Date.now(),
+          lastRecordedPlayTimeMinutes: lastRecordedPlayTimeMinutes,
+        };
+
+        activeGameSession.intervalId = setInterval(async () => {
+          if (activeGameSession) {
+            try {
+              process.kill(activeGameSession.pid, 0);
+              const currentTime = Date.now();
+              const sessionDurationMinutes = (currentTime - activeGameSession.sessionStartTime) / (1000 * 60);
+              const newTotalPlayTimeMinutes = activeGameSession.lastRecordedPlayTimeMinutes + sessionDurationMinutes;
+              await sendPlayTimeUpdate(activeGameSession.token, activeGameSession.game_id, newTotalPlayTimeMinutes);
+            } catch (e) {
+              console.log(`Game process ${activeGameSession.pid} no longer running. Stopping periodic updates.`);
+              const endTime = Date.now();
+              const sessionDurationMinutes = (endTime - activeGameSession.sessionStartTime) / (1000 * 60);
+              const finalTotalPlayTimeMinutes = activeGameSession.lastRecordedPlayTimeMinutes + sessionDurationMinutes;
+              await sendPlayTimeUpdate(activeGameSession.token, activeGameSession.game_id, finalTotalPlayTimeMinutes);
+              stopPlaytimeTracking();
             }
-          })
-        //--
-      } catch (error) {
-        console.log('error validation')
+          }
+        }, PLAYTIME_UPDATE_INTERVAL_MS);
+
+        appProcess.stdout.on('data', (data: Buffer) => {
+          console.log(`Game Output (PID: ${appProcess.pid}): ${data.toString()}`);
+        });
+
+        appProcess.stderr.on('data', (data: Buffer) => {
+          console.error(`Game Error (PID: ${appProcess.pid}): ${data.toString()}`);
+        });
+
+        appProcess.on('exit', async (code: number | null, signal: string | null) => {
+          console.log(`Game process ${appProcess.pid} exited with code ${code}, signal ${signal}`);
+          if (activeGameSession && activeGameSession.pid === appProcess.pid) {
+            const endTime = Date.now();
+            const sessionDurationMinutes = (endTime - activeGameSession.sessionStartTime) / (1000 * 60);
+            const finalTotalPlayTimeMinutes = activeGameSession.lastRecordedPlayTimeMinutes + sessionDurationMinutes;
+            await sendPlayTimeUpdate(activeGameSession.token, activeGameSession.game_id, finalTotalPlayTimeMinutes);
+            stopPlaytimeTracking();
+          }
+        });
+
+        appProcess.on('error', async (err: Error) => {
+          console.error(`Failed to start game process ${appProcess.pid}:`, err);
+          if (activeGameSession && activeGameSession.pid === appProcess.pid) {
+            const endTime = Date.now();
+            const sessionDurationMinutes = (endTime - activeGameSession.sessionStartTime) / (1000 * 60);
+            const finalTotalPlayTimeMinutes = activeGameSession.lastRecordedPlayTimeMinutes + sessionDurationMinutes;
+            await sendPlayTimeUpdate(activeGameSession.token, activeGameSession.game_id, finalTotalPlayTimeMinutes);
+            stopPlaytimeTracking();
+          }
+        });
+
+        return { success: true, pid: appProcess.pid };
+
+      } else {
+        console.error('Game validation failed:', validationResponse.data);
+        return { error: 'Game validation failed.' };
       }
-
-      //-
     } catch (error: any) {
-      console.log('error auth')
-      throw error
-    } finally {
-    }
-    //refresh token en caso de
-    //consultar clave a api
-  })
-  ipcMain.on('launch-app', (_event, appData) => {
-    try {
-      const { appPath, args } = appData
-      const appProcess = spawn(appPath, args.split(' '), { shell: true })
-
-      appProcess.stdout.on('data', (data) => {
-        console.log(`Output: ${data}`)
-      })
-
-      appProcess.stderr.on('data', (data) => {
-        console.error(`Error: ${data}`)
-      })
-    } catch (error) {
-      console.error('Failed to launch application:', error)
+      console.error('Error in play-game handler:', error.message);
+      if (error.response) {
+        console.error('Error response data:', error.response.data);
+      }
+      if (activeGameSession) {
+          const endTime = Date.now();
+          const sessionDurationMinutes = (endTime - activeGameSession.sessionStartTime) / (1000 * 60);
+          const finalTotalPlayTimeMinutes = activeGameSession.lastRecordedPlayTimeMinutes + sessionDurationMinutes;
+          await sendPlayTimeUpdate(activeGameSession.token, activeGameSession.game_id, finalTotalPlayTimeMinutes);
+          stopPlaytimeTracking();
+      }
+      return { error: 'Failed to play game: ' + error.message };
     }
   })
   //---
