@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useAuth, useAchievements } from '@/stores'
+import { useAuth, useAchievements, useGames } from '@/stores' 
 import type { Game, Achievement } from '@/types'
 import PlayIcon from '@/components/icons/PlayIcon.vue'
 import LoadingSpinnerIcon from '@/components/icons/LoadingSpinnerIcon.vue'
@@ -12,15 +12,16 @@ const props = defineProps<{
 }>()
 
 const i18n = useI18n()
-//const router = useRouter()
-//const games = useGames()
 const auth = useAuth()
 const achievementsStore = useAchievements()
+const gamesStore = useGames() 
 const loading = ref(false)
 const isDownloading = ref(false)
 const isInstalling = ref(false)
 const gameAchievements = ref<Achievement[]>([])
 const achievementsLoading = ref(true)
+const playTime = ref<number | null>(null) 
+const playTimeLoading = ref(true) 
 
 console.log('LibraryItem received game:', props.item)
 
@@ -60,8 +61,25 @@ async function fetchGameAchievements() {
   }
 }
 
+async function fetchPlayTime() {
+  if (!props.item.game_id || !auth.token) return;
+
+  playTimeLoading.value = true;
+  try {
+    const time = await gamesStore.getPlayTime(props.item.game_id, { token: auth.token });
+    playTime.value = time;
+    console.log('Fetched play time:', playTime.value);
+  } catch (error) {
+    console.error('Error fetching play time:', error);
+    playTime.value = null; 
+  } finally {
+    playTimeLoading.value = false;
+  }
+}
+
 onMounted(() => {
   fetchGameAchievements();
+  fetchPlayTime(); 
  //todo: use the download store 
   window.electronAPI.onDownloadComplete((data) => {
     if (data.gameId === props.item.game_id) {
@@ -190,7 +208,26 @@ async function Download() {
           </div>
         </div>
       </div>
-          <div class="game-actions">
+
+      <!-- Play Time Section -->
+      <div class="play-time-section">
+        <h4 class="section-label">{{ $t('play_time') }}</h4>
+        <div class="play-time-container">
+          <div v-if="playTimeLoading" class="play-time-loading">
+            <span class="loading-dot"></span>
+            <span class="loading-dot"></span>
+            <span class="loading-dot"></span>
+          </div>
+          <div v-else-if="playTime !== null" class="play-time-value">
+            {{ Math.floor(playTime / 60) }}h {{ playTime % 60 }}m
+          </div>
+          <div v-else class="no-play-time">
+            {{ $t('no_play_time_recorded') }}
+          </div>
+        </div>
+      </div>
+
+      <div class="game-actions">
         <button 
           :class="['action-button', props.item.isInstalled ? 'play-button' : (isDownloading ? 'downloading-button' : (isInstalling ? 'installing-button' : 'download-button'))]" 
           :disabled="loading || isDownloading || isInstalling" 
@@ -275,6 +312,58 @@ async function Download() {
   height: 1px;
   background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1), transparent);
   margin: 0 1rem;
+}
+
+/* Achievements section */
+.achievements-section {
+  padding: 0rem 1rem;
+  margin-bottom: 10px;
+}
+
+/* Play Time section */
+.play-time-section {
+  padding: 0rem 1rem;
+  margin-bottom: 10px;
+}
+
+.play-time-container {
+  min-height: 30px; /* Adjusted height */
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.play-time-value {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem; /* Adjusted font size */
+  color: white; /* Changed to white for better contrast */
+  font-weight: bold;
+}
+
+.no-play-time {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7); /* Adjusted for better visibility */
+  font-style: italic;
+}
+
+.play-time-loading {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  align-items: center;
+}
+
+.section-label {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 1px;
+  font-weight: 600;
 }
 
 /* Achievements section */

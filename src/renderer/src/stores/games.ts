@@ -89,7 +89,8 @@ const useGames = defineStore('games', {
         const response = await axios.get(`/v1/games/user/${userId}`)
         return response.data.map((game: any) => ({
           ...game,
-          game_type: game.game_type || { name: 'Unknown' }
+          game_type: game.game_type || { name: 'Unknown' },
+          play_time: game.play_time // Assuming API returns play_time
         }))
       } catch (error: any) {
         this.error = error
@@ -305,6 +306,22 @@ const useGames = defineStore('games', {
         this.loading = false
       }
     },
+
+    async getPlayTime(gameId: number, auth: { token: string }) {
+      this.loading = true
+      this.error = undefined
+      try {
+        const response = await axios.get(`/v1/games/${gameId}/playtime`, {
+          headers: { Authorization: `Bearer ${auth.token}` }
+        })
+        return response.data.play_time || 0
+      } catch (error: any) {
+        this.error = error
+        return 0
+      } finally {
+        this.loading = false
+      }
+    }
   }
 })
 
