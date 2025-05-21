@@ -6,6 +6,7 @@ import type { Game, Achievement } from '@/types'
 import PlayIcon from '@/components/icons/PlayIcon.vue'
 import LoadingSpinnerIcon from '@/components/icons/LoadingSpinnerIcon.vue'
 import DownloadIcon from '@/components/icons/DownloadIcon.vue'
+import ClockhistoryIcon from '@/components/icons/ClockhistoryIcon.vue'
 
 const props = defineProps<{
   item: Game
@@ -219,7 +220,10 @@ async function Download() {
             <span class="loading-dot"></span>
           </div>
           <div v-else-if="playTime !== null" class="play-time-value">
-            {{ Math.floor(playTime / 60) }}h {{ playTime % 60 }}m
+            <div class="time-display">
+              <ClockhistoryIcon class="clock-icon" />
+              <span>{{ $t('play_time') }}: {{ Math.floor(playTime / 60) }}h {{ playTime % 60 }}m</span>
+            </div>
           </div>
           <div v-else class="no-play-time">
             {{ $t('no_play_time_recorded') }}
@@ -339,7 +343,7 @@ async function Download() {
 .play-time-value {
   font-family: 'Poppins', sans-serif;
   font-size: 0.9rem; /* Adjusted font size */
-  color: white; /* Changed to white for better contrast */
+  color: black;
   font-weight: bold;
 }
 
@@ -364,6 +368,13 @@ async function Download() {
   color: rgba(255, 255, 255, 0.6);
   letter-spacing: 1px;
   font-weight: 600;
+}
+
+.clock-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 7px;
+  margin-bottom: -3px;
 }
 
 /* Achievements section */

@@ -102,6 +102,7 @@ export const en = {
   view_in_library: 'View in library',
   update_info: 'Update Info',
   check_for_updates: 'Check for updates',
+  play_time: 'Play time',
 
   // wishlist view
   wishlist: 'Wishlist',

@@ -90,7 +90,7 @@ const useGames = defineStore('games', {
         return response.data.map((game: any) => ({
           ...game,
           game_type: game.game_type || { name: 'Unknown' },
-          play_time: game.play_time // Assuming API returns play_time
+          play_time: game.play_time 
         }))
       } catch (error: any) {
         this.error = error

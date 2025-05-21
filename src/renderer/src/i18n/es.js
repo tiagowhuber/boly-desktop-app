@@ -99,6 +99,7 @@ export const es = {
   subscription_games: "Accesibles por Suscripción",
   update_info: 'Info de Actualización',
   check_for_updates: 'Buscar actualizaciones',
+  play_time: 'Tiempo de juego',
 
   // wishlist view
   wishlist: 'Lista de Deseos',
