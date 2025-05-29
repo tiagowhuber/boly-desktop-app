@@ -10,7 +10,9 @@ const useUser = defineStore('user', {
     roleId: 3,
     birthday: undefined,
     bio: undefined,
-    profilePictureUrl: undefined
+    profilePictureUrl: undefined,
+    developerId: 0,
+    email_verified: false
   }),
   actions: {
     setUser(userData: any) {
@@ -25,6 +27,8 @@ const useUser = defineStore('user', {
       this.birthday = userData.birthday;
       this.bio = userData.bio;
       this.profilePictureUrl = userData.profile_picture_url || userData.profilePictureUrl;
+      this.developerId = userData.developer_id || userData.developerId;
+      this.email_verified = userData.email_verified || userData.emailVerified || false;
     },
     clearUser() {
       this.$state = {
@@ -34,7 +38,9 @@ const useUser = defineStore('user', {
         roleId: 3,
         birthday: undefined,
         bio: undefined,
-        profilePictureUrl: undefined
+        profilePictureUrl: undefined,
+        developerId: 0,
+        email_verified: false
       }
     },
     async updateUserInfo(data: UserUpdateRequest) {

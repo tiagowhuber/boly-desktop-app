@@ -94,6 +94,9 @@ async function signGoogle() {
             $t('register')
           }}</RouterLink>
         </div>
+        <div class="forgot-password">
+          <RouterLink to="/forgot-password" style="color: white; text-decoration: underline;">{{ $t('forgot_your_password') }}</RouterLink>
+        </div>
       </div>
       <img
         src="@/assets/images/elements/8.png"
@@ -249,6 +252,13 @@ h1 {
   align-items: center;
   justify-content: center;
   color: var(--light);
+  margin-top: 1rem; 
+}
+
+.forgot-password {
+  font-size: small;
+  text-align: center;
+  margin-top: 0.5rem; 
 }
 
 .login_button_text {

@@ -189,6 +189,30 @@ export const router = createRouter({
       path: '/post-google-login',
       name: '/post-google-login',
       component: () => import ('../desktop-views/PostGoogleAuth.vue')
+    },
+    {
+      path: '/verify-email',
+      name: 'verify-email',
+      component: () => import('../views/VerifyEmailView.vue'),
+      meta: {
+        requiresAuth: false //todo: true or false
+      }
+    },
+    {
+      path: '/forgot-password',
+      name: 'forgot-password',
+      component: () => import('../views/ForgotPasswordView.vue'),
+      meta: {
+        requiresAuth: false
+      }
+    },
+    {
+      path: '/confirm-password-reset',
+      name: 'confirm-password-reset',
+      component: () => import('../views/ConfirmPasswordResetView.vue'),
+      meta: {
+        requiresAuth: false
+      }
     }
   ],
   //@ts-ignore

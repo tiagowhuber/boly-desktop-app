@@ -14,11 +14,19 @@ import GameStatsIcon from '@/components/icons/GameStatsIcon.vue'
 import HelpIcon from '@/components/icons/HelpIcon.vue'
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
+import AlertModal from '@/components/AlertModal.vue'
+import VerifiedPersonIcon from '@/components/icons/VerifiedPersonIcon.vue'
+import { useI18n } from 'vue-i18n'
 
+const i18n = useI18n();
 const router = useRouter()
 const auth = useAuth()
 const user = useUser()
 const isMobile = ref(window.innerWidth < 768)
+
+const showModal = ref(false)
+const modalTitle = ref('')
+const modalMessage = ref('')
 
 if(!auth.isLoggedIn && !auth.token){
   router.back()
@@ -53,9 +61,37 @@ const EditProfile = (): void => {
 // const AchievementPass = (): void => {
 //   router.push("/ach-pass")
 // }
+
+const sendVerification = async () => {
+  try {
+    const response = await auth.sendVerificationEmail(user.email)
+    console.log('Verification email sent:', response)
+    if (response.status === 200) { // respons contains a message so for now we assume success at all times
+      modalTitle.value = i18n.t("success");
+      modalMessage.value = i18n.t("modal_email_verification_sent");
+      showModal.value = true;
+    } else {
+      modalTitle.value = i18n.t("success");
+      modalMessage.value = i18n.t("modal_email_verification_sent", { message: 'Failed to send verification email.' });
+      showModal.value = true;
+    }
+  } catch (error: any) {
+    modalTitle.value = i18n.t("success");
+    modalMessage.value = i18n.t("modal_email_verification_sent", { message: error.message || 'Failed to send verification email.' });
+    showModal.value = true;
+  }
+}
 </script>
 
 <template>
+  <AlertModal :show="showModal" @close="showModal = false">
+    <template #header>
+      <h3>{{ modalTitle }}</h3>
+    </template>
+    <template #body>
+      <p>{{ modalMessage }}</p>
+    </template>
+  </AlertModal>
   <div v-if="isMobile">
     <div class="mobile-container">
       <div class="mobile-header">
@@ -75,14 +111,21 @@ const EditProfile = (): void => {
       <div class="mobile-section">
         <h2 class="mobile-section-title">{{ $t('account_title') }}</h2>
         <div class="mobile-button-stack">
-          <RouterLink to="/edit" class="button btn-pink">
+          <button v-if="!user.email_verified" class="button btn-pink" @click="sendVerification">
+            <div class="button-content">
+              <VerifiedPersonIcon class="button-icon" />
+              <span>{{ $t('verify_account') }}</span>
+              <RightArrowIcon class="button-icon arrow-icon" />
+            </div>
+          </button>
+          <RouterLink to="/edit" class="button btn-blue">
             <div class="button-content">
               <DiagonalPencilIcon class="button-icon" />
               <span>{{ $t('edit_profile')}}</span>
               <RightArrowIcon class="button-icon arrow-icon" />
             </div>
           </RouterLink>
-          <button class="button btn-blue" @click="logout">
+          <button class="button btn-pink" @click="logout">
             <div class="button-content">
               <DoorIcon class="button-icon" />
               <span>{{ $t('logout')}}</span>
@@ -183,20 +226,29 @@ const EditProfile = (): void => {
                 <DiagonalPencilIcon class="icon" @click="EditProfile"/>
               </div>
               <p>{{ user.email }}</p>
+              <p v-if="!user.email_verified" class="text-warning" style="font-size: 0.9rem; color: var(--boly-yellow);">{{ $t('email_not_verified') }}</p>
               <br>
             </div>          
           </div>          
-          <div class="account-details">              <div class="account-section">
+          <div class="account-details">              
+            <div class="account-section">
               <h2 class="section-title">{{ $t('account_title') }}</h2>
-              <div class="button-stack">                
-                <RouterLink to="/edit" class="button btn-pink">                  
+              <div class="button-stack">  
+                <button v-if="!user.email_verified" class="button btn-pink" style="cursor: pointer;" @click="sendVerification">
+                  <div class="button-content">
+                    <VerifiedPersonIcon class="button-icon" />
+                    <span>{{ $t('verify_account') }}</span>
+                    <RightArrowIcon class="button-icon arrow-icon" />
+                  </div>
+                </button>              
+                <RouterLink to="/edit" class="button btn-blue">             
                   <div class="button-content">
                     <DiagonalPencilIcon class="button-icon" />
                     <span>{{ $t('edit_profile')}}</span>
                     <RightArrowIcon class="button-icon arrow-icon" />
                   </div>
                 </RouterLink>
-                <button class="button btn-blue" style="cursor: pointer;" @click="logout">
+                <button class="button btn-pink" style="cursor: pointer;" @click="logout">
                   <div class="button-content">
                     <DoorIcon class="button-icon" />
                     <span>{{ $t('logout')}}</span>

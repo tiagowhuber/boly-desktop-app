@@ -35,10 +35,12 @@ export const es = {
   games: 'Juegos',
   contact: 'Contacto',
   subscription: 'Suscripción',
+  developer_navbar: 'Dev Dashboard',
   developer: 'Desarrollador',
   my_library: 'Mi biblioteca',
   log_in: 'Iniciar sesión',
   sign_up: 'Registrarse',
+  developer_contact: 'Desarrolladores',
 
   // footer
   copyright_disclaimer: '© 2024. Todos los derechos reservados. Todas las marcas registradas pertenecen a sus respectivos dueños / programadores.',
@@ -106,6 +108,7 @@ export const es = {
   no_wishlist_games: "Tu lista de deseos está vacía. ¡Añade juegos que te interesen!",
 
   // contact view
+  success: 'Éxito',
   contact_title: 'CONTACTO',
   name: 'Nombre',
   company: 'Empresa',
@@ -221,6 +224,9 @@ export const es = {
   ordered_on: 'Pedido el',
   help: 'Ayuda',
   help_text: 'Soporte de Boly',
+  verify_account: 'Verificar cuenta',
+  email_not_verified: 'correo electrónico no verificado.',
+  modal_email_verification_sent: 'Correo electrónico de verificación enviado.',
 
   // cart view
   cart_title: 'CARRITO',
@@ -261,6 +267,7 @@ export const es = {
   modal_email_taken: '¡Este correo ya está en uso!',
   modal_weak_password: 'La contraseña debe tener al menos 8 caracteres, una mayúscula y un dígito.',
   modal_invalid_email: 'Por favor ingresa una dirección de correo válida.',
+  invalid_credentials: 'Credenciales inválidas',
 
   // post order
   postorder_congrats: '¡Felicidades! Tu compra se ha realizado con éxito.',
@@ -325,6 +332,53 @@ export const es = {
   expiration_date: 'Fecha de vencimiento',
   subscription_processed_success: '¡Ya tienes acceso a todos los juegos!',
 
+  // Developer Contact View
+  dev_title_mobile: 'Vendemos tu <span class="highlight-green">videojuego educativo</span> en todo el mundo',
+  dev_title_1: 'Vendemos tu',
+  dev_title_2: '<span class="highlight-green">videojuego educativo</span>',
+  dev_title_3: 'en todo el mundo',
+  dev_subtitle_1_1: 'Somos una plataforma de distribución que abre nuevos mercados, fuentes de ',
+  dev_subtitle_1_2: 'ingresos, y permite reducir los costos operativos.',
+  dev_text_1_1_line1: 'Obtén mayor alcance',
+  dev_text_1_1_line2: 'para tus productos',
+  dev_text_1_2_line1: 'Vendemos tu videojuego',
+  dev_text_1_2_line2: 'por suscripción',
+  dev_text_1_3_line1: 'Obtén campañas',
+  dev_text_1_3_line2: 'de márketing',
+  dev_text_1_4_line1: 'Monetiza y',
+  dev_text_1_4_line2: 'reduce costos operativos',
+  dev_subtitle_2: 'Juntos, tenemos la misión de permitir que todo el mundo descubra el placer de <span class="highlight-blue">jugar y aprender.</span>',
+  dev_subtitle_2_1: 'Vende tu videojuego en nuestra plataforma a través de Suscripciones disponibles para padres, colegios e instituciones.',
+  dev_text_2_1_line1: 'Suscripción anual',
+  dev_text_2_1_line2: 'escolar',
+  dev_text_2_2_line1: 'Suscripción',
+  dev_text_2_2_line2: 'individual',
+  dev_text_2_3_line1: 'Licencias',
+  dev_text_2_3_line2: 'y asociaciones',
+  dev_subtitle_3: 'Sistema de monetización',
+  dev_subtitle_3_1: 'Ganancia total',
+  dev_text_3_1: 'La ganancia generada por las suscripciones es proporcional al tiempo que se ha jugado el videojuego.',
+  dev_subtitle_3_2: 'Repartición',
+  dev_text_3_2: 'El 70% de esa ganancia es para los desarrolladores y el 30% para Boly.',
+  dev_subtitle_4: '¿Estás listo para avanzar al siguiente nivel?',
+  dev_subtitle_4_1: 'Contáctanos a través de este formulario, cuéntanos brevemente tu proyecto y comencemos!',
+  dev_subtitle_5: '¿Quieres resolver dudas?',
+  dev_subtitle_5_1: 'Escríbenos a nuestro Whatsapp',
+  dev_subtitle_6: 'Conócenos',
+  dev_text_6_1: 'Boly es una plataforma de distribución de videojuegos educativos de alta calidad que utiliza gamificación & IA para personalizar el aprendizaje. Conectamos a desarrolladores con estudi-antes y escuelas y ofrecemos a docentes herramientas para mejorar la experiencia educativa.',
+  dev_subtitle_6_1: 'Para jugadores:',
+  dev_text_6_2: 'Somos una plataforma de videojuegos educativos de alta calidad con las mejores ofertas, pagos seguros, reembolsos rápidos y atención al cliente eficiente.',
+  dev_subtitle_6_2: 'Para desarrolladores y creadores:',
+  dev_text_6_3: 'Somos una plataforma de distribución que abre nuevos mercados y fuentes de ingresos, y permite reducir los costes operativos. Ofrecemos ganancias ilimitadas, sin retiros mínimos, herramientas de optimización y asistencia.',
+  dev_subtitle_6_3: 'Para los vendedores:',
+  dev_text_6_4: 'Somos un terreno de juego justo para presentar su oferta a los jugadores, competir con otros vendedores verificados y vender sus existencias utilizando nuestras sencillas herramientas y la integración automatizada de API.',
+  dev_subtitle_6_4: 'Para los futuros miembros del equipo:',
+  dev_text_6_5: 'Oportunidades de carrera flexibles in situ, híbridas y remotas para impulsar tu crecimiento personal y profesional.',
+  dev_button_1: 'conoce más en boly.cl',
+  dev_button_2: 'Descarga nuesto onepager',
+  lets_start: 'Comencemos',
+  dev_query: 'Mensiona brevemente tu proyecto',
+
   // misc
   close: 'Cerrar',
   confirm: 'Confirmar',
@@ -352,6 +406,50 @@ export const es = {
   retry: 'Reintentar',
   loading: 'Cargando',
   release_date: 'Fecha de lanzamiento',
+
+  // developer dashboard view
+  subscribers_total_hours: 'Horas totales de suscriptores',
+  units_sold: 'Unidades vendidas',
+  subscription_earnings: 'Ganancias por suscripción',
+  units_sold_earnings: 'Ganancias por unidades vendidas',
+  total_earnings: 'Ganancias totales',
+
+  // ConfirmPasswordResetView
+  error_title: 'Error',
+  success_title: 'Éxito',
+  reset_password_title: 'Restablecer Tu Contraseña',
+  new_password_placeholder: 'Ingresa la nueva contraseña',
+  new_password_label: 'Nueva Contraseña',
+  confirm_new_password_placeholder: 'Confirma la nueva contraseña',
+  confirm_new_password_label: 'Confirmar Nueva Contraseña',
+  reset_password_loading_button: 'Restableciendo',
+  reset_password_submit_button: 'Restablecer Contraseña',
+  reset_password_invalid_token_on_mount: 'Token de restablecimiento de contraseña inválido o faltante. Solicita uno nuevo si es necesario.',
+  reset_password_token_missing: 'Falta el token de restablecimiento de contraseña. Utiliza el enlace de tu correo electrónico.',
+  reset_password_too_short: 'La contraseña debe tener al menos 8 caracteres.',
+  reset_password_mismatch: 'Las contraseñas no coinciden.',
+  reset_password_success_message: 'Tu contraseña ha sido restablecida exitosamente. Ahora puedes iniciar sesión.',
+  reset_password_error_generic: 'Ocurrió un error al restablecer tu contraseña. Inténtalo de nuevo o contacta a soporte.',
+
+  // ForgotPasswordView
+  forgot_password_title: '¿OLVIDASTE TU CONTRASEÑA?',
+  forgot_password_info_text: 'Ingresa tu dirección de correo electrónico a continuación y te enviaremos un enlace para restablecer tu contraseña.',
+  modal_email_required: 'La dirección de correo electrónico es obligatoria.',
+  password_reset_email_sent: 'Si existe una cuenta con ese correo electrónico, se ha enviado un enlace para restablecer la contraseña.',
+  error_requesting_password_reset: 'Hubo un error al solicitar el restablecimiento de la contraseña. Inténtalo de nuevo.',
+  back_to_login: 'Volver al inicio de sesión',
+  forgot_your_password: '¿Olvidaste tu contraseña?',
+
+  // VerifyEmailView
+  verifying: 'Verificando tu correo electrónico...',
+  missing_token: 'El token de verificación de correo electrónico falta o no es válido. Intenta nuevamente con el enlace de tu correo electrónico o solicita una nueva verificación.',
+  verify_email_success_title: 'Correo Verificado',
+  verify_email_success_default: 'Tu dirección de correo electrónico ha sido verificada exitosamente.',
+  verify_email_error_title: 'Falló la Verificación',
+  verify_email_error_default: 'No se pudo verificar tu correo electrónico. El enlace puede haber expirado o no ser válido. Por favor, inténtalo de nuevo o solicita un nuevo correo de verificación.',
+  email_verified_success: 'Correo electrónico verificado exitosamente.',
+  back_to_home: 'Volver al inicio',
+  verify_email_verifying: 'Verificando tu correo electrónico...',
 }
 
 export default es

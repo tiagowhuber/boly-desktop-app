@@ -16,10 +16,13 @@ const props = defineProps({
 // Check if current route is login page or Register page
 const isRegisterPage = computed(() => route.path === '/register');
 const isLoginPage = computed(() => route.path === '/login');
+const isForgotPasswordPage = computed(() => route.path === '/forgot-password');
+const isConfirmPasswordResetPage = computed(() => route.path === '/confirm-password-reset');
+
 </script>
 
 <template>
-  <footer :style="'height: ' + (props.small ? 200 : 450) + 'px;'" :class="[props.color,{ 'login-register-footer': isLoginPage || isRegisterPage }]" >
+  <footer :style="'height: ' + (props.small ? 200 : 450) + 'px;'" :class="[props.color,{ 'login-register-footer': isLoginPage || isRegisterPage || isForgotPasswordPage || isConfirmPasswordResetPage }]" >
     <div class="footer-container">
       <RouterLink to="/">
         <BoliLogo class="icon-logo" :style="'height: ' + (props.small ? 75 : 110) + 'px;'" />

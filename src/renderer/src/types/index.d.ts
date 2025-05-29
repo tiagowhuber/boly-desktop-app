@@ -12,8 +12,10 @@ export interface User {
     birthday?: Date;
     bio?: string;
     profilePictureUrl?: string;
+    developerId?: number;
     hash?: string;
     token?: string;
+    email_verified: boolean;
 }
 
 export interface AuthState {

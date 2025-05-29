@@ -90,6 +90,7 @@ async function submit(): Promise<void> {
       if (response.status === 201) {
         modalWarning.value = i18n.t("modal_register_success");
         router.push({ path: '/login', query: { username: email.value } });
+        auth.sendVerificationEmail(email.value); 
       } else if (response.status === 409) {
         modalWarning.value = i18n.t("modal_email_taken");
       } else {

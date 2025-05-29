@@ -153,6 +153,42 @@ const useAuth = defineStore('auth', {
         throw error;
       }
     },
+    async requestPasswordReset(email: string) {
+      try {
+        const response = await axios.post('/v1/auth/reset-password', { email });
+        return response.data; // Contains { message: "Password reset email sent" }
+      } catch (error: any) {
+        console.error('Error requesting password reset:', error.response?.data || error.message);
+        throw error.response?.data || new Error('Failed to request password reset');
+      }
+    },
+    async confirmPasswordReset(token: string, newPassword: string) {
+      try {
+        const response = await axios.post('/v1/auth/confirm-reset-password', { token, newPassword });
+        return response.data; // Contains { message: "Password has been reset successfully" }
+      } catch (error: any) {
+        console.error('Error confirming password reset:', error.response?.data || error.message);
+        throw error.response?.data || new Error('Failed to confirm password reset');
+      }
+    },
+    async sendVerificationEmail(email: string) {
+      try {
+        const response = await axios.post('/v1/auth/send-verification-email', { email });
+        return response.data; // Contains { message: "Verification email sent" }
+      } catch (error: any) {
+        console.error('Error sending verification email:', error.response?.data || error.message);
+        throw error.response?.data || new Error('Failed to send verification email');
+      }
+    },
+    async verifyEmail(token: string) {
+      try {
+        const response = await axios.post('/v1/auth/verify-email', { token });
+        return response.data; // Contains { message: "Email verified successfully" }
+      } catch (error: any) {
+        console.error('Error verifying email:', error.response?.data || error.message);
+        throw error.response?.data || new Error('Failed to verify email');
+      }
+    },
     logout() {
       const user = useUser()
       this.token = ''
