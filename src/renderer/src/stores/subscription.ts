@@ -319,6 +319,35 @@ export const useSubscription = defineStore('subscription', {  state: (): Subscri
       } finally {
         this.loading = false;
       }
+    },
+
+    async subscribeWithCode(userId: number, discountCode: string, auth: AuthToken): Promise<boolean> {
+      this.loading = true;
+      this.error = null;
+
+      try {
+        const response = await axios.post(
+          `/v1/subscription/subscribe-with-discount-code`,
+          { discountCode, userId },
+          { headers: { Authorization: `Bearer ${auth.token}` } }
+        );
+
+        if (response.status === 200) {
+          this.subscriptions = this.subscriptions.map(sub =>
+            sub.subscription_id === userId ? { ...sub, is_active: 1 } : sub
+          );
+          return true;
+        }
+
+        this.error = response.data?.message || 'Failed to subscribe with code';
+        return false;
+      } catch (error: any) {
+        console.error('Error subscribing with code:', error);
+        this.error = error.response?.data?.message || error.message || 'Unknown error occurred while subscribing with code';
+        return false;
+      } finally {
+        this.loading = false;
+      }
     }
   }
 })

@@ -142,6 +142,16 @@ export const es = {
   yearly_feature_3: 'Beneficio exclusivo: Acceso temprano a los nuevos juegos antes de su lanzamiento inicial.',
   subscription_success: '¡Suscripción exitosa!',
   subscription_success_message: '¡Ya tienes acceso a todos los juegos!',
+  redeem_code: 'Canjea tu código',
+  enter_discount_code: 'Ingresa código de descuento',
+  redeem: 'Canjear',
+  please_enter_code: 'Por favor ingresa un código de descuento',
+  code_redemption_success: '¡Código canjeado con éxito!',
+  code_redemption_success_message: 'Tu código de descuento ha sido canjeado exitosamente. Tu suscripción ha sido actualizada.',
+  invalid_discount_code: 'Código de descuento inválido',
+  discount_code: 'Código de descuento',
+  redeem_code_subtitle: '¿Tienes un código de suscripción?',
+  redeem_code_description: 'Ingresa tu código abajo para canjear tu suscripción.',
   
   // developer view
   developer_title: 'GESTOR DEL DESARROLLADOR',

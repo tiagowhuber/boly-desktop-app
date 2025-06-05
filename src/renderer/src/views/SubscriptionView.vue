@@ -24,6 +24,11 @@ const webpayUrl = computed(() => paymentStore.enrollmentUrl)
 const webpayToken = computed(() => paymentStore.enrollmentToken)
 const showEnrollmentRedirectModal = ref(false)
 
+// Discount code state
+const discountCode = ref('')
+const redeemingCode = ref(false)
+const redeemSuccess = ref(false)
+
 const isMobile = ref(window.innerWidth <= 768)
 
 const handleResize = () => {
@@ -83,7 +88,6 @@ const fetchPaymentMethods = async () => {
 
 const addPaymentMethod = async (planType: string) => {
   try {
-    // Store the selected plan in localStorage for after payment method enrollment
     localStorage.setItem('pendingSubscriptionPlan', planType)
     
     showEnrollmentRedirectModal.value = true
@@ -202,6 +206,47 @@ const buttonText = (plan: string) => {
 const buttonClass = (plan: string) => {
   return isCurrentPlan(plan) ? 'btn-blue' : 'btn-purple'
 }
+
+async function handleRedeemCode() {
+  if (!discountCode.value.trim()) {
+    subscriptionStore.error = t('please_enter_code')
+    return
+  }
+
+  if (auth.isLoggedIn && user.userId) {
+    redeemingCode.value = true
+    try {
+      const success = await subscriptionStore.subscribeWithCode(
+        user.userId, 
+        discountCode.value.trim(), 
+        { token: auth.token }
+      )
+      
+      if (success) {
+        redeemSuccess.value = true
+        showModal.value = true
+        
+        await subscriptionStore.getUserSubscriptions(user.userId, { token: auth.token })
+        
+        // Update user current plan
+        if (subscriptions.value.length > 0) {
+          const activeSubscription = subscriptions.value.find(sub => sub.is_active === 1)
+          if (activeSubscription) {
+            userPlan.value = getPlanType(activeSubscription.plan_id)
+          }
+        }
+        
+        discountCode.value = '' 
+      }
+    } catch (err) {
+      console.error('Error redeeming code:', err)
+    } finally {
+      redeemingCode.value = false
+    }
+  } else {
+    router.push('/login')
+  }
+}
 </script>
 
 <template>
@@ -257,6 +302,30 @@ const buttonClass = (plan: string) => {
           :class="buttonClass('yearly')" 
           @click="handleSubscription('yearly')">
           {{ buttonText('yearly') }}
+        </button>
+      </div>
+      <div class="plan">
+        <h2>{{ t('redeem_code').toUpperCase() }}</h2>
+        <div class="credits"> {{ t('redeem_code_subtitle') }}</div>
+        <div class="details">
+          <li>{{ t('redeem_code_description') }}</li>
+        </div>
+        <div class="redeem-form">
+          <input 
+            type="text" 
+            v-model="discountCode" 
+            :placeholder="t('enter_discount_code')"
+            :disabled="redeemingCode"
+            @keyup.enter="handleRedeemCode"
+          />
+        </div>
+        <button 
+          class="btn-purple redeem-button" 
+          @click="handleRedeemCode"
+          :disabled="redeemingCode"
+        >
+          <span v-if="!redeemingCode">{{ t('redeem').toUpperCase() }}</span>
+          <Loading v-else class="button-loader" />
         </button>
       </div>
     </div>
@@ -317,14 +386,37 @@ const buttonClass = (plan: string) => {
           </button>
         </div>
       </div>
-    </div>    <!-- Modal to show subscription success -->
+          
+    <!-- Redeem Code Section -->
+      <div class="mobile-plan">
+        <h2>{{ t('redeem_code') }}</h2>
+        <div class="redeem-form">
+          <input 
+            type="text" 
+            v-model="discountCode" 
+            :placeholder="t('enter_discount_code')"
+            :disabled="redeemingCode"
+            @keyup.enter="handleRedeemCode"
+          />
+        </div>
+        <button 
+          class="btn-purple redeem-button" 
+          @click="handleRedeemCode"
+          :disabled="redeemingCode"
+        >
+          <span v-if="!redeemingCode">{{ t('redeem').toUpperCase() }}</span>
+          <Loading v-else class="button-loader" />
+        </button>
+      </div>
+    </div>
+    
     <Teleport to="body">
       <AlertModal :show="showModal" @close="showModal = false">
         <template #header>
-          <h3>{{ t('subscription_success') }}</h3>
+          <h3>{{ redeemSuccess ? t('code_redemption_success') : t('subscription_success') }}</h3>
         </template>
         <template #body>
-          <p>{{ t('subscription_success_message') }}</p>
+          <p>{{ redeemSuccess ? t('code_redemption_success_message') : t('subscription_success_message') }}</p>
         </template>
       </AlertModal>
     </Teleport>
@@ -479,31 +571,33 @@ button {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.7);
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
 }
 
-.modal-content {
-  background-color: var(--boly-bg-dark);
-  padding: 30px;
+/* Redeem code section styles */
+.redeem-code-section {
+  margin-top: 40px;
+  background-color: var(--boly-bg-dark-transparent);
   border-radius: 20px;
-  text-align: center;
-  max-width: 500px;
+  padding: 25px;
+  width: 100%;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.error-message {
-  color: #e74c3c;
-  margin-top: 20px;
-  text-align: center;
-  font-weight: bold;
+.redeem-code-section h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  font-style: italic;
 }
 
-/* Mobile styles */
 .mobile-section {
   padding: 1rem 0.5rem;
   width: 100%;
@@ -608,6 +702,79 @@ button {
   font-size: 0.9rem;
 }
 
+/* Redeem Code Section Styles */
+.redeem-code-section {
+  margin-top: 40px;
+  width: 100%;
+  max-width: 600px;
+  background-color: var(--boly-bg-dark-transparent);
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.redeem-code-section h2 {
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  font-style: italic;
+  margin-bottom: 20px;
+}
+
+.redeem-form {
+  display: flex;
+  width: 100%;
+  gap: 10px;
+}
+
+.redeem-form input {
+  flex-grow: 1;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 12px 15px;
+  color: white;
+  font-size: 1rem;
+}
+
+.redeem-form input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.redeem-form input:focus {
+  outline: none;
+  border-color: var(--boly-button-purple);
+}
+
+.redeem-button {
+  min-width: 120px;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.button-loader {
+  height: 20px;
+  width: 20px;
+}
+
+.mobile-redeem-section {
+  margin-top: 25px;
+  padding: 15px;
+}
+
+.mobile-redeem-section .redeem-form {
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mobile-redeem-section .redeem-button {
+  width: 100%;
+}
+
 @media (max-width: 480px) {
   .mobile-plan h2 {
     font-size: 1.2rem;
@@ -624,6 +791,10 @@ button {
   
   .mobile-button {
     width: 100%;
+  }
+  
+  .redeem-code-section h2 {
+    font-size: 1.2rem;
   }
 }
 </style>

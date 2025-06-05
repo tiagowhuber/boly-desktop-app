@@ -145,6 +145,16 @@ export const en = {
   subscription_success: 'Subscription successful!',
   subscription_success_message: 'Now you have access to all the games in our library!',
   subscription_processed_success: "You've got access to all games!",
+  redeem_code: 'Redeem code',
+  enter_discount_code: 'Enter your discount code',
+  redeem: 'Redeem',
+  please_enter_code: 'Please enter a valid code',
+  code_redemption_success: 'Code redemption successful',
+  code_redemption_success_message: 'Your discount code has been successfully applied to your account.',
+  invalid_discount_code: 'Invalid discount code',
+  discount_code: 'Discount code',
+  redeem_code_subtitle: 'Do you have a subscription code?',
+  redeem_code_description: 'Enter your code below to apply your subscription.',
 
   // developer view
   developer_title: 'DEVELOPER MANAGER',

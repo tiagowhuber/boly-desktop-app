@@ -189,3 +189,63 @@ export interface Auth {
   token: string
   isLoggedIn: boolean
 }
+
+
+export enum DiscountType {
+  PERCENTAGE_ORDER = 'PERCENTAGE_ORDER',
+  SUBSCRIPTION_ACCESS = 'SUBSCRIPTION_ACCESS'
+}
+
+export enum SubscriptionDurationUnit {
+  DAYS = 'DAYS',
+  MONTHS = 'MONTHS',
+  YEARS = 'YEARS'
+}
+
+export interface DiscountCode {
+  discount_code_id: number;
+  code: string;
+  is_active: boolean;
+  valid_from?: Date;
+  valid_until?: Date;
+  discount_type: DiscountType;
+  discount_percentage?: number;
+  applies_to_plan_id?: number;
+  subscription_duration_value?: number;
+  subscription_duration_unit?: SubscriptionDurationUnit;
+  max_total_uses?: number;
+  current_total_uses: number;
+  max_unique_users?: number;
+}
+
+export interface ApplicablePlan {
+  plan_id: number;
+  name: string;
+  price: number;
+}
+
+export interface DiscountCodeValidation {
+  discount_code_id: number;
+  code: string;
+  discount_type: DiscountType;
+  discount_percentage?: number;
+  applies_to_plan_id?: number;
+  subscription_duration_value?: number;
+  subscription_duration_unit?: SubscriptionDurationUnit;
+  applicablePlan?: ApplicablePlan;
+  message: string;
+}
+
+export interface CreateDiscountCodeRequest {
+  code: string;
+  is_active?: boolean;
+  valid_from?: Date;
+  valid_until?: Date;
+  discount_type: DiscountType;
+  //discount_percentage?: number;
+  applies_to_plan_id?: number;
+  subscription_duration_value?: number;
+  subscription_duration_unit?: SubscriptionDurationUnit;
+  max_total_uses?: number;
+  max_unique_users?: number;
+}
