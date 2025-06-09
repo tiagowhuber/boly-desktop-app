@@ -15,7 +15,7 @@ autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = true;
 autoUpdater.logger = console;
 autoUpdater.allowPrerelease = false;
-autoUpdater.forceDevUpdateConfig = true;
+//autoUpdater.forceDevUpdateConfig = true;
 autoUpdater.requestHeaders = {
   'User-Agent': 'Boly-Desktop-App'
 };

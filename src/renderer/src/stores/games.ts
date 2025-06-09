@@ -321,6 +321,12 @@ const useGames = defineStore('games', {
       } finally {
         this.loading = false
       }
+    },
+
+    async getGameIdByFileName(fileName: string): Promise<number | null> {
+      console.log('File name input:', fileName, "File from games:", this.games.map(game => game.file_name && game.file_name["desktop"]));
+      const game = this.games.find(game => game.file_name && game.file_name["desktop"] === fileName)
+      return game ? game.game_id : null
     }
   }
 })

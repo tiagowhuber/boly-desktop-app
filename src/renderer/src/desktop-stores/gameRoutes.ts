@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useGames } from '../stores'
 
 export interface LocalGameList {
   localGames: LocalGame[]
@@ -64,33 +65,27 @@ const useGameRoutes = defineStore('gameRoutes', {
       localStorage.setItem('localUninstallers', JSON.stringify(this.localUninstallers))
     },
     async searchForExes() {
+      const gamesStore = useGames() 
       try {
         const result = await window.electronAPI.searchExeFiles();
 
         if (result && result.files && Array.isArray(result.files)) {
           console.log('Found exe files:', result.files);
-          result.files.forEach(filePath => {
+          for (const filePath of result.files) {
             const fileName = filePath.split('\\').pop() || filePath.split('/').pop() || '';
             const directoryPath = filePath.substring(0, filePath.lastIndexOf('\\') + 1) || filePath.substring(0, filePath.lastIndexOf('/') + 1);
 
+            const gameId = await gamesStore.getGameIdByFileName(fileName); 
+            console.log('Game ID for file:', fileName, 'is', gameId);
 
-            if (fileName === "Body Defense.exe") {
-              const game = { gameId: 2, route: filePath };
-              this.addGameToRoute(game);
-              const uninstallerPath = directoryPath + 'unins000.exe'; 
-              const uninstaller = { gameId: 2, route: uninstallerPath };
-              this.addUninstallerToRoute(uninstaller);
-
-
-            } else if (fileName === "AtacamaScope.exe") {
-              const game = { gameId: 3, route: filePath };
+            if (gameId) {
+              const game = { gameId, route: filePath };
               this.addGameToRoute(game);
               const uninstallerPath = directoryPath + 'unins000.exe';
-              const uninstaller = { gameId: 3, route: uninstallerPath };
+              const uninstaller = { gameId, route: uninstallerPath };
               this.addUninstallerToRoute(uninstaller);
             }
-            
-          });
+          }
           return this.localGames;
         } else if (result && result.error) {
           console.error('Error searching for exe files:', result.error);
