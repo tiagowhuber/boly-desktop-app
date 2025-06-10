@@ -71,34 +71,26 @@ async function submit(): Promise<void> {
     showModal.value = true;
     modalWarning.value = i18n.t("modal_same_passwords");
     return;
-  }
-
-  // Print the registration data
+  }  // Print the registration data
   console.log("Register data:", { 
     email: email.value, 
     username: username.value, 
     password: password.value, 
     repassword: repassword.value 
-  });
-  try {
-    const response = await auth.register(email.value, username.value, password.value);
-    if (response) {
-      showModal.value = true;
-      password.value = '';
-      repassword.value = '';
-
-      if (response.status === 201) {
-        modalWarning.value = i18n.t("modal_register_success");
-        router.push({ path: '/login', query: { username: email.value } });
-        auth.sendVerificationEmail(email.value); 
-      } else if (response.status === 409) {
-        modalWarning.value = i18n.t("modal_email_taken");
-      } else {
-        modalWarning.value = response.data?.message || i18n.t("modal_register_error");
-      }
-    }
-  } catch (error) {
-    console.error(error);
+  });  
+  const response = await auth.register(email.value, username.value, password.value);
+  
+  showModal.value = true;
+  password.value = '';
+  repassword.value = '';
+  if (response && (response.status === 200 || response.status === 201)) {
+    modalWarning.value = i18n.t("modal_register_success");
+    router.push({ path: '/login', query: { username: email.value } });
+    auth.sendVerificationEmail(email.value); 
+  } else if (response && response.status === 409) {
+    modalWarning.value = i18n.t("modal_email_taken");
+  } else {
+    modalWarning.value = response?.data?.message || i18n.t("modal_register_error");
   }
 }
 

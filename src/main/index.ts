@@ -15,7 +15,7 @@ autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = true;
 autoUpdater.logger = console;
 autoUpdater.allowPrerelease = false;
-//autoUpdater.forceDevUpdateConfig = true;
+autoUpdater.forceDevUpdateConfig = true;
 autoUpdater.requestHeaders = {
   'User-Agent': 'Boly-Desktop-App'
 };
@@ -321,7 +321,7 @@ async function createWindow(): Promise<void> {
       sandbox: false,
       nodeIntegration: true,
       contextIsolation: true,
-      devTools: true
+      devTools: false
     }
   })
   //---

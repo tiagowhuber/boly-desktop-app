@@ -139,7 +139,7 @@ const useAuth = defineStore('auth', {
       } catch (error) {
         console.log(error)
       }
-    },
+    },    
     async register(email: string, username: string, password: string) {
       try {
         const response = await axios.post('/v1/users', {
@@ -148,9 +148,9 @@ const useAuth = defineStore('auth', {
           password
       });
       return response;
-      } catch (error) {
+      } catch (error: any) {
         console.error(error);
-        throw error;
+        return error.response || { status: 500, data: { message: 'Network error' } };
       }
     },
     async requestPasswordReset(email: string) {
@@ -174,7 +174,7 @@ const useAuth = defineStore('auth', {
     async sendVerificationEmail(email: string) {
       try {
         const response = await axios.post('/v1/auth/send-verification-email', { email });
-        return response.data; // Contains { message: "Verification email sent" }
+        return response.data; 
       } catch (error: any) {
         console.error('Error sending verification email:', error.response?.data || error.message);
         throw error.response?.data || new Error('Failed to send verification email');
