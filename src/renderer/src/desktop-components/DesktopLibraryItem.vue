@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuth, useAchievements, useGames } from '@/stores' 
+import useGameRoutes from '@/desktop-stores/gameRoutes'
 import type { Game, Achievement } from '@/types'
 import PlayIcon from '@/components/icons/PlayIcon.vue'
 import LoadingSpinnerIcon from '@/components/icons/LoadingSpinnerIcon.vue'
 import DownloadIcon from '@/components/icons/DownloadIcon.vue'
 import ClockhistoryIcon from '@/components/icons/ClockhistoryIcon.vue'
+import VerticalDotsIcon from '@/components/icons/VerticalDotsIcon.vue'
 
 const props = defineProps<{
   item: Game
@@ -16,6 +18,7 @@ const i18n = useI18n()
 const auth = useAuth()
 const achievementsStore = useAchievements()
 const gamesStore = useGames() 
+const gameRoutesStore = useGameRoutes()
 const loading = ref(false)
 const isDownloading = ref(false)
 const isInstalling = ref(false)
@@ -23,6 +26,7 @@ const gameAchievements = ref<Achievement[]>([])
 const achievementsLoading = ref(true)
 const playTime = ref<number | null>(null) 
 const playTimeLoading = ref(true) 
+const showOptionsMenu = ref(false)
 
 console.log('LibraryItem received game:', props.item)
 
@@ -78,10 +82,64 @@ async function fetchPlayTime() {
   }
 }
 
+function toggleOptionsMenu(event: Event) {
+  event.stopPropagation();
+  showOptionsMenu.value = !showOptionsMenu.value;
+}
+
+async function uninstallGame(event: Event) {
+  event.stopPropagation();
+  showOptionsMenu.value = false;
+  
+  if (!props.item.game_id) return;
+  
+  try {
+    const uninstaller = gameRoutesStore.localUninstallers.find(u => u.gameId === props.item.game_id);
+    
+    if (uninstaller && uninstaller.route) {
+      console.log('Uninstalling game:', props.item.game_id, 'using:', uninstaller.route);
+      
+      const result = await window.electronAPI.uninstallGame({
+        game_id: props.item.game_id,
+        uninstallerPath: uninstaller.route
+      });
+      
+      if (result.success) {
+        console.log('Game uninstalled successfully:', result.message);
+        
+        gameRoutesStore.removeGameFromRoute({ gameId: props.item.game_id, route: props.item.game_Path || '' });
+        gameRoutesStore.removeUninstallerFromRoute({ gameId: props.item.game_id, route: uninstaller.route });
+        
+        props.item.isInstalled = false;
+        props.item.game_Path = '';
+      } else {
+        console.error('Uninstall failed:', result.error);
+      }
+    } else {
+      console.warn('No uninstaller found for game:', props.item.game_id);
+    }
+  } catch (error) {
+    console.error('Error uninstalling game:', error);
+  }
+}
+
 onMounted(() => {
   fetchGameAchievements();
   fetchPlayTime(); 
- //todo: use the download store 
+  
+  const handleClickOutside = (event: MouseEvent) => {
+    const target = event.target as Element;
+    if (!target.closest('.options-container')) {
+      showOptionsMenu.value = false;
+    }
+  };
+    document.addEventListener('click', handleClickOutside);
+  
+  onUnmounted(() => {
+    document.removeEventListener('click', handleClickOutside);
+  });
+  
+ //todo: use the download store
   window.electronAPI.onDownloadComplete((data) => {
     if (data.gameId === props.item.game_id) {
       loading.value = false;
@@ -241,6 +299,24 @@ async function Download() {
           <LoadingSpinnerIcon v-else-if="isDownloading || isInstalling" class="icon" />
           <DownloadIcon v-else class="icon" />
         </button>
+        
+        <!-- Options Button -->
+        <div class="options-container" v-if="props.item.isInstalled">
+          <button 
+            class="options-button" 
+            @click.stop="toggleOptionsMenu"
+            :class="{ 'active': showOptionsMenu }"
+          >
+            <VerticalDotsIcon class="options-icon" />
+          </button>
+          
+          <!-- Options Dropdown -->
+          <div class="options-dropdown" v-if="showOptionsMenu">
+            <button class="dropdown-item uninstall-item" @click="uninstallGame">
+              <span>{{ $t('uninstall') }}</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -551,7 +627,9 @@ async function Download() {
 .game-actions {
   display: flex;
   justify-content: center;
+  align-items: center;
   padding: 0.8rem 1rem 1.2rem;
+  gap: 0.5rem;
 }
 
 .action-button {
@@ -687,10 +765,89 @@ async function Download() {
   box-shadow: none;
 }
 
+/* Options Button and Dropdown */
+.options-container {
+  position: relative;
+}
+
+.options-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.1);
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.options-button:hover {
+  background: rgba(0, 0, 0, 0.15);
+  color: #333;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.options-button.active {
+  background: #48ace4;
+  color: white;
+}
+
+.options-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.options-dropdown {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  margin-bottom: 4px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  min-width: 120px;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  text-align: left;
+}
+
+.dropdown-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.uninstall-item:hover {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
 @media (max-width: 768px) {
   .library-item {
     width: 100%;
     max-width: 320px;
+  }
+  
+  .options-dropdown {
+    right: -8px;
   }
 }
 </style>

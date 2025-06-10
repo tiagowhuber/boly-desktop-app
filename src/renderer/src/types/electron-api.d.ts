@@ -7,6 +7,7 @@ interface ElectronAPIExtended {
   seleccionarCarpeta: () => Promise<string>;
   instalarDesdeZip: (rutaExe: string, rutaDestino: string) => Promise<boolean>;
   playGame: (appData: { game_id: number; appPath: string; token: string }) => Promise<void>;
+  uninstallGame: (appData: {game_id: number, uninstallerPath: string}) => Promise<{success: boolean, message?: string, error?: string}>;
   downloadGame: (appData: { game_id: number; token: string; gameName: string }) => Promise<void>;
   searchExeFiles: (baseDir?: string) => Promise<{ files?: string[]; error?: string }>;
   loginWithGoogle: () => Promise<void>;

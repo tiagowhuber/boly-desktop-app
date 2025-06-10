@@ -311,7 +311,7 @@ async function createWindow(): Promise<void> {
       sandbox: false,
       nodeIntegration: true,
       contextIsolation: true,
-      devTools: false
+      devTools: true
     }
   })
   //---
@@ -548,6 +548,53 @@ async function createWindow(): Promise<void> {
           stopPlaytimeTracking();
       }
       return { error: 'Failed to play game: ' + error.message };
+    }
+  })
+
+  ipcMain.handle('uninstall-game', async (_event, appData) => {
+    const { game_id, uninstallerPath } = appData;
+    
+    try {
+      console.log('Uninstalling game:', game_id, 'using uninstaller:', uninstallerPath);
+      
+      if (!fs.existsSync(uninstallerPath)) {
+        console.error('Uninstaller not found:', uninstallerPath);
+        return { 
+          success: false, 
+          error: 'Uninstaller not found at: ' + uninstallerPath 
+        };
+      }
+      
+      const command = `"${uninstallerPath}" /SILENT`;
+      console.log('Executing uninstall command:', command);
+      
+      return new Promise((resolve) => {
+        exec(command, (err, stdout, stderr) => {
+          if (err) {
+            console.error('Uninstall error:', err.message);
+            console.error('Stderr:', stderr);
+            resolve({ 
+              success: false, 
+              error: err.message 
+            });
+          } else {
+            console.log('Uninstall completed successfully');
+            console.log('Stdout:', stdout);
+            resolve({ 
+              success: true, 
+              message: 'Game uninstalled successfully' 
+            });
+          }
+        });
+      });
+      
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error('Error in uninstall-game handler:', errorMessage);
+      return { 
+        success: false, 
+        error: errorMessage 
+      };
     }
   })
   //---
