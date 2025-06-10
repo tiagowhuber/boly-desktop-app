@@ -191,11 +191,21 @@ async function installGame(installerRoute: string, destinationRoute: string, gam
         console.log('Resultado:', stdout)
         //Remove temp files
         deleteFile(installerRoute)
-        
         const exeFiles = searchForExecutablesRecursive(destinationRoute)
         console.log('Found executable files:', exeFiles)
-        // This might be bugged
-        const exePath = exeFiles.length > 0 ? exeFiles[0] : destinationRoute;
+        
+        // Filter out uninstaller and system files to find the actual game executable
+        const gameExeFiles = exeFiles.filter(filePath => {
+          const fileName = path.basename(filePath).toLowerCase();
+          return !fileName.startsWith('unins') && 
+                 !fileName.includes('crash') && 
+                 !fileName.includes('setup') &&
+                 !fileName.includes('install') &&
+                 !fileName.includes('update');
+        });
+        
+        console.log('Filtered game executable files:', gameExeFiles);
+        const exePath = gameExeFiles.length > 0 ? gameExeFiles[0] : (exeFiles.length > 0 ? exeFiles[0] : destinationRoute);
         
         mainWindow.webContents.send('install-complete', {
           gameId: game_id,
