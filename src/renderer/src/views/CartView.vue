@@ -2,13 +2,13 @@
 import CartItem from '@/components/games/CartItem.vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
 import LoadingModal from '@/components/LoadingModal.vue'
-import RemoveIcon from '@/components/icons/IconRemove.vue'
 import Loading from '@/components/LoadingIcon.vue'
 import TrashCanXMarkIcon from '@/components/icons/TrashCanXMarkIcon.vue'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
-import { onMounted, watch, computed, ref, onUnmounted } from 'vue'
+import {  onMounted, watch, computed, ref, onUnmounted } from 'vue'
 import { useAuth, useGames, useCart, usePayment, useUser } from '@/stores'
+import useCodes from '@/stores/codes'
 import { useI18n } from 'vue-i18n'
 import type { Game } from '@/types'
 
@@ -16,7 +16,6 @@ const auth = useAuth()
 const user = useUser()
 const router = useRouter()
 const showModal = ref<boolean>(false)
-const discountCode = ref<string>('')
 const errorMessage = ref<string>('')
 const isMobile = ref(window.innerWidth < 768)
 
@@ -34,7 +33,19 @@ onUnmounted(() => {
 })
 
 const paymentStore = usePayment()
-const { transactionUrl, token, discount, isCodeValid, isCodeInvalid, loading: paymentLoading, error: paymentError } = storeToRefs(paymentStore)
+const { transactionUrl, token, loading: paymentLoading, error: paymentError } = storeToRefs(paymentStore)
+
+const codesStore = useCodes()
+const { discountCode: discountValidation, validationError } = storeToRefs(codesStore)
+const isValidating = computed(() => !!discountValidation.value)
+
+// Local state for discount management
+const discountCode = ref<string>('')
+const isCodeValid = ref<boolean>(false)
+const isCodeInvalid = ref<boolean>(false)
+const appliedDiscount = ref<number>(0)
+const appliedGameId = ref<number | undefined>(undefined)
+const autoAppliedCode = ref<boolean>(false)
 
 const cartStore = useCart()
 const { cart } = storeToRefs(cartStore)
@@ -69,9 +80,44 @@ const subtotal = computed<number>(() => {
   }, 0);
 })
 
-const total = computed<number>(() => {
-  // Calculate the total with discount applied (discount is a percentage)
-  return Math.round(subtotal.value * (1 - (discount.value || 0) * 0.01));
+const total = computed<number>(() => {// This grabs the subtotal value from above and then checks for each game if it has a discount and then subscracts the discount from the subtotal
+  const getGamePriceInCurrentLocale = (game: Game): number => {
+    let priceForGame: string | number | undefined;
+    if (typeof game.price === 'object' && game.price !== null) {
+      priceForGame = (game.price as Record<string, string | number>)[i18n.locale.value];
+    } else if (typeof game.price === 'number') {
+      priceForGame = game.price;
+    }
+
+    if (typeof priceForGame === 'string') {
+      const parsedPrice = parseFloat(priceForGame);
+      return isNaN(parsedPrice) ? 0 : parsedPrice;
+    }
+    if (typeof priceForGame === 'number') {
+      return priceForGame;
+    }
+    return 0; // Fallback 
+  };
+
+  let discountAmount = 0;
+
+  if (isCodeValid.value && appliedDiscount.value > 0) {
+    if (appliedGameId.value !== undefined) {
+      // Discount applies to a specific game
+      const specificGame = cartGames.value.find(game => game.game_id === appliedGameId.value);
+      if (specificGame) {
+        const specificGamePrice = getGamePriceInCurrentLocale(specificGame);
+        discountAmount = specificGamePrice * (appliedDiscount.value / 100);
+      }
+      // If specificGame is not found (e.g., removed from cart after code validation),
+      // discountAmount remains 0. The watch on cart.value should ideally reset the discount state.
+    } else {
+      // General discount applies to the subtotal
+      discountAmount = subtotal.value * (appliedDiscount.value / 100);
+    }
+  }
+
+  return Math.round(subtotal.value - discountAmount);
 })
 
 const redirect_form = ref<HTMLFormElement | null>(null)
@@ -79,7 +125,43 @@ const showRedirectModal = ref<boolean>(false)
 
 async function checkCode(): Promise<void> {
   if (!discountCode.value) return
-  await paymentStore.checkDiscountCode(subtotal.value, discountCode.value)
+  
+  if (!auth.isLoggedIn || !user.userId) {
+    isCodeInvalid.value = true
+    isCodeValid.value = false
+    return
+  }
+
+  // Reset previous state
+  isCodeInvalid.value = false
+  isCodeValid.value = false
+  autoAppliedCode.value = false // Reset auto-applied flag for manual codes
+  
+  const result = await codesStore.validateDiscountCode(discountCode.value, user.userId)
+  
+  if (result.success && result.data) {
+    const validationData = result.data
+    
+    // Check if discount applies to any game in cart or is general
+    const canApplyDiscount = !validationData.applies_to_game_id || cartGames.value.some(game => game.game_id === validationData.applies_to_game_id)
+    
+    if (canApplyDiscount) {
+      isCodeValid.value = true
+      isCodeInvalid.value = false
+      appliedDiscount.value = validationData.discount_percentage || 0
+      appliedGameId.value = validationData.applies_to_game_id
+    } else {
+      isCodeInvalid.value = true
+      isCodeValid.value = false
+      appliedDiscount.value = 0
+      appliedGameId.value = undefined
+    }
+  } else {
+    isCodeInvalid.value = true
+    isCodeValid.value = false
+    appliedDiscount.value = 0
+    appliedGameId.value = undefined
+  }
 }
 
 async function reqTransaction(): Promise<void> {
@@ -89,19 +171,78 @@ async function reqTransaction(): Promise<void> {
   }
 
   errorMessage.value = ''
-  const url = window.location.origin + "/postorder/"
+  
+  // Check if the total is 0 (100% discount) - claim free games instead
+  if (total.value === 0) {
     try {
-    console.log('subtotal', subtotal.value);
+      showRedirectModal.value = true
+      
+      // Claim each game in the cart as free
+      if (!user.userId) {
+        errorMessage.value = 'User ID is required'
+        showRedirectModal.value = false
+        return
+      }      for (const gameId of cart.value) {
+        const success = await gamesStore.claimFreeGame(gameId, user.userId, { token: auth.token }, isCodeValid.value ? discountCode.value : undefined)
+        if (!success) {
+          errorMessage.value = 'Failed to claim free game'
+          showRedirectModal.value = false
+          return
+        }
+      }
+      
+      // Clear cart and redirect on success
+      cartStore.clearCart()
+      resetDiscountState()
+      showRedirectModal.value = false
+      router.push('/library')
+      return
+    } catch (error) {
+      console.error('Error claiming free games:', error)
+      errorMessage.value = 'An unexpected error occurred while claiming free games'
+      showRedirectModal.value = false
+      return
+    }
+  }
+  
+  const url = window.location.origin + "/postorder/"
+  
+  let amountForTransactionCLP: number;
+
+  if (currency.value === 'USD') {
+    try {
+      // Use the existing currencyConverter from the payment store
+      amountForTransactionCLP = await paymentStore.currencyConverter(total.value);
+    } catch (conversionError) {
+      console.error('Currency conversion to CLP failed:', conversionError);
+      errorMessage.value = i18n.t('currency_conversion_failed_error_message') || 'Failed to convert total to CLP.';
+      showRedirectModal.value = false;
+      return;
+    }
+  } else {
+    amountForTransactionCLP = total.value;
+  }
+
+  // Validate the calculated amount
+  if (isNaN(amountForTransactionCLP) || typeof amountForTransactionCLP !== 'number') {
+    console.error('Invalid amount for transaction after potential conversion:', amountForTransactionCLP);
+    errorMessage.value = i18n.t('invalid_transaction_amount_error_message') || 'Invalid transaction amount. Please try again.';
+    showRedirectModal.value = false;
+    return;
+  }
+
+  try {
+    console.log('Cart total (display currency):', total.value, 'Display currency:', currency.value);
+    console.log('Amount for transaction (CLP):', amountForTransactionCLP);
     showRedirectModal.value = true
-    console.log('subtotal', subtotal.value);
-    console.log('currency', currency.value);
+    
     const success = await paymentStore.reqTransaction(
       cart.value,
       user.userId ?? 0,
-      discountCode.value,
+      isCodeValid.value ? discountCode.value : '',
       url,
-      subtotal.value,
-      currency.value 
+      amountForTransactionCLP, // This is total.value, converted to CLP
+      'CLP'                   // Currency is now always CLP for the transaction call
     )
     
     if (!success) {
@@ -117,6 +258,89 @@ async function reqTransaction(): Promise<void> {
     console.error(error)
     errorMessage.value = 'An unexpected error occurred'
     showRedirectModal.value = false
+  }
+}
+
+function resetDiscountState(): void {
+  discountCode.value = ''
+  isCodeValid.value = false
+  isCodeInvalid.value = false
+  appliedDiscount.value = 0
+  appliedGameId.value = undefined
+  autoAppliedCode.value = false
+  codesStore.resetState()
+}
+
+async function autoApplyBestDiscountCode(): Promise<void> {
+  if (!auth.isLoggedIn || !user.userId || cart.value.length === 0) {
+    return
+  }
+
+  try {
+    const result = await codesStore.getUserDiscountCodes(user.userId)
+    
+    if (!result.success || !result.data || result.data.length === 0) {
+      return
+    }
+
+    const userDiscountCodes = result.data
+    let bestCode: any = null
+    let bestDiscount = 0
+
+    // Find the best applicable discount code
+    for (const userCodeAssignment of userDiscountCodes) {
+      const code = userCodeAssignment.discountCode
+      
+      // Skip if code is not active or already used
+      if (!code.is_active || userCodeAssignment.used_at) {
+        continue
+      }
+      // Skip codes that don't apply to games
+      if (code.discount_type !== 'PERCENTAGE_ORDER') {
+        continue
+      }
+      // Skip if code has expiration dates and is not valid now
+      const now = new Date()
+      if (code.valid_from && new Date(code.valid_from) > now) {
+        continue
+      }
+      if (code.valid_until && new Date(code.valid_until) < now) {
+        continue
+      }
+
+      // Check if code applies to games in cart
+      if (code.applies_to_game_id) {
+        // Code applies to specific game - check if it's in cart
+        if (cart.value.includes(code.applies_to_game_id)) {
+          const discountPercentage = code.discount_percentage || 0
+          if (discountPercentage > bestDiscount) {
+            bestCode = code
+            bestDiscount = discountPercentage
+          }
+        }
+      } else if (!code.applies_to_game_id) {
+        // General order discount - applies to all games
+        const discountPercentage = code.discount_percentage || 0
+        if (discountPercentage > bestDiscount) {
+          bestCode = code
+          bestDiscount = discountPercentage
+        }
+      }
+    }
+
+    // Apply the best discount code found
+    if (bestCode && bestDiscount > 0) {
+      discountCode.value = bestCode.code
+      isCodeValid.value = true
+      isCodeInvalid.value = false
+      appliedDiscount.value = bestDiscount
+      appliedGameId.value = bestCode.applies_to_game_id
+      autoAppliedCode.value = true
+      
+      console.log(`Auto-applied discount code: ${bestCode.code} (${bestDiscount}% off)`)
+    }
+  } catch (error) {
+    console.error('Error auto-applying discount code:', error)
   }
 }
 
@@ -138,6 +362,7 @@ async function refreshGames(): Promise<void> {
 
 function Clear(): void {
   cartStore.clearCart()
+  resetDiscountState()
   showModal.value = false
   router.back()
 }
@@ -153,15 +378,39 @@ onMounted(async () => {
     for (const gameId of cart.value) {
       await gamesStore.ownsGame(gameId, user.userId ?? 0)
     }
+    
+    // Auto-apply best discount code after games are loaded
+    await autoApplyBestDiscountCode()
   }
   
-  paymentStore.clearPaymentData() 
+  paymentStore.clearPaymentData()
 })
 
 
 watch(() => cart.value, async () => {
   if (cart.value.length > 0) {
     await refreshGames()
+    // Reset discount when cart changes to avoid invalid discounts
+    if (isCodeValid.value && appliedGameId.value) {
+      // Check if the specific game the discount applies to is still in cart
+      const gameStillInCart = cart.value.includes(appliedGameId.value)
+      if (!gameStillInCart) {
+        resetDiscountState()
+        // Try to auto-apply a new discount after reset
+        if (auth.isLoggedIn && user.userId) {
+          await autoApplyBestDiscountCode()
+        }
+      }
+    } else if (isCodeValid.value && !appliedGameId.value) {
+      // General discount is still valid, keep it
+    } else {
+      // No discount applied, try to auto-apply one
+      if (auth.isLoggedIn && user.userId) {
+        await autoApplyBestDiscountCode()
+      }
+    }
+  } else {
+    resetDiscountState()
   }
 }, { immediate: true })
 </script>
@@ -187,23 +436,54 @@ watch(() => cart.value, async () => {
       <div class="cart-summary">
         <h2>{{ $t('order_summary') }}</h2>
         
-        <div class="discount-section" v-if="!isCodeValid">
+        <div class="discount-section" v-if="!isCodeValid">          
           <form @submit.prevent="checkCode" class="discount-form">
             <input 
               v-model="discountCode" 
               class="discount-input" 
               :placeholder="$t('discount_code')"
               :class="{ 'invalid': isCodeInvalid }"
+              :disabled="isValidating"
             />
-            <button type="submit" class="apply-button">{{ $t('apply_code') }}</button>
+            <button type="submit" class="apply-button" :disabled="isValidating || !discountCode">
+              {{ isValidating ? $t('validating') : $t('apply_code') }}
+            </button>
           </form>
-          <p v-if="isCodeInvalid" class="error-text">{{ $t('invalid_discount_code') }}</p>
+          <p v-if="isCodeInvalid" class="error-text">
+            {{ validationError || $t('invalid_discount_code') }}
+          </p>
+        </div>        
+          <div v-else class="discount-applied">
+          <div class="discount-content">
+            <div class="checkmark-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="11" fill="#4CAF50" stroke="#4CAF50" stroke-width="2"/>
+                <path d="m9 12 2 2 4-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="discount-details">
+              <div class="code-applied">
+                <strong>{{ discountCode }}</strong> {{ $t('discount_code_applied') }}
+              </div>
+              <div class="discount-amount">
+                -{{ currency === 'USD' ? 'USD' : 'CLP' }} {{ Intl.NumberFormat(i18n.locale.value === 'en' ? 'en-US' : 'es-CL', { style: 'currency', currency: currency, currencyDisplay: 'symbol' }).format(subtotal - total) }} ({{ appliedDiscount }}% off)
+              </div>
+              <!-- <p v-if="autoAppliedCode" class="auto-applied">
+                {{ $t('auto_applied_best_discount') || 'Best available discount automatically applied' }}
+              </p> -->
+              <p v-if="appliedGameId" class="game-specific">
+                {{ $t('applies_to_specific_game') }}
+              </p>
+            </div>
+          </div>
+          <!-- <button class="remove-discount" @click="resetDiscountState()">
+            Remove
+          </button> -->
         </div>
         
-        <div v-else class="discount-applied">
-          <p>{{ $t('discount_applied') }}: {{ discount }}%</p>
-          <button class="remove-discount" @click="discountCode = ''">
-            <RemoveIcon />
+        <div v-if="appliedDiscount > 0">
+          <button class="remove-discount" @click="resetDiscountState()">
+            {{ $t('remove_discount_code') }}
           </button>
         </div>
 
@@ -212,10 +492,9 @@ watch(() => cart.value, async () => {
             <span>{{ $t('subtotal') }}</span>
             <span>{{ currency === 'USD' ? 'USD' : 'CLP' }} {{ Intl.NumberFormat(i18n.locale.value === 'en' ? 'en-US' : 'es-CL', { style: 'currency', currency: currency, currencyDisplay: 'symbol' }).format(subtotal) }}</span>
           </div>
-          
-          <div v-if="discount > 0" class="summary-row discount">
+            <div v-if="appliedDiscount > 0" class="summary-row discount">
             <span>{{ $t('discount') }}</span>
-            <span>-{{ currency === 'USD' ? 'USD' : 'CLP' }} {{ Intl.NumberFormat(i18n.locale.value === 'en' ? 'en-US' : 'es-CL', { style: 'currency', currency: currency, currencyDisplay: 'symbol' }).format(subtotal * (discount * 0.01)) }}</span>
+            <span>-{{ currency === 'USD' ? 'USD' : 'CLP' }} {{ Intl.NumberFormat(i18n.locale.value === 'en' ? 'en-US' : 'es-CL', { style: 'currency', currency: currency, currencyDisplay: 'symbol' }).format(subtotal - total) }}</span>
           </div>
           
           <div class="summary-row total">
@@ -369,6 +648,11 @@ watch(() => cart.value, async () => {
   font-family: 'Poppins', sans-serif;
 }
 
+.apply-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .error-text {
   color: var(--error);
   margin-top: 0.5rem;
@@ -377,20 +661,78 @@ watch(() => cart.value, async () => {
 
 .discount-applied {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  padding: 0.5rem;
-  background: rgba(0, 255, 0, 0.1);
-  border-radius: 4px;
+  padding: 1rem;
+  background: rgba(76, 175, 80, 0.1);
+  border: 2px solid #4CAF50;
+  border-radius: 8px;
   margin: 1rem 0;
+}
+
+.discount-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.checkmark-icon {
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.discount-details {
+  flex: 1;
+}
+
+.code-applied {
+  font-size: 1rem;
+  color: white;
+  margin-bottom: 0.25rem;
+  font-family: 'Poppins', sans-serif;
+}
+
+.discount-amount {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 0.25rem;
+  font-family: 'Poppins', sans-serif;
 }
 
 .remove-discount {
   background: none;
   border: none;
-  color: var(--error);
+  color: #E91E63;
+  border: 2px solid #E91E63;
   cursor: pointer;
-  padding: 0.25rem;
+  padding: 0.5rem;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.remove-discount:hover {
+  background: rgba(233, 30, 99, 0.1);
+}
+
+.auto-applied {
+  font-size: 0.8rem;
+  color: var(--success, #4caf50);
+  margin: 0.25rem 0 0 0;
+  font-style: italic;
+  font-family: 'Poppins', sans-serif;
+}
+
+.game-specific {
+  font-size: 0.8rem;
+  color: var(--boly-primary);
+  margin: 0.25rem 0 0 0;
+  font-style: italic;
+  font-family: 'Poppins', sans-serif;
 }
 
 .summary-details {

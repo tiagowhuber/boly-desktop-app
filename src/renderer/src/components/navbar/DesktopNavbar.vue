@@ -54,11 +54,6 @@ function isActive(path: string) {
         </RouterLink>
         
         <!-- Authenticated User Links -->
-        <RouterLink :class="{ active: isActive('/developer') }" 
-                   to="/developer" 
-                   v-if="auth.isLoggedIn && user.roleId === 1">
-          <p>{{ $t('developer') }}</p>
-        </RouterLink>
         <RouterLink :class="{ active: isActive('/library') }" 
                    to="/library" 
                    v-if="auth.isLoggedIn">
@@ -159,7 +154,6 @@ nav {
   text-underline-offset: 6px;
   border-radius: 15px;
   padding: 5px 12px;
-  background-color: rgba(255, 255, 255, 0.2);
 }
 
 /* User Navigation Styles

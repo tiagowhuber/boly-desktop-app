@@ -120,8 +120,8 @@ export const en = {
   send_query_success: 'Inquiry sent successfully!',
   send_query_error: 'Oops! An error occurred while sending your inquiry. Please try again.',
   contact_lets_talk: `Let's talk`,
-  contact_body: `At Boly, we count on you to take education to the next level`,
-  contact_text: 'Do you or your team have an experience, game or application for educational purposes? Contact us or write us your inquiry so you can be part of Boly.',
+  contact_body: `How can we help you?`,
+  contact_text: 'We are here to assist you with any questions or inquiries you may have. Please fill out the form below, and we will get back to you as soon as possible.',
 
   // subscription view
   subscription_plans: 'Subscription plans',
@@ -155,6 +155,46 @@ export const en = {
   discount_code: 'Discount code',
   redeem_code_subtitle: 'Do you have a subscription code?',
   redeem_code_description: 'Enter your code below to apply your subscription.',
+
+  // discount codes view
+  discount_codes_title: 'MY DISCOUNT CODES',
+  claim_new_code: 'Claim a New Code',
+  enter_your_code: 'Enter your code',
+  claim_code: 'Claim Code',
+  claiming: 'Claiming...',
+  please_enter_discount_code: 'Please enter a discount code.',
+  user_not_authenticated_claim: 'User not authenticated. Cannot claim code.',
+  discount_code_claimed_success: 'Discount code claimed successfully!',
+  failed_claim_discount_code: 'Failed to claim discount code.',
+  your_available_codes: 'Your Available Codes',
+  loading_discount_codes: 'Loading your discount codes...',
+  user_not_authenticated_codes: 'User not authenticated. Please log in to see your discount codes.',
+  no_discount_codes: "You don't have any discount codes yet.",
+  enter_code_above: 'Enter a code above to claim it!',
+  code_status_used: 'Used',
+  code_status_available: 'Available',
+  code_status_inactive: 'Inactive',
+  code_detail_type: 'Type:',
+  code_detail_discount: 'Discount:',
+  code_detail_applies_game: 'Applies to Game:',
+  code_detail_applies_plan: 'Applies to Plan ID:',
+  code_detail_subscription_benefit: 'Subscription Benefit:',
+  code_detail_expires: 'Expires:',
+  code_detail_used_on: 'Used On:',
+  code_detail_uses: 'Uses:',  
+  code_details_not_available: 'Error: Discount code details not available for ID',
+
+  // redeem code view
+  redeem_code_title: 'Code Redemption',
+  redeeming_discount_code: 'Redeeming your discount code...',
+  invalid_redemption_link: 'Invalid redemption link - no discount code provided.',
+  login_to_redeem: 'Please log in to redeem this discount code.',
+  code_redeemed_success: 'Discount code "{code}" has been successfully added to your account!',
+  failed_redeem_code: 'Failed to redeem discount code.',
+  unexpected_error_redeem: 'An unexpected error occurred while redeeming the code.',
+  view_my_codes: 'View My Codes',
+  continue_shopping: 'Continue Shopping',
+  go_home: 'Go Home',
 
   // developer view
   developer_title: 'DEVELOPER MANAGER',
@@ -199,7 +239,7 @@ export const en = {
   ach_unlock: 'Unlock requirement',
   ach_type: 'Type',
   ach_secret: 'Secret',
-  ach_secret_title: 'Secret achievement',
+  ach_secret_title: 'Secret',
   ach_secret_subtitle: 'Unlock this achievement to reveal more details.',
   ach_achievement_unlocked: 'Achievement Unlocked!',
   see_achievements: 'See achievements',
@@ -241,6 +281,7 @@ export const en = {
   verify_account: 'Verify your account',
   email_not_verified: 'email not verified.',
   modal_email_verification_sent: 'Verification email sent.',
+  my_discount_codes: 'My discount codes',
 
   // cart view
   cart_title: 'CART',
@@ -249,10 +290,16 @@ export const en = {
   empty_cart: 'Empty cart',
   discount_code: 'Discount code',
   apply_code: 'Apply discount',
+  validating: 'Validating...',
+  discount_applied: 'Discount applied',
+  applies_to_specific_game: 'Applies to specific game only',
   confirm_and_pay: 'Confirm cart and pay',
   modal_empty_cart: 'Are you sure you want to empty the cart?',
   modal_cart_redirect: 'Wait until we redirect you to the payment page...',
   modal_cart_remove_item: 'Are you sure you want to remove {item} from the cart?',
+  auto_applied_best_discount: 'The best available discount has been automatically applied to your cart.',
+  remove_discount_code: 'Remove discount code',
+  discount_code_applied: 'applied',
 
   // login/register view
   login: 'Login',
@@ -272,7 +319,7 @@ export const en = {
   modal_email_taken: 'Email already in use!',
   modal_weak_password: 'Password must be at least 8 characters, include an uppercase letter, and a digit.',
   modal_invalid_email: 'Please enter a valid email address',
-  invalid_credentials: 'Invalid credentials.',
+  invalid_credentials: 'Invalid credentials',
 
   // post order
   postorder_congrats: 'Congratulations! Your purchase has been successfully completed.',
@@ -459,7 +506,7 @@ export const en = {
   verify_email_error_default: 'Could not verify your email. The link may be expired or invalid. Please try again or request a new verification email.',
   email_verified_success: 'Your email address has been successfully verified.',
   back_to_home: 'Back to Home',
-  verify_email_verifying: 'Verifying your email...',
+  verify_email_verifying: 'Verifying your email address...',
 }
 
 export default en

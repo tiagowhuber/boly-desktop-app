@@ -213,6 +213,22 @@ export const router = createRouter({
       meta: {
         requiresAuth: false
       }
+    },
+    {
+      path: '/my-discount-codes',
+      name: 'my-discount-codes',
+      component: () => import('../views/DiscountCodesView.vue'),
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/redeem-code/:code',
+      name: 'redeem-code',
+      component: () => import('../views/RedeemCodeView.vue'),
+      meta: {
+        requiresAuth: true
+      }
     }
   ],
   //@ts-ignore

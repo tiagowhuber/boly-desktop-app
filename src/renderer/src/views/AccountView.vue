@@ -11,6 +11,7 @@ import IconDocumentation from '@/components/icons/IconDocumentation.vue'
 import RightArrowIcon from '@/components/icons/RightArrowIcon.vue'
 import WishlistIcon from '@/components/icons/WishlistIcon.vue'
 import GameStatsIcon from '@/components/icons/GameStatsIcon.vue'
+import PercentageIcon from '@/components/icons/PercentageIcon.vue'
 import HelpIcon from '@/components/icons/HelpIcon.vue'
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
@@ -111,6 +112,20 @@ const sendVerification = async () => {
       <div class="mobile-section">
         <h2 class="mobile-section-title">{{ $t('account_title') }}</h2>
         <div class="mobile-button-stack">
+          <RouterLink to="/edit" class="button btn-pink">
+            <div class="button-content">
+              <DiagonalPencilIcon class="button-icon" />
+              <span>{{ $t('edit_profile')}}</span>
+              <RightArrowIcon class="button-icon arrow-icon" />
+            </div>
+          </RouterLink>
+          <button class="button btn-blue" @click="logout">
+            <div class="button-content">
+              <DoorIcon class="button-icon" />
+              <span>{{ $t('logout')}}</span>
+              <RightArrowIcon class="button-icon arrow-icon" />
+            </div>
+          </button>
           <button v-if="!user.email_verified" class="button btn-pink" @click="sendVerification">
             <div class="button-content">
               <VerifiedPersonIcon class="button-icon" />
@@ -118,20 +133,18 @@ const sendVerification = async () => {
               <RightArrowIcon class="button-icon arrow-icon" />
             </div>
           </button>
-          <RouterLink to="/edit" class="button btn-blue">
+        </div>
+      </div>
+
+      <div class="mobile-section" v-if="user.roleId === 1">
+        <h2 class="mobile-section-title">{{ $t('Admin') }}</h2>
+        <div class="mobile-button-stack">
+          <RouterLink to="/discount-codes" class="button btn-pink">
             <div class="button-content">
-              <DiagonalPencilIcon class="button-icon" />
-              <span>{{ $t('edit_profile')}}</span>
+              <span>{{ $t('Discount codes') }}</span>
               <RightArrowIcon class="button-icon arrow-icon" />
             </div>
           </RouterLink>
-          <button class="button btn-pink" @click="logout">
-            <div class="button-content">
-              <DoorIcon class="button-icon" />
-              <span>{{ $t('logout')}}</span>
-              <RightArrowIcon class="button-icon arrow-icon" />
-            </div>
-          </button>
         </div>
       </div>
       
@@ -172,6 +185,13 @@ const sendVerification = async () => {
               <RightArrowIcon class="button-icon arrow-icon" />
             </div>
           </RouterLink>
+            <RouterLink to="/my-discount-codes" class="button btn-pink">
+            <div class="button-content">
+              <PercentageIcon class="button-icon" />
+              <span>{{ $t('my_discount_codes')}}</span>
+              <RightArrowIcon class="button-icon arrow-icon" />
+            </div>
+            </RouterLink>
         </div>
       </div>
 
@@ -233,30 +253,43 @@ const sendVerification = async () => {
           <div class="account-details">              
             <div class="account-section">
               <h2 class="section-title">{{ $t('account_title') }}</h2>
-              <div class="button-stack">  
-                <button v-if="!user.email_verified" class="button btn-pink" style="cursor: pointer;" @click="sendVerification">
-                  <div class="button-content">
-                    <VerifiedPersonIcon class="button-icon" />
-                    <span>{{ $t('verify_account') }}</span>
-                    <RightArrowIcon class="button-icon arrow-icon" />
-                  </div>
-                </button>              
-                <RouterLink to="/edit" class="button btn-blue">             
+              <div class="button-stack">             
+                <RouterLink to="/edit" class="button btn-pink">                  
                   <div class="button-content">
                     <DiagonalPencilIcon class="button-icon" />
                     <span>{{ $t('edit_profile')}}</span>
                     <RightArrowIcon class="button-icon arrow-icon" />
                   </div>
                 </RouterLink>
-                <button class="button btn-pink" style="cursor: pointer;" @click="logout">
+                <button class="button btn-blue" style="cursor: pointer;" @click="logout">
                   <div class="button-content">
                     <DoorIcon class="button-icon" />
                     <span>{{ $t('logout')}}</span>
                     <RightArrowIcon class="button-icon arrow-icon" />
                   </div>
-                </button>
+                </button> 
+                <button v-if="!user.email_verified" class="button btn-pink" style="cursor: pointer;" @click="sendVerification">
+                  <div class="button-content">
+                    <VerifiedPersonIcon class="button-icon" />
+                    <span>{{ $t('verify_account') }}</span>
+                    <RightArrowIcon class="button-icon arrow-icon" />
+                  </div>
+                </button>  
               </div>
             </div>
+
+            <div class="account-section" v-if="user.roleId === 1">
+              <h2 class="section-title">{{ $t('Admin') }}</h2>
+              <div class="button-stack">
+                <RouterLink to="/discount-codes" class="button btn-pink">
+                  <div class="button-content">
+                    <span>{{ $t('Discount codes') }}</span>
+                    <RightArrowIcon class="button-icon arrow-icon" />
+                  </div>
+                </RouterLink>
+              </div>
+            </div>
+
             <div class="account-section">
               <h2 class="section-title">{{ $t('subscription_title') }}</h2>
               <div class="button-stack">
@@ -294,6 +327,13 @@ const sendVerification = async () => {
                     <RightArrowIcon class="button-icon arrow-icon" />
                   </div>
                 </RouterLink>
+                <RouterLink to="/my-discount-codes" class="button btn-pink">
+                  <div class="button-content">
+                    <PercentageIcon class="button-icon" />
+                    <span>{{ $t('my_discount_codes')}}</span>
+                    <RightArrowIcon class="button-icon arrow-icon" />
+                  </div>
+                </RouterLink>
               </div>
             </div>
 
@@ -316,6 +356,7 @@ const sendVerification = async () => {
                 </RouterLink>
               </div>
             </div>
+            
 
             <div class="account-section">
               <h2 class="section-title">{{ $t('help') }}</h2>

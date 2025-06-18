@@ -12,6 +12,7 @@ import useOrder from './order'
 import useDownloadStore from '../desktop-stores/download'
 import useGameRoutes from "../desktop-stores/gameRoutes"
 import useCodes from './codes'
+import useEmails from './emails'
 
 export { 
   useAuth, 
@@ -27,5 +28,6 @@ export {
   useOrder,
   useDownloadStore,
   useGameRoutes,
-  useCodes
+  useCodes,
+  useEmails
 }

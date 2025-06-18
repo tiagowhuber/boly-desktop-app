@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuth, useUser, useGames, useCart } from '@/stores'
+import { useAuth, useUser, useGames, useCart, useDeveloper } from '@/stores' 
 import CartIcon from '../icons/CartIcon.vue'
 import CheckIcon from '../icons/CheckIcon.vue'
 import XMarkIcon from '../icons/XMarkIcon.vue'
@@ -18,9 +18,10 @@ const games = useGames()
 const props = defineProps<{ 
   item: { 
     game_id: number;
-    banner_url: string; // Changed from banner_uri to banner_url
+    banner_url: string;
     name: Record<string, string>; 
-    price: Record<string, number> 
+    price: Record<string, number>;
+    developer_id: number; 
   } 
 }>()
 
@@ -28,14 +29,16 @@ const buttonHovered = ref(false)
 //const gameDataBaseUrl = import.meta.env.VITE_S3_BASE_URL + '/' + props.item.game_id + '/'
 const loading = ref(false)
 const shoppingCart = useCart()
+const developerStore = useDeveloper() 
+const developerName = ref('') 
 const isMobile = ref(window.innerWidth <= 768)
 
 const ownsCurrentGame = ref(false)
 const hasSubscriptionAccess = ref(false)
 
-const currency = computed(() => {
-  return i18n.locale.value === 'en' ? 'USD' : 'CLP'
-})
+// const currency = computed(() => {
+//   return i18n.locale.value === 'en' ? 'USD' : 'CLP'
+// })
 
 // Handle window resize
 const handleResize = () => {
@@ -52,6 +55,12 @@ onMounted(async () => {
       hasSubscriptionAccess.value = accessInfo.subscriptionAccess;
     }
   }
+  if (props.item.developer_id) {
+    const developerData = await developerStore.fetchDeveloperById(props.item.developer_id);
+    if (developerData && developerData.name) {
+      developerName.value = developerData.name;
+    }
+  }
   
   // Add resize event listener
   window.addEventListener('resize', handleResize)
@@ -62,9 +71,9 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', handleResize)
 })
 
-function AddToCart() {
-  shoppingCart.addGameToCart({ game_id: props.item.game_id })
-}
+// function AddToCart() {
+//   shoppingCart.addGameToCart({ game_id: props.item.game_id })
+// }
 
 async function ClaimFree() {
   if (!auth.isLoggedIn) {
@@ -105,14 +114,13 @@ function GoToGame() {
 
 <template>
   <div class="item" :class="{ 'mobile-item': isMobile }">
-    <div class="main" :class="{ 'mobile-main': isMobile }">
-      <img class="image" :src="props.item.banner_url"
+    <div class="main" :class="{ 'mobile-main': isMobile }">      <img class="image" :src="props.item.banner_url"
       @click="GoToGame"/>
       
       <p v-if="ownsCurrentGame" :class="{ 'mobile-text': isMobile }">{{ $t('already_owned')}}</p>
       <p v-else-if="hasSubscriptionAccess" :class="{ 'mobile-text': isMobile }">{{ $t('subscription_access')}}</p>
       <p class="game-name" :class="{ 'mobile-game-name': isMobile }">{{ props.item.name[i18n.locale.value].toUpperCase() }}</p>
-      <p class="game-dev" :class="{ 'mobile-text': isMobile }">{{ $t('developer') }}</p>      
+      <p class="game-dev" :class="{ 'mobile-text': isMobile }">{{ developerName }}</p>      
       <div class="price" :class="{ 'mobile-price': isMobile }">
         <p v-if="ownsCurrentGame" :class="{ 'mobile-price-text': isMobile }">{{ $t('already_owned')}}</p>
         <p v-else-if="hasSubscriptionAccess" :class="{ 'mobile-price-text': isMobile }">{{ $t('subscription_access')}}</p>
@@ -136,7 +144,7 @@ function GoToGame() {
           </button>
 
           <button class="add-button" :class="{ 'mobile-add-button': isMobile }" v-else-if="props.item.price[i18n.locale.value] > 0" @click="">
-          <!-- <button class="add-button" :class="{ 'mobile-add-button': isMobile }" v-else-if="props.item.price[i18n.locale.value] > 0" @click="AddToCart"> -->
+            <!-- price[i18n.locale.value] > 0" @click="AddToCart"> -->
             <CartIcon class="icon" v-if="!buttonHovered"/>
             <PlusIcon class="icon" v-else/>
           </button>

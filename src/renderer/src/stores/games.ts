@@ -4,12 +4,19 @@ import axios from 'axios'
 import type { Game } from '@/types'
 import { usePayment } from '.'
 
-const useGames = defineStore('games', {  
+export type WebGameData = {
+  loader: string;
+  data: string;
+  framework: string;
+  wasm: string;
+};
+
+export default defineStore('games', {
   state: () => ({
     games: [] as Game[],
     loading: false,
     error: undefined as any,
-    webGameData: null as { loader: string; data: string; framework: string; wasm: string } | null,
+    webGameData: null as WebGameData | null,
     unityPlayer: null as UnityWebgl | null,
     loadingUnity: true,
     ownershipCache: new Map() as Map<string, { owned: boolean, subscriptionAccess: boolean }>,
@@ -31,6 +38,26 @@ const useGames = defineStore('games', {
         }))
       } catch (error: any) {
         this.error = error
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async getByUserId(userId: number, auth: { token: string }) {
+      this.loading = true
+      this.error = undefined
+      try {
+        const response = await axios.get(`/v1/games/user/${userId}`, {
+          headers: { Authorization: `Bearer ${auth.token}` }
+        })
+        this.games = response.data.map((game: any) => ({
+          ...game,
+          game_type: game.game_type || { name: 'Unknown' }
+        }))
+        return this.games
+      } catch (error: any) {
+        this.error = error
+        return []
       } finally {
         this.loading = false
       }
@@ -81,7 +108,7 @@ const useGames = defineStore('games', {
         return { owned: false, subscriptionAccess: false };
       }
     },
-
+    
     async getUserGames(userId: number) {
       this.loading = true
       this.error = undefined
@@ -289,13 +316,12 @@ const useGames = defineStore('games', {
       const paymentStore = usePayment();
       return await paymentStore.checkOrder(token);
     },
-    
-    async claimFreeGame(gameId: number, auth: { token: string }) {
+      async claimFreeGame(gameId: number, userId: number, auth: { token: string }, discountCode?: string) {
       this.loading = true
       this.error = undefined
       try {
         const response = await axios.post('/v1/payment/claim-free',
-          { game_id: gameId },
+          { game_id: gameId, user_id: userId, discount_code: discountCode },
           { headers: { Authorization: `Bearer ${auth.token}` } }
         )
         return response.data
@@ -327,8 +353,53 @@ const useGames = defineStore('games', {
       console.log('File name input:', fileName, "File from games:", this.games.map(game => game.file_name && game.file_name["desktop"]));
       const game = this.games.find(game => game.file_name && game.file_name["desktop"] === fileName)
       return game ? game.game_id : null
+    },
+    
+    async getTotalGamePlayTimeSubscribers(gameId: number, auth: { token: string }) {
+      this.loading = true
+      this.error = undefined
+      try {
+        const response = await axios.get(`/v1/games/${gameId}/total-game-playtime`, {
+          headers: { Authorization: `Bearer ${auth.token}` }
+        })
+        return response.data.total_play_time || 0 // Corrected property name
+      } catch (error: any) {
+        this.error = error
+        return 0
+      } finally {
+        this.loading = false
+      }
+    },
+
+    setUnityPlayer(playerInstance: UnityWebgl | null) {
+      this.unityPlayer = playerInstance;
+      // Automatically update loading state based on player presence
+      this.loadingUnity = !playerInstance;
+    },
+    setLoadingUnity(isLoading: boolean) {
+        this.loadingUnity = isLoading;
+    },
+    async getGameUrl(gameId: number, play: boolean, config: any) {
+       console.log(`Store: getGameUrl called for gameId: ${gameId}, play: ${play}`);
+       // Make sure this returns the correct structure: { loader, data, framework, wasm }
+       // Add logging here too if needed
+       try {
+           const response = await axios.post('/v1/games/url', 
+           { 
+             game_id: gameId,
+             is_web: play 
+           },
+           { 
+             headers: { Authorization: `Bearer ${config.token}` } 
+           }
+         );
+           console.log("Store: API response received:", response);
+           // Process and return URLs
+           return response.data; // Or however you extract the URLs
+       } catch (error) {
+           console.error("Store: Error fetching game URL:", error);
+           throw error; // Re-throw the error
+       }
     }
   }
 })
-
-export default useGames

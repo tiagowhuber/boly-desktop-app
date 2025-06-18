@@ -282,11 +282,13 @@ async function handleRedeemCode() {
           <li>{{ t('monthly_feature_3') }}</li>
           <li>{{ t('monthly_feature_4') }}</li>
         </div>
-        <h3 class="price">{{ `$8 USD / ${t('month').toUpperCase()}` }}</h3>
+        <!-- <h3 class="price">{{ `$8 USD / ${t('month').toUpperCase()}` }}</h3> -->
+        <h3 class="price">{{ $t('coming_soon') }}</h3>
         <button 
           :class="buttonClass('monthly')" 
-          @click="handleSubscription('monthly')">
+          @click="">
           {{ buttonText('monthly') }}
+          <!-- @click="handleSubscription('monthly')"> -->
         </button>
       </div>
       <div class="plan">
@@ -297,11 +299,13 @@ async function handleRedeemCode() {
           <li>{{ t('yearly_feature_2') }}</li>
           <li>{{ t('yearly_feature_3') }}</li>
         </div>
-        <h3 class="price">{{ `$90 USD / ${t('year').toUpperCase()}` }}</h3>
+        <!-- <h3 class="price">{{ `$90 USD / ${t('year').toUpperCase()}` }}</h3> -->
+        <h3 class="price">{{ $t('coming_soon') }}</h3>
         <button 
           :class="buttonClass('yearly')" 
-          @click="handleSubscription('yearly')">
+          @click="">
           {{ buttonText('yearly') }}
+          <!-- @click="handleSubscription('yearly')"> -->
         </button>
       </div>
       <div class="plan">
@@ -360,11 +364,13 @@ async function handleRedeemCode() {
           <li>{{ t('monthly_feature_4') }}</li>
         </div>
         <div class="mobile-plan-footer">
-          <h3 class="mobile-price">{{ `$8 USD / ${t('month').toUpperCase()}` }}</h3>
+          <!-- <h3 class="mobile-price">{{ `$8 USD / ${t('month').toUpperCase()}` }}</h3> -->
+        <h3 class="price">{{ $t('coming_soon') }}</h3>
           <button 
             :class="[buttonClass('monthly'), 'mobile-button']" 
-            @click="handleSubscription('monthly')">
+            @click="">
             {{ buttonText('monthly') }}
+            <!-- @click="handleSubscription('monthly')"> -->
           </button>
         </div>
       </div>
@@ -378,11 +384,13 @@ async function handleRedeemCode() {
           <li>{{ t('yearly_feature_3') }}</li>
         </div>
         <div class="mobile-plan-footer">
-          <h3 class="mobile-price">{{ `$90 USD / ${t('year').toUpperCase()}` }}</h3>
+          <!-- <h3 class="mobile-price">{{ `$90 USD / ${t('year').toUpperCase()}` }}</h3> -->
+        <h3 class="price">{{ $t('coming_soon') }}</h3>
           <button 
             :class="[buttonClass('yearly'), 'mobile-button']" 
-            @click="handleSubscription('yearly')">
+            @click="">
             {{ buttonText('yearly') }}
+            <!-- @click="handleSubscription('yearly')" -->
           </button>
         </div>
       </div>

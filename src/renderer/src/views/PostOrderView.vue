@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter, RouterLink } from 'vue-router';
-import { useAuth, useUser, useGames, useCart, usePayment, useOrder } from '@/stores';
+import { useAuth, useUser, useGames, useCart, usePayment, useOrder, useEmails } from '@/stores';
 import Loading from '@/components/LoadingIcon.vue';
 import LibraryItem from '@/components/games/LibraryItem.vue';
 import type { Game } from '@/types';
@@ -14,6 +14,7 @@ const games = useGames();
 const cart = useCart();
 const payment = usePayment();
 const order = useOrder();
+const email = useEmails();
 
 const isLoading = ref(true);
 const purchasedGames = ref<Game[]>([]);
@@ -91,10 +92,13 @@ onMounted(async () => {
             if (!result.success) {
               console.error(`Failed to create order-game relationship for game ID ${gameIds[index]}: ${result.message}`);
             }
-          });          const gamesData = await Promise.all(
+          });          
+          const gamesData = await Promise.all(
             gameIds.map(id => games.getById(id))
-          );          purchasedGames.value = gamesData.filter((game): game is Game => game !== null);
+          );          
+          purchasedGames.value = gamesData.filter((game): game is Game => game !== null);
           cart.clearCart();
+          email.sendOrderConfirmationEmail(user.userId as number, orderId);
           // Save the processed token to localStorage to prevent reprocessing
           if (token) {
             localStorage.setItem('processed_order_token', token.toString());

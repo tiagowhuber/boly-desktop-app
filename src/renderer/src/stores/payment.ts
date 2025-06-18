@@ -25,7 +25,8 @@ const usePayment = defineStore('payment', {
     enrollmentLoading: false,
     enrollmentError: null
   }),
-  actions: {    async reqTransaction(_cart: number[], user_id: number, discount_code: string, url: string = "www.bolygames.com/postorder/", subtotal: number, currency: string = 'CLP'): Promise<boolean> {
+  actions: {    
+    async reqTransaction(_cart: number[], user_id: number, discount_code: string, url: string = "www.bolygames.com/postorder/", subtotal: number, currency: string = 'CLP'): Promise<boolean> {
       this.loading = true;
       this.error = null;
       const session_id = makeSessionId();
@@ -428,6 +429,22 @@ const usePayment = defineStore('payment', {
         throw error;
       } finally {
         this.loading = false;
+      }
+    },
+
+    async currencyConverter(amountUSD: number): Promise<number> {
+      try {
+        const response = await axios.get('https://open.er-api.com/v6/latest/USD');
+        const rate = response.data.rates.CLP;
+        if (!rate) {
+          throw new Error('CLP rate not found');
+        }
+        return Math.round(amountUSD * rate);
+      } catch (error) {
+        console.error('Error converting currency:', error);
+        // Fallback rate
+        const fallbackRate = 990;
+        return Math.round(amountUSD * fallbackRate);
       }
     }
   }

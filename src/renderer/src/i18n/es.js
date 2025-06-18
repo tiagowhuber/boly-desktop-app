@@ -8,7 +8,7 @@ export const es = {
   
   home_title2: 'NUESTRO PROYECTO',
   home_body2: 'EN BOLY, ENTENDEMOS A LOS JUGADORES, DESARROLLADORES Y EDUCADORES',
-  home_text3: 'Boly es una plataforma de distribución de videojuegos educativos de alta calidad que utiliza gamificación & IA para personalizar el aprendizaje. Conectamos a desarrolladores con estudiantes y escuelas y ofrecemos a docentes herramientas para mejorar la experiencia educativa.',
+  home_text3: 'Boly es una plataforma de distribución de videojuegos educativos de alta calidad que combina gamificación e inteligencia artificial para personalizar el aprendizaje. Conectamos desarrolladores con estudiantes y centros educativos, brindando a los docentes herramientas innovadoras para enriquecer la experiencia de enseñanza.',
 
   home_title3: 'TECNOLOGÍA Y EDUCACIÓN',
   home_graph1_data_title: 'Sin laboratorios',
@@ -118,9 +118,8 @@ export const es = {
   send_query_success: '¡Consulta enviada exitosamente!',
   send_query_error: '¡Ups! Ocurrió un error al enviar tu consulta. Por favor intenta de nuevo.',
   contact_lets_talk: 'Hablemos',
-  contact_body: 'En Boly contamos contigo para llevar la educación al siguiente nivel',
-  contact_text: '¿Tú o tu equipo tiene una experiencia, juego o aplicación con fines educativos? Contáctate con nosotros o escríbenos tu consulta para que puedas ser parte de Boly.',
-  
+  contact_body: '¿Cómo podemos ayudarte?',
+  contact_text: 'Estamos aquí para ayudarte con cualquier pregunta o consulta que puedas tener. Por favor, completa el formulario a continuación y nos pondremos en contacto contigo lo antes posible.', 
   // subscription view
   subscription_plans: 'Planes de suscripción',
   free: 'Gratis',
@@ -152,7 +151,47 @@ export const es = {
   discount_code: 'Código de descuento',
   redeem_code_subtitle: '¿Tienes un código de suscripción?',
   redeem_code_description: 'Ingresa tu código abajo para canjear tu suscripción.',
-  
+
+  // discount codes view
+  discount_codes_title: 'MIS CÓDIGOS DE DESCUENTO',
+  claim_new_code: 'Reclamar un Nuevo Código',
+  enter_your_code: 'Ingresa tu código',
+  claim_code: 'Reclamar Código',
+  claiming: 'Reclamando...',
+  please_enter_discount_code: 'Por favor ingresa un código de descuento.',
+  user_not_authenticated_claim: 'Usuario no autenticado. No se puede reclamar el código.',
+  discount_code_claimed_success: '¡Código de descuento reclamado exitosamente!',
+  failed_claim_discount_code: 'Error al reclamar el código de descuento.',
+  your_available_codes: 'Tus Códigos Disponibles',
+  loading_discount_codes: 'Cargando tus códigos de descuento...',
+  user_not_authenticated_codes: 'Usuario no autenticado. Por favor inicia sesión para ver tus códigos de descuento.',
+  no_discount_codes: 'Aún no tienes códigos de descuento.',
+  enter_code_above: '¡Ingresa un código arriba para reclamarlo!',
+  code_status_used: 'Usado',
+  code_status_available: 'Disponible',
+  code_status_inactive: 'Inactivo',
+  code_detail_type: 'Tipo:',
+  code_detail_discount: 'Descuento:',
+  code_detail_applies_game: 'Aplica al Juego:',
+  code_detail_applies_plan: 'Aplica al ID del Plan:',
+  code_detail_subscription_benefit: 'Beneficio de Suscripción:',
+  code_detail_expires: 'Expira:',
+  code_detail_used_on: 'Usado el:',
+  code_detail_uses: 'Usos:',  
+  code_details_not_available: 'Error: Detalles del código de descuento no disponibles para ID',
+
+  // redeem code view
+  redeem_code_title: 'Canje de Código',
+  redeeming_discount_code: 'Canjeando tu código de descuento...',
+  invalid_redemption_link: 'Enlace de canje inválido - no se proporcionó código de descuento.',
+  login_to_redeem: 'Por favor inicia sesión para canjear este código de descuento.',
+  code_redeemed_success: '¡El código de descuento "{code}" ha sido agregado exitosamente a tu cuenta!',
+  failed_redeem_code: 'Error al canjear el código de descuento.',
+  unexpected_error_redeem: 'Ocurrió un error inesperado al canjear el código.',
+  view_my_codes: 'Ver Mis Códigos',
+  continue_shopping: 'Continuar Comprando',
+  go_home: 'Ir al Inicio',
+
   // developer view
   developer_title: 'GESTOR DEL DESARROLLADOR',
   developer_published: 'Tus juegos publicados',
@@ -237,6 +276,7 @@ export const es = {
   verify_account: 'Verificar cuenta',
   email_not_verified: 'correo electrónico no verificado.',
   modal_email_verification_sent: 'Correo electrónico de verificación enviado.',
+  my_discount_codes: 'Mis códigos de descuento',
 
   // cart view
   cart_title: 'CARRITO',
@@ -245,10 +285,14 @@ export const es = {
   empty_cart: 'Vaciar el carrito',
   discount_code: 'Código de descuento',
   apply_code: 'Aplicar descuento',
+  validating: 'Validando...',
+  discount_applied: 'Descuento aplicado',
+  applies_to_specific_game: 'Solo aplica a juego específico',
   confirm_and_pay: 'Confirmar carrito y pagar',
   modal_empty_cart: '¿Estás seguro que quieres vaciar el carrito?',
   modal_cart_redirect: 'Espera mientras te redirigimos al portal de pago...',
   modal_cart_remove_item: '¿Estás seguro que quieres quitar {item} del carrito?',
+  auto_applied_best_discount: 'Se ha aplicado automáticamente el mejor descuento disponible.',
 
   purchase_successful: 'Compra Exitosa',
   purchase_failed: 'Compra Fallida',
@@ -258,6 +302,8 @@ export const es = {
   browse_more_games: 'Explorar Más Juegos',
   go_to_library: 'Ir a la Biblioteca',
   view_in_library: 'Ver en la Biblioteca',
+  remove_discount_code: 'Eliminar código de descuento',
+  discount_code_applied: 'aplicado',
 
   // login/register view
   login: 'Iniciar sesión',

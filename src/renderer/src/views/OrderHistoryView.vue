@@ -55,6 +55,10 @@ const fetchOrders = async () => {
   }
 };
 
+// const viewOrderDetails = (order: Order) => {
+//   selectedOrder.value = order;
+//   showOrderDetailsModal.value = true;
+// };
 
 const closeOrderDetailsModal = () => {
   showOrderDetailsModal.value = false;
@@ -149,6 +153,7 @@ const formatCurrency = (amount: number | { amount: number; currency: string }): 
             <div class="order-details">
               <span class="order-date">{{ t('ordered_on') }}: {{ formatDate(order.created_at) }}</span>
               <span class="order-amount">{{ t('total') }}: {{ formatCurrency(order.final_amount) }}</span>
+              <span v-if="order.details" class="order-description">{{ order.details }}</span>
             </div>
           </div>
         </div>
@@ -188,6 +193,11 @@ const formatCurrency = (amount: number | { amount: number; currency: string }): 
             <span class="detail-value">{{ formatCurrency(selectedOrder.final_amount) }}</span>
           </div>
           
+          <div v-if="selectedOrder.details" class="detail-row">
+            <span class="detail-label">{{ t('details') }}:</span>
+            <span class="detail-value">{{ selectedOrder.details }}</span>
+          </div>
+
           <div v-if="selectedOrder.discount_code" class="detail-row">
             <span class="detail-label">{{ t('discount_code') }}:</span>
             <span class="detail-value">{{ selectedOrder.discount_code }}</span>

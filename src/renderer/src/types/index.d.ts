@@ -184,6 +184,7 @@ export interface Order {
   user_id: number;
   subscription_id?: number;
   payment_method_id?: number;
+  details?: string; 
 }
 
 export interface Auth {
@@ -211,6 +212,7 @@ export interface DiscountCode {
   valid_until?: Date;
   discount_type: DiscountType;
   discount_percentage?: number;
+  applies_to_game_id?: number;
   applies_to_plan_id?: number;
   subscription_duration_value?: number;
   subscription_duration_unit?: SubscriptionDurationUnit;
@@ -230,6 +232,7 @@ export interface DiscountCodeValidation {
   code: string;
   discount_type: DiscountType;
   discount_percentage?: number;
+  applies_to_game_id?: number;
   applies_to_plan_id?: number;
   subscription_duration_value?: number;
   subscription_duration_unit?: SubscriptionDurationUnit;
@@ -243,10 +246,20 @@ export interface CreateDiscountCodeRequest {
   valid_from?: Date;
   valid_until?: Date;
   discount_type: DiscountType;
-  //discount_percentage?: number;
+  discount_percentage?: number;
+  applies_to_game_id?: number;
   applies_to_plan_id?: number;
   subscription_duration_value?: number;
   subscription_duration_unit?: SubscriptionDurationUnit;
   max_total_uses?: number;
   max_unique_users?: number;
+}
+
+export interface UserHasDiscountCode {
+  user_id: number;
+  discount_code_id: number;
+  created_at: string; 
+  updated_at: string;
+  used_at?: string | Date | null; 
+  discountCode: DiscountCode; 
 }
