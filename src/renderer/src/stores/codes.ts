@@ -271,8 +271,7 @@ const useCodes = defineStore('codes', {
       if (!code || !userId) {
         return { success: false, message: 'Invalid code or user information.' };
       }
-      
-      try {
+        try {
         const response = await axios.post('/v1/discount-codes/user/validate/', {
           user_id: userId,
           discount_code_string: code
@@ -280,7 +279,9 @@ const useCodes = defineStore('codes', {
           headers: { Authorization: `Bearer ${auth.token}` }
         });
 
-        if (response.status === 201) {
+        console.log('API response status:', response.status, 'data:', response.data); // Debug log
+
+        if (response.status >= 200 && response.status < 300) {
           // Refresh user discount codes after successful assignment
           this.getUserDiscountCodes(userId);
           return { success: true, data: response.data, message: 'Discount code successfully claimed!' };

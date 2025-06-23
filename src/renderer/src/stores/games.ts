@@ -350,6 +350,9 @@ export default defineStore('games', {
     },
 
     async getGameIdByFileName(fileName: string): Promise<number | null> {
+      if (this.games.length === 0) {
+        await this.getAll()
+      }
       console.log('File name input:', fileName, "File from games:", this.games.map(game => game.file_name && game.file_name["desktop"]));
       const game = this.games.find(game => game.file_name && game.file_name["desktop"] === fileName)
       return game ? game.game_id : null

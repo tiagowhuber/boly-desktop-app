@@ -60,13 +60,13 @@ const handleClaimCode = async () => {
   isClaiming.value = true;
   claimMessage.value = '';
   claimStatus.value = '';
-
   const response = await codesStore.assignDiscountCodeToUserByLink(newCodeInput.value.trim(), currentUserId);
 
-  isClaiming.value = false;
+  console.log('Claim response:', response); // Debug log
 
+  isClaiming.value = false;
   if (response.success) {
-    claimMessage.value = t('discount_code_claimed_success');
+    claimMessage.value = response.message || t('discount_code_claimed_success');
     claimStatus.value = 'success';
     newCodeInput.value = ''; 
     const refreshUserId = userStore.userId;
