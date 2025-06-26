@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import type { SubscriptionState, SubscriptionResponse, AuthToken } from '@/types'
 import axios from 'axios'
+import usePayment from './payment'
 
 export const useSubscription = defineStore('subscription', {  state: (): SubscriptionState => ({
     subscriptions: [],
@@ -128,7 +129,8 @@ export const useSubscription = defineStore('subscription', {  state: (): Subscri
         this.loading = false
       }
     },
-      async subscribeWithOneClick(
+    
+    async subscribeWithOneClick(
       userId: number, 
       planId: number, 
       username: string, 
@@ -142,14 +144,18 @@ export const useSubscription = defineStore('subscription', {  state: (): Subscri
       this.paymentResult = null
       
       try {
+        const paymentStore = usePayment();
+        const paymentMethodId = paymentStore.paymentMethods[0]?.payment_method_id;
         console.log('Making subscription payment with params:', {
           userId,
           planId,
           username,
           tbk_user: tbkUser,
           amount,
-          currency
+          currency,
+          paymentMethodId
         })
+        
         
         const response = await axios.post(
           '/v1/subscription/oneclick',
@@ -159,7 +165,8 @@ export const useSubscription = defineStore('subscription', {  state: (): Subscri
             username,
             tbk_user: tbkUser,
             amount,
-            currency
+            currency,
+            paymentMethodId 
           },
           { 
             headers: { Authorization: `Bearer ${auth.token}` } 

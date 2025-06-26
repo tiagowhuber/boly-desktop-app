@@ -26,7 +26,7 @@ const usePayment = defineStore('payment', {
     enrollmentError: null
   }),
   actions: {    
-    async reqTransaction(_cart: number[], user_id: number, discount_code: string, url: string = "www.bolygames.com/postorder/", subtotal: number, currency: string = 'CLP'): Promise<boolean> {
+    async reqTransaction(_cart: number[], user_id: number, discount_code: string, url: string = `${import.meta.env.VITE_APP_BASE_URL}/postorder/`, subtotal: number, currency: string = 'CLP'): Promise<boolean> {
       this.loading = true;
       this.error = null;
       const session_id = makeSessionId();

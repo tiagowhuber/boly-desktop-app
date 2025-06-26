@@ -143,12 +143,12 @@ async function signGoogle() {
         </form>
         <div class="google-login">
           <form @submit.prevent="signGoogle()">
-            <button class="google-login-button">
+            <!-- <button class="google-login-button">
               <div class="google-logo-container">
                 <img src="@/assets/svgs/google.svg" alt="Google" class="google-logo">
               </div>
               <span class="google-text">{{ $t('login_google') }}</span>
-            </button>
+            </button> -->
           </form>
           <!-- <GoogleLogin :callback="handleGoogleLogin" /> -->
         </div>

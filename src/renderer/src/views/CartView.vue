@@ -205,7 +205,8 @@ async function reqTransaction(): Promise<void> {
     }
   }
   
-  const url = window.location.origin + "/postorder/"
+  // Use the web URL for payment redirects since Electron can't handle file:// URLs from external services
+  const url = `${import.meta.env.VITE_APP_BASE_URL}/postorder/`
   
   let amountForTransactionCLP: number;
 

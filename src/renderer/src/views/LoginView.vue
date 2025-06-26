@@ -79,20 +79,18 @@ async function signGoogle() {
         </form>        
         <div class="google-login">
           <form @submit.prevent="signGoogle()">
-            <button class="google-login-button">
+            <!-- <button class="google-login-button">
               <div class="google-logo-container">
                 <img src="@/assets/svgs/google.svg" alt="Google" class="google-logo">
               </div>
               <span class="google-text">{{ $t('login_google') }}</span>
-            </button>
+            </button> -->
           </form>
           <!-- <GoogleLogin :callback="handleGoogleLogin" /> -->
         </div>
         <div class="register">
           <p>{{ $t('no_account') }}</p>
-          <RouterLink to="/register" style="color: white; text-decoration: underline">{{
-            $t('register')
-          }}</RouterLink>
+          <a href="https://boly.cl/register-pending" target="_blank" style="color: white; text-decoration: underline">{{ $t('register') }}</a>
         </div>
         <div class="forgot-password">
           <RouterLink to="/forgot-password" style="color: white; text-decoration: underline;">{{ $t('forgot_your_password') }}</RouterLink>

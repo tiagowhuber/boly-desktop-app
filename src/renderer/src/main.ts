@@ -33,6 +33,24 @@ app.use(i18n)
 const auth = useAuth()
 const downloadStore = useDownloadStore()
 downloadStore.setupDownloadListeners()
+// I think there is an issue here when the logged in account in the browser differs from the one in the platform
+// Handle deep link URLs for payment callbacks
+if (window.electron && window.electron.ipcRenderer) {
+  window.electron.ipcRenderer.on('deep-link-url', (_event, url: string) => {
+    console.log('Received deep link URL:', url)
+    
+    // Parse the URL to extract the route and query parameters
+    try {
+      const urlObj = new URL(url)
+      const pathAndQuery = urlObj.pathname + urlObj.search
+      
+      // Navigate to the appropriate route
+      router.push(pathAndQuery)
+    } catch (error) {
+      console.error('Error parsing deep link URL:', error)
+    }
+  })
+}
 
 
 // Set up custom protocol axios adapter for app://boly

@@ -66,7 +66,7 @@ const addPaymentMethod = async () => {
     await paymentStore.createEnrollment(
       user.username,
       user.email,
-      `${window.location.origin}/payment-methods/callback`,
+      `${import.meta.env.VITE_APP_BASE_URL}/payment-methods/callback`,
       auth.token
     );
     

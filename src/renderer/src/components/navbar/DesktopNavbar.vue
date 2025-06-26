@@ -71,9 +71,9 @@ function isActive(path: string) {
         <RouterLink class="login" to="/login" v-if="!auth.isLoggedIn">
           <p>{{ $t('log_in') }}</p>
         </RouterLink>
-        <RouterLink class="signup" to="/register" v-if="!auth.isLoggedIn">
+        <a class="signup" href="https://boly.cl/register-pending" target="_blank" v-if="!auth.isLoggedIn">
           <p>{{ $t('sign_up') }}</p>
-        </RouterLink>
+        </a>
         
         <!-- User Profile & Cart -->
         <RouterLink to="/account" v-if="auth.isLoggedIn" class="user-profile-link">

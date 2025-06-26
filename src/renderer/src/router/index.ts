@@ -248,6 +248,12 @@ router.beforeEach(async (to, from, next) => {
   try {
     await auth.checkToken(true)
     
+    // If user is not logged in and accessing home route, redirect to login
+    if (to.path === '/' && !auth.isLoggedIn) {
+      next('/login')
+      return
+    }
+    
     if (to.meta.requiresAuth && !auth.isLoggedIn) {
       next('/login')
     } else if (to.path === '/account' && !auth.isLoggedIn) {
@@ -258,6 +264,11 @@ router.beforeEach(async (to, from, next) => {
   } catch (error) {
     console.error('Auth error in router guard:', error)
     
+    // If auth check fails and user is accessing home route, redirect to login
+    if (to.path === '/') {
+      next('/login')
+      return
+    }
 
     if (to.meta.requiresAuth || to.path === '/account') {
       next('/login')
