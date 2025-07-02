@@ -96,13 +96,14 @@ export const es = {
   no_owned_games: "Parece que aún no tienes ningún juego...",
   browse_games: "Explorar Juegos",
   show_all_games: "Toda mi librería",
-  show_all_owned_games: "Mi Librería",
-  show_installed_only: "Mis juegos Instalados",
+  show_all_owned_games: "Librería",
+  show_installed_only: "Juegos Instalados",
   subscription_games: "Accesibles por Suscripción",
   update_info: 'Info de Actualización',
   check_for_updates: 'Buscar actualizaciones',
   play_time: 'Tiempo de juego',
   no_subscription_games: '¡Suscríbete para acceder a todos los juegos!',
+  uninstall: 'Desinstalar',
 
   // wishlist view
   wishlist: 'Lista de Deseos',

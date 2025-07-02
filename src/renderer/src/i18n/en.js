@@ -97,8 +97,8 @@ export const en = {
   no_owned_games: "It looks like you don't own any games yet...",
   browse_games: "Browse Games",
   show_all_games: 'Show all games',
-  show_all_owned_games: 'My Library',
-  show_installed_only: 'My Installed Games',
+  show_all_owned_games: 'Library',
+  show_installed_only: 'Installed Games',
   subscription_games: 'Subscription Access',
   no_subscription_games: 'No subscription games available',
   view_in_library: 'View in library',
@@ -106,6 +106,7 @@ export const en = {
   check_for_updates: 'Check for updates',
   play_time: 'Play time',
   no_subscription_games: 'Subscribe to access all games!',
+  uninstall: 'Uninstall',
 
   // wishlist view
   wishlist: 'Wishlist',

@@ -40,7 +40,11 @@ export interface Game {
     game_type_id: number;
     game_type: GameType;
     game_Path: string;
-    file_name?: LocalizedString;
+    file_name?: {
+        desktop?: string;
+        web?: string;
+        [key: string]: string | undefined;
+    };
     isDownloaded?: boolean;
     isDownloading?: boolean;
     downloadError?: string;

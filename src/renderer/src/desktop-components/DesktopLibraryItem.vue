@@ -9,6 +9,7 @@ import LoadingSpinnerIcon from '@/components/icons/LoadingSpinnerIcon.vue'
 import DownloadIcon from '@/components/icons/DownloadIcon.vue'
 import ClockhistoryIcon from '@/components/icons/ClockhistoryIcon.vue'
 import VerticalDotsIcon from '@/components/icons/VerticalDotsIcon.vue'
+import router from '@/router'
 
 const props = defineProps<{
   item: Game
@@ -29,6 +30,14 @@ const playTimeLoading = ref(true)
 const showOptionsMenu = ref(false)
 
 console.log('LibraryItem received game:', props.item)
+
+const isWebGame = computed(() => {
+  return (
+    props.item.file_name?.desktop &&
+    typeof props.item.file_name.desktop === 'string' &&
+    !props.item.file_name.desktop.endsWith('.exe')
+  )
+})
 
 //const gameDataBaseUrl = import.meta.env.VITE_S3_BASE_URL + '/' + props.item.game_id + '/'
 
@@ -186,7 +195,12 @@ onMounted(() => {
 });
 
 async function Play() {
-  if (props.item.game_id) {
+  if (props.item.file_name?.desktop && 
+        typeof props.item.file_name.desktop === 'string' && 
+        !props.item.file_name.desktop.endsWith('.exe')) {
+      // This is an HTML game, navigate to the route
+      router.push(props.item.file_name.desktop);
+  } else if (props.item.game_id) {
     console.log("clicked")
     window.electronAPI.playGame({game_id:props.item.game_id,appPath:props.item.game_Path,token:auth.token})
     // router.push(`/games/${props.item.game_id}/play`)
@@ -290,22 +304,40 @@ async function Download() {
       </div>
 
       <div class="game-actions">
-        <button 
-          :class="['action-button', props.item.isInstalled ? 'play-button' : (isDownloading ? 'downloading-button' : (isInstalling ? 'installing-button' : 'download-button'))]" 
-          :disabled="loading || isDownloading || isInstalling" 
-          @click.stop="props.item.isInstalled ? Play() : Download()"        >
-          <span class="button-text">{{ props.item.isInstalled ? $t('play') : (isDownloading ? $t('downloading') : (isInstalling ? $t('installing') : $t('download'))) }}</span>
-          <PlayIcon v-if="props.item.isInstalled" class="icon" />
+        <button
+          :class=" [
+            'action-button',
+            props.item.isInstalled || isWebGame
+              ? 'play-button'
+              : isDownloading
+                ? 'downloading-button'
+                : isInstalling
+                  ? 'installing-button'
+                  : 'download-button'
+          ]"
+          :disabled="loading || isDownloading || isInstalling"
+          @click.stop="props.item.isInstalled || isWebGame ? Play() : Download()"
+        >
+          <span class="button-text">{{
+            props.item.isInstalled || isWebGame
+              ? $t('play')
+              : isDownloading
+                ? $t('downloading')
+                : isInstalling
+                  ? $t('installing')
+                  : $t('download')
+          }}</span>
+          <PlayIcon v-if="props.item.isInstalled || isWebGame" class="icon" />
           <LoadingSpinnerIcon v-else-if="isDownloading || isInstalling" class="icon" />
           <DownloadIcon v-else class="icon" />
         </button>
         
         <!-- Options Button -->
         <div class="options-container" v-if="props.item.isInstalled">
-          <button 
-            class="options-button" 
+          <button
+            class="options-button"
             @click.stop="toggleOptionsMenu"
-            :class="{ 'active': showOptionsMenu }"
+            :class="{ active: showOptionsMenu }"
           >
             <VerticalDotsIcon class="options-icon" />
           </button>
