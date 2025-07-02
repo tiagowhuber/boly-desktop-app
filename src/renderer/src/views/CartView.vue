@@ -6,7 +6,7 @@ import Loading from '@/components/LoadingIcon.vue'
 import TrashCanXMarkIcon from '@/components/icons/TrashCanXMarkIcon.vue'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
-import {  onMounted, watch, computed, ref, onUnmounted } from 'vue'
+import { onMounted, watch, computed, ref, onUnmounted } from 'vue'
 import { useAuth, useGames, useCart, usePayment, useUser } from '@/stores'
 import useCodes from '@/stores/codes'
 import { useI18n } from 'vue-i18n'
@@ -182,8 +182,9 @@ async function reqTransaction(): Promise<void> {
         errorMessage.value = 'User ID is required'
         showRedirectModal.value = false
         return
-      }      for (const gameId of cart.value) {
-        const success = await gamesStore.claimFreeGame(gameId, user.userId, { token: auth.token }, isCodeValid.value ? discountCode.value : undefined)
+      }      
+      for (const gameId of cart.value) {
+        const success = await paymentStore.claimFreeGameDiscount(gameId, user.userId, { token: auth.token }, isCodeValid.value ? discountCode.value : undefined)
         if (!success) {
           errorMessage.value = 'Failed to claim free game'
           showRedirectModal.value = false
@@ -205,8 +206,7 @@ async function reqTransaction(): Promise<void> {
     }
   }
   
-  // Use the web URL for payment redirects since Electron can't handle file:// URLs from external services
-  const url = `${import.meta.env.VITE_APP_BASE_URL}/postorder/`
+  const url = window.location.origin + "/postorder/"
   
   let amountForTransactionCLP: number;
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import WindowsIcon from '@/components/icons/WindowsIcon.vue'
 import AppleIcon from '@/components/icons/AppleIcon.vue'
@@ -37,9 +37,9 @@ const wishlist = useWishlist();
 const developer = ref<any>(null);
 const developerStore = useDeveloper();
 
-const currency = computed(() => {
-  return i18n.locale.value === 'en' ? 'USD' : 'CLP'
-});
+// const currency = computed(() => {
+//   return i18n.locale.value === 'en' ? 'USD' : 'CLP'
+// });
 
 const game_images = ref<GameMedia[]>([]);
 

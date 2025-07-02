@@ -102,6 +102,7 @@ export const es = {
   update_info: 'Info de Actualización',
   check_for_updates: 'Buscar actualizaciones',
   play_time: 'Tiempo de juego',
+  no_subscription_games: '¡Suscríbete para acceder a todos los juegos!',
 
   // wishlist view
   wishlist: 'Lista de Deseos',

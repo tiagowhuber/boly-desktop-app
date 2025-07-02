@@ -321,7 +321,7 @@ async function createWindow(): Promise<void> {
       sandbox: false,
       nodeIntegration: true,
       contextIsolation: true,
-      devTools: false
+      devTools: true
     }
   })
   //---

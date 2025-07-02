@@ -105,6 +105,7 @@ export const en = {
   update_info: 'Update Info',
   check_for_updates: 'Check for updates',
   play_time: 'Play time',
+  no_subscription_games: 'Subscribe to access all games!',
 
   // wishlist view
   wishlist: 'Wishlist',

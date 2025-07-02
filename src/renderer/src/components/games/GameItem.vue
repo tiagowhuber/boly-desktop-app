@@ -1,7 +1,8 @@
 <script setup lang="ts">
+//import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuth, useUser, useGames, useCart, useDeveloper } from '@/stores' 
+import { useAuth, useUser, useGames, useCart, useDeveloper, usePayment } from '@/stores' 
 import CartIcon from '../icons/CartIcon.vue'
 import CheckIcon from '../icons/CheckIcon.vue'
 import XMarkIcon from '../icons/XMarkIcon.vue'
@@ -14,6 +15,7 @@ const router = useRouter()
 const auth = useAuth()
 const user = useUser()
 const games = useGames()
+const paymentStore = usePayment()
 
 const props = defineProps<{ 
   item: { 
@@ -76,24 +78,15 @@ onBeforeUnmount(() => {
 // }
 
 async function ClaimFree() {
-  if (!auth.isLoggedIn) {
+  if (!auth.isLoggedIn || !user.userId) {
     router.push('/login')
     return
   }
 
   loading.value = true
   try {
-    const response = await fetch(import.meta.env.VITE_APP_API_URL + '/api/v1/payment/claim-free', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${auth.token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        game_id: props.item.game_id
-      })
-    })
-    if (response.ok) {
+    const result = await paymentStore.claimFreeGame(props.item.game_id, Number(user.userId), auth);
+    if (result) {
       ownsCurrentGame.value = true;
       router.go(0)
     }

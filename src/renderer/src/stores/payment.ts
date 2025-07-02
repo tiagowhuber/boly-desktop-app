@@ -446,6 +446,39 @@ const usePayment = defineStore('payment', {
         const fallbackRate = 990;
         return Math.round(amountUSD * fallbackRate);
       }
+    },
+
+    async claimFreeGame(gameId: number, userId: number, auth: { token: string }) {
+      this.loading = true
+      try {
+        const response = await axios.post(`${import.meta.env.VITE_APP_API_URL}/v1/payment/claim-free-game`,
+          { game_id: gameId, user_id: userId },
+          { headers: { Authorization: `Bearer ${auth.token}` } }
+        )
+        return response.data
+      } catch (error: any) {
+        this.error = error
+        return false
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async claimFreeGameDiscount(gameId: number, userId: number, auth: { token: string }, discountCode?: string) {
+      this.loading = true;
+      this.error = null;
+      try {
+        const response = await axios.post(`${import.meta.env.VITE_APP_API_URL}/v1/payment/claim-free`,
+          { game_id: gameId, user_id: userId, discount_code: discountCode },
+          { headers: { Authorization: `Bearer ${auth.token}` } }
+        );
+        return response.data;
+      } catch (error: any) {
+        this.error = error;
+        return false;
+      } finally {
+        this.loading = false;
+      }
     }
   }
 })

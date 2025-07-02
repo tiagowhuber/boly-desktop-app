@@ -109,6 +109,23 @@ export default defineStore('games', {
       }
     },
     
+    async getSubscriptionGames(userId: number) {
+      this.loading = true
+      this.error = undefined
+      try {
+        const response = await axios.get(`v1/games/${userId}/subscription`)
+        return response.data.map((game: any) => ({
+          ...game,
+          game_type: game.game_type || { name: 'Unknown' }
+        }))
+      } catch (error: any) {
+        this.error = error
+        return []
+      } finally {
+        this.loading = false
+      }
+    },
+
     async getUserGames(userId: number) {
       this.loading = true
       this.error = undefined
@@ -315,22 +332,6 @@ export default defineStore('games', {
     async checkOrderStatus(token: string): Promise<boolean> {
       const paymentStore = usePayment();
       return await paymentStore.checkOrder(token);
-    },
-      async claimFreeGame(gameId: number, userId: number, auth: { token: string }, discountCode?: string) {
-      this.loading = true
-      this.error = undefined
-      try {
-        const response = await axios.post('/v1/payment/claim-free',
-          { game_id: gameId, user_id: userId, discount_code: discountCode },
-          { headers: { Authorization: `Bearer ${auth.token}` } }
-        )
-        return response.data
-      } catch (error: any) {
-        this.error = error
-        return false
-      } finally {
-        this.loading = false
-      }
     },
 
     async getPlayTime(gameId: number, auth: { token: string }) {

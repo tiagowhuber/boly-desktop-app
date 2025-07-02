@@ -246,7 +246,7 @@ router.beforeEach(async (to, from, next) => {
   const auth = useAuth()
   
   try {
-    await auth.checkToken(true)
+    await auth.checkToken()
     
     // If user is not logged in and accessing home route, redirect to login
     if (to.path === '/' && !auth.isLoggedIn) {
