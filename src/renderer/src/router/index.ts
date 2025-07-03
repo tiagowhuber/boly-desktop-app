@@ -235,6 +235,14 @@ export const router = createRouter({
       name: 'sudoku',
       component: () => import('../components/games/SudokuGame.vue')
     },
+    {
+      path: '/report-problem',
+      name: 'report-problem',
+      component: () => import('../views/ReportProblemView.vue'),
+      meta: {
+        requiresAuth: false
+      }
+    }
   ],
   //@ts-ignore
   scrollBehavior(to, from, savedPosition) {

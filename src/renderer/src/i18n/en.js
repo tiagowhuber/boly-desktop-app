@@ -509,6 +509,33 @@ export const en = {
   email_verified_success: 'Your email address has been successfully verified.',
   back_to_home: 'Back to Home',
   verify_email_verifying: 'Verifying your email address...',
+
+  
+  // Report Problem View
+  report_problem_title: 'Report a Problem',
+  report_problem_subtitle: 'Help us improve by reporting any issues you encounter',
+  tell_us_what_happened: 'Tell us what happened',
+  report_problem_description: 'Please provide as much detail as possible to help us resolve the issue quickly.',
+  problem_title: 'What happened?',
+  problem_title_placeholder: 'Brief description of the issue',
+  optional: 'Optional',
+  email_placeholder: 'your.email@example.com',
+  email_feedback_note: 'Provide your email if you want us to follow up with you about this issue.',
+  problem_category: 'Category',
+  select_category: 'Select a category',
+  category_bug: 'Bug Report',
+  category_feature: 'Feature Request',
+  category_account: 'Account Issue',
+  category_payment: 'Payment Issue',
+  category_performance: 'Performance Issue',
+  category_ui: 'UI/UX Issue',
+  category_other: 'Other',
+  problem_details: 'Details',
+  problem_details_placeholder: 'Please describe the issue in detail. Include steps to reproduce, expected behavior, and actual behavior.',
+  submit_report: 'Submit Report',
+  modal_required_fields: 'Please fill in all required fields',
+  report_sent_success: 'Your report has been sent successfully. We will investigate and get back to you soon.',
+  report_sent_error: 'Failed to send report. Please try again later.',
 }
 
 export default en

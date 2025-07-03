@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
+import { RouterView, useRouter } from 'vue-router'
 import { useCart } from '@/stores'
 import TheNavbar from './components/navbar/TheNavbar.vue'
 import TheFooter from './components/footer/TheFooter.vue'
 import Loading from '@/components/LoadingIcon.vue'
 import DownloadProgressBar from '@/components/DownloadProgressBar.vue'
+import ExclamationTriangle from '@/components/icons/ExclamationTriangle.vue'
 import { provide } from 'vue'
 import { useAuth } from '@/stores'
 import useDownloadStore from '@/desktop-stores/download'
@@ -12,12 +13,17 @@ import ModalComponent from '@/components/ModalComponent.vue'
 
 const auth = useAuth()
 const downloadStore = useDownloadStore()
+const router = useRouter()
 
 auth.checkToken()
 
 const shoppingCart = useCart()
 
 provide('cart', shoppingCart)
+
+const goToReportProblem = () => {
+  router.push('/report-problem')
+}
 </script>
 
 <template>
@@ -40,7 +46,12 @@ provide('cart', shoppingCart)
       <TheFooter :small="false" :color="'dark-purple'" v-if="$route.path == '/'"/>
       <TheFooter :small="false" :color="'blue'" v-else/>
   </template>
-    <button class="lang-button" @click="$i18n.locale = $i18n.locale == 'es'? 'en' : 'es'">{{ $i18n.locale.toUpperCase() }}</button>
+    <div class="bottom-buttons">
+      <button class="report-button" @click="goToReportProblem" :title="$t('report_problem_title') || 'Report a Problem'">
+        <ExclamationTriangle />
+      </button>
+      <button class="lang-button" @click="$i18n.locale = $i18n.locale == 'es'? 'en' : 'es'">{{ $i18n.locale.toUpperCase() }}</button>
+    </div>
     <ModalComponent />
     
     <DownloadProgressBar
@@ -53,13 +64,18 @@ provide('cart', shoppingCart)
 
 <style>
 
-.lang-button{
+.bottom-buttons {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  z-index: 1000; 
+  bottom: 20px;
+  left: 20px;
+  z-index: 1001;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
 
-  margin: 20px;
+.lang-button{
+  /* Removed position: fixed to work with flexbox */
   width: 100px;
   height: 50px;
   border: none;
@@ -74,6 +90,32 @@ provide('cart', shoppingCart)
 
 .lang-button:hover{
   background-color: var(--lightCyan);
+  transition: .1s;
+}
+
+.report-button {
+  width: 50px;
+  height: 50px;
+  border: none;
+  border-radius: 50%;
+  background-color: white;
+  color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: .1s;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.report-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.report-button:hover {
+  background-color: lightgray;
+  transform: scale(1.05);
   transition: .1s;
 }
 

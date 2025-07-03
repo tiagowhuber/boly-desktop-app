@@ -86,10 +86,10 @@ const fetchPaymentMethods = async () => {
   }
 }
 
-async function handleSubscription(planType: string) {
-  if (isCurrentPlan(planType)) return
-  window.open('https://boly.cl/subscription', '_blank')
-}
+// async function handleSubscription(planType: string) {
+//   if (isCurrentPlan(planType)) return
+//   window.open('https://boly.cl/subscription', '_blank')
+// }
 
 const isCurrentPlan = (plan: string) => {
   return userPlan.value === plan
@@ -165,7 +165,7 @@ async function handleRedeemCode() {
         <h3 class="price">{{ t('free').toUpperCase() }}</h3>
         <button 
           :class="buttonClass('free')" 
-          @click="handleSubscription('free')">
+          @click=""> <!-- handleSubscription('free') -->
           {{ buttonText('free') }}
         </button>
       </div>
@@ -182,7 +182,7 @@ async function handleRedeemCode() {
         <h3 class="price">{{ $t('coming_soon') }}</h3>
         <button 
           :class="buttonClass('monthly')" 
-          @click="handleSubscription('monthly')">
+          @click=""> <!-- handleSubscription('monthly') -->
           {{ buttonText('monthly') }}
         </button>
       </div>
@@ -198,7 +198,7 @@ async function handleRedeemCode() {
         <h3 class="price">{{ $t('coming_soon') }}</h3>
         <button 
           :class="buttonClass('yearly')" 
-          @click="handleSubscription('yearly')">
+          @click=""> <!-- handleSubscription('yearly') -->
           {{ buttonText('yearly') }}
         </button>
       </div>
@@ -242,7 +242,7 @@ async function handleRedeemCode() {
           <h3 class="mobile-price">{{ t('free').toUpperCase() }}</h3>
           <button 
             :class="[buttonClass('free'), 'mobile-button']" 
-            @click="handleSubscription('free')">
+            @click=""> <!-- handleSubscription('free') -->
             {{ buttonText('free') }}
           </button>
         </div>
@@ -262,7 +262,7 @@ async function handleRedeemCode() {
         <h3 class="price">{{ $t('coming_soon') }}</h3>
           <button 
             :class="[buttonClass('monthly'), 'mobile-button']" 
-            @click="handleSubscription('monthly')">
+            @click=""> <!-- handleSubscription('monthly') -->
             {{ buttonText('monthly') }}
           </button>
         </div>
@@ -281,7 +281,7 @@ async function handleRedeemCode() {
         <h3 class="price">{{ $t('coming_soon') }}</h3>
           <button 
             :class="[buttonClass('yearly'), 'mobile-button']" 
-            @click="handleSubscription('yearly')">
+            @click=""> <!-- handleSubscription('yearly') -->
             {{ buttonText('yearly') }}
           </button>
         </div>

@@ -508,6 +508,32 @@ export const es = {
   email_verified_success: 'Correo electrónico verificado exitosamente.',
   back_to_home: 'Volver al inicio',
   verify_email_verifying: 'Verificando tu correo electrónico...',
+  
+  // Report Problem View
+  report_problem_title: 'Reportar un Problema',
+  report_problem_subtitle: 'Ayúdanos a mejorar reportando cualquier problema que encuentres',
+  tell_us_what_happened: 'Cuéntanos qué pasó',
+  report_problem_description: 'Por favor proporciona tantos detalles como sea posible para ayudarnos a resolver el problema rápidamente.',
+  problem_title: '¿Qué pasó?',
+  problem_title_placeholder: 'Descripción breve del problema',
+  optional: 'Opcional',
+  email_placeholder: 'tu.email@ejemplo.com',
+  email_feedback_note: 'Proporciona tu email si quieres que te contactemos sobre este problema.',
+  problem_category: 'Categoría',
+  select_category: 'Selecciona una categoría',
+  category_bug: 'Reporte de Error',
+  category_feature: 'Solicitud de Función',
+  category_account: 'Problema de Cuenta',
+  category_payment: 'Problema de Pago',
+  category_performance: 'Problema de Rendimiento',
+  category_ui: 'Problema de UI/UX',
+  category_other: 'Otro',
+  problem_details: 'Detalles',
+  problem_details_placeholder: 'Por favor describe el problema en detalle. Incluye pasos para reproducir, comportamiento esperado y comportamiento actual.',
+  submit_report: 'Enviar Reporte',
+  modal_required_fields: 'Por favor completa todos los campos requeridos',
+  report_sent_success: 'Tu reporte ha sido enviado exitosamente. Investigaremos y te contactaremos pronto.',
+  report_sent_error: 'No se pudo enviar el reporte. Por favor intenta más tarde.',
 }
 
 export default es
