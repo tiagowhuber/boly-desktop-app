@@ -86,113 +86,9 @@ const fetchPaymentMethods = async () => {
   }
 }
 
-const addPaymentMethod = async (planType: string) => {
-  try {
-    localStorage.setItem('pendingSubscriptionPlan', planType)
-    
-    showEnrollmentRedirectModal.value = true
-
-    await paymentStore.createEnrollment(
-      user.username,
-      user.email,
-      `${import.meta.env.VITE_APP_BASE_URL}/payment-methods/callback?returnTo=/subscription`,
-      auth.token
-    )
-    
-    setTimeout(() => {
-      if (webpayForm.value) {
-        webpayForm.value.submit()
-      } else {
-        showEnrollmentRedirectModal.value = false
-      }
-    }, 100)
-  } catch (err) {
-    console.error('Error creating enrollment:', err)
-    showEnrollmentRedirectModal.value = false
-  }
-}
-
 async function handleSubscription(planType: string) {
   if (isCurrentPlan(planType)) return
-
-  if (auth.isLoggedIn && user.userId) {
-    try {
-      // For free subscription, just create it without payment
-      if (planType === 'free') {
-        const planId = Object.entries(PLAN_TYPES).find(([_id, type]) => type === planType)?.[0]
-        
-        if (!planId) {
-          console.error('Invalid plan type')
-          return
-        }
-        
-        const success = await subscriptionStore.createSubscription(user.userId, parseInt(planId), { token: auth.token })
-        
-        if (success) {
-          userPlan.value = planType
-          //showModal.value = true
-        }
-        return
-      }
-      
-      if ((planType === 'monthly' || planType === 'yearly') && !hasPaymentMethods.value) {
-        addPaymentMethod(planType)
-        return
-      }
-
-      const planId = Object.entries(PLAN_TYPES).find(([_id, type]) => type === planType)?.[0]
-
-      if (!planId) {
-        console.error('Invalid plan type')
-        return
-      }
-        const planIdNumber = parseInt(planId)
-      
-      const amount = i18n.locale.value === 'en'
-        ? (planType === 'monthly' ? 8 : 90)
-        : (planType === 'monthly' ? 8000 : 90000)
-      const currency = i18n.locale.value === 'en' ? 'USD' : 'CLP'
-      
-      try {
-        if (paymentStore.paymentMethods.length === 0) {
-          await fetchPaymentMethods()
-        }
-        
-        if (paymentStore.paymentMethods.length === 0) {
-          console.error('No payment methods available')
-          paymentStore.error = 'No payment methods available. Please add a payment method.'
-          return
-        }
-        
-        const paymentMethod = paymentStore.paymentMethods[0]
-
-        const success = await subscriptionStore.subscribeWithOneClick(
-          user.userId,
-          planIdNumber,
-          user.username,
-          paymentMethod.tbk_user,
-          amount,
-          { token: auth.token },
-          currency
-        )
-        
-        if (success) {
-          userPlan.value = planType
-          showModal.value = true
-        } else if (subscriptionStore.error) {
-          paymentStore.error = subscriptionStore.error
-        }
-      } catch (err) {
-        console.error('Error in payment process:', err)
-        paymentStore.error = 'An unexpected error occurred. Please try again later.'
-      }
-    } catch (err) {
-      console.error('Error in subscription process:', err)
-      paymentStore.error = 'An unexpected error occurred. Please try again later.'
-    }
-  } else {
-    router.push('/login')
-  }
+  window.open('https://boly.cl/subscription', '_blank')
 }
 
 const isCurrentPlan = (plan: string) => {
@@ -286,9 +182,8 @@ async function handleRedeemCode() {
         <h3 class="price">{{ $t('coming_soon') }}</h3>
         <button 
           :class="buttonClass('monthly')" 
-          @click="">
+          @click="handleSubscription('monthly')">
           {{ buttonText('monthly') }}
-          <!-- @click="handleSubscription('monthly')"> -->
         </button>
       </div>
       <div class="plan">
@@ -303,9 +198,8 @@ async function handleRedeemCode() {
         <h3 class="price">{{ $t('coming_soon') }}</h3>
         <button 
           :class="buttonClass('yearly')" 
-          @click="">
+          @click="handleSubscription('yearly')">
           {{ buttonText('yearly') }}
-          <!-- @click="handleSubscription('yearly')"> -->
         </button>
       </div>
       <div class="plan">
@@ -368,9 +262,8 @@ async function handleRedeemCode() {
         <h3 class="price">{{ $t('coming_soon') }}</h3>
           <button 
             :class="[buttonClass('monthly'), 'mobile-button']" 
-            @click="">
+            @click="handleSubscription('monthly')">
             {{ buttonText('monthly') }}
-            <!-- @click="handleSubscription('monthly')"> -->
           </button>
         </div>
       </div>
@@ -388,9 +281,8 @@ async function handleRedeemCode() {
         <h3 class="price">{{ $t('coming_soon') }}</h3>
           <button 
             :class="[buttonClass('yearly'), 'mobile-button']" 
-            @click="">
+            @click="handleSubscription('yearly')">
             {{ buttonText('yearly') }}
-            <!-- @click="handleSubscription('yearly')" -->
           </button>
         </div>
       </div>
