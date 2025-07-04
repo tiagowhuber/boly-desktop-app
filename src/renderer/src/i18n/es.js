@@ -117,7 +117,7 @@ export const es = {
   phone: 'Número de teléfono',
   query: 'Escribe tu consulta',
   send_query: 'Enviar consulta',
-  send_query_success: '¡Consulta enviada exitosamente!',
+  send_query_success: '¡Consulta enviada exitosamente! Nos pondremos en contacto contigo lo antes posible.',
   send_query_error: '¡Ups! Ocurrió un error al enviar tu consulta. Por favor intenta de nuevo.',
   contact_lets_talk: 'Hablemos',
   contact_body: '¿Cómo podemos ayudarte?',

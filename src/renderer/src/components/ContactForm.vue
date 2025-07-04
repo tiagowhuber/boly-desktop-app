@@ -33,20 +33,15 @@ async function SendEmail() {
   try {
     // Send contact form through your backend API
     const contactData = {
-      title: `Contact from ${name.value} - ${company.value}`,
-      email: email.value,
-      category: 'contact',
-      details: `Name: ${name.value}\nCompany: ${company.value}\nPhone: +56${phone.value}\n\nMessage:\n${message.value}`,
-      user_agent: navigator.userAgent,
-      timestamp: new Date().toISOString(),
-      // Additional fields specific to contact form
       name: name.value,
       company: company.value,
+      email: email.value,
       phone: `+56${phone.value}`,
-      message: message.value
+      message: message.value,
+      timestamp: new Date().toISOString()
     }
 
-    const response = await axios.post('/v1/support/report', contactData);
+    const response = await axios.post('/v1/support/contact', contactData);
     
     if (response.data && response.data.success) {
       modalText.value = i18n.t('send_query_success') || 'Your message has been sent successfully. We will get back to you soon.'

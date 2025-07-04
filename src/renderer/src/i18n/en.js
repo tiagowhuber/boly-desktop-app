@@ -119,7 +119,7 @@ export const en = {
   phone: 'Telephone number',
   query: 'Enter your inquiry',
   send_query: 'Send inquiry',
-  send_query_success: 'Inquiry sent successfully!',
+  send_query_success: 'Inquiry sent successfully! We will get back to you as soon as possible.',
   send_query_error: 'Oops! An error occurred while sending your inquiry. Please try again.',
   contact_lets_talk: `Let's talk`,
   contact_body: `How can we help you?`,
