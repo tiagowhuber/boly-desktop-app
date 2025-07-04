@@ -2,7 +2,7 @@
 import TagAbove from '@/components/forms/TagAbove.vue'
 import AlertModal from '@/components/AlertModal.vue'
 import { onMounted, ref } from 'vue';
-import emailjs from '@emailjs/browser';
+import axios from 'axios';
 import { useI18n } from 'vue-i18n';
 const i18n = useI18n();
 
@@ -30,25 +30,45 @@ async function SendEmail() {
 
   canSend.value = false;
 
-  emailjs
-    .sendForm('service_lbut1ys', 'template_aznai5p', form.value, {
-      publicKey: 'e3bm7Vy4Y4uUrLkmf',
-    })
-    .then(
-      () => {
-        console.log('SUCCESS!');
-        modalText.value = i18n.t('send_query_success')
-        showModal.value = true;
-        canSend.value = true;
-      },
-      (error) => {
-        console.log('FAILED...', error.text);
-        modalText.value = i18n.t('send_query_error')
-        showModal.value = true;
-        canSend.value = true;
-      },
-    );
+  try {
+    // Send contact form through your backend API
+    const contactData = {
+      title: `Contact from ${name.value} - ${company.value}`,
+      email: email.value,
+      category: 'contact',
+      details: `Name: ${name.value}\nCompany: ${company.value}\nPhone: +56${phone.value}\n\nMessage:\n${message.value}`,
+      user_agent: navigator.userAgent,
+      timestamp: new Date().toISOString(),
+      // Additional fields specific to contact form
+      name: name.value,
+      company: company.value,
+      phone: `+56${phone.value}`,
+      message: message.value
+    }
+
+    const response = await axios.post('/v1/support/report', contactData);
+    
+    if (response.data && response.data.success) {
+      modalText.value = i18n.t('send_query_success') || 'Your message has been sent successfully. We will get back to you soon.'
+      showModal.value = true;
+      canSend.value = true;
+      
+      // Reset form
+      name.value = ''
+      company.value = ''
+      email.value = ''
+      phone.value = ''
+      message.value = ''
+    } else {
+      throw new Error('API response indicates failure');
+    }
+  } catch (error) {
+    console.error('Failed to send contact form:', error);
+    modalText.value = i18n.t('send_query_error') || 'Failed to send message. Please try again later.'
+    showModal.value = true;
+    canSend.value = true;
   }
+}
 </script>
 
 <template>

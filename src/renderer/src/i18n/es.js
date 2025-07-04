@@ -517,7 +517,7 @@ export const es = {
   problem_title: '¿Qué pasó?',
   problem_title_placeholder: 'Descripción breve del problema',
   optional: 'Opcional',
-  email_placeholder: 'tu.email@ejemplo.com',
+  email_placeholder: 'Tu email',
   email_feedback_note: 'Proporciona tu email si quieres que te contactemos sobre este problema.',
   problem_category: 'Categoría',
   select_category: 'Selecciona una categoría',

@@ -2,8 +2,8 @@
 import TagAbove from '@/components/forms/TagAbove.vue'
 import AlertModal from '@/components/AlertModal.vue'
 import { onMounted, ref } from 'vue';
-import emailjs from '@emailjs/browser';
 import { useI18n } from 'vue-i18n';
+import axios from 'axios';
 const i18n = useI18n();
 
 const form = ref(null)
@@ -37,40 +37,39 @@ async function SendReport() {
 
   canSend.value = false;
 
-  // Prepare form data for email
-  const formData = {
-    title: title.value,
-    email: email.value || 'Not provided',
-    category: category.value,
-    details: details.value,
-    from_name: 'Problem Report System',
-    to_name: 'Support Team'
-  }
+  try {
+    // Send report through your backend API
+    const reportData = {
+      title: title.value,
+      email: email.value || null,
+      category: category.value,
+      details: details.value,
+      user_agent: navigator.userAgent,
+      timestamp: new Date().toISOString()
+    }
 
-  emailjs
-    .send('service_lbut1ys', 'template_aznai5p', formData, {
-      publicKey: 'e3bm7Vy4Y4uUrLkmf',
-    })
-    .then(
-      () => {
-        console.log('SUCCESS!');
-        modalText.value = i18n.t('report_sent_success') || 'Your report has been sent successfully. We will investigate and get back to you soon.'
-        showModal.value = true;
-        canSend.value = true;
-        // Reset form
-        title.value = ''
-        email.value = ''
-        category.value = ''
-        details.value = ''
-      },
-      (error) => {
-        console.log('FAILED...', error.text);
-        modalText.value = i18n.t('report_sent_error') || 'Failed to send report. Please try again later.'
-        showModal.value = true;
-        canSend.value = true;
-      },
-    );
+    const response = await axios.post('/v1/support/report', reportData);
+    
+    if (response.data && response.data.success) {
+      modalText.value = i18n.t('report_sent_success') || 'Your report has been sent successfully. We will investigate and get back to you soon.'
+      showModal.value = true;
+      canSend.value = true;
+      
+      // Reset form
+      title.value = ''
+      email.value = ''
+      category.value = ''
+      details.value = ''
+    } else {
+      throw new Error('API response indicates failure');
+    }
+  } catch (error) {
+    console.error('Failed to send report:', error);
+    modalText.value = i18n.t('report_sent_error') || 'Failed to send report. Please try again later.'
+    showModal.value = true;
+    canSend.value = true;
   }
+}
 </script>
 
 <template>
@@ -102,7 +101,7 @@ async function SendReport() {
                 type="email"
                 name="email"
                 v-model="email"
-                :placeholder="$t('email_placeholder') || 'your.email@example.com'"
+                :placeholder="$t('email_placeholder') || 'your email'"
               />
               <p class="email-note">
                 {{ $t('email_feedback_note') || 'Provide your email if you want us to follow up with you about this issue.' }}
@@ -126,7 +125,7 @@ async function SendReport() {
                   :key="cat.value" 
                   :value="cat.value"
                 >
-                  {{ $t(`category_${cat.value}`) || cat.label }}
+                  {{ $t('category_' + cat.value) || cat.label }}
                 </option>
               </select>
             </template>

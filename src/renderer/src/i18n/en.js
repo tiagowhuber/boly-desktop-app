@@ -519,7 +519,7 @@ export const en = {
   problem_title: 'What happened?',
   problem_title_placeholder: 'Brief description of the issue',
   optional: 'Optional',
-  email_placeholder: 'your.email@example.com',
+  email_placeholder: 'Your email',
   email_feedback_note: 'Provide your email if you want us to follow up with you about this issue.',
   problem_category: 'Category',
   select_category: 'Select a category',
