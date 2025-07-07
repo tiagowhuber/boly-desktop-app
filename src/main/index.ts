@@ -265,6 +265,7 @@ interface ActiveGameSession {
   intervalId?: NodeJS.Timeout; 
 }
 let activeGameSession: ActiveGameSession | null = null;
+let gameSessionLaunching = false; // Add a flag to prevent multiple simultaneous launches
 const PLAYTIME_UPDATE_INTERVAL_MS = 60 * 1000; // every 1 minute
 
 async function fetchInitialPlayTime(token: string, game_id: number): Promise<number> {
@@ -347,6 +348,7 @@ function stopPlaytimeTracking() {
     clearInterval(activeGameSession.intervalId);
   }
   activeGameSession = null;
+  gameSessionLaunching = false;
   console.log('Playtime tracking stopped.');
 }
 
@@ -555,10 +557,19 @@ async function createWindow(): Promise<void> {
     console.log('token: ' + appData.token)
     const { appPath, game_id, token } = appData;
 
+    // Check if another game session is already active or launching
     if (activeGameSession) {
       console.warn('Another game session is already active. Please stop it first.');
       return { error: 'Another game session is active.' };
     }
+
+    if (gameSessionLaunching) {
+      console.warn('A game is already being launched. Please wait.');
+      return { error: 'A game is already being launched. Please wait.' };
+    }
+
+    // Set the launching flag to prevent multiple simultaneous launches
+    gameSessionLaunching = true;
 
     try {
       console.log('Game path: ' + appPath);
@@ -587,6 +598,7 @@ async function createWindow(): Promise<void> {
 
         if (!appProcess.pid) {
           console.error('Failed to launch application or get PID.');
+          gameSessionLaunching = false; // Clear flag on failure
           return { error: 'Failed to launch game process.' };
         }
 
@@ -598,6 +610,9 @@ async function createWindow(): Promise<void> {
           sessionStartTime: Date.now(),
           lastRecordedPlayTimeMinutes: lastRecordedPlayTimeMinutes,
         };
+
+        // Clear the launching flag since the game has successfully started
+        gameSessionLaunching = false;
 
         activeGameSession.intervalId = setInterval(async () => {
           if (activeGameSession) {
@@ -731,6 +746,7 @@ async function createWindow(): Promise<void> {
 
       } else {
         console.error('Game validation failed:', validationResponse.data);
+        gameSessionLaunching = false; // Clear flag on validation failure
         return { error: 'Game validation failed.' };
       }
     } catch (error: any) {
@@ -738,6 +754,10 @@ async function createWindow(): Promise<void> {
       if (error.response) {
         console.error('Error response data:', error.response.data);
       }
+      
+      // Clear the launching flag on error
+      gameSessionLaunching = false;
+      
       if (activeGameSession) {
           const endTime = Date.now();
           const sessionDurationMinutes = (endTime - activeGameSession.sessionStartTime) / (1000 * 60);
