@@ -284,7 +284,7 @@ async function fetchInitialPlayTime(token: string, game_id: number): Promise<num
   }
 }
 
-async function sendPlayTimeUpdate(token: string, game_id: number, totalPlayTimeMinutes: number) {
+async function sendPlayTimeUpdate(token: string, game_id: number, totalPlayTimeMinutes: number): Promise<boolean> {
   try {
     // @ts-ignore
     const apiBaseUrl = import.meta.env.VITE_APP_API_URL;
@@ -295,8 +295,50 @@ async function sendPlayTimeUpdate(token: string, game_id: number, totalPlayTimeM
       headers: { Authorization: `Bearer ${token}` }
     });
     console.log(`Playtime updated for game ${game_id}: ${totalPlayTimeMinutes} minutes`);
-  } catch (error) {
+    return true;
+  } catch (error: any) {
     console.error('Failed to send playtime update:', error);
+    // Check if it's an authentication error
+    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+      console.error('Authentication failed - user may not be signed in');
+      return false;
+    }
+    return true; // For other errors, don't kill the game
+  }
+}
+
+async function checkUserAuthentication(): Promise<boolean> {
+  try {
+    const currentToken = await mainWindow.webContents.executeJavaScript('localStorage.getItem("token")');
+    
+    if (!currentToken) {
+      console.log('No token found in localStorage - user has signed out');
+      return false;
+    }
+    
+    
+    const base64Url = currentToken.split('.')[1];
+    if (!base64Url) {
+      return false;
+    }
+    
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    
+    const tokenData = JSON.parse(jsonPayload);
+    console.log('Decoded token data:', tokenData);
+    // Check if token is expired
+    if (tokenData.exp && tokenData.exp < Date.now() / 1000) {
+      console.log('Token is expired');
+      return false;
+    }
+    
+    return true;
+  } catch (error: any) {
+    console.error('Token validation failed:', error);
+    return false;
   }
 }
 
@@ -306,6 +348,61 @@ function stopPlaytimeTracking() {
   }
   activeGameSession = null;
   console.log('Playtime tracking stopped.');
+}
+
+// Add cleanup function for active game sessions
+async function cleanupActiveGameSession() {
+  if (activeGameSession) {
+    console.log(`Terminating active game session with PID: ${activeGameSession.pid}`);
+    
+    try {
+      // Calculate final playtime before killing the process
+      const endTime = Date.now();
+      const sessionDurationMinutes = (endTime - activeGameSession.sessionStartTime) / (1000 * 60);
+      const finalTotalPlayTimeMinutes = activeGameSession.lastRecordedPlayTimeMinutes + sessionDurationMinutes;
+      
+      // Send final playtime update
+      await sendPlayTimeUpdate(activeGameSession.token, activeGameSession.game_id, finalTotalPlayTimeMinutes);
+      
+      // Store PID before potential null assignment
+      const gamePid = activeGameSession.pid;
+      
+      // Kill the game process
+      if (process.platform === 'win32') {
+        // On Windows, use taskkill to forcefully terminate
+        exec(`taskkill /pid ${gamePid} /f /t`, (err) => {
+          if (err) {
+            console.error('Error killing game process:', err);
+          } else {
+            console.log(`Successfully terminated game process ${gamePid}`);
+          }
+        });
+      } else {
+        // On Unix-like systems, use SIGTERM first, then SIGKILL if needed
+        try {
+          process.kill(gamePid, 'SIGTERM');
+          
+          // Give the process 3 seconds to terminate gracefully
+          setTimeout(() => {
+            try {
+              process.kill(gamePid, 'SIGKILL');
+            } catch (e) {
+              // Process already terminated
+            }
+          }, 3000);
+        } catch (e) {
+          console.log('Game process already terminated or not found');
+        }
+      }
+      
+      // Stop playtime tracking
+      stopPlaytimeTracking();
+      
+    } catch (error) {
+      console.error('Error during game session cleanup:', error);
+      stopPlaytimeTracking();
+    }
+  }
 }
 
 async function createWindow(): Promise<void> {
@@ -333,6 +430,18 @@ async function createWindow(): Promise<void> {
 
   ipcMain.handle('get-version', () => {
     return autoUpdater.currentVersion.version;
+  })
+
+  ipcMain.handle('get-current-token', () => {
+    return new Promise((resolve) => {
+      mainWindow.webContents.executeJavaScript('localStorage.getItem("token")')
+        .then((token) => {
+          resolve(token);
+        })
+        .catch(() => {
+          resolve(null);
+        });
+    });
   })
 
   // handlers for custom protocol API requests
@@ -493,11 +602,90 @@ async function createWindow(): Promise<void> {
         activeGameSession.intervalId = setInterval(async () => {
           if (activeGameSession) {
             try {
+              // Check if the game process is still running
               process.kill(activeGameSession.pid, 0);
+              
+              // Check if user is still authenticated
+              const isAuthenticated = await checkUserAuthentication();
+              if (!isAuthenticated) {
+                console.log('User is no longer authenticated. Terminating game...');
+                
+                // Calculate final playtime before terminating
+                const endTime = Date.now();
+                const sessionDurationMinutes = (endTime - activeGameSession.sessionStartTime) / (1000 * 60);
+                const finalTotalPlayTimeMinutes = activeGameSession.lastRecordedPlayTimeMinutes + sessionDurationMinutes;
+                
+                // Try to send final playtime update (may fail due to auth issues)
+                await sendPlayTimeUpdate(activeGameSession.token, activeGameSession.game_id, finalTotalPlayTimeMinutes);
+                
+                // Terminate the game process
+                const gamePid = activeGameSession.pid;
+                if (process.platform === 'win32') {
+                  exec(`taskkill /pid ${gamePid} /f /t`, (err) => {
+                    if (err) {
+                      console.error('Error killing game process due to auth failure:', err);
+                    } else {
+                      console.log(`Successfully terminated game process ${gamePid} due to authentication failure`);
+                    }
+                  });
+                } else {
+                  try {
+                    process.kill(gamePid, 'SIGTERM');
+                    setTimeout(() => {
+                      try {
+                        process.kill(gamePid, 'SIGKILL');
+                      } catch (e) {
+                        // Process already terminated
+                      }
+                    }, 3000);
+                  } catch (e) {
+                    console.log('Game process already terminated or not found');
+                  }
+                }
+                
+                stopPlaytimeTracking();
+                return;
+              }
+              
+              // If authenticated, proceed with normal playtime update
               const currentTime = Date.now();
               const sessionDurationMinutes = (currentTime - activeGameSession.sessionStartTime) / (1000 * 60);
               const newTotalPlayTimeMinutes = activeGameSession.lastRecordedPlayTimeMinutes + sessionDurationMinutes;
-              await sendPlayTimeUpdate(activeGameSession.token, activeGameSession.game_id, newTotalPlayTimeMinutes);
+              const updateSuccess = await sendPlayTimeUpdate(activeGameSession.token, activeGameSession.game_id, newTotalPlayTimeMinutes);
+              
+              // If playtime update failed due to authentication, terminate the game
+              if (!updateSuccess) {
+                console.log('Playtime update failed due to authentication. Terminating game...');
+                
+                // Terminate the game process
+                const gamePid = activeGameSession.pid;
+                if (process.platform === 'win32') {
+                  exec(`taskkill /pid ${gamePid} /f /t`, (err) => {
+                    if (err) {
+                      console.error('Error killing game process due to auth failure in playtime update:', err);
+                    } else {
+                      console.log(`Successfully terminated game process ${gamePid} due to playtime update authentication failure`);
+                    }
+                  });
+                } else {
+                  try {
+                    process.kill(gamePid, 'SIGTERM');
+                    setTimeout(() => {
+                      try {
+                        process.kill(gamePid, 'SIGKILL');
+                      } catch (e) {
+                        // Process already terminated
+                      }
+                    }, 3000);
+                  } catch (e) {
+                    console.log('Game process already terminated or not found');
+                  }
+                }
+                
+                stopPlaytimeTracking();
+                return;
+              }
+              
             } catch (e) {
               console.log(`Game process ${activeGameSession.pid} no longer running. Stopping periodic updates.`);
               const endTime = Date.now();
@@ -608,6 +796,26 @@ async function createWindow(): Promise<void> {
     }
   })
   //---
+
+  // Add cleanup when the main window is closed
+  mainWindow.on('closed', async () => {
+    console.log('Main window closed, cleaning up active game sessions...');
+    await cleanupActiveGameSession();
+  });
+
+  mainWindow.on('close', async (event) => {
+    if (activeGameSession) {
+      console.log('Window closing with active game session, cleaning up...');
+      // Prevent the window from closing immediately
+      event.preventDefault();
+      
+      // Clean up the game session
+      await cleanupActiveGameSession();
+      
+      // Now close the window
+      mainWindow.destroy();
+    }
+  });
 
   mainWindow.on('ready-to-show', () => {
       mainWindow.webContents.openDevTools()
@@ -773,9 +981,25 @@ app.whenReady().then(() => {
   }
 })
 
-app.on('window-all-closed', () => {
+app.on('window-all-closed', async () => {
+  // Clean up any active game sessions before quitting
+  await cleanupActiveGameSession();
+  
   if (process.platform !== 'darwin') {
     app.quit()
   }
 })
+
+// Add cleanup on app quit as well
+app.on('before-quit', async (event) => {
+  if (activeGameSession) {
+    console.log('App quitting with active game session, cleaning up...');
+    event.preventDefault();
+    
+    await cleanupActiveGameSession();
+    
+    // Quit after cleanup
+    app.quit();
+  }
+});
 
