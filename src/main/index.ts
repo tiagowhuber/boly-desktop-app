@@ -300,7 +300,7 @@ async function sendPlayTimeUpdate(token: string, game_id: number, totalPlayTimeM
   } catch (error: any) {
     console.error('Failed to send playtime update:', error);
     // Check if it's an authentication error
-    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+    if (error.response && (error.response.status === 403)) {
       console.error('Authentication failed - user may not be signed in');
       return false;
     }
@@ -317,6 +317,22 @@ async function checkUserAuthentication(): Promise<boolean> {
       return false;
     }
     
+    // Validate session with backend
+    try {
+      // @ts-ignore
+      const apiBaseUrl = import.meta.env.VITE_APP_API_URL;
+      const sessionResponse = await axios.post(`${apiBaseUrl}/v1/auth/validate-session`, {}, {
+        headers: { Authorization: `Bearer ${currentToken}` }
+      });
+      
+      if (sessionResponse.status !== 200) {
+        console.log('Session validation failed with backend');
+        return false;
+      }
+    } catch (sessionError) {
+      console.error('Backend session validation failed:', sessionError);
+      return false;
+    }
     
     const base64Url = currentToken.split('.')[1];
     if (!base64Url) {
@@ -350,6 +366,67 @@ function stopPlaytimeTracking() {
   activeGameSession = null;
   gameSessionLaunching = false;
   console.log('Playtime tracking stopped.');
+}
+
+let sessionMonitoringInterval: NodeJS.Timeout | null = null;
+
+function startSessionMonitoring() {
+  // Check session validity every 30 seconds
+  sessionMonitoringInterval = setInterval(async () => {
+    try {
+      const currentToken = await mainWindow.webContents.executeJavaScript('localStorage.getItem("token")');
+      const currentSessionId = await mainWindow.webContents.executeJavaScript('localStorage.getItem("sessionId")');
+      
+      if (!currentToken || !currentSessionId) {
+        return; // No active session
+      }
+      
+      // Validate session with backend
+      try {
+        // @ts-ignore
+        const apiBaseUrl = import.meta.env.VITE_APP_API_URL;
+        const sessionResponse = await axios.post(`${apiBaseUrl}/v1/auth/validate-session`, {}, {
+          headers: { Authorization: `Bearer ${currentToken}` }
+        });
+        
+        if (sessionResponse.status !== 200) {
+          console.log('Session invalidated by server - logging out user');
+          await handleSessionInvalidation();
+        }
+      } catch (sessionError) {
+        console.error('Session validation failed - another session may have been started:', sessionError);
+        await handleSessionInvalidation();
+      }
+    } catch (error) {
+      console.error('Error during session monitoring:', error);
+    }
+  }, 30000); // Check every 30 seconds
+}
+
+async function handleSessionInvalidation() {
+  try {
+    // Close any running games
+    await cleanupActiveGameSession();
+    
+    // Clear local storage
+    await mainWindow.webContents.executeJavaScript(`
+      localStorage.removeItem("token");
+      localStorage.removeItem("sessionId");
+    `);
+    
+    // Notify the renderer process to update UI
+    mainWindow.webContents.send('session-invalidated');
+    
+  } catch (error) {
+    console.error('Error handling session invalidation:', error);
+  }
+}
+
+function stopSessionMonitoring() {
+  if (sessionMonitoringInterval) {
+    clearInterval(sessionMonitoringInterval);
+    sessionMonitoringInterval = null;
+  }
 }
 
 // Add cleanup function for active game sessions
@@ -840,6 +917,9 @@ async function createWindow(): Promise<void> {
   mainWindow.on('ready-to-show', () => {
       mainWindow.webContents.openDevTools()
     mainWindow.show()
+    
+    // Start session monitoring for single-login enforcement
+    startSessionMonitoring()
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -1021,5 +1101,8 @@ app.on('before-quit', async (event) => {
     // Quit after cleanup
     app.quit();
   }
+  
+  // Stop session monitoring
+  stopSessionMonitoring();
 });
 

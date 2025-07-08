@@ -8,6 +8,7 @@ import type { User } from '@/types';
 const useAuth = defineStore('auth', {
   state: () => ({
     token: localStorage.getItem('token') || '',
+    sessionId: localStorage.getItem('sessionId') || '',
     isLoggedIn: false,
     error: undefined,
     verifying: false,
@@ -18,10 +19,13 @@ const useAuth = defineStore('auth', {
       try {
         const response = await axios.post('/v1/auth', {
           email: email,
-          password: password
+          password: password,
+          is_desktop_app: true,
+          device_info: 'Boly Desktop App'
         })
         if (response.status == 200) {
           localStorage.setItem('token', response.data.token)
+          localStorage.setItem('sessionId', response.data.session_id)
 
           const user = useUser()
           
@@ -29,6 +33,7 @@ const useAuth = defineStore('auth', {
           user.setUser(decodedData)
 
           this.token = response.data.token
+          this.sessionId = response.data.session_id
           this.isLoggedIn = true
           
           router.push('/');
@@ -38,7 +43,7 @@ const useAuth = defineStore('auth', {
         }
       } catch (error: any) {
         console.log(error)
-        this.error = error.message
+        this.error = error.response?.data?.message || error.message
         console.error(this.error);
       }
     },
@@ -90,6 +95,22 @@ const useAuth = defineStore('auth', {
           return;
         }
 
+        // Validate session with backend
+        try {
+          const sessionResponse = await axios.post('/v1/auth/validate-session', {}, {
+            headers: { Authorization: `Bearer ${this.token}` }
+          });
+          
+          if (sessionResponse.status !== 200) {
+            throw new Error('Session validation failed');
+          }
+        } catch (sessionError) {
+          console.error('Session validation failed:', sessionError);
+          this.logout();
+          this.verifying = false;
+          return;
+        }
+
         const tokenData = jwtDecode(localStorage.getItem('token')!)
         if (tokenData.exp! < Date.now() / 1000) {
           await this.refreshToken()
@@ -98,6 +119,7 @@ const useAuth = defineStore('auth', {
           user.setUser(tokenData as User)
           this.isLoggedIn = true
           this.token = localStorage.getItem('token')!
+          this.sessionId = localStorage.getItem('sessionId') || ''
           axios.defaults.headers.common['Authorization'] = `Bearer ${this.token}`
           
           if (forceLoad && user.userId) {
@@ -116,6 +138,7 @@ const useAuth = defineStore('auth', {
         // Clear invalid token state
         this.token = ''
         localStorage.removeItem('token')
+        localStorage.removeItem('sessionId')
         this.isLoggedIn = false
         throw error; 
       } finally {
@@ -189,13 +212,28 @@ const useAuth = defineStore('auth', {
         throw error.response?.data || new Error('Failed to verify email');
       }
     },
-    logout() {
-      const user = useUser()
-      this.token = ''
-      localStorage.removeItem('token')
-      this.isLoggedIn = false 
-      this.error = undefined
-      user.clearUser()
+    async logout() {
+      try {
+        // Notify backend about logout
+        if (this.sessionId) {
+          await axios.post('/v1/auth/logout', {
+            session_id: this.sessionId
+          }, {
+            headers: { Authorization: `Bearer ${this.token}` }
+          });
+        }
+      } catch (error) {
+        console.error('Error during logout:', error);
+      } finally {
+        const user = useUser()
+        this.token = ''
+        this.sessionId = ''
+        localStorage.removeItem('token')
+        localStorage.removeItem('sessionId')
+        this.isLoggedIn = false 
+        this.error = undefined
+        user.clearUser()
+      }
     }
   }
 })
