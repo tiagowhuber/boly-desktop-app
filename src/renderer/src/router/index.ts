@@ -242,6 +242,14 @@ export const router = createRouter({
       meta: {
         requiresAuth: false
       }
+    },
+    {
+      path: '/session-invalidated',
+      name: 'session-invalidated',
+      component: () => import('../views/SessionInvalidatedView.vue'),
+      meta: {
+        requiresAuth: false
+      }
     }
   ],
   //@ts-ignore

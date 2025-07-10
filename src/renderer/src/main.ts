@@ -58,8 +58,8 @@ if (window.electron && window.electron.ipcRenderer) {
     // Force logout in the auth store
     await auth.logout()
     
-    // Redirect to login page
-    router.push('/login')
+    // Redirect to session invalidated page
+    router.push('/session-invalidated')
     
     // Show notification to user
     // Todo: Use a proper notification system

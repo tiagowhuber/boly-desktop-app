@@ -15,7 +15,7 @@ autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = true;
 autoUpdater.logger = console;
 autoUpdater.allowPrerelease = false;
-autoUpdater.forceDevUpdateConfig = true;
+autoUpdater.forceDevUpdateConfig = false;
 autoUpdater.requestHeaders = {
   'User-Agent': 'Boly-Desktop-App'
 };
@@ -521,6 +521,10 @@ async function createWindow(): Promise<void> {
           resolve(null);
         });
     });
+  })
+
+  ipcMain.handle('close-app', () => {
+    app.quit();
   })
 
   // handlers for custom protocol API requests

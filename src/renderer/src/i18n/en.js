@@ -536,6 +536,14 @@ export const en = {
   modal_required_fields: 'Please fill in all required fields',
   report_sent_success: 'Your report has been sent successfully. We will investigate and get back to you soon.',
   report_sent_error: 'Failed to send report. Please try again later.',
+
+  // Session Invalidated View
+  sessionInvalidated: {
+    title: 'Account logged in from another computer',
+    message: 'This Boly account is being used elsewhere. You have been logged out.',
+    loginButton: 'Log In Again',
+    closeButton: 'Close App'
+  },
 }
 
 export default en

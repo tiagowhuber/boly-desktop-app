@@ -534,6 +534,14 @@ export const es = {
   modal_required_fields: 'Por favor completa todos los campos requeridos',
   report_sent_success: 'Tu reporte ha sido enviado exitosamente. Investigaremos y te contactaremos pronto.',
   report_sent_error: 'No se pudo enviar el reporte. Por favor intenta más tarde.',
+
+  // Session Invalidated View
+  sessionInvalidated: {
+    title: 'Cuenta iniciada desde otra computadora',
+    message: 'Esta cuenta de Boly está siendo utilizada en otro lugar. Has sido desconectado.',
+    loginButton: 'Iniciar Sesión Nuevamente',
+    closeButton: 'Cerrar Aplicación'
+  },
 }
 
 export default es

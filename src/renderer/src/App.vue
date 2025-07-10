@@ -33,7 +33,7 @@ const goToReportProblem = () => {
     </div>
   </div>
   <template v-else>
-    <template v-if="$route.path == '/login' || $route.path == '/register' || $route.path == '/forgot-password' || $route.path == '/confirm-password-reset'">
+    <template v-if="$route.path == '/login' || $route.path == '/register' || $route.path == '/forgot-password' || $route.path == '/confirm-password-reset' || $route.path == '/session-invalidated'">
       <span class="view-container-login">
         <RouterView class="view-container"/>
         <TheFooter :small="true"/>
