@@ -89,6 +89,7 @@ export const en = {
   download_complete: 'Download Complete',
   download_error: 'Download Error',
   installing: 'Installing',
+  running: 'Running',
   play: 'Play',
   completed: 'Completed',
   user_games: "{user}'s games",
@@ -390,6 +391,8 @@ export const en = {
   form_submission_error: 'Error submitting form to payment gateway',
   renew_subscription: 'Renew Subscription',
   expiration_date: 'Expiration Date',
+  month_price: '8 USD / ',
+  year_price: '90 USD / ',
 
   // Developer Contact View
   dev_title_mobile: 'We sell your <span class="highlight-green">educational <br>video game</span><br> game worldwide.',

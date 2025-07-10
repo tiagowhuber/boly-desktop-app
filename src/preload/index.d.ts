@@ -4,9 +4,10 @@ interface ElectronAPIExtended {
   seleccionarArchivo: () => Promise<string>;
   seleccionarCarpeta: () => Promise<string>;
   instalarDesdeZip: (rutaExe: string, rutaDestion: string) => Promise<any>;
-  playGame: (appData: any) => Promise<any>;
+  playGame: (appData: any) => Promise<{success?: boolean, pid?: number, error?: string}>;
   downloadGame: (appData: {game_id: number, token: string, gameName: string}) => Promise<any>;
   uninstallGame: (appData: {game_id: number, uninstallerPath: string}) => Promise<{success: boolean, message?: string, error?: string}>;
+  isGameRunning: (gameId: number) => Promise<boolean>;
   searchExeFiles: (baseDir?: string) => Promise<{files?: string[], error?: string}>;
   loginWithGoogle: () => Promise<void>;
   resolveGoogleLogin: () => Promise<void>;
@@ -28,6 +29,8 @@ interface ElectronAPIExtended {
   onInstallStarted: (callback: (data: any) => void) => void;
   onInstallError: (callback: (data: any) => void) => void;
   onInstallComplete: (callback: (data: any) => void) => void;
+  onGameStarted: (callback: (data: any) => void) => void;
+  onGameStopped: (callback: (data: any) => void) => void;
   removeAllListeners: (channel: string) => void;
 }
 

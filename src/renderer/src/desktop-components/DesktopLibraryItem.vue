@@ -23,6 +23,7 @@ const gameRoutesStore = useGameRoutes()
 const loading = ref(false)
 const isDownloading = ref(false)
 const isInstalling = ref(false)
+const isRunning = ref(false)
 const gameAchievements = ref<Achievement[]>([])
 const achievementsLoading = ref(true)
 const playTime = ref<number | null>(null) 
@@ -136,6 +137,13 @@ onMounted(() => {
   fetchGameAchievements();
   fetchPlayTime(); 
   
+  // Check if this game is currently running
+  if (props.item.game_id) {
+    window.electronAPI.isGameRunning(props.item.game_id).then((running: boolean) => {
+      isRunning.value = running;
+    });
+  }
+  
   const handleClickOutside = (event: MouseEvent) => {
     const target = event.target as Element;
     if (!target.closest('.options-container')) {
@@ -192,6 +200,19 @@ onMounted(() => {
       isInstalling.value = false;
     }
   });
+
+  window.electronAPI.onGameStarted((data) => {
+    if (data.gameId === props.item.game_id) {
+      isRunning.value = true;
+      loading.value = false;
+    }
+  });
+
+  window.electronAPI.onGameStopped((data) => {
+    if (data.gameId === props.item.game_id) {
+      isRunning.value = false;
+    }
+  });
 });
 
 async function Play() {
@@ -202,8 +223,25 @@ async function Play() {
       router.push(props.item.file_name.desktop);
   } else if (props.item.game_id) {
     console.log("clicked")
-    window.electronAPI.playGame({game_id:props.item.game_id,appPath:props.item.game_Path,token:auth.token})
-    // router.push(`/games/${props.item.game_id}/play`)
+    loading.value = true; // Set loading while game is starting
+    
+    try {
+      const result = await window.electronAPI.playGame({
+        game_id: props.item.game_id,
+        appPath: props.item.game_Path,
+        token: auth.token
+      });
+      
+      // If there was an error starting the game, reset loading state
+      if (result && result.error) {
+        console.error('Failed to start game:', result.error);
+        loading.value = false;
+      }
+      // If successful, loading state will be cleared when game-started event is received
+    } catch (error) {
+      console.error('Error starting game:', error);
+      loading.value = false;
+    }
   }
 }
 
@@ -308,27 +346,31 @@ async function Download() {
           :class=" [
             'action-button',
             props.item.isInstalled || isWebGame
-              ? 'play-button'
+              ? isRunning 
+                ? 'running-button'
+                : 'play-button'
               : isDownloading
                 ? 'downloading-button'
                 : isInstalling
                   ? 'installing-button'
                   : 'download-button'
           ]"
-          :disabled="loading || isDownloading || isInstalling"
-          @click.stop="props.item.isInstalled || isWebGame ? Play() : Download()"
+          :disabled="loading || isDownloading || isInstalling || isRunning"
+          @click.stop="(props.item.isInstalled || isWebGame) && !isRunning ? Play() : Download()"
         >
           <span class="button-text">{{
             props.item.isInstalled || isWebGame
-              ? $t('play')
+              ? isRunning
+                ? $t('running')
+                : $t('play')
               : isDownloading
                 ? $t('downloading')
                 : isInstalling
                   ? $t('installing')
                   : $t('download')
           }}</span>
-          <PlayIcon v-if="props.item.isInstalled || isWebGame" class="icon" />
-          <LoadingSpinnerIcon v-else-if="isDownloading || isInstalling" class="icon" />
+          <PlayIcon v-if="(props.item.isInstalled || isWebGame) && !isRunning" class="icon" />
+          <LoadingSpinnerIcon v-else-if="isDownloading || isInstalling || isRunning" class="icon" />
           <DownloadIcon v-else class="icon" />
         </button>
         
@@ -736,8 +778,18 @@ async function Download() {
   overflow: hidden;
 }
 
+.running-button {
+  font-family: 'Poppins', sans-serif;
+  background: var(--boly-button-blue);
+  color: white;
+  cursor: not-allowed;
+  position: relative;
+  overflow: hidden;
+}
+
 .downloading-button .icon,
-.installing-button .icon {
+.installing-button .icon,
+.running-button .icon {
   animation: pulse-glow 2s infinite ease-in-out;
 }
 
@@ -751,7 +803,8 @@ async function Download() {
 }
 
 .downloading-button::after,
-.installing-button::after {
+.installing-button::after,
+.running-button::after {
   content: '';
   position: absolute;
   top: 0;
@@ -772,7 +825,8 @@ async function Download() {
 }
 
 .downloading-button:hover,
-.installing-button:hover {
+.installing-button:hover,
+.running-button:hover {
   transform: none;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }

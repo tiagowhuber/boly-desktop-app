@@ -363,8 +363,18 @@ function stopPlaytimeTracking() {
   if (activeGameSession && activeGameSession.intervalId) {
     clearInterval(activeGameSession.intervalId);
   }
+  
+  const stoppedGameId = activeGameSession?.game_id;
   activeGameSession = null;
   gameSessionLaunching = false;
+  
+  // Notify renderer that game has stopped
+  if (mainWindow && !mainWindow.isDestroyed() && stoppedGameId) {
+    mainWindow.webContents.send('game-stopped', {
+      gameId: stoppedGameId
+    });
+  }
+  
   console.log('Playtime tracking stopped.');
 }
 
@@ -525,6 +535,10 @@ async function createWindow(): Promise<void> {
 
   ipcMain.handle('close-app', () => {
     app.quit();
+  })
+
+  ipcMain.handle('is-game-running', (_event, gameId) => {
+    return activeGameSession && activeGameSession.game_id === gameId;
   })
 
   // handlers for custom protocol API requests
@@ -694,6 +708,14 @@ async function createWindow(): Promise<void> {
 
         // Clear the launching flag since the game has successfully started
         gameSessionLaunching = false;
+
+        // Notify renderer that game is now running
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.webContents.send('game-started', {
+            gameId: game_id,
+            pid: appProcess.pid
+          });
+        }
 
         activeGameSession.intervalId = setInterval(async () => {
           if (activeGameSession) {

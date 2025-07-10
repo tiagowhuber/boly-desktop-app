@@ -47,9 +47,9 @@ const currentPlanPrice = computed(() => {
     case 'free': 
       return t('free')
     case 'monthly': 
-      return '$8 USD / ' + t('month')
+      return t('month_price') + t('month')
     case 'yearly': 
-      return '$90 USD / ' + t('year')
+      return t('yearly_price') + t('year')
     default: 
       return ''
   }

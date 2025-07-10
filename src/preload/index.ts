@@ -22,6 +22,7 @@ if (process.contextIsolated) {
       playGame:(appData) => ipcRenderer.invoke('play-game', appData),
       downloadGame:(appData) => ipcRenderer.invoke('download-game', appData),
       uninstallGame:(appData) => ipcRenderer.invoke('uninstall-game', appData),
+      isGameRunning: (gameId) => ipcRenderer.invoke('is-game-running', gameId),
       searchExeFiles: (baseDir) => ipcRenderer.invoke('search-exe-files', baseDir),
       loginWithGoogle: ()=> ipcRenderer.invoke('login-with-google'),
       resolveGoogleLogin:()=>ipcRenderer.invoke('resolve-with-google'),
@@ -55,8 +56,14 @@ if (process.contextIsolated) {
       onInstallComplete: (callback) => {
         ipcRenderer.on('install-complete', (_event, ...args) => callback(...args));
       },
+      onGameStarted: (callback) => {
+        ipcRenderer.on('game-started', (_event, ...args) => callback(...args));
+      },
+      onGameStopped: (callback) => {
+        ipcRenderer.on('game-stopped', (_event, ...args) => callback(...args));
+      },
       removeAllListeners: (channel) => {
-        if (['download-started', 'download-progress', 'download-complete', 'download-error', 'install-started', 'install-error', 'install-complete'].includes(channel)) {
+        if (['download-started', 'download-progress', 'download-complete', 'download-error', 'install-started', 'install-error', 'install-complete', 'game-started', 'game-stopped'].includes(channel)) {
           ipcRenderer.removeAllListeners(channel);
         }
       }
@@ -77,6 +84,7 @@ if (process.contextIsolated) {
     playGame: (appData) => ipcRenderer.invoke('play-game', appData),
     downloadGame:(appData) => ipcRenderer.invoke('download-game', appData),
     uninstallGame:(appData) => ipcRenderer.invoke('uninstall-game', appData),
+    isGameRunning: (gameId) => ipcRenderer.invoke('is-game-running', gameId),
     searchExeFiles: (baseDir) => ipcRenderer.invoke('search-exe-files', baseDir),
     loginWithGoogle: ()=> ipcRenderer.invoke('login-with-google'),
     resolveGoogleLogin:()=>ipcRenderer.invoke('resolve-with-google'),
@@ -110,8 +118,14 @@ if (process.contextIsolated) {
     onInstallComplete: (callback) => {
       ipcRenderer.on('install-complete', (_event, ...args) => callback(...args));
     },
+    onGameStarted: (callback) => {
+      ipcRenderer.on('game-started', (_event, ...args) => callback(...args));
+    },
+    onGameStopped: (callback) => {
+      ipcRenderer.on('game-stopped', (_event, ...args) => callback(...args));
+    },
     removeAllListeners: (channel) => {
-      if (['download-started', 'download-progress', 'download-complete', 'download-error', 'install-started', 'install-error', 'install-complete'].includes(channel)) {
+      if (['download-started', 'download-progress', 'download-complete', 'download-error', 'install-started', 'install-error', 'install-complete', 'game-started', 'game-stopped'].includes(channel)) {
         ipcRenderer.removeAllListeners(channel);
       }
     }

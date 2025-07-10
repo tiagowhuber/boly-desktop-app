@@ -88,6 +88,7 @@ export const es = {
   download_complete: 'Descarga Completa',
   download_error: 'Error de Descarga',
   installing: 'Instalando',
+  running: 'Ejecutando',
   play: 'Jugar',
   completed: 'Completado',
   user_games: "Juegos de {user}",
@@ -389,6 +390,8 @@ export const es = {
   renew_subscription: 'Renovar Suscripción',
   expiration_date: 'Fecha de vencimiento',
   subscription_processed_success: '¡Ya tienes acceso a todos los juegos!',
+  month_price: '8000 CLP / ',
+  yearly_price: '90000 CLP / ',
 
   // Developer Contact View
   dev_title_mobile: 'Vendemos tu <span class="highlight-green">videojuego educativo</span> en todo el mundo',
