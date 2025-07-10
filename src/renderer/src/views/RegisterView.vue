@@ -3,6 +3,8 @@ import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import AlertModal from '@/components/AlertModal.vue'
 import TermsModal from '@/components/TermsModal.vue'
+import EyeIcon from '@/components/icons/EyeIcon.vue'
+import EyeSlashIcon from '@/components/icons/EyeSlashIcon.vue'
 import { router } from '../router/index'
 import { useI18n } from 'vue-i18n'
 import { useAuth } from '@/stores'
@@ -18,6 +20,16 @@ const email = ref<string>('')
 const username = ref<string>('')
 const password = ref<string>('')
 const repassword = ref<string>('')
+const showPassword = ref<boolean>(false)
+const showRepassword = ref<boolean>(false)
+
+function togglePasswordVisibility(): void {
+  showPassword.value = !showPassword.value
+}
+
+function toggleRepasswordVisibility(): void {
+  showRepassword.value = !showRepassword.value
+}
 
 function openTerms(): void {
   if (
@@ -116,12 +128,20 @@ async function signGoogle() {
             <label for="name" class="form_label">{{$t('username')}}</label>
           </div>
           <div class="form_group">
-            <input type="password" v-model="password" class="form_field" placeholder="Password" />
+            <input :type="showPassword ? 'text' : 'password'" v-model="password" class="form_field" placeholder="Password" />
             <label for="name" class="form_label">{{$t('password')}}</label>
+            <button type="button" @click="togglePasswordVisibility" class="password-toggle-btn">
+              <EyeIcon v-if="!showPassword" />
+              <EyeSlashIcon v-else />
+            </button>
           </div>
           <div class="form_group">
-            <input type="password" v-model="repassword" class="form_field" placeholder="Repassword" />
+            <input :type="showRepassword ? 'text' : 'password'" v-model="repassword" class="form_field" placeholder="Repassword" />
             <label for="name" class="form_label">{{$t('repassword')}}</label>
+            <button type="button" @click="toggleRepasswordVisibility" class="password-toggle-btn">
+              <EyeIcon v-if="!showRepassword" />
+              <EyeSlashIcon v-else />
+            </button>
           </div>          
           <button class="register_button_text">{{$t('register').toLocaleUpperCase()}}</button>
           
@@ -266,6 +286,26 @@ h1{
 .register-container .fields .form_group {
   position: relative;
   padding: 20px 0 0;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 0;
+  top: 40%;
+  transform: translateY(-50%);
+  background: transparent !important;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.password-toggle-btn:hover {
+  opacity: 0.7;
+  background: transparent !important;
 }
 
 .register-container .fields .form_field {

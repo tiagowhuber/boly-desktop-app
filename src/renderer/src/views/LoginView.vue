@@ -2,6 +2,8 @@
 import { ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import AlertModal from '@/components/AlertModal.vue'
+import EyeIcon from '@/components/icons/EyeIcon.vue'
+import EyeSlashIcon from '@/components/icons/EyeSlashIcon.vue'
 
 import { useAuth } from '@/stores'
 import { useI18n } from 'vue-i18n'
@@ -16,6 +18,11 @@ const modalWarning = ref<string>('')
 
 const email = ref<string>('')
 const password = ref<string>('')
+const showPassword = ref<boolean>(false)
+
+function togglePasswordVisibility(): void {
+  showPassword.value = !showPassword.value
+}
 
 function modalCallback(): void {
   showModal.value = false
@@ -63,8 +70,12 @@ async function signGoogle() {
             <label for="name" class="form_label">{{ $t('login_email') }}</label>
           </div>
           <div class="form_group">
-            <input type="password" v-model="password" class="form_field" placeholder="Password" />
+            <input :type="showPassword ? 'text' : 'password'" v-model="password" class="form_field" placeholder="Password" />
             <label for="name" class="form_label">{{ $t('password') }}</label>
+            <button type="button" @click="togglePasswordVisibility" class="password-toggle-btn">
+              <EyeIcon v-if="!showPassword" />
+              <EyeSlashIcon v-else />
+            </button>
           </div>
           <button class="login_button_text">{{ $t('login').toUpperCase() }}</button>
 
@@ -155,6 +166,26 @@ h1 {
 .login-container .fields .form_group {
   position: relative;
   padding: 20px 0 0;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 0;
+  top: 40%;
+  transform: translateY(-50%);
+  background: transparent !important;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.password-toggle-btn:hover {
+  opacity: 0.7;
+  background: transparent !important;
 }
 
 .login-container .fields .form_field {
