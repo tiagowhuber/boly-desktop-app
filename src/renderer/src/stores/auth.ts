@@ -103,7 +103,36 @@ const useAuth = defineStore('auth', {
           return;
         }
 
-        // Validate session with backend
+        // Check if app just started (grace period for session validation)
+        const appStartTime = (window as any).appStartTime || Date.now();
+        const timeSinceStart = Date.now() - appStartTime;
+        const GRACE_PERIOD = 10000; // 10 seconds grace period
+        
+        // If within grace period, only do local token validation
+        if (timeSinceStart < GRACE_PERIOD) {
+          console.log('Within grace period, skipping backend session validation');
+          
+          // Only validate token locally during grace period
+          const tokenData = jwtDecode(localStorage.getItem('token')!)
+          if (tokenData.exp! < Date.now() / 1000) {
+            console.log('Token expired locally during grace period');
+            this.logout();
+            this.verifying = false;
+            return;
+          }
+          
+          // Token is valid locally, set user as logged in
+          const user = useUser()
+          user.setUser(tokenData as User)
+          this.isLoggedIn = true
+          this.token = localStorage.getItem('token')!
+          this.sessionId = localStorage.getItem('sessionId') || ''
+          axios.defaults.headers.common['Authorization'] = `Bearer ${this.token}`
+          this.verifying = false;
+          return;
+        }
+
+        // After grace period, validate session with backend
         try {
           const sessionResponse = await axios.post('/v1/auth/validate-session', {}, {
             headers: { Authorization: `Bearer ${this.token}` }

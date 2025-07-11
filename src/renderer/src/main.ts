@@ -10,6 +10,9 @@ import useDownloadStore from '@/desktop-stores/download'
 import vue3GoogleLogin from 'vue3-google-login'
 import axios from 'axios'
 
+// Set app start time for grace period calculations
+(window as any).appStartTime = Date.now();
+
 if (process.env.NODE_ENV === 'production') {
   window.addEventListener('error', (event) => {
     console.error('Global error caught:', event.error)

@@ -94,7 +94,7 @@ export const es = {
   user_games: "Juegos de {user}",
   achievements_not_available: 'Logros no disponibles',
   no_achievements: 'No hay logros para este juego.',
-  no_owned_games: "Parece que aún no tienes ningún juego...",
+  no_owned_games: "Está vacío aquí...",
   browse_games: "Explorar Juegos",
   show_all_games: "Toda mi librería",
   show_all_owned_games: "Librería",
