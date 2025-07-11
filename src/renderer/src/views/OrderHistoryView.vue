@@ -259,8 +259,8 @@ h1 {
   border-radius: 15px;
   padding: 20px;
   margin-bottom: 20px;
+  width: 100%;
   max-width: 1200px;
-  width: 50%;
 }
 
 .success-message, .error-message {
@@ -491,6 +491,12 @@ button, .btn-purple, .btn-blue, .btn-red {
 
 /* Mobile specific styles */
 @media (max-width: 768px) {
+  .orders-container {
+    width: 100%;
+    padding: 15px;
+    margin: 0 0 20px 0;
+  }
+  
   h1 {
     font-size: 1.8rem;
   }
@@ -530,8 +536,13 @@ button, .btn-purple, .btn-blue, .btn-red {
 
 /* Very small screens */
 @media (max-width: 480px) {
+  .mobile-section {
+    padding: 10px 5px;
+  }
+  
   .orders-container {
-    padding: 15px;
+    padding: 10px;
+    width: 100%;
   }
   
   .detail-row {
