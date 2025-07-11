@@ -502,6 +502,7 @@ export const en = {
   error_requesting_password_reset: 'There was an error requesting the password reset. Please try again.',
   back_to_login: 'Back to Login',
   forgot_your_password: 'Forgot your password?',
+  remember_me: 'Remember me',
 
   verifying: 'Verifying your email...',
   missing_token: 'Email verification token is missing or invalid. Please try the link from your email again or request a new verification.',

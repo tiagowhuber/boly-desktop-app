@@ -15,17 +15,25 @@ const useAuth = defineStore('auth', {
     lastTokenCheck: 0
   }),
   actions: {
-    async login(email: string, password: string, router: Router) {
+    async login(email: string, password: string, router: Router, rememberMe: boolean = false) {
       try {
         const response = await axios.post('/v1/auth', {
           email: email,
           password: password,
           is_desktop_app: true,
-          device_info: 'Boly Desktop App'
+          device_info: 'Boly Desktop App',
+          remember_me: rememberMe
         })
         if (response.status == 200) {
           localStorage.setItem('token', response.data.token)
           localStorage.setItem('sessionId', response.data.session_id)
+          
+          // Store remember me preference
+          if (rememberMe) {
+            localStorage.setItem('rememberMe', 'true')
+          } else {
+            localStorage.removeItem('rememberMe')
+          }
 
           const user = useUser()
           
@@ -230,6 +238,7 @@ const useAuth = defineStore('auth', {
         this.sessionId = ''
         localStorage.removeItem('token')
         localStorage.removeItem('sessionId')
+        localStorage.removeItem('rememberMe')
         this.isLoggedIn = false 
         this.error = undefined
         user.clearUser()

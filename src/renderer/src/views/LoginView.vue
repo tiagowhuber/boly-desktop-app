@@ -19,6 +19,7 @@ const modalWarning = ref<string>('')
 const email = ref<string>('')
 const password = ref<string>('')
 const showPassword = ref<boolean>(false)
+const rememberMe = ref<boolean>(localStorage.getItem('rememberMe') === 'true')
 
 function togglePasswordVisibility(): void {
   showPassword.value = !showPassword.value
@@ -37,7 +38,7 @@ async function submit(): Promise<void> {
     return
   }
 
-  await auth.login(email.value, password.value, router)
+  await auth.login(email.value, password.value, router, rememberMe.value)
 
   if (auth.isLoggedIn) {
     router.push('/')
@@ -77,6 +78,16 @@ async function signGoogle() {
               <EyeSlashIcon v-else />
             </button>
           </div>
+          
+          <!-- Remember me checkbox -->
+          <div class="form_group remember-me-group">
+            <label class="remember-me-label">
+              <input type="checkbox" v-model="rememberMe" class="remember-me-checkbox" />
+              <span class="checkmark"></span>
+              {{ $t('remember_me') }}
+            </label>
+          </div>
+          
           <button class="login_button_text">{{ $t('login').toUpperCase() }}</button>
 
           <Teleport to="body">
@@ -238,6 +249,60 @@ h1 {
 .login-container .fields .form_field:required,
 .form_field:invalid {
   box-shadow: none;
+}
+
+/* --- */
+
+.remember-me-group {
+  padding: 0;
+}
+
+.remember-me-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+}
+
+.remember-me-checkbox {
+  opacity: 0;
+  position: absolute;
+  cursor: pointer;
+}
+
+.checkmark {
+  height: 18px;
+  width: 18px;
+  background-color: transparent;
+  border: 2px solid white;
+  border-radius: 3px;
+  margin-right: 8px;
+  display: inline-block;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.remember-me-checkbox:checked + .checkmark {
+  background-color: var(--boly-button-purple);
+  border-color: var(--boly-button-purple);
+}
+
+.remember-me-checkbox:checked + .checkmark::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.remember-me-label:hover .checkmark {
+  border-color: var(--boly-button-purple);
 }
 
 /* --- */

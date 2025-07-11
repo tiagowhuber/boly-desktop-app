@@ -500,6 +500,7 @@ export const es = {
   error_requesting_password_reset: 'Hubo un error al solicitar el restablecimiento de la contraseña. Inténtalo de nuevo.',
   back_to_login: 'Volver al inicio de sesión',
   forgot_your_password: '¿Olvidaste tu contraseña?',
+  remember_me: 'Recordarme',
 
   // VerifyEmailView
   verifying: 'Verificando tu correo electrónico...',
