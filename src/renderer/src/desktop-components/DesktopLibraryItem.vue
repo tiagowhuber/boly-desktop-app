@@ -370,7 +370,8 @@ async function Download() {
                   : $t('download')
           }}</span>
           <PlayIcon v-if="(props.item.isInstalled || isWebGame) && !isRunning" class="icon" />
-          <LoadingSpinnerIcon v-else-if="isDownloading || isInstalling || isRunning" class="icon" />
+          <PlayIcon v-else-if="isRunning" class="icon" />
+          <LoadingSpinnerIcon v-else-if="isDownloading || isInstalling" class="icon" />
           <DownloadIcon v-else class="icon" />
         </button>
         
@@ -788,8 +789,7 @@ async function Download() {
 }
 
 .downloading-button .icon,
-.installing-button .icon,
-.running-button .icon {
+.installing-button .icon {
   animation: pulse-glow 2s infinite ease-in-out;
 }
 
