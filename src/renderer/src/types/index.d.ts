@@ -16,6 +16,7 @@ export interface User {
     hash?: string;
     token?: string;
     email_verified: boolean;
+    isSubscribed?: boolean;
 }
 
 export interface AuthState {

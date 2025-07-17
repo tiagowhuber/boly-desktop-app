@@ -250,7 +250,15 @@ export const router = createRouter({
       meta: {
         requiresAuth: false
       }
-    }
+    },
+    {
+      path: '/player-stats',
+      name: 'player-stats',
+      component: () => import('../views/GameStatsPlayerView.vue'),
+      meta: {
+        requiresAuth: true
+      }
+    },
   ],
   //@ts-ignore
   scrollBehavior(to, from, savedPosition) {

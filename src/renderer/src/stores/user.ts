@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import type { User, UserUpdateRequest, PasswordUpdateRequest } from '@/types'
 import axios from 'axios'
+import { useSubscription } from './subscription';
 
 const useUser = defineStore('user', {
   state: (): User => ({
@@ -12,7 +13,8 @@ const useUser = defineStore('user', {
     bio: undefined,
     profilePictureUrl: undefined,
     developerId: 0,
-    email_verified: false
+    email_verified: false,
+    isSubscribed: false
   }),
   actions: {
     setUser(userData: any) {
@@ -40,7 +42,15 @@ const useUser = defineStore('user', {
         bio: undefined,
         profilePictureUrl: undefined,
         developerId: 0,
-        email_verified: false
+        email_verified: false,
+        isSubscribed: false
+      }
+    },    
+    async checkSubscription() {
+      const subscriptionStore = useSubscription();
+      if (this.userId) {
+        await subscriptionStore.getUserSubscriptions(this.userId, { token: localStorage.getItem('token') || '' });
+        this.isSubscribed = subscriptionStore.subscriptions.some(sub => sub.is_active);
       }
     },
     async updateUserInfo(data: UserUpdateRequest) {

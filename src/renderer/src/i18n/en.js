@@ -283,6 +283,9 @@ export const en = {
   ordered_on: 'Ordered on',
   order_status_failed: 'Failed',
   game_stats: 'Game stats',
+  player_stats: 'Estadísticas del Jugador',
+  total_play_time: 'Tiempo total de juego',
+  view_player_stats: 'Ver Estadísticas del Jugador',
   help: 'Help',
   help_text: 'Boly support',
   verify_account: 'Verify your account',
@@ -465,6 +468,7 @@ export const en = {
   manage_payment_methods: 'Manage Payment Methods',
 
   // achievements view
+  achievements: 'Logros',
   achievements_for: 'Achievements for',
   loading_achievements: 'Loading achievements...',
   no_achievements_found: 'No achievements found for this game.',
@@ -472,6 +476,18 @@ export const en = {
   retry: 'Retry',
   loading: 'Loading',
   release_date: 'Release date',
+  see_achievements: 'Ver logros',
+  no_play_time_recorded: 'No hay tiempo de juego registrado',
+  secret: 'Secreto',
+  retry: 'Reintentar',
+  loading: 'Cargando',
+  release_date: 'Fecha de lanzamiento',
+  see_achievements: 'Ver logros',
+  no_play_time_recorded: 'No hay tiempo de juego registrado',
+  secret: 'Secreto',
+  retry: 'Reintentar',
+  loading: 'Cargando',
+  release_date: 'Fecha de lanzamiento',
 
   // dev dashboard view
   subscribers_total_hours: 'Total subscribers hours played',

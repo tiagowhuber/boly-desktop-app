@@ -205,10 +205,10 @@ const sendVerification = async () => {
               <RightArrowIcon class="button-icon arrow-icon" />
             </div>
           </RouterLink>
-          <RouterLink to="/game-stats" class="button btn-blue">
+          <RouterLink to="/player-stats" class="button btn-blue">
             <div class="button-content">
               <GameStatsIcon class="button-icon" />
-              <span>{{ $t('game_stats')}}</span>
+              <span>{{ $t('player_stats')}}</span>
               <RightArrowIcon class="button-icon arrow-icon" />
             </div>
           </RouterLink>
@@ -347,10 +347,10 @@ const sendVerification = async () => {
                     <RightArrowIcon class="button-icon arrow-icon" />
                   </div>
                 </RouterLink>
-                <RouterLink to="/game-stats" class="button btn-blue">
+                <RouterLink to="/player-stats" class="button btn-blue">
                   <div class="button-content">
                     <GameStatsIcon class="button-icon" />
-                    <span>{{ $t('game_stats')}}</span>
+                    <span>{{ $t('player_stats')}}</span>
                     <RightArrowIcon class="button-icon arrow-icon" />
                   </div>
                 </RouterLink>

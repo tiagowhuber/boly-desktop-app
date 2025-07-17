@@ -15,19 +15,19 @@ autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = true;
 autoUpdater.logger = console;
 autoUpdater.allowPrerelease = false;
-autoUpdater.forceDevUpdateConfig = false;
+autoUpdater.forceDevUpdateConfig = true;
 autoUpdater.requestHeaders = {
   'User-Agent': 'Boly-Desktop-App'
 };
 // token should use the environment variable but for some reason when building it doesnt work
-// the token is read only so it should be safe to use it like this, fuck it
+// the token is read only so it should be safe to use it like this
 autoUpdater.setFeedURL({
      provider: 'github',
      repo: 'boly-desktop-app',
      owner: 'tiagowhuber',
      private: true,
      //token: process.env.GH_TOKEN
-     token: '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'
+     token: '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'
    })
 
 
@@ -1057,10 +1057,13 @@ app.whenReady().then(() => {
 
   autoUpdater.on('error', (error) => {
     console.error('Error checking for updates:', error)
-    showMessage('Error checking for updates: ' + error.message)
     
-    if (error.message.includes('404') && error.message.includes('github.com')) {
-      showMessage('Update error: Could not access GitHub repository. Please ensure you have the correct repository configuration and GH_TOKEN environment variable set.')
+    // Check if it's a 403 authentication error
+    if (error.message.includes('403') || error.message.includes('AuthenticationFailed')) {
+      console.error('Authentication failed - GitHub token may be invalid or expired')
+      showMessage('Update check failed: Authentication error. Please check GitHub token configuration.')
+    } else if (error.message.includes('404') && error.message.includes('github.com')) {
+      showMessage('Update error: Could not access GitHub repository. Please ensure you have the correct repository configuration.')
     } else {
       showMessage('Error checking for updates: ' + error.message)
     }
@@ -1089,12 +1092,13 @@ app.whenReady().then(() => {
     // }, 1000); // 1 second delay
   })
 
-  // Start checking for updates
+  // Start checking for updates - commented out to prevent startup 403 errors
   try {
     console.log('Current version:', autoUpdater.currentVersion.version)
     mainWindow.webContents.send('get-version', autoUpdater.currentVersion.version)
     
-    // // Check for updates after a delay
+    // Automatic update check disabled - users can manually check via UI
+    // The automatic check was causing 403 errors on startup
     // setTimeout(() => {
     //   autoUpdater.checkForUpdates()
     //     .catch(err => {
