@@ -25,9 +25,9 @@ autoUpdater.setFeedURL({
      provider: 'github',
      repo: 'boly-desktop-app',
      owner: 'tiagowhuber',
-     private: true,
+     private: false,
      //token: process.env.GH_TOKEN
-     token: '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'
+     //token: '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'
    })
 
 
