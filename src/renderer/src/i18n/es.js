@@ -287,6 +287,7 @@ export const es = {
   email_not_verified: 'correo electrónico no verificado.',
   modal_email_verification_sent: 'Correo electrónico de verificación enviado.',
   my_discount_codes: 'Mis códigos de descuento',
+  subscription_access_games: 'Juegos con acceso por suscripción',
 
   // cart view
   cart_title: 'CARRITO',
