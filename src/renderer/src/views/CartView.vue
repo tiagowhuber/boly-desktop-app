@@ -33,7 +33,7 @@ onUnmounted(() => {
 })
 
 const paymentStore = usePayment()
-const { transactionUrl, token, loading: paymentLoading, error: paymentError } = storeToRefs(paymentStore)
+const { transactionUrl, token, loading: paymentLoading } = storeToRefs(paymentStore)
 
 const codesStore = useCodes()
 const { discountCode: discountValidation, validationError } = storeToRefs(codesStore)
@@ -206,58 +206,30 @@ async function reqTransaction(): Promise<void> {
     }
   }
   
-  const url = window.location.origin + "/postorder/"
-  
-  let amountForTransactionCLP: number;
-
-  if (currency.value === 'USD') {
-    try {
-      // Use the existing currencyConverter from the payment store
-      amountForTransactionCLP = await paymentStore.currencyConverter(total.value);
-    } catch (conversionError) {
-      console.error('Currency conversion to CLP failed:', conversionError);
-      errorMessage.value = i18n.t('currency_conversion_failed_error_message') || 'Failed to convert total to CLP.';
-      showRedirectModal.value = false;
-      return;
-    }
-  } else {
-    amountForTransactionCLP = total.value;
-  }
-
-  // Validate the calculated amount
-  if (isNaN(amountForTransactionCLP) || typeof amountForTransactionCLP !== 'number') {
-    console.error('Invalid amount for transaction after potential conversion:', amountForTransactionCLP);
-    errorMessage.value = i18n.t('invalid_transaction_amount_error_message') || 'Invalid transaction amount. Please try again.';
-    showRedirectModal.value = false;
-    return;
-  }
-
   try {
-    console.log('Cart total (display currency):', total.value, 'Display currency:', currency.value);
-    console.log('Amount for transaction (CLP):', amountForTransactionCLP);
     showRedirectModal.value = true
     
-    const success = await paymentStore.reqTransaction(
-      cart.value,
-      user.userId ?? 0,
-      isCodeValid.value ? discountCode.value : '',
-      url,
-      amountForTransactionCLP, // This is total.value, converted to CLP
-      'CLP'                   // Currency is now always CLP for the transaction call
-    )
+    // Encode game IDs and user ID as URL parameters
+    const cartParams = new URLSearchParams({
+      items: JSON.stringify(cart.value),
+      userId: String(user.userId ?? 0)
+    })
     
-    if (!success) {
-      errorMessage.value = paymentError.value || 'Failed to process payment'
-      showRedirectModal.value = false
-      return
-    }
+    // Redirect to external cart with game IDs and user ID
+    const externalCartUrl = `http://localhost:5173/cart?${cartParams.toString()}`
+    window.open(externalCartUrl, '_blank')
     
-    if (redirect_form.value) {
-      redirect_form.value.submit()
-    }
+    // Clear the cart after successful redirect
+    cartStore.clearCart()
+    resetDiscountState()
+    
+    showRedirectModal.value = false
+    
+    // Navigate back or to a different page after clearing cart
+    router.push('/')
   } catch (error) {
-    console.error(error)
-    errorMessage.value = 'An unexpected error occurred'
+    console.error('Error redirecting to external cart:', error)
+    errorMessage.value = 'An unexpected error occurred while redirecting to checkout'
     showRedirectModal.value = false
   }
 }
