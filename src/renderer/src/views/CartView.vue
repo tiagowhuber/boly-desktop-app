@@ -216,7 +216,7 @@ async function reqTransaction(): Promise<void> {
     })
     
     // Redirect to external cart with game IDs and user ID
-    const externalCartUrl = `http://localhost:5173/cart?${cartParams.toString()}`
+    const externalCartUrl = `http://boly.cl/cart?${cartParams.toString()}`
     window.open(externalCartUrl, '_blank')
     
     // Clear the cart after successful redirect
