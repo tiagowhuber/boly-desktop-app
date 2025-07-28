@@ -23,9 +23,9 @@ async function refreshGames() {
 
 const shoppingCart = inject<any>('cart')
 
-function AddToCart(item: any) {
-  shoppingCart.addGameToCart({ game_id: item.game_id })
-}
+// function AddToCart(item: any) {
+//   shoppingCart.addGameToCart({ game_id: item.game_id })
+// }
 
 const featuredIds = ref<number[]>([2,5])
 
@@ -106,7 +106,8 @@ function GoToGame(id: number) {
                 <button class="btn-pink" @click="GoToGame(item.game_id)" :class="{ 'mobile-see-more': isMobile }"> {{ $t('see_more').toUpperCase() }}</button>
                 <template v-if="user.userId && !gamesStore.ownsGame(item.game_id, user.userId)">
                   <button class="btn-blue" v-if="shoppingCart.cart.includes(item.game_id)" @click="shoppingCart.removeGameFromCart({ game_id: item.game_id })">{{ $t('remove_from_cart_nq').toUpperCase() }}</button>
-                  <button class="btn-purple" v-else @click="AddToCart(item)">{{ $t('add_to_cart').toUpperCase() }}</button>
+                  <!-- <button class="btn-purple" v-else @click="AddToCart(item)">{{ $t('add_to_cart').toUpperCase() }}</button> -->
+                  <button class="btn-purple" v-else @click="">{{ $t('coming_soon').toUpperCase() }}</button>
                 </template>
               </div>
             </div>
