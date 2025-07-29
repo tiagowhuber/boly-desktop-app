@@ -171,13 +171,13 @@ const sendVerification = async () => {
       <div class="mobile-section">
         <h2 class="mobile-section-title">{{ $t('payment_title') }}</h2>
         <div class="mobile-button-stack">
-          <RouterLink to="/payment-methods" class="button btn-pink">
+          <a href="https://boly.cl/payment-methods" target="_blank" class="button btn-pink">
             <div class="button-content">
               <CreditCardIcon class="button-icon" />
               <span>{{ $t('my_cards')}}</span>
               <RightArrowIcon class="button-icon arrow-icon" />
             </div>
-          </RouterLink>
+          </a>
           <RouterLink to="/orders" class="button btn-blue">
             <div class="button-content">
               <IconDocumentation class="button-icon" />
@@ -313,13 +313,13 @@ const sendVerification = async () => {
             <div class="account-section">
               <h2 class="section-title">{{ $t('payment_title') }}</h2>
               <div class="button-stack">
-                <RouterLink to="/payment-methods" class="button btn-pink">
+                <a href="https://boly.cl/payment-methods" target="_blank" class="button btn-pink">
                   <div class="button-content">
                     <CreditCardIcon class="button-icon" />
                     <span>{{ $t('my_cards')}}</span>
                     <RightArrowIcon class="button-icon arrow-icon" />
                   </div>
-                </RouterLink>
+                </a>
                 <RouterLink to="/orders" class="button btn-blue">
                   <div class="button-content">
                     <IconDocumentation class="button-icon" />
