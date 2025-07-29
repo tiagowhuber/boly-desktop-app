@@ -49,6 +49,22 @@ function isActive(path: string) {
         <RouterLink :class="{ active: isActive('/games') }" to="/games">
           <p>{{ $t('games') }}</p>
         </RouterLink>
+        <div class="dropdown-container">
+          <button class="dropdown-button" :class="{ active: isActive('/contact') }">
+            <p>{{ $t('contact') }}</p>
+          </button>
+          <div class="dropdown-menu">
+            <a href="https://boly.cl/developer-contact" target="_blank" rel="noopener noreferrer" class="dropdown-item">
+              <p>{{ $t('developer_contact') }}</p>
+            </a>
+            <a href="https://boly.cl/educators" target="_blank" rel="noopener noreferrer" class="dropdown-item">
+              <p>{{ $t('educators') }}</p>
+            </a>
+            <RouterLink to="/contact" class="dropdown-item">
+              <p>{{ $t('support') }}</p>
+            </RouterLink>
+          </div>
+        </div>
         <RouterLink :class="{ active: isActive('/subscription') }" to="/subscription">
           <p>{{ $t('subscription') }}</p>
         </RouterLink>
@@ -154,6 +170,74 @@ nav {
   text-underline-offset: 6px;
   border-radius: 15px;
   padding: 5px 12px;
+}
+
+/* Dropdown Styles
+-------------------------------------------- */
+.dropdown-container {
+  position: relative;
+  margin-right: 30px;
+  margin-top: -80px;
+}
+
+.dropdown-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 22px;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+
+.dropdown-button.active {
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 6px;
+  border-radius: 15px;
+  padding: 5px 12px;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: var(--boly-button-pink);
+  border-radius: 8px;
+  padding: 10px 0;
+  min-width: 200px;
+  opacity: 100%;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  z-index: 1000;
+  margin-top: 5px;
+  border: white 2px solid;
+}
+
+.dropdown-container:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-item {
+  display: block;
+  padding: 10px 20px;
+  color: white;
+  text-decoration: none;
+  font-size: 18px;
+  transition: background-color 0.2s ease;
+  margin: 0 !important;
+}
+
+.dropdown-item:hover {
+  background-color: var(--boly-button-pink-hover);
+}
+
+.dropdown-item p {
+  margin: 0;
 }
 
 /* User Navigation Styles
@@ -273,7 +357,7 @@ p {
 
 /* Color Classes */
 .blue {
-  background-color: #40a8e2;
+  background-color: var(--boly-bg-orange);
 }
 
 .orange {

@@ -49,6 +49,7 @@ export const en = {
   visibility: 'Visibility',
   direct_integration: 'Direct integration with schools',
   want_know_more: 'I want to know more',
+  query_home: 'Message',
 
   home_title3: 'TECHNOLOGY AND EDUCATION',
   home_graph1_data_title: 'No laboratories',

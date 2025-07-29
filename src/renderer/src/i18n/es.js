@@ -5,6 +5,20 @@ export const es = {
   
   home_title1: 'Boly',
   home_body1: 'Revolucionando el aula',
+  home_body1_description: 'Boly une profesores, estudiantes y desarrolladores con videojuegos educativos personalizados.',
+  
+  home_svg1_title: 'Soy Profesor/a',
+  home_svg1_description: 'Cómo mejorar el aprendizaje en tu aula',
+  home_svg2_title: 'Soy Desarrollador/a',
+  home_svg2_description: 'Publica, recibe métricas y monetiza',
+  home_title2: 'NUESTRO PROYECTO',
+  home_body2: 'EN BOLY, ENTENDEMOS A LOS JUGADORES, DESARROLLADORES Y EDUCADORES',
+  home_text3: 'Boly es una plataforma de distribución de videojuegos educativos de alta calidad que combina gamificación e inteligencia artificial para personalizar el aprendizaje. Conectamos desarrolladores con estudiantes y centros educativos, brindando a los docentes herramientas innovadoras para enriquecer la experiencia de enseñanza.',
+  home_title: 'INICIO',
+  home_welcome: '¡Mira nuestros juegos destacados!',
+  
+  home_title1: 'Boly',
+  home_body1: 'Revolucionando el aula',
   
   home_title2: 'NUESTRO PROYECTO',
   home_body2: 'EN BOLY, ENTENDEMOS A LOS JUGADORES, DESARROLLADORES Y EDUCADORES',
@@ -30,6 +44,56 @@ export const es = {
 
   home_meet_us: 'Conócenos',
 
+// Our Project Section
+  project_main_text: 'Boly es una plataforma de videojuegos educativos que hace que aprender sea tan entretenido como jugar.',
+  project_secondary_text: 'Gracias a la gamificación y la inteligencia artificial, adaptamos los contenidos según el nivel de aprendizaje, promoviendo el progreso paso a paso.',
+  connection_text: 'Conectamos a desarrolladores con estudiantes, escuelas y profes, entregando herramientas que motivan, refuerzan el aprendizaje y transforman cada clase en una experiencia dinámica.',
+  revolution_question: '¿QUIERES SER PARTE DE LA REVOLUCIÓN DEL APRENDIZAJE CON VIDEOJUEGOS?',
+  educators: 'Educadores',
+  developers: 'Desarrolladores',
+  personalization: 'Personalización',
+  automatic_reports: 'Informes automáticos',
+  tracking: 'Seguimiento',
+  monetization: 'Monetización',
+  visibility: 'Visibilidad',
+  direct_integration: 'Integración directa con escuelas',
+  want_know_more: 'Quiero saber más',
+
+  home_title3: 'TECNOLOGÍA Y EDUCACIÓN',
+  home_graph1_data_title: 'Sin laboratorios',
+  home_graph1_data_text1: 'Según el BID, el 88% de las escuelas en LATAM',
+  home_graph1_data_text2: 'no cuentan con laboratorios de ciencias',
+  home_graph1_data_text3: ' y existe una tendencia al aumento del uso del celular en niños cada vez más pequeños.',
+  
+  home_graph2_data_title: 'Acceso telefónico',
+  home_graph2_data_text1: 'Actualmente el 92% de los niños ',
+  home_graph2_data_text2: 'tiene acceso y juega en celulares,',
+  home_graph2_data_text3: ' generando una batalla en el aula de clases por la atención de los estudiantes y gran preocupación en los padres por el uso de esta tecnología.',
+
+  // Technology section specific translations
+  technology_solution_text1: 'Boly resuelve esto trayendo',
+  technology_solution_text2: 'laboratorios virtuales',
+  technology_mobile_learning_text1: 'Por eso más del 92% de los',
+  technology_mobile_learning_text2: 'niños ya aprende en celular.',
+  technology_classroom_example: 'Concreta cómo se ve esto en el aula: "un estudiante realiza un experimento digital en su teléfono y su profesor recibe un informe inmediato."',
+
+  // Our games section
+  our_games_title: 'DESCUBRE NUESTROS VIDEOJUEGOS EDUCATIVOS',
+  our_games_secondary_text: 'Conoce los juegos que están revolucionando el aprendizaje en salas de clases y hogares ¡Aprender nunca fue tan entretenido!',
+  lets_go: '¡Vamos!',
+
+  // Boly in Action Section
+  boly_gallery_title: 'Boly en acción',
+
+  home_title4: "Boly en acción",
+  home_slider_text: "Desliza para ver más acción",
+
+  home_title5: "Hablemos",
+  home_form_title: "En Boly contamos contigo para llevar la educación al siguiente nivel",
+  home_form_text: "¿Tú o tu equipo tienen una experiencia, juego o aplicación con fines educativos? Contáctate con nosotros o escríbenos tu consulta para que puedas ser parte de Boly.",
+
+  home_meet_us: 'Conócenos',
+
   // navbar
   home: 'Inicio',
   games: 'Juegos',
@@ -41,6 +105,7 @@ export const es = {
   log_in: 'Iniciar sesión',
   sign_up: 'Registrarse',
   developer_contact: 'Desarrolladores',
+  query_home: 'Mensaje',
 
   // footer
   copyright_disclaimer: '© 2024. Todos los derechos reservados. Todas las marcas registradas pertenecen a sus respectivos dueños / programadores.',

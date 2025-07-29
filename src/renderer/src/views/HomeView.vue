@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useI18n } from 'vue-i18n';
-import emailjs from '@emailjs/browser';
+import axios from 'axios';
 import 'vue3-carousel/dist/carousel.css';
 import { Carousel, Slide, Navigation } from 'vue3-carousel';
+import AlertModal from '@/components/AlertModal.vue';
 
 // Import Boly action images
 import bolyAction1 from '@/assets/images/boly/bolyaction/1action.jpg';
@@ -11,7 +12,6 @@ import bolyAction2 from '@/assets/images/boly/bolyaction/2action.jpg';
 import bolyAction3 from '@/assets/images/boly/bolyaction/3action.jpg';
 import bolyAction4 from '@/assets/images/boly/bolyaction/4action.jpg';
 
-const { t } = useI18n();
 const i18n = useI18n();
 
 // Carousel setup
@@ -65,16 +65,6 @@ const totalSlides = computed(() => {
   return Math.ceil(bolyImages.value.length / itemsPerSlide);
 });
 
-// Navigation functions
-function next() {
-  carouselRef.value.next();
-  carouselRef.value.updateSlidesData();
-}
-
-function prev() {
-  carouselRef.value.prev();
-  carouselRef.value.updateSlidesData();
-}
 
 function moveToSlide(i: number) {
   carouselRef.value.slideTo(i);
@@ -110,24 +100,39 @@ async function SendEmail() {
 
   canSend.value = false;
 
-  emailjs
-    .sendForm('service_lbut1ys', 'template_aznai5p', form.value != null ? form.value : "none", {
-      publicKey: 'e3bm7Vy4Y4uUrLkmf',
-    })
-    .then(
-      () => {
-        console.log('SUCCESS!');
-        modalText.value = i18n.t('send_query_success');
-        showModal.value = true;
-        canSend.value = true;
-      },
-      (error) => {
-        console.log('FAILED...', error.text);
-        modalText.value = i18n.t('send_query_error');
-        showModal.value = true;
-        canSend.value = true;
-      },
-    );
+  try {
+    // Send contact form through your backend API
+    const contactData = {
+      name: name.value,
+      company: company.value,
+      email: email.value,
+      phone: `+56${phone.value}`,
+      message: message.value,
+      timestamp: new Date().toISOString()
+    }
+
+    const response = await axios.post('/v1/support/contact', contactData);
+    
+    if (response.data && response.data.success) {
+      modalText.value = i18n.t('send_query_success') || 'Your message has been sent successfully. We will get back to you soon.'
+      showModal.value = true;
+      canSend.value = true;
+      
+      // Reset form
+      name.value = ''
+      company.value = ''
+      email.value = ''
+      phone.value = ''
+      message.value = ''
+    } else {
+      throw new Error('API response indicates failure');
+    }
+  } catch (error) {
+    console.error('Failed to send contact form:', error);
+    modalText.value = i18n.t('send_query_error') || 'Failed to send message. Please try again later.'
+    showModal.value = true;
+    canSend.value = true;
+  }
 }
 
 // Lifecycle hooks
@@ -397,8 +402,8 @@ onBeforeUnmount(() => {
           v-model="message"
           :placeholder="$t('query_home')"
         ></textarea>
-        <button class="form-button" type="submit" :value="i18n.t('send_query')" :disabled="!canSend">
-          Enviar
+        <button class="form-button" type="submit" :disabled="!canSend">
+          {{ $t('send_query') }}
         </button>
       </div>
     </form>
@@ -430,6 +435,15 @@ onBeforeUnmount(() => {
   </div>
   
   <div class="pre-footer color-purple"></div>
+
+  <Teleport to="body">
+    <AlertModal :show="showModal" @close="showModal = false">
+      <template #header>
+        <h3>{{$t('notification')}}</h3>
+      </template>
+      <template #body> {{ modalText }} </template>
+    </AlertModal>
+  </Teleport>
 </template>
 
 <style scoped>
