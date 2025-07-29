@@ -29,11 +29,7 @@ const discountCode = ref('')
 const redeemingCode = ref(false)
 const redeemSuccess = ref(false)
 
-const isMobile = ref(window.innerWidth <= 768)
-
-const handleResize = () => {
-  isMobile.value = window.innerWidth <= 768
-}
+// Mobile detection removed for desktop-only app
 
 onMounted(() => {
   if (auth.isLoggedIn && user.userId) {
@@ -55,11 +51,11 @@ onMounted(() => {
     }
   }
   
-  window.addEventListener('resize', handleResize)
+  // Mobile resize listener removed for desktop-only app
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', handleResize)
+  // Mobile resize listener cleanup removed for desktop-only app
 })
 
 const subscriptionStore = useSubscription()
@@ -149,11 +145,11 @@ async function handleRedeemCode() {
   <div class="loading_container" v-if="loading">
     <Loading />
   </div>
-  <div class="section" v-else :class="{ 'mobile-section': isMobile }">
-    <h1 class="title-bold" :class="{ 'mobile-title': isMobile }">{{ t('subscription_plans').toUpperCase() }}</h1>
+  <div class="section">
+    <h1 class="title-bold">{{ t('subscription_plans').toUpperCase() }}</h1>
     
-    <!-- Desktop layout -->
-    <div v-if="!isMobile" class="plan-container">
+    <!-- Desktop layout (mobile layout removed) -->
+    <div class="plan-container">
       <div class="plan">
         <h2>{{ t('free_plan').toUpperCase() }}</h2>
         <div class="credits">200 {{ t('credits') }}</div>
@@ -228,88 +224,21 @@ async function handleRedeemCode() {
       </div>
     </div>
     
-    <!-- Mobile layout -->
-    <div v-else class="mobile-plan-container">
-      <div class="mobile-plan">
-        <h2>{{ t('free_plan').toUpperCase() }}</h2>
-        <div class="mobile-credits">200 {{ t('credits') }}</div>
-        <div class="mobile-details">
-          <li>{{ t('free_feature_1') }}</li>
-          <li>{{ t('free_feature_2') }}</li>
-          <li>{{ t('free_feature_3') }}</li>
-        </div>
-        <div class="mobile-plan-footer">
-          <h3 class="mobile-price">{{ t('free').toUpperCase() }}</h3>
-          <button 
-            :class="[buttonClass('free'), 'mobile-button']" 
-            @click=""> <!-- handleSubscription('free') -->
-            {{ buttonText('free') }}
-          </button>
-        </div>
-      </div>
-      
-      <div class="mobile-plan">
-        <h2>{{ t('monthly_plan').toUpperCase() }}</h2>
-        <div class="mobile-credits">1000 {{ t('credits') }}</div>
-        <div class="mobile-details">
-          <li>{{ t('monthly_feature_1') }}</li>
-          <li>{{ t('monthly_feature_2') }}</li>
-          <li>{{ t('monthly_feature_3') }}</li>
-          <li>{{ t('monthly_feature_4') }}</li>
-        </div>
-        <div class="mobile-plan-footer">
-          <!-- <h3 class="mobile-price">{{ `$8 USD / ${t('month').toUpperCase()}` }}</h3> -->
-        <h3 class="price">{{ $t('coming_soon') }}</h3>
-          <button 
-            :class="[buttonClass('monthly'), 'mobile-button']" 
-            @click=""> <!-- handleSubscription('monthly') -->
-            {{ buttonText('monthly') }}
-          </button>
-        </div>
-      </div>
-      
-      <div class="mobile-plan">
-        <h2>{{ t('yearly_plan').toUpperCase() }}</h2>
-        <div class="mobile-credits">12000 {{ t('credits') }}</div>
-        <div class="mobile-details">
-          <li>{{ t('yearly_feature_1') }}</li>
-          <li>{{ t('yearly_feature_2') }}</li>
-          <li>{{ t('yearly_feature_3') }}</li>
-        </div>
-        <div class="mobile-plan-footer">
-          <!-- <h3 class="mobile-price">{{ `$90 USD / ${t('year').toUpperCase()}` }}</h3> -->
-        <h3 class="price">{{ $t('coming_soon') }}</h3>
-          <button 
-            :class="[buttonClass('yearly'), 'mobile-button']" 
-            @click=""> <!-- handleSubscription('yearly') -->
-            {{ buttonText('yearly') }}
-          </button>
-        </div>
-      </div>
-          
-    <!-- Redeem Code Section -->
-      <div class="mobile-plan">
-        <h2>{{ t('redeem_code') }}</h2>
-        <div class="redeem-form">
-          <input 
-            type="text" 
-            v-model="discountCode" 
-            :placeholder="t('enter_discount_code')"
-            :disabled="redeemingCode"
-            @keyup.enter="handleRedeemCode"
-          />
-        </div>
-        <button 
-          class="btn-purple redeem-button" 
-          @click="handleRedeemCode"
-          :disabled="redeemingCode"
-        >
-          <span v-if="!redeemingCode">{{ t('redeem').toUpperCase() }}</span>
-          <Loading v-else class="button-loader" />
-        </button>
-      </div>
-    </div>
+    <!-- Mobile layout removed for desktop-only app -->
     
+  </div>
+  
+  <Teleport to="body">
+    <AlertModal :show="showModal" @close="showModal = false">
+      <template #header>
+        <h3>{{ redeemSuccess ? t('code_redemption_success') : t('subscription_success') }}</h3>
+      </template>
+      <template #body>
+        <p>{{ redeemSuccess ? t('code_redemption_success_message') : t('subscription_success_message') }}</p>
+      </template>
+    </AlertModal>
+  </Teleport>
+    <!-- Enrollment Redirect Modal -->
     <Teleport to="body">
       <AlertModal :show="showModal" @close="showModal = false">
         <template #header>
@@ -347,7 +276,6 @@ async function handleRedeemCode() {
     <div v-if="error" class="error-message">
       {{ error }}
     </div>
-  </div>
 </template>
 
 <style scoped>
@@ -355,12 +283,6 @@ async function handleRedeemCode() {
   width: 100%;
   text-align: start;
   font-size: 300%;
-}
-
-.mobile-title {
-  font-size: 180%;
-  text-align: center;
-  margin-bottom: 20px;
 }
 
 p {

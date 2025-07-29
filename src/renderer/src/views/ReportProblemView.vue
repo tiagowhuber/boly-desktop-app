@@ -1,17 +1,17 @@
 <script setup lang="ts">
 // Imports
-import { ref, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth, useUser } from '@/stores'
 import DesktopReportProblem from './ReportProblemDesktopView.vue'
-import MobileReportProblem from './ReportProblemMobileView.vue'
+// Mobile component removed for desktop-only app
 import axios from 'axios'
 
 const router = useRouter()
 const auth = useAuth()
 const user = useUser()
 
-const isMobile = ref(window.innerWidth <= 768)
+// Mobile detection removed for desktop-only app
 
 router.beforeEach((to, from, next) => {
   auth.checkToken()
@@ -30,13 +30,11 @@ onMounted(async () => {
     }
   }
 
-  window.addEventListener('resize', () => {
-    isMobile.value = window.innerWidth <= 768
-  })
+  // Mobile resize listener removed for desktop-only app
 })
 </script>
 
 <template>
-  <MobileReportProblem v-if="isMobile"/>
-  <DesktopReportProblem v-else/>
+  <!-- Mobile component removed for desktop-only app -->
+  <DesktopReportProblem />
 </template>

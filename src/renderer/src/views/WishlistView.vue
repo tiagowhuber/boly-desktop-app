@@ -22,12 +22,7 @@ const { loading: wishlistLoading, items: wishlistItems } = storeToRefs(wishlistS
 
 const loading = ref(true)
 const wishlistGames = ref<any[]>([])
-const isMobile = ref(window.innerWidth <= 768)
-
-// Handle window resize for mobile detection
-const handleResize = () => {
-  isMobile.value = window.innerWidth <= 768
-}
+// Mobile detection removed for desktop-only app
 
 if (!auth.isLoggedIn && !auth.verifying) {
   router.back()
@@ -75,13 +70,13 @@ async function refreshData() {
 }
 
 onMounted(async () => {
-  window.addEventListener('resize', handleResize)
+  // Removed mobile resize listener for desktop-only app
   await refreshData()
 })
 
-// Clean up event listener
+// Clean up removed for desktop-only app
 onUnmounted(() => {
-  window.removeEventListener('resize', handleResize)
+  // No cleanup needed for desktop-only app
 })
 
 watch([wishlistItems, games], async () => {
@@ -100,11 +95,10 @@ watch([wishlistItems, games], async () => {
     </div>
     <div class="game-count">{{ $t('all_games') }} ({{ wishlistGames.length }})</div>
     
-    <div v-if="wishlistGames.length > 0" class="list" :class="{ 'mobile-list': isMobile }">
+    <div v-if="wishlistGames.length > 0" class="list">
       <GameItem v-for="item in wishlistGames" 
                 :key="item.game_id" 
-                :item="item" 
-                :class="{ 'mobile-item': isMobile }" />
+                :item="item" />
     </div>
     <div v-else class="empty-wishlist">
       <p>{{ $t('no_wishlist_games') }}</p>
@@ -168,28 +162,7 @@ watch([wishlistItems, games], async () => {
   border-radius: 20px;
 }
 
-.mobile-list {
-  gap: 1rem;
-  padding: 10px;
-}
-
-/* Style that will be applied to the GameItem component when on mobile */
-:deep(.mobile-item) {
-  transform: scale(0.85);
-  margin: -10px;
-}
-
-@media (max-width: 768px) {
-  .game-count {
-    width: 80%;
-    padding: 2px 10px;
-  }
-  
-  .wishlist-header h1 {
-    font-size: 1.5rem;
-    text-align: center;
-  }
-}
+/* Mobile-specific styles removed for desktop-only app */
 
 .empty-wishlist {
   display: flex;

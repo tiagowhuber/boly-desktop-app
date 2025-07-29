@@ -1,18 +1,15 @@
 <script setup lang="ts">
 import ContactForm from '@/components/ContactForm.vue';
-import MobileTemplate from '@/components/MobileTemplate.vue';
+// Mobile template removed for desktop-only app
 import { useAuth, useUser } from '@/stores';
-import { onMounted, ref } from 'vue';
+import { onMounted } from 'vue';
 import axios, { AxiosError } from 'axios';
 
 const auth = useAuth();
 const user = useUser();
-const isMobile = ref(window.innerWidth < 768);
+// Mobile detection removed for desktop-only app
 
-// Watch for window resize to toggle mobile view
-window.addEventListener('resize', () => {
-  isMobile.value = window.innerWidth < 768;
-});
+// Mobile resize listener removed for desktop-only app
 
 onMounted(async () => {
   if (auth.isLoggedIn && user.userId) {
@@ -36,17 +33,10 @@ onMounted(async () => {
 
 <template>
   <div>
-    <!-- Desktop version -->
-    <div v-if="!isMobile" class="section">
+    <!-- Desktop version (mobile version removed) -->
+    <div class="section">
       <ContactForm />
     </div>
-
-    <!-- Mobile version -->
-    <MobileTemplate v-else>
-      <div class="mobile-contact-container">
-        <ContactForm />
-      </div>
-    </MobileTemplate>
   </div>
 </template>
 
