@@ -40,7 +40,7 @@ const goToReportProblem = () => {
       </span>
     </template>
     <template v-else>
-      <TheNavbar :color="'blue'" v-if="$route.path == '/'" style="z-index: 100!important;"/>
+      <TheNavbar :color="'orange'" v-if="$route.path == '/'" style="z-index: 100!important;"/>
       <TheNavbar :color="'pink'" v-else style="z-index: 100!important;"/>
       <RouterView class="view-container" />
       <TheFooter :small="false" :color="'dark-purple'" v-if="$route.path == '/'"/>

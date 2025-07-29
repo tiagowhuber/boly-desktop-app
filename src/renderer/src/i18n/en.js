@@ -1,11 +1,17 @@
 export const en = {
   // home view
+  // home view
   home_title: 'HOME',
   home_welcome: 'Look at our featured games!',
 
   home_title1: 'Boly',
   home_body1: 'Revolutionizing the classroom',
+  home_body1_description: 'Boly connects teachers, students, and developers with personalized educational video games.',
   
+  home_svg1_title: "I'm a teacher",
+  home_svg1_description: 'How to improve learning in your classroom',
+  home_svg2_title: "I'm a developer",
+  home_svg2_description: 'Publish, receive metrics and monetize',
   home_title2: 'OUR PROJECT',
   home_body2: 'AT BOLY, WE UNDERSTAND GAMERS, DEVELOPERS AND EDUCATORS',
   home_text3: 'Boly is a high-quality educational video game distribution platform that uses gamification & AI to personalize learning. We connect developers with students and schools and provide educators with tools to enhance the educational experience.',
@@ -28,7 +34,57 @@ export const en = {
   home_form_title: `At Boly, we count on you to take education to the next level`,
   home_form_text: 'Do you or your team have an experience, game or application for educational purposes? Contact us or write us your inquiry so you can be part of Boly.',
 
+  home_meet_us: 'Meet us',  
+  // Our Project Section
+  project_main_text: 'Boly is an educational video game platform that makes learning as entertaining as playing.',
+  project_secondary_text: 'Thanks to gamification and artificial intelligence, we adapt content according to learning level, promoting step-by-step progress.',
+  connection_text: 'We connect developers with students, schools and teachers, providing tools that motivate, reinforce learning and transform every class into a dynamic experience.',
+  revolution_question: 'DO YOU WANT TO BE PART OF THE LEARNING REVOLUTION WITH VIDEO GAMES?',
+  educators: 'Educators',
+  developers: 'Developers',
+  personalization: 'Personalization',
+  automatic_reports: 'Automatic reports',
+  tracking: 'Tracking',
+  monetization: 'Monetization',
+  visibility: 'Visibility',
+  direct_integration: 'Direct integration with schools',
+  want_know_more: 'I want to know more',
+
+  home_title3: 'TECHNOLOGY AND EDUCATION',
+  home_graph1_data_title: 'No laboratories',
+  home_graph1_data_text1: 'According to the IDB, 88% of schools in LATAM',
+  home_graph1_data_text2: ' do not have science laboratories',
+  home_graph1_data_text3: ' and there is a trend towards an increase in the use of mobile phones by younger and younger children.',
+  
+  home_graph2_data_title: 'Phone access',
+  home_graph2_data_text1: 'Currently, 92% of children ',
+  home_graph2_data_text2: 'have access to and play on mobile phones,',
+  home_graph2_data_text3: ` generating a battle in the classroom for students' attention and great concern among parents about the use of this technology.`,
+
+  // Technology section specific translations
+  technology_solution_text1: 'Boly solves this by bringing',
+  technology_solution_text2: 'virtual laboratories',
+  technology_mobile_learning_text1: 'That\'s why more than 92% of',
+  technology_mobile_learning_text2: 'children already learn on mobile phones.',
+  technology_classroom_example: 'See how this looks in the classroom: "a student performs a digital experiment on their phone and their teacher receives an immediate report."',
+
+  // Our games section
+  our_games_title: 'DISCOVER OUR EDUCATIONAL VIDEO GAMES',
+  our_games_secondary_text: 'Discover the games that are revolutionizing learning in classrooms and homes. Learning has never been so entertaining!',
+  lets_go: 'Let\'s go!',
+
+  //boly in action section
+  boly_gallery_title: 'Boly in action',
+
+  home_title4: "Boly in action",
+  home_slider_text: "Slide to see more action",
+
+  home_title5: `LET'S TALK`,
+  home_form_title: `At Boly, we count on you to take education to the next level`,
+  home_form_text: 'Do you or your team have an experience, game or application for educational purposes? Contact us or write us your inquiry so you can be part of Boly.',
+
   home_meet_us: 'Meet us',
+
 
 
   // navbar

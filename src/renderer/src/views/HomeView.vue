@@ -158,20 +158,20 @@ onBeforeUnmount(() => {
   
   <div class="section color-pink home-section">
     <div class="svg-container">
-        <router-link to="/educators" class="svg-link">
+        <a href="https://boly.cl/educators" class="svg-link" target="_blank" rel="noopener noreferrer">
           <div class="svg-left">
               <img src="@/assets/svgs/HomeViewSvgs/teacherwithbook.svg" alt="Teacher with book" />
               <h3>{{ $t('home_svg1_title').toLocaleUpperCase() }}</h3>
               <p>{{ $t('home_svg1_description') }}</p>
           </div>
-        </router-link>
-        <router-link to="/developer-contact" class="svg-link">
+        </a>
+        <a href="https://boly.cl/developer-contact" class="svg-link" target="_blank" rel="noopener noreferrer">
           <div class="svg-right">
               <img src="@/assets/svgs/HomeViewSvgs/womanwithlaptop.svg" alt="Woman with laptop" />
               <h3>{{ $t('home_svg2_title').toLocaleUpperCase() }}</h3>
               <p>{{ $t('home_svg2_description') }}</p>
           </div>
-        </router-link>
+        </a>
     </div>
   </div>
   
@@ -239,9 +239,9 @@ onBeforeUnmount(() => {
               <li>{{ $t('automatic_reports') }}</li>
               <li>{{ $t('tracking') }}</li>
             </ul>
-            <router-link to="/educators">
+            <a href="https://boly.cl/educators" target="_blank" rel="noopener noreferrer">
               <button class="cta-button educators-btn">{{ $t('want_know_more') }}</button>
-            </router-link>
+            </a>
           </div>
           
           <div class="audience-column">
@@ -251,9 +251,9 @@ onBeforeUnmount(() => {
               <li>{{ $t('visibility') }}</li>
               <li>{{ $t('direct_integration') }}</li>
             </ul>
-            <router-link to="/developer-contact">
+            <a href="https://boly.cl/developer-contact" target="_blank" rel="noopener noreferrer">
               <button class="cta-button developers-btn">{{ $t('want_know_more') }}</button>
-            </router-link>
+            </a>
           </div>
         </div>
       </div>

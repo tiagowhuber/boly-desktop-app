@@ -276,6 +276,10 @@ p {
   background-color: #40a8e2;
 }
 
+.orange {
+  background-color: var(--boly-bg-orange);
+}
+
 .pink {
   background-color: var(--boly-button-pink);
 }
