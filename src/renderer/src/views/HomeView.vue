@@ -197,14 +197,16 @@ onBeforeUnmount(() => {
 
 <template>
   <transition name="fade">
-    <div v-if="showUpdateStatus" class="update-status-container">
-      <div class="update-status-header">
-        <h3>{{ $t('update_info') || 'Update Info' }}</h3>
-        <button class="close-button" @click="showUpdateStatus = false">×</button>
+    <div v-if="showUpdateStatus" class="update-backdrop" @click="showUpdateStatus = false">
+      <div class="update-status-container" @click.stop>
+        <div class="update-status-header">
+          <h3>{{ $t('update_info') || 'Update Info' }}</h3>
+          <button class="close-button" @click="showUpdateStatus = false">×</button>
+        </div>
+        <p class="update-status">{{ updateStatus }}</p>
+        <button class="update-button" @click="checkForUpdates">{{ $t('check_for_updates') || 'Check for updates' }}</button>
+        <p class="version">{{ currentVersion }}</p>
       </div>
-      <p class="update-status">{{ updateStatus }}</p>
-      <button class="update-button" @click="checkForUpdates">{{ $t('check_for_updates') || 'Check for updates' }}</button>
-      <p class="version">{{ currentVersion }}</p>
     </div>
   </transition>
   
@@ -1650,6 +1652,16 @@ h1 {
   color: white;
   margin-top: 1rem;
   text-align: left;
+}
+
+.update-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 999;
+  pointer-events: all;
 }
 
 .update-status-container {
