@@ -208,8 +208,6 @@ onMounted(async () => {
       }
     } catch (error) {
       console.error('Error fetching subscription data:', error)
-    } finally {
-      isLoading.value = false
     }
 
     try {
@@ -223,6 +221,8 @@ onMounted(async () => {
       }
     } catch (error) {
       console.error('Error fetching user data:', error)
+    } finally {
+      isLoading.value = false
     }
 
   } else {

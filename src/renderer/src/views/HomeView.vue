@@ -18,6 +18,9 @@ const i18n = useI18n();
 const carouselRef = ref<any>();
 const currentSlide = ref<number>(0);
 const isMobile = ref(window.innerWidth <= 768);
+const currentVersion = ref('');
+const showUpdateStatus = ref(false);
+const updateStatus = ref('');
 
 // Boly images data
 const bolyImages = ref([
@@ -139,7 +142,52 @@ async function SendEmail() {
 onMounted(() => {
   // Add resize event listener
   window.addEventListener('resize', handleResize);
+  
+  console.log("Checking electronAPI availability:", window.electronAPI);
+  console.log("Checking updateMessage availability:", window.electronAPI?.updateMessage);
+  
+  // Add the update message listener
+  if (window.electronAPI && window.electronAPI.updateMessage) {
+    console.log("Setting up updateMessage listener");
+    window.electronAPI.updateMessage((message: string) => {
+      console.log("Update message received:", message);
+      updateStatus.value = message;
+    });
+    
+    // Get current version using the proper method
+    if (window.electronAPI.getVersion) {
+      window.electronAPI.getVersion().then((version: string) => {
+        console.log("Current version received:", version);
+        currentVersion.value = version;
+      }).catch((error: any) => {
+        console.error("Error getting version:", error);
+      });
+    } else {
+      console.error("getVersion function not available");
+    }
+    
+    checkForUpdates();
+  } else {
+    console.error("electronAPI or updateMessage function not available");
+    updateStatus.value = "Update system not available";
+  }
 });
+
+async function checkForUpdates() {
+  try {
+    if (window.electronAPI && window.electronAPI.checkUpdates) {
+      const result = await window.electronAPI.checkUpdates();
+      console.log("Check for updates result:", result);
+      updateStatus.value = result;
+    } else {
+      console.error("checkUpdates function not available");
+      updateStatus.value = "Update check not available";
+    }
+  } catch (error) {
+    console.error("Error checking for updates:", error);
+    updateStatus.value = "Error checking for updates";
+  }
+}
 
 onBeforeUnmount(() => {
   // Clean up event listener
@@ -148,6 +196,24 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
+  <transition name="fade">
+    <div v-if="showUpdateStatus" class="update-status-container">
+      <div class="update-status-header">
+        <h3>{{ $t('update_info') || 'Update Info' }}</h3>
+        <button class="close-button" @click="showUpdateStatus = false">×</button>
+      </div>
+      <p class="update-status">{{ updateStatus }}</p>
+      <button class="update-button" @click="checkForUpdates">{{ $t('check_for_updates') || 'Check for updates' }}</button>
+      <p class="version">{{ currentVersion }}</p>
+    </div>
+  </transition>
+  
+  <button class="info-button" @click="showUpdateStatus = !showUpdateStatus">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-info-square-fill" viewBox="0 0 16 16">
+      <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm8.93 4.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM8 5.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
+    </svg>
+  </button>
+
   <div class="section color-orange header"></div>
   
   <div class="logo">
@@ -1584,6 +1650,140 @@ h1 {
   color: white;
   margin-top: 1rem;
   text-align: left;
+}
+
+.update-status-container {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 15px;
+  border-radius: 8px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 250px;
+  max-height: 200px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.update-status-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 8px;
+}
+
+.update-status-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0 5px;
+}
+
+.update-status {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+  width: 100%;
+}
+
+.version {
+  margin: 8px 0 0 0;
+  font-size: 12px;
+  font-family: 'Poppins', sans-serif;
+  opacity: 0.8;
+  width: 100%;
+  text-align: right;
+}
+
+.update-button {
+  margin-top: 8px;
+  background-color: #b533c7;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 12px;
+  align-self: stretch;
+}
+
+.update-button:hover {
+  background-color: #9d2fad;
+}
+
+.info-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #b533c7;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 999;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.info-button:hover {
+  background-color: #9d2fad;
+  transform: scale(1.05);
+}
+
+.info-button svg {
+  width: 24px;
+  height: 24px;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+
+@media only screen and (max-width: 768px) {
+  .info-button {
+    width: 40px;
+    height: 40px;
+    bottom: 15px;
+    right: 15px;
+  }
+  
+  .info-button svg {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .update-status-container {
+    bottom: 65px;
+    right: 15px;
+    width: 200px;
+    max-width: 80%;
+    max-height: 150px;
+    padding: 12px;
+  }
 }
 
 @media (max-width: 768px) {
