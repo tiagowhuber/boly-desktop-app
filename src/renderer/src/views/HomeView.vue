@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
 import axios from 'axios';
 import 'vue3-carousel/dist/carousel.css';
 import { Carousel, Slide, Navigation } from 'vue3-carousel';
@@ -13,6 +14,7 @@ import bolyAction3 from '@/assets/images/boly/bolyaction/3action.jpg';
 import bolyAction4 from '@/assets/images/boly/bolyaction/4action.jpg';
 
 const i18n = useI18n();
+const router = useRouter();
 
 // Carousel setup
 const carouselRef = ref<any>();
@@ -89,6 +91,7 @@ const company = ref('');
 const email = ref('');
 const phone = ref('');
 const message = ref('');
+const reason = ref('');
 
 async function SendEmail() {
   if (email.value.length === 0 ||
@@ -111,22 +114,24 @@ async function SendEmail() {
       email: email.value,
       phone: `+56${phone.value}`,
       message: message.value,
+      reason: reason.value,
       timestamp: new Date().toISOString()
     }
 
     const response = await axios.post('/v1/support/contact', contactData);
     
     if (response.data && response.data.success) {
-      modalText.value = i18n.t('send_query_success') || 'Your message has been sent successfully. We will get back to you soon.'
-      showModal.value = true;
-      canSend.value = true;
-      
       // Reset form
       name.value = ''
       company.value = ''
       email.value = ''
       phone.value = ''
       message.value = ''
+      reason.value = ''
+      canSend.value = true;
+      
+      // Redirect to success page
+      router.push('/email-success');
     } else {
       throw new Error('API response indicates failure');
     }
@@ -459,9 +464,15 @@ onBeforeUnmount(() => {
           pattern="((\+\d{1,3}(-|.| )?\(?\d\)?(-| |.)?\d{1,5})|(\(?\d{2,6}\)?))(-|.| )?(\d{3,4})(-|.| )?(\d{4})(( x| ext)\d{1,5}){0,1}$"
           name="phone" 
           v-model="phone" 
-          placeholder="---------"
+          :placeholder="$t('phone')"
           @input="phone = phone.replace(/\D/g, '').slice(0, 9)" 
         />
+        <select class="form-element" name="reason" v-model="reason">
+          <option value="" disabled>{{ $t('select_reason') || 'Select reason (optional)' }}</option>
+          <option value="demo_request">{{ $t('demo_request') || 'Demo Request' }}</option>
+          <option value="query">{{ $t('query_dropdown') || 'Query' }}</option>
+          <option value="other">{{ $t('other') || 'Other' }}</option>
+        </select>
         <textarea 
           class="form-element" 
           style="--h:10rem;" 
@@ -767,6 +778,16 @@ body {
   font-weight: bold;
   font-size: 18px;
   display: flex;
+}
+
+.form-element select,
+.form-element option {
+  background-color: rgba(64, 168, 226, 0.9);
+  color: white;
+}
+
+.form-element option:hover {
+  background-color: rgba(64, 168, 226, 1);
 }
 
 .form-element::placeholder {

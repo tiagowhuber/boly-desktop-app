@@ -44,6 +44,18 @@ export const es = {
 
   home_meet_us: 'Conócenos',
 
+  // Contact form reason dropdown
+  select_reason: 'Selecciona motivo (opcional)',
+  demo_request: 'Solicitud de Demo',
+  query_dropdown: 'Consulta',
+  other: 'Otro',
+  
+  // Email success page
+  email_sent_success_title: '¡Mensaje Enviado Exitosamente!',
+  email_sent_success_message: '¡Gracias por contactarnos! Hemos recibido tu mensaje y nos pondremos en contacto contigo lo antes posible.',
+  send_another_message: 'Enviar Otro Mensaje',
+  contact_alternative: 'También puedes contactarnos directamente en:',
+
 // Our Project Section
   project_main_text: 'Boly es una plataforma de videojuegos educativos que hace que aprender sea tan entretenido como jugar.',
   project_secondary_text: 'Gracias a la gamificación y la inteligencia artificial, adaptamos los contenidos según el nivel de aprendizaje, promoviendo el progreso paso a paso.',
@@ -180,7 +192,7 @@ export const es = {
   contact_title: 'CONTACTO',
   name: 'Nombre',
   company: 'Empresa',
-  phone: 'Número de teléfono',
+  phone: 'Número de teléfono (+56)',
   query: 'Escribe tu consulta',
   send_query: 'Enviar consulta',
   send_query_success: '¡Consulta enviada exitosamente! Nos pondremos en contacto contigo lo antes posible.',

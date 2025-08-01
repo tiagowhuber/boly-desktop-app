@@ -37,6 +37,14 @@ export const router = createRouter({
       component: () => import('../views/ContactView.vue')
     },
     {
+      path: '/email-success',
+      name: 'email-success',
+      component: () => import('../views/EmailSuccessView.vue'),
+      meta: {
+        requiresAuth: false
+      }
+    },
+    {
       path: '/login',
       name: 'login',
       component: () => import('../views/LoginView.vue')

@@ -86,7 +86,17 @@ export const en = {
 
   home_meet_us: 'Meet us',
 
-
+  // Contact form reason dropdown
+  select_reason: 'Select reason (optional)',
+  demo_request: 'Demo Request',
+  query_dropdown: 'Query',
+  other: 'Other',
+  
+  // Email success page
+  email_sent_success_title: 'Message Sent Successfully!',
+  email_sent_success_message: 'Thank you for contacting us! We have received your message and will get back to you as soon as possible.',
+  send_another_message: 'Send Another Message',
+  contact_alternative: 'You can also reach us directly at:',
 
   // navbar
   home: 'Home',
@@ -174,7 +184,7 @@ export const en = {
   contact_title: 'CONTACT',
   name: 'Name',
   company: 'Company',
-  phone: 'Telephone number',
+  phone: 'Telephone number (+56)',
   query: 'Enter your inquiry',
   send_query: 'Send inquiry',
   send_query_success: 'Inquiry sent successfully! We will get back to you as soon as possible.',
