@@ -73,9 +73,9 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', handleResize)
 })
 
-// function AddToCart() {
-//   shoppingCart.addGameToCart({ game_id: props.item.game_id })
-// }
+function AddToCart() {
+  shoppingCart.addGameToCart({ game_id: props.item.game_id })
+}
 
 async function ClaimFree() {
   if (!auth.isLoggedIn || !user.userId) {
@@ -136,7 +136,7 @@ function GoToGame() {
             <XMarkIcon class="icon" v-else/> 
           </button>
 
-          <button class="add-button" :class="{ 'mobile-add-button': isMobile }" v-else-if="props.item.price[i18n.locale.value] > 0" @click="">
+          <button class="add-button" :class="{ 'mobile-add-button': isMobile }" v-else-if="props.item.price[i18n.locale.value] > 0" @click="AddToCart">
             <!-- price[i18n.locale.value] > 0" @click="AddToCart"> -->
             <CartIcon class="icon" v-if="!buttonHovered"/>
             <PlusIcon class="icon" v-else/>

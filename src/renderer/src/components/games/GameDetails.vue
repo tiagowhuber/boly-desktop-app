@@ -77,9 +77,9 @@ function updateGameImages(): void {
   }
 }
 
-// function AddToCart(): void {
-//   cart.addGameToCart({ game_id: props.item.game_id });
-// }
+function AddToCart(): void {
+  cart.addGameToCart({ game_id: props.item.game_id });
+}
 
 const ownsCurrentGame = ref(false);
 const hasSubscriptionAccess = ref(false);
@@ -244,9 +244,9 @@ watch(
               >
                 {{ $t('view_in_cart').toUpperCase() }}
               </button>
-              <!-- <button class="btn-purple" v-else @click="AddToCart">
+              <button class="btn-purple" v-else @click="AddToCart">
                 {{ $t('add_to_cart').toUpperCase() }}
-              </button> -->
+              </button>
               
               <button 
                 :class="['btn-wishlist', isInWishlist ? 'in-wishlist' : '']" 

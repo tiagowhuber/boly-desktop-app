@@ -340,7 +340,7 @@ onBeforeUnmount(() => {
 
   <div class="divider color-orange"></div>
   
-  <div id="technology-section" class="section color-orange view-container" style="--h:60rem">
+  <div id="technology-section" class="section color-orange view-container" style="--h:50rem">
     <div class="technology-content">
       <h1 class="our-project-title">{{ $t('home_title3').toUpperCase() }}</h1>
       
@@ -375,9 +375,6 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <div class="concrete-example">
-        <p>{{ $t('technology_classroom_example') }}</p>
-      </div>
     </div>
   </div>
   
@@ -624,6 +621,7 @@ body {
 }
 
 .home-body1-description {
+  margin-top: 4.6rem;
   font-family: 'Poppins', sans-serif !important;
   transform: none !important;
   font-size: 28px !important;
