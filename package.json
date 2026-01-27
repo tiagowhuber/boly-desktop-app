@@ -31,22 +31,6 @@
     "owner": "tiagowhuber",
     "repo": "boly-desktop-app"
   },
-  "build": {
-    "appId": "Boly",
-    "win": {
-      "target": [
-        "nsis"
-      ],
-      "icon": "src/renderer/src/assets/images/icon.ico"
-    },
-    "nsis": {
-      "oneClick": true,
-      "installerIcon": "src/renderer/src/assets/images/icon.ico",
-      "uninstallerIcon": "src/renderer/src/assets/images/icon.ico",
-      "uninstallDisplayName": "Boly-Uninstaller",
-      "allowToChangeInstallationDirectory": false
-    }
-  },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
     "@electron-toolkit/utils": "^4.0.0",

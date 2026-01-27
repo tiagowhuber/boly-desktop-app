@@ -1,8 +1,9 @@
-appId: com.boly.app
+appId: Boly
 productName: Boly
 directories:
+  output: dist_new
   buildResources: build
-  
+
 # Auto update configuration
 publish:
   provider: github
@@ -10,6 +11,7 @@ publish:
   repo: boly-desktop-app
   private: true
   releaseType: release
+
 files:
   - '!**/.vscode/*'
   - '!src/*'
@@ -17,16 +19,26 @@ files:
   - '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
   - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
-  #- '!{setup-updates.ps1,publish-release.ps1}'
+
 asarUnpack:
   - resources/**
+
 win:
   executableName: boly
+  target:
+    - nsis
+  icon: src/renderer/src/assets/images/icon.ico
+
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
-  uninstallDisplayName: ${productName}
+  uninstallDisplayName: Boly-Uninstaller
   createDesktopShortcut: always
+  oneClick: true
+  installerIcon: src/renderer/src/assets/images/icon.ico
+  uninstallerIcon: src/renderer/src/assets/images/icon.ico
+  allowToChangeInstallationDirectory: false
+
 mac:
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
@@ -35,8 +47,10 @@ mac:
     - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
     - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
   notarize: false
+
 dmg:
   artifactName: ${name}-${version}.${ext}
+
 linux:
   target:
     - AppImage
@@ -44,9 +58,8 @@ linux:
     - deb
   maintainer: electronjs.org
   category: Utility
+
 appImage:
   artifactName: ${name}-${version}.${ext}
+
 npmRebuild: false
-publish:
-  provider: generic
-  url: https://example.com/auto-updates
