@@ -7,7 +7,7 @@ export const en = {
   home_title1: 'Boly',
   home_body1: 'Revolutionizing the classroom',
   home_body1_description: 'Boly connects teachers, students, and developers with personalized educational video games.',
-  
+
   home_svg1_title: "I'm a teacher",
   home_svg1_description: 'How to improve learning in your classroom',
   home_svg2_title: "I'm a developer",
@@ -21,7 +21,7 @@ export const en = {
   home_graph1_data_text1: 'According to the IDB, 88% of schools in LATAM',
   home_graph1_data_text2: ' do not have science laboratories',
   home_graph1_data_text3: ' and there is a trend towards an increase in the use of mobile phones by younger and younger children.',
-  
+
   home_graph2_data_title: 'Phone access',
   home_graph2_data_text1: 'Currently, 92% of children ',
   home_graph2_data_text2: 'have access to and play on mobile phones,',
@@ -34,7 +34,7 @@ export const en = {
   home_form_title: `At Boly, we count on you to take education to the next level`,
   home_form_text: 'Do you or your team have an experience, game or application for educational purposes? Contact us or write us your inquiry so you can be part of Boly.',
 
-  home_meet_us: 'Meet us',  
+  home_meet_us: 'Meet us',
   // Our Project Section
   project_main_text: 'Boly is an educational video game platform that makes learning as entertaining as playing.',
   project_secondary_text: 'Thanks to gamification and artificial intelligence, we adapt content according to learning level, promoting step-by-step progress.',
@@ -56,7 +56,7 @@ export const en = {
   home_graph1_data_text1: 'According to the IDB, 88% of schools in LATAM',
   home_graph1_data_text2: ' do not have science laboratories',
   home_graph1_data_text3: ' and there is a trend towards an increase in the use of mobile phones by younger and younger children.',
-  
+
   home_graph2_data_title: 'Phone access',
   home_graph2_data_text1: 'Currently, 92% of children ',
   home_graph2_data_text2: 'have access to and play on mobile phones,',
@@ -91,7 +91,7 @@ export const en = {
   demo_request: 'Demo Request',
   query_dropdown: 'Query',
   other: 'Other',
-  
+
   // Email success page
   email_sent_success_title: 'Message Sent Successfully!',
   email_sent_success_message: 'Thank you for contacting us! We have received your message and will get back to you as soon as possible.',
@@ -113,7 +113,7 @@ export const en = {
   // footer
   copyright_disclaimer: '© 2024. All rights reserved. All trademarks are the property of their respective owners / developers.',
   vat_disclaimer: 'All prices include VAT (where applicable).',
-  
+
   privacy_policy: 'Privacy Policy',
   legal_info: 'Legal Info',
   subscriber_agreement: 'Subscriber Agreement',
@@ -121,7 +121,7 @@ export const en = {
   cookies: 'Cookies',
 
   // games view
-  games_title: 'GAMES',  
+  games_title: 'GAMES',
   already_owned: 'Already owned!',
   subscription_access: 'Subscription Access',
   add_to_cart: 'Add to cart',
@@ -175,6 +175,8 @@ export const en = {
   play_time: 'Play time',
   no_subscription_games: 'Subscribe to access all games!',
   uninstall: 'Uninstall',
+  trial_access_games: 'Trial Access',
+  no_trial_games: 'You do not have any trial games yet.',
 
   // wishlist view
   wishlist: 'Wishlist',
@@ -223,8 +225,8 @@ export const en = {
   code_redemption_success_message: 'Your discount code has been successfully applied to your account.',
   invalid_discount_code: 'Invalid discount code',
   discount_code: 'Discount code',
-  redeem_code_subtitle: 'Do you have a subscription code?',
-  redeem_code_description: 'Enter your code below to apply your subscription.',
+  redeem_code_subtitle: 'Do you have a subscription/trial code?',
+  redeem_code_description: 'Enter your code below to apply your subscription or trial.',
 
   // discount codes view
   discount_codes_title: 'MY DISCOUNT CODES',
@@ -251,7 +253,7 @@ export const en = {
   code_detail_subscription_benefit: 'Subscription Benefit:',
   code_detail_expires: 'Expires:',
   code_detail_used_on: 'Used On:',
-  code_detail_uses: 'Uses:',  
+  code_detail_uses: 'Uses:',
   code_details_not_available: 'Error: Discount code details not available for ID',
 
   // redeem code view
@@ -541,7 +543,7 @@ export const en = {
   loading_achievements: 'Loading achievements...',
   no_achievements_found: 'No achievements found for this game.',
   secret: 'Secret',
-  retry: 'Retry', 
+  retry: 'Retry',
   loading: 'Loading',
   release_date: 'Release date',
   see_achievements: 'View achievements',
@@ -550,7 +552,7 @@ export const en = {
   retry: 'Retry',
   loading: 'Loading',
   release_date: 'Release date',
-  see_achievements: 'View achievements', 
+  see_achievements: 'View achievements',
   no_play_time_recorded: 'No play time recorded',
   secret: 'Secret',
   retry: 'Retry',
@@ -602,7 +604,7 @@ export const en = {
   back_to_home: 'Back to Home',
   verify_email_verifying: 'Verifying your email address...',
 
-  
+
   // Report Problem View
   report_problem_title: 'Report a Problem',
   report_problem_subtitle: 'Help us improve by reporting any issues you encounter',

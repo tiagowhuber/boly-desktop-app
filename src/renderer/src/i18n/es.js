@@ -2,11 +2,11 @@ export const es = {
   // home view
   home_title: 'INICIO',
   home_welcome: '¡Mira nuestros juegos destacados!',
-  
+
   home_title1: 'Boly',
   home_body1: 'Revolucionando el aula',
   home_body1_description: 'Boly une profesores, estudiantes y desarrolladores con videojuegos educativos personalizados.',
-  
+
   home_svg1_title: 'Soy Profesor/a',
   home_svg1_description: 'Cómo mejorar el aprendizaje en tu aula',
   home_svg2_title: 'Soy Desarrollador/a',
@@ -16,10 +16,10 @@ export const es = {
   home_text3: 'Boly es una plataforma de distribución de videojuegos educativos de alta calidad que combina gamificación e inteligencia artificial para personalizar el aprendizaje. Conectamos desarrolladores con estudiantes y centros educativos, brindando a los docentes herramientas innovadoras para enriquecer la experiencia de enseñanza.',
   home_title: 'INICIO',
   home_welcome: '¡Mira nuestros juegos destacados!',
-  
+
   home_title1: 'Boly',
   home_body1: 'Revolucionando el aula',
-  
+
   home_title2: 'NUESTRO PROYECTO',
   home_body2: 'EN BOLY, ENTENDEMOS A LOS JUGADORES, DESARROLLADORES Y EDUCADORES',
   home_text3: 'Boly es una plataforma de distribución de videojuegos educativos de alta calidad que combina gamificación e inteligencia artificial para personalizar el aprendizaje. Conectamos desarrolladores con estudiantes y centros educativos, brindando a los docentes herramientas innovadoras para enriquecer la experiencia de enseñanza.',
@@ -29,7 +29,7 @@ export const es = {
   home_graph1_data_text1: 'Según el BID, el 88% de las escuelas en LATAM',
   home_graph1_data_text2: 'no cuentan con laboratorios de ciencias',
   home_graph1_data_text3: ' y existe una tendencia al aumento del uso del celular en niños cada vez más pequeños.',
-  
+
   home_graph2_data_title: 'Acceso telefónico',
   home_graph2_data_text1: 'Actualmente el 92% de los niños ',
   home_graph2_data_text2: 'tiene acceso y juega en celulares,',
@@ -49,7 +49,7 @@ export const es = {
   demo_request: 'Solicitud de Demo',
   query_dropdown: 'Consulta',
   other: 'Otro',
-  
+
   // Email success page
   email_sent_success_title: '¡Mensaje Enviado Exitosamente!',
   email_sent_success_message: '¡Gracias por contactarnos! Hemos recibido tu mensaje y nos pondremos en contacto contigo lo antes posible.',
@@ -76,7 +76,7 @@ export const es = {
   home_graph1_data_text1: 'Según el BID, el 88% de las escuelas en LATAM',
   home_graph1_data_text2: 'no cuentan con laboratorios de ciencias',
   home_graph1_data_text3: ' y existe una tendencia al aumento del uso del celular en niños cada vez más pequeños.',
-  
+
   home_graph2_data_title: 'Acceso telefónico',
   home_graph2_data_text1: 'Actualmente el 92% de los niños ',
   home_graph2_data_text2: 'tiene acceso y juega en celulares,',
@@ -146,7 +146,7 @@ export const es = {
   claim_for_free:'Obtener gratis',
   general_info:'Información general',
   faq:'Preguntas frecuentes',
-  
+
   featured:'Destacado',
 
   downloadable_games:'Juegos descargables',
@@ -199,7 +199,7 @@ export const es = {
   send_query_error: '¡Ups! Ocurrió un error al enviar tu consulta. Por favor intenta de nuevo.',
   contact_lets_talk: 'Hablemos',
   contact_body: '¿Cómo podemos ayudarte?',
-  contact_text: 'Estamos aquí para ayudarte con cualquier pregunta o consulta que puedas tener. Por favor, completa el formulario a continuación y nos pondremos en contacto contigo lo antes posible.', 
+  contact_text: 'Estamos aquí para ayudarte con cualquier pregunta o consulta que puedas tener. Por favor, completa el formulario a continuación y nos pondremos en contacto contigo lo antes posible.',
   // subscription view
   subscription_plans: 'Planes de suscripción',
   free: 'Gratis',
@@ -226,11 +226,11 @@ export const es = {
   redeem: 'Canjear',
   please_enter_code: 'Por favor ingresa un código de descuento',
   code_redemption_success: '¡Código canjeado con éxito!',
-  code_redemption_success_message: 'Tu código de descuento ha sido canjeado exitosamente. Tu suscripción ha sido actualizada.',
+  code_redemption_success_message: 'Tu código de descuento ha sido canjeado exitosamente.',
   invalid_discount_code: 'Código de descuento inválido',
   discount_code: 'Código de descuento',
-  redeem_code_subtitle: '¿Tienes un código de suscripción?',
-  redeem_code_description: 'Ingresa tu código abajo para canjear tu suscripción.',
+  redeem_code_subtitle: '¿Tienes un código de suscripción/prueba?',
+  redeem_code_description: 'Ingresa tu código abajo para canjear tu suscripción o prueba.',
 
   // discount codes view
   discount_codes_title: 'MIS CÓDIGOS DE DESCUENTO',
@@ -257,7 +257,7 @@ export const es = {
   code_detail_subscription_benefit: 'Beneficio de Suscripción:',
   code_detail_expires: 'Expira:',
   code_detail_used_on: 'Usado el:',
-  code_detail_uses: 'Usos:',  
+  code_detail_uses: 'Usos:',
   code_details_not_available: 'Error: Detalles del código de descuento no disponibles para ID',
 
   // redeem code view
@@ -294,7 +294,7 @@ export const es = {
   banner: 'Portada',
   media: 'Multimedia',
   background: 'Fondo',
-  
+
   // achievement manager
   ach_pass_title: 'PASE DE LOGROS',
   ach_pass_1: '¡Aquí puedes generar tu AchievementPass para los juegos de Boly!',
@@ -435,7 +435,7 @@ export const es = {
   confirm_delete: 'Confirmar Eliminación',
   order_status_failed: 'Fallido',
   redirecting_to_payment_setup: 'Redirigiendo a la configuración de pago...',
-  
+
   // subscription management  subscription_management: 'Gestión de suscripción',
   subscription_management: 'Administrar tu suscripción',
   available_subscriptions: 'Suscripciones disponibles',
@@ -446,7 +446,8 @@ export const es = {
   next_billing: 'Próxima facturación',
   change_subscription: 'Cambiar Suscripción',
   cancel_subscription: 'Cancelar Suscripción',
-  no_active_subscription: 'No tienes una suscripción activa.',  subscribe_now: 'Suscríbete Ahora',
+  no_active_subscription: 'No tienes una suscripción activa.',
+  subscribe_now: 'Suscríbete Ahora',
   confirm_cancellation: 'Confirmar Cancelación',
   confirm_cancel_subscription: '¿Estás seguro de que quieres cancelar tu suscripción? Tu cuenta será degradada al plan gratuito.',
   account_title: 'Cuenta',
@@ -477,6 +478,9 @@ export const es = {
   subscription_processed_success: '¡Ya tienes acceso a todos los juegos!',
   month_price: '8000 CLP / ',
   yearly_price: '90000 CLP / ',
+  trial_access_games: "Acceso de prueba",
+  no_trial_games: "No tienes juegos de prueba aún.",
+
 
   // Developer Contact View
   dev_title_mobile: 'Vendemos tu <span class="highlight-green">videojuego educativo</span> en todo el mundo',
@@ -604,7 +608,7 @@ export const es = {
   email_verified_success: 'Correo electrónico verificado exitosamente.',
   back_to_home: 'Volver al inicio',
   verify_email_verifying: 'Verificando tu correo electrónico...',
-  
+
   // Report Problem View
   report_problem_title: 'Reportar un Problema',
   report_problem_subtitle: 'Ayúdanos a mejorar reportando cualquier problema que encuentres',

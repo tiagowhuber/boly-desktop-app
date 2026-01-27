@@ -29,7 +29,7 @@ export interface GameType {
     game_type_id: number;
     name: string;
 }
-  
+
 export interface Game {
     game_id: number;
     name: LocalizedString;
@@ -189,7 +189,7 @@ export interface Order {
   user_id: number;
   subscription_id?: number;
   payment_method_id?: number;
-  details?: string; 
+  details?: string;
 }
 
 export interface Auth {
@@ -200,13 +200,14 @@ export interface Auth {
 
 export enum DiscountType {
   PERCENTAGE_ORDER = 'PERCENTAGE_ORDER',
-  SUBSCRIPTION_ACCESS = 'SUBSCRIPTION_ACCESS'
+  SUBSCRIPTION_ACCESS = 'SUBSCRIPTION_ACCESS',
+  TEMPORARY_GAME_ACCESS = 'TEMPORARY_GAME_ACCESS'
 }
 
 export enum SubscriptionDurationUnit {
-  DAYS = 'DAYS',
-  MONTHS = 'MONTHS',
-  YEARS = 'YEARS'
+  DAYS = 'day',
+  MONTHS = 'month',
+  YEARS = 'year'
 }
 
 export interface DiscountCode {
@@ -263,8 +264,8 @@ export interface CreateDiscountCodeRequest {
 export interface UserHasDiscountCode {
   user_id: number;
   discount_code_id: number;
-  created_at: string; 
+  created_at: string;
   updated_at: string;
-  used_at?: string | Date | null; 
-  discountCode: DiscountCode; 
+  used_at?: string | Date | null;
+  discountCode: DiscountCode;
 }
