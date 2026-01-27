@@ -68,56 +68,57 @@ const cartGames = computed<Game[]>(() => {
 })
 
 const subtotal = computed<number>(() => {
-  console.log('cartGames:', cartGames.value);
+  console.log('cartGames:', cartGames.value)
   return cartGames.value.reduce((sum: number, game: Game) => {
     if (typeof game.price === 'object' && game.price !== null) {
       // Use the price for the current locale, or 0 if not available
-      const price = (game.price as Record<string, string | number>)[i18n.locale.value];
-      return sum + (typeof price === 'string' ? parseFloat(price) : price);
+      const price = (game.price as Record<string, string | number>)[i18n.locale.value]
+      return sum + (typeof price === 'string' ? parseFloat(price) : price)
     }
-    console.log('game price:', game.price);
-    return sum + (typeof game.price === 'number' ? game.price : 0);
-  }, 0);
+    console.log('game price:', game.price)
+    return sum + (typeof game.price === 'number' ? game.price : 0)
+  }, 0)
 })
 
-const total = computed<number>(() => {// This grabs the subtotal value from above and then checks for each game if it has a discount and then subscracts the discount from the subtotal
+const total = computed<number>(() => {
+  // This grabs the subtotal value from above and then checks for each game if it has a discount and then subscracts the discount from the subtotal
   const getGamePriceInCurrentLocale = (game: Game): number => {
-    let priceForGame: string | number | undefined;
+    let priceForGame: string | number | undefined
     if (typeof game.price === 'object' && game.price !== null) {
-      priceForGame = (game.price as Record<string, string | number>)[i18n.locale.value];
+      priceForGame = (game.price as Record<string, string | number>)[i18n.locale.value]
     } else if (typeof game.price === 'number') {
-      priceForGame = game.price;
+      priceForGame = game.price
     }
 
     if (typeof priceForGame === 'string') {
-      const parsedPrice = parseFloat(priceForGame);
-      return isNaN(parsedPrice) ? 0 : parsedPrice;
+      const parsedPrice = parseFloat(priceForGame)
+      return isNaN(parsedPrice) ? 0 : parsedPrice
     }
     if (typeof priceForGame === 'number') {
-      return priceForGame;
+      return priceForGame
     }
-    return 0; // Fallback 
-  };
+    return 0 // Fallback
+  }
 
-  let discountAmount = 0;
+  let discountAmount = 0
 
   if (isCodeValid.value && appliedDiscount.value > 0) {
     if (appliedGameId.value !== undefined) {
       // Discount applies to a specific game
-      const specificGame = cartGames.value.find(game => game.game_id === appliedGameId.value);
+      const specificGame = cartGames.value.find((game) => game.game_id === appliedGameId.value)
       if (specificGame) {
-        const specificGamePrice = getGamePriceInCurrentLocale(specificGame);
-        discountAmount = specificGamePrice * (appliedDiscount.value / 100);
+        const specificGamePrice = getGamePriceInCurrentLocale(specificGame)
+        discountAmount = specificGamePrice * (appliedDiscount.value / 100)
       }
       // If specificGame is not found (e.g., removed from cart after code validation),
       // discountAmount remains 0. The watch on cart.value should ideally reset the discount state.
     } else {
       // General discount applies to the subtotal
-      discountAmount = subtotal.value * (appliedDiscount.value / 100);
+      discountAmount = subtotal.value * (appliedDiscount.value / 100)
     }
   }
 
-  return Math.round(subtotal.value - discountAmount);
+  return Math.round(subtotal.value - discountAmount)
 })
 
 const redirect_form = ref<HTMLFormElement | null>(null)
@@ -125,7 +126,7 @@ const showRedirectModal = ref<boolean>(false)
 
 async function checkCode(): Promise<void> {
   if (!discountCode.value) return
-  
+
   if (!auth.isLoggedIn || !user.userId) {
     isCodeInvalid.value = true
     isCodeValid.value = false
@@ -136,15 +137,17 @@ async function checkCode(): Promise<void> {
   isCodeInvalid.value = false
   isCodeValid.value = false
   autoAppliedCode.value = false // Reset auto-applied flag for manual codes
-  
+
   const result = await codesStore.validateDiscountCode(discountCode.value, user.userId)
-  
+
   if (result.success && result.data) {
     const validationData = result.data
-    
+
     // Check if discount applies to any game in cart or is general
-    const canApplyDiscount = !validationData.applies_to_game_id || cartGames.value.some(game => game.game_id === validationData.applies_to_game_id)
-    
+    const canApplyDiscount =
+      !validationData.applies_to_game_id ||
+      cartGames.value.some((game) => game.game_id === validationData.applies_to_game_id)
+
     if (canApplyDiscount) {
       isCodeValid.value = true
       isCodeInvalid.value = false
@@ -171,27 +174,32 @@ async function reqTransaction(): Promise<void> {
   }
 
   errorMessage.value = ''
-  
+
   // Check if the total is 0 (100% discount) - claim free games instead
   if (total.value === 0) {
     try {
       showRedirectModal.value = true
-      
+
       // Claim each game in the cart as free
       if (!user.userId) {
         errorMessage.value = 'User ID is required'
         showRedirectModal.value = false
         return
-      }      
+      }
       for (const gameId of cart.value) {
-        const success = await paymentStore.claimFreeGameDiscount(gameId, user.userId, { token: auth.token }, isCodeValid.value ? discountCode.value : undefined)
+        const success = await paymentStore.claimFreeGameDiscount(
+          gameId,
+          user.userId,
+          { token: auth.token },
+          isCodeValid.value ? discountCode.value : undefined
+        )
         if (!success) {
           errorMessage.value = 'Failed to claim free game'
           showRedirectModal.value = false
           return
         }
       }
-      
+
       // Clear cart and redirect on success
       cartStore.clearCart()
       resetDiscountState()
@@ -205,26 +213,26 @@ async function reqTransaction(): Promise<void> {
       return
     }
   }
-  
+
   try {
     showRedirectModal.value = true
-    
+
     // Encode game IDs and user ID as URL parameters
     const cartParams = new URLSearchParams({
       items: JSON.stringify(cart.value),
       userId: String(user.userId ?? 0)
     })
-    
+
     // Redirect to external cart with game IDs and user ID
     const externalCartUrl = `http://boly.cl/cart?${cartParams.toString()}`
     window.open(externalCartUrl, '_blank')
-    
+
     // Clear the cart after successful redirect
     cartStore.clearCart()
     resetDiscountState()
-    
+
     showRedirectModal.value = false
-    
+
     // Navigate back or to a different page after clearing cart
     router.push('/')
   } catch (error) {
@@ -251,7 +259,7 @@ async function autoApplyBestDiscountCode(): Promise<void> {
 
   try {
     const result = await codesStore.getUserDiscountCodes(user.userId)
-    
+
     if (!result.success || !result.data || result.data.length === 0) {
       return
     }
@@ -263,7 +271,7 @@ async function autoApplyBestDiscountCode(): Promise<void> {
     // Find the best applicable discount code
     for (const userCodeAssignment of userDiscountCodes) {
       const code = userCodeAssignment.discountCode
-      
+
       // Skip if code is not active or already used
       if (!code.is_active || userCodeAssignment.used_at) {
         continue
@@ -309,7 +317,7 @@ async function autoApplyBestDiscountCode(): Promise<void> {
       appliedDiscount.value = bestDiscount
       appliedGameId.value = bestCode.applies_to_game_id
       autoAppliedCode.value = true
-      
+
       console.log(`Auto-applied discount code: ${bestCode.code} (${bestDiscount}% off)`)
     }
   } catch (error) {
@@ -321,10 +329,10 @@ async function refreshGames(): Promise<void> {
   try {
     await gamesStore.getAll()
     // Check if games in cart are actually loaded
-    const missingGames = cart.value.filter(gameId => 
-      !games.value.some(game => game.game_id === gameId)
+    const missingGames = cart.value.filter(
+      (gameId) => !games.value.some((game) => game.game_id === gameId)
     )
-    
+
     if (missingGames.length > 0) {
       console.warn('Some games in cart were not found in the loaded games list', missingGames)
     }
@@ -351,71 +359,74 @@ onMounted(async () => {
     for (const gameId of cart.value) {
       await gamesStore.ownsGame(gameId, user.userId ?? 0)
     }
-    
+
     // Auto-apply best discount code after games are loaded
     await autoApplyBestDiscountCode()
   }
-  
+
   paymentStore.clearPaymentData()
 })
 
-
-watch(() => cart.value, async () => {
-  if (cart.value.length > 0) {
-    await refreshGames()
-    // Reset discount when cart changes to avoid invalid discounts
-    if (isCodeValid.value && appliedGameId.value) {
-      // Check if the specific game the discount applies to is still in cart
-      const gameStillInCart = cart.value.includes(appliedGameId.value)
-      if (!gameStillInCart) {
-        resetDiscountState()
-        // Try to auto-apply a new discount after reset
+watch(
+  () => cart.value,
+  async () => {
+    if (cart.value.length > 0) {
+      await refreshGames()
+      // Reset discount when cart changes to avoid invalid discounts
+      if (isCodeValid.value && appliedGameId.value) {
+        // Check if the specific game the discount applies to is still in cart
+        const gameStillInCart = cart.value.includes(appliedGameId.value)
+        if (!gameStillInCart) {
+          resetDiscountState()
+          // Try to auto-apply a new discount after reset
+          if (auth.isLoggedIn && user.userId) {
+            await autoApplyBestDiscountCode()
+          }
+        }
+      } else if (isCodeValid.value && !appliedGameId.value) {
+        // General discount is still valid, keep it
+      } else {
+        // No discount applied, try to auto-apply one
         if (auth.isLoggedIn && user.userId) {
           await autoApplyBestDiscountCode()
         }
       }
-    } else if (isCodeValid.value && !appliedGameId.value) {
-      // General discount is still valid, keep it
     } else {
-      // No discount applied, try to auto-apply one
-      if (auth.isLoggedIn && user.userId) {
-        await autoApplyBestDiscountCode()
-      }
+      resetDiscountState()
     }
-  } else {
-    resetDiscountState()
-  }
-}, { immediate: true })
+  },
+  { immediate: true }
+)
 </script>
 
 <template>
-  <div class="loading_container" v-if="loading || paymentLoading">
+  <div v-if="loading || paymentLoading" class="loading_container">
     <Loading />
   </div>
-  <div class="cart-container" v-else>
+  <div v-else class="cart-container">
     <h1 class="page-title">{{ $t('shopping_cart') }}</h1>
-    
-    <div v-if="cartGames.length > 0" class="cart-content" :class="{ 'mobile': isMobile }">
+
+    <div v-if="cartGames.length > 0" class="cart-content" :class="{ mobile: isMobile }">
       <div class="cart-items">
-        <CartItem 
-          v-for="game in cartGames" 
+        <CartItem
+          v-for="game in cartGames"
           :key="game.game_id"
           :game="game"
           :s3-base-url="s3BaseUrl"
           @remove="cartStore.removeGameFromCart(game)"
         />
       </div>
-      
+
       <div class="cart-summary">
         <h2>{{ $t('order_summary') }}</h2>
-        
-        <div class="discount-section" v-if="!isCodeValid">          
-          <form @submit.prevent="checkCode" class="discount-form">
-            <input 
-              v-model="discountCode" 
-              class="discount-input" 
+
+        <div v-if="!isCodeValid" class="discount-section">
+          <form class="discount-form" @submit.prevent="checkCode">
+            <input
+              v-model="discountCode"
+              class="discount-input"
               :placeholder="$t('discount_code')"
-              :class="{ 'invalid': isCodeInvalid }"
+              :class="{ invalid: isCodeInvalid }"
               :disabled="isValidating"
             />
             <button type="submit" class="apply-button" :disabled="isValidating || !discountCode">
@@ -425,13 +436,25 @@ watch(() => cart.value, async () => {
           <p v-if="isCodeInvalid" class="error-text">
             {{ validationError || $t('invalid_discount_code') }}
           </p>
-        </div>        
-          <div v-else class="discount-applied">
+        </div>
+        <div v-else class="discount-applied">
           <div class="discount-content">
             <div class="checkmark-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="11" fill="#4CAF50" stroke="#4CAF50" stroke-width="2"/>
-                <path d="m9 12 2 2 4-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle cx="12" cy="12" r="11" fill="#4CAF50" stroke="#4CAF50" stroke-width="2" />
+                <path
+                  d="m9 12 2 2 4-4"
+                  stroke="white"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
               </svg>
             </div>
             <div class="discount-details">
@@ -439,7 +462,15 @@ watch(() => cart.value, async () => {
                 <strong>{{ discountCode }}</strong> {{ $t('discount_code_applied') }}
               </div>
               <div class="discount-amount">
-                -{{ currency === 'USD' ? 'USD' : 'CLP' }} {{ Intl.NumberFormat(i18n.locale.value === 'en' ? 'en-US' : 'es-CL', { style: 'currency', currency: currency, currencyDisplay: 'symbol' }).format(subtotal - total) }} ({{ appliedDiscount }}% off)
+                -{{ currency === 'USD' ? 'USD' : 'CLP' }}
+                {{
+                  Intl.NumberFormat(i18n.locale.value === 'en' ? 'en-US' : 'es-CL', {
+                    style: 'currency',
+                    currency: currency,
+                    currencyDisplay: 'symbol'
+                  }).format(subtotal - total)
+                }}
+                ({{ appliedDiscount }}% off)
               </div>
               <!-- <p v-if="autoAppliedCode" class="auto-applied">
                 {{ $t('auto_applied_best_discount') || 'Best available discount automatically applied' }}
@@ -453,7 +484,7 @@ watch(() => cart.value, async () => {
             Remove
           </button> -->
         </div>
-        
+
         <div v-if="appliedDiscount > 0">
           <button class="remove-discount" @click="resetDiscountState()">
             {{ $t('remove_discount_code') }}
@@ -463,26 +494,53 @@ watch(() => cart.value, async () => {
         <div class="summary-details">
           <div class="summary-row">
             <span>{{ $t('subtotal') }}</span>
-            <span>{{ currency === 'USD' ? 'USD' : 'CLP' }} {{ Intl.NumberFormat(i18n.locale.value === 'en' ? 'en-US' : 'es-CL', { style: 'currency', currency: currency, currencyDisplay: 'symbol' }).format(subtotal) }}</span>
+            <span
+              >{{ currency === 'USD' ? 'USD' : 'CLP' }}
+              {{
+                Intl.NumberFormat(i18n.locale.value === 'en' ? 'en-US' : 'es-CL', {
+                  style: 'currency',
+                  currency: currency,
+                  currencyDisplay: 'symbol'
+                }).format(subtotal)
+              }}</span
+            >
           </div>
-            <div v-if="appliedDiscount > 0" class="summary-row discount">
+          <div v-if="appliedDiscount > 0" class="summary-row discount">
             <span>{{ $t('discount') }}</span>
-            <span>-{{ currency === 'USD' ? 'USD' : 'CLP' }} {{ Intl.NumberFormat(i18n.locale.value === 'en' ? 'en-US' : 'es-CL', { style: 'currency', currency: currency, currencyDisplay: 'symbol' }).format(subtotal - total) }}</span>
+            <span
+              >-{{ currency === 'USD' ? 'USD' : 'CLP' }}
+              {{
+                Intl.NumberFormat(i18n.locale.value === 'en' ? 'en-US' : 'es-CL', {
+                  style: 'currency',
+                  currency: currency,
+                  currencyDisplay: 'symbol'
+                }).format(subtotal - total)
+              }}</span
+            >
           </div>
-          
+
           <div class="summary-row total">
             <span>{{ $t('total') }}</span>
-            <span>{{ currency === 'USD' ? 'USD' : 'CLP' }} {{ Intl.NumberFormat(i18n.locale.value === 'en' ? 'en-US' : 'es-CL', { style: 'currency', currency: currency, currencyDisplay: 'symbol' }).format(total) }}</span>
+            <span
+              >{{ currency === 'USD' ? 'USD' : 'CLP' }}
+              {{
+                Intl.NumberFormat(i18n.locale.value === 'en' ? 'en-US' : 'es-CL', {
+                  style: 'currency',
+                  currency: currency,
+                  currencyDisplay: 'symbol'
+                }).format(total)
+              }}</span
+            >
           </div>
         </div>
 
         <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
 
         <div class="cart-actions">
-          <button class="checkout-button" @click="reqTransaction" :disabled="paymentLoading">
+          <button class="checkout-button" :disabled="paymentLoading" @click="reqTransaction">
             {{ $t('proceed_to_checkout') }}
           </button>
-          
+
           <button class="clear-cart" @click="showModal = true">
             <TrashCanXMarkIcon class="icon" />
             {{ $t('empty_cart') }}
@@ -490,7 +548,7 @@ watch(() => cart.value, async () => {
         </div>
       </div>
     </div>
-    
+
     <div v-else class="empty-cart">
       <h2>{{ $t('cart_empty') }}</h2>
       <router-link to="/" class="continue-shopping">
@@ -498,7 +556,7 @@ watch(() => cart.value, async () => {
       </router-link>
     </div>
 
-    <form method="post" ref="redirect_form" :action="transactionUrl || ''" style="display: none;">
+    <form ref="redirect_form" method="post" :action="transactionUrl || ''" style="display: none">
       <input type="hidden" name="token_ws" :value="token" />
     </form>
   </div>
@@ -510,7 +568,7 @@ watch(() => cart.value, async () => {
       </template>
       <template #body>{{ $t('modal_empty_cart') }}</template>
     </ConfirmModal>
-  
+
     <LoadingModal :show="showRedirectModal">
       <template #body>{{ $t('modal_cart_redirect') }}</template>
     </LoadingModal>
@@ -557,7 +615,7 @@ watch(() => cart.value, async () => {
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;  /* Add space between cart items */
+  gap: 1rem; /* Add space between cart items */
 }
 
 /* Style for separation between cart items */
@@ -638,7 +696,7 @@ watch(() => cart.value, async () => {
   justify-content: space-between;
   padding: 1rem;
   background: rgba(76, 175, 80, 0.1);
-  border: 2px solid #4CAF50;
+  border: 2px solid #4caf50;
   border-radius: 8px;
   margin: 1rem 0;
 }
@@ -676,8 +734,8 @@ watch(() => cart.value, async () => {
 .remove-discount {
   background: none;
   border: none;
-  color: #E91E63;
-  border: 2px solid #E91E63;
+  color: #e91e63;
+  border: 2px solid #e91e63;
   cursor: pointer;
   padding: 0.5rem;
   font-family: 'Poppins', sans-serif;
@@ -853,11 +911,11 @@ watch(() => cart.value, async () => {
   .cart-content {
     grid-template-columns: 1fr;
   }
-  
+
   .cart-summary {
     margin-top: 2rem;
   }
-  
+
   .cart-item img {
     width: 100px;
     height: 56px;
@@ -869,45 +927,45 @@ watch(() => cart.value, async () => {
   .cart-container {
     padding: 1rem;
   }
-  
+
   .page-title {
     font-size: 1.75rem;
     margin-bottom: 1rem;
   }
-  
+
   .cart-items {
     padding: 0.75rem;
   }
-  
+
   .cart-summary {
     padding: 1.25rem;
   }
-  
+
   .discount-form {
     flex-direction: row;
     align-items: center;
   }
-  
+
   .discount-input {
     flex: 1;
   }
-  
+
   .apply-button {
     width: auto;
     padding: 0.5rem 0.75rem;
     white-space: nowrap;
   }
-  
+
   .checkout-button {
     padding: 0.85rem;
     font-size: 1rem;
   }
-  
+
   .clear-cart {
     padding: 0.7rem;
     font-size: 0.9rem;
   }
-  
+
   .summary-row.total {
     font-size: 1rem;
   }

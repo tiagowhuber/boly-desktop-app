@@ -1,78 +1,78 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useAuth } from '@/stores';
-import { useI18n } from 'vue-i18n';
-import AlertModal from '@/components/AlertModal.vue';
+import { ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useAuth } from '@/stores'
+import { useI18n } from 'vue-i18n'
+import AlertModal from '@/components/AlertModal.vue'
 
-const auth = useAuth();
-const route = useRoute();
-const router = useRouter();
-const i18n = useI18n();
+const auth = useAuth()
+const route = useRoute()
+const router = useRouter()
+const i18n = useI18n()
 
-const newPassword = ref<string>('');
-const confirmNewPassword = ref<string>('');
-const token = ref<string>('');
+const newPassword = ref<string>('')
+const confirmNewPassword = ref<string>('')
+const token = ref<string>('')
 
-const showModal = ref<boolean>(false);
-const modalMessage = ref<string>('');
-const modalTitle = ref<string>('');
-const isLoading = ref<boolean>(false);
-const success = ref<boolean>(false);
+const showModal = ref<boolean>(false)
+const modalMessage = ref<string>('')
+const modalTitle = ref<string>('')
+const isLoading = ref<boolean>(false)
+const success = ref<boolean>(false)
 
 onMounted(() => {
   if (route.query.token && typeof route.query.token === 'string') {
-    token.value = route.query.token;
+    token.value = route.query.token
   } else {
-    modalTitle.value = i18n.t('error_title');
-    modalMessage.value = i18n.t('reset_password_invalid_token_on_mount');
-    showModal.value = true;
+    modalTitle.value = i18n.t('error_title')
+    modalMessage.value = i18n.t('reset_password_invalid_token_on_mount')
+    showModal.value = true
   }
-});
+})
 
 async function handleSubmit() {
   if (!token.value) {
-    modalTitle.value = i18n.t('error_title');
-    modalMessage.value = i18n.t('reset_password_token_missing');
-    showModal.value = true;
-    return;
+    modalTitle.value = i18n.t('error_title')
+    modalMessage.value = i18n.t('reset_password_token_missing')
+    showModal.value = true
+    return
   }
 
   if (newPassword.value.length < 8) {
-    modalTitle.value = i18n.t('error_title');
-    modalMessage.value = i18n.t('reset_password_too_short');
-    showModal.value = true;
-    return;
+    modalTitle.value = i18n.t('error_title')
+    modalMessage.value = i18n.t('reset_password_too_short')
+    showModal.value = true
+    return
   }
 
   if (newPassword.value !== confirmNewPassword.value) {
-    modalTitle.value = i18n.t('error_title');
-    modalMessage.value = i18n.t('reset_password_mismatch');
-    showModal.value = true;
-    return;
+    modalTitle.value = i18n.t('error_title')
+    modalMessage.value = i18n.t('reset_password_mismatch')
+    showModal.value = true
+    return
   }
 
-  isLoading.value = true;
-  success.value = false;
+  isLoading.value = true
+  success.value = false
   try {
-    const response = await auth.confirmPasswordReset(token.value, newPassword.value);
-    modalTitle.value = i18n.t('success_title');
-    modalMessage.value = response.message || i18n.t('reset_password_success_message');
-    success.value = true;
-    showModal.value = true;
+    const response = await auth.confirmPasswordReset(token.value, newPassword.value)
+    modalTitle.value = i18n.t('success_title')
+    modalMessage.value = response.message || i18n.t('reset_password_success_message')
+    success.value = true
+    showModal.value = true
   } catch (error: any) {
-    modalTitle.value = i18n.t('error_title');
-    modalMessage.value = error.message || i18n.t('reset_password_error_generic');
-    showModal.value = true;
+    modalTitle.value = i18n.t('error_title')
+    modalMessage.value = error.message || i18n.t('reset_password_error_generic')
+    showModal.value = true
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
 }
 
 function closeModal() {
-  showModal.value = false;
+  showModal.value = false
   if (success.value) {
-    router.push('/login');
+    router.push('/login')
   }
 }
 </script>
@@ -81,16 +81,32 @@ function closeModal() {
   <div class="confirm-password-reset-page-wrapper">
     <img src="@/assets/images/elements/11.png" alt="Decorative element" class="left-side-image" />
     <div class="confirm-password-reset-container">
-      <img src="@/assets/images/elements/9.png" alt="Decorative element" class="confirm-password-reset-element-image top-image" />
+      <img
+        src="@/assets/images/elements/9.png"
+        alt="Decorative element"
+        class="confirm-password-reset-element-image top-image"
+      />
       <div class="confirm-password-reset-card">
         <h1>{{ $t('reset_password_title') }}</h1>
         <form @submit.prevent="handleSubmit">
           <div class="form_group">
-            <input type="password" v-model="newPassword" class="form_field" :placeholder="$t('new_password_placeholder')" required />
+            <input
+              v-model="newPassword"
+              type="password"
+              class="form_field"
+              :placeholder="$t('new_password_placeholder')"
+              required
+            />
             <label class="form_label">{{ $t('new_password_label') }}</label>
           </div>
           <div class="form_group">
-            <input type="password" v-model="confirmNewPassword" class="form_field" :placeholder="$t('confirm_new_password_placeholder')" required />
+            <input
+              v-model="confirmNewPassword"
+              type="password"
+              class="form_field"
+              :placeholder="$t('confirm_new_password_placeholder')"
+              required
+            />
             <label class="form_label">{{ $t('confirm_new_password_label') }}</label>
           </div>
           <button type="submit" :disabled="isLoading || !token" class="submit-button">
@@ -98,11 +114,17 @@ function closeModal() {
             <span v-else>{{ $t('reset_password_submit_button') }}</span>
           </button>
           <div class="back-to-login">
-            <RouterLink to="/login" style="color: white; text-decoration: underline;">{{ $t('back_to_login') }}</RouterLink>
+            <RouterLink to="/login" style="color: white; text-decoration: underline">{{
+              $t('back_to_login')
+            }}</RouterLink>
           </div>
         </form>
       </div>
-      <img src="@/assets/images/elements/8.png" alt="Decorative element" class="confirm-password-reset-element-image bottom-image" />
+      <img
+        src="@/assets/images/elements/8.png"
+        alt="Decorative element"
+        class="confirm-password-reset-element-image bottom-image"
+      />
     </div>
     <img src="@/assets/images/elements/10.png" alt="Decorative element" class="right-side-image" />
     <Teleport to="body">
@@ -147,7 +169,7 @@ function closeModal() {
   max-width: 500px;
   width: 100%;
   color: var(--color-text);
-  z-index: 1; 
+  z-index: 1;
 }
 
 .confirm-password-reset-card h1 {
@@ -239,17 +261,17 @@ function closeModal() {
 .confirm-password-reset-element-image {
   width: 40px;
   height: auto;
-  position: absolute; 
-  z-index: 0; 
+  position: absolute;
+  z-index: 0;
 }
 
 .top-image {
-  top: 70px; 
+  top: 70px;
   align-self: center;
 }
 
 .bottom-image {
-  bottom: 30px; 
+  bottom: 30px;
   align-self: center;
 }
 
@@ -284,7 +306,8 @@ function closeModal() {
   .confirm-password-reset-card h1 {
     font-size: 2rem;
   }
-  .right-side-image, .left-side-image {
+  .right-side-image,
+  .left-side-image {
     width: 20px;
     margin: 1rem 0;
   }
@@ -303,7 +326,8 @@ function closeModal() {
   .submit-button {
     font-size: 1rem;
   }
-  .right-side-image, .left-side-image {
+  .right-side-image,
+  .left-side-image {
     width: 20px;
   }
   .confirm-password-reset-element-image {

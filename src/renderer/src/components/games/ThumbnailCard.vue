@@ -28,13 +28,13 @@ onMounted(() => {
     :class="{ active: selected === props.item_key, inactive: selected !== props.item_key }"
     @click="setDisplayData"
   >
-    <img :src="props.url" v-if="!props.is_video" />
-    <video class="video_player" v-else>
+    <img v-if="!props.is_video" :src="props.url" />
+    <video v-else class="video_player">
       <source :src="props.url" type="video/mp4" />
       Your browser does not support the video tag.
     </video>
-    <PlayIcon class="play_icon" v-if="props.is_video" />
-    <div class="tip" v-if="selected === props.item_key"></div>
+    <PlayIcon v-if="props.is_video" class="play_icon" />
+    <div v-if="selected === props.item_key" class="tip"></div>
   </div>
 </template>
 

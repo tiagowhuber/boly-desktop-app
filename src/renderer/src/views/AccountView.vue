@@ -19,7 +19,7 @@ import AlertModal from '@/components/AlertModal.vue'
 import VerifiedPersonIcon from '@/components/icons/VerifiedPersonIcon.vue'
 import { useI18n } from 'vue-i18n'
 
-const i18n = useI18n();
+const i18n = useI18n()
 const router = useRouter()
 const auth = useAuth()
 const user = useUser()
@@ -29,7 +29,7 @@ const showModal = ref(false)
 const modalTitle = ref('')
 const modalMessage = ref('')
 
-if(!auth.isLoggedIn && !auth.token){
+if (!auth.isLoggedIn && !auth.token) {
   router.back()
 }
 
@@ -56,7 +56,7 @@ const logout = (): void => {
 }
 
 const EditProfile = (): void => {
-  router.push("/edit")
+  router.push('/edit')
 }
 
 // const AchievementPass = (): void => {
@@ -67,19 +67,24 @@ const sendVerification = async () => {
   try {
     const response = await auth.sendVerificationEmail(user.email)
     console.log('Verification email sent:', response)
-    if (response.status === 200) { // respons contains a message so for now we assume success at all times
-      modalTitle.value = i18n.t("success");
-      modalMessage.value = i18n.t("modal_email_verification_sent");
-      showModal.value = true;
+    if (response.status === 200) {
+      // respons contains a message so for now we assume success at all times
+      modalTitle.value = i18n.t('success')
+      modalMessage.value = i18n.t('modal_email_verification_sent')
+      showModal.value = true
     } else {
-      modalTitle.value = i18n.t("success");
-      modalMessage.value = i18n.t("modal_email_verification_sent", { message: 'Failed to send verification email.' });
-      showModal.value = true;
+      modalTitle.value = i18n.t('success')
+      modalMessage.value = i18n.t('modal_email_verification_sent', {
+        message: 'Failed to send verification email.'
+      })
+      showModal.value = true
     }
   } catch (error: any) {
-    modalTitle.value = i18n.t("success");
-    modalMessage.value = i18n.t("modal_email_verification_sent", { message: error.message || 'Failed to send verification email.' });
-    showModal.value = true;
+    modalTitle.value = i18n.t('success')
+    modalMessage.value = i18n.t('modal_email_verification_sent', {
+      message: error.message || 'Failed to send verification email.'
+    })
+    showModal.value = true
   }
 }
 </script>
@@ -96,16 +101,21 @@ const sendVerification = async () => {
   <div v-if="isMobile">
     <div class="mobile-container">
       <div class="mobile-header">
-        <img class="profile-pic" 
-          :src="user.profilePictureUrl || 'https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg'" 
+        <img
+          class="profile-pic"
+          :src="
+            user.profilePictureUrl ||
+            'https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg'
+          "
           alt="Profile picture"
-        >
+        />
         <div class="details">
           <h1>{{ user.username }}</h1>
           <p>{{ user.email }}</p>
         </div>
-      </div>      <div class="mobile-bio">
-        <p>{{ $t('bio')}}</p>
+      </div>
+      <div class="mobile-bio">
+        <p>{{ $t('bio') }}</p>
         <p class="bio-text">{{ user.bio }}</p>
       </div>
 
@@ -115,14 +125,14 @@ const sendVerification = async () => {
           <RouterLink to="/edit" class="button btn-pink">
             <div class="button-content">
               <DiagonalPencilIcon class="button-icon" />
-              <span>{{ $t('edit_profile')}}</span>
+              <span>{{ $t('edit_profile') }}</span>
               <RightArrowIcon class="button-icon arrow-icon" />
             </div>
           </RouterLink>
           <button class="button btn-blue" @click="logout">
             <div class="button-content">
               <DoorIcon class="button-icon" />
-              <span>{{ $t('logout')}}</span>
+              <span>{{ $t('logout') }}</span>
               <RightArrowIcon class="button-icon arrow-icon" />
             </div>
           </button>
@@ -136,7 +146,7 @@ const sendVerification = async () => {
         </div>
       </div>
 
-      <div class="mobile-section" v-if="user.roleId === 1">
+      <div v-if="user.roleId === 1" class="mobile-section">
         <h2 class="mobile-section-title">{{ $t('Admin') }}</h2>
         <div class="mobile-button-stack">
           <RouterLink to="/discount-codes" class="button btn-pink">
@@ -147,51 +157,51 @@ const sendVerification = async () => {
           </RouterLink>
         </div>
       </div>
-      
+
       <div class="mobile-section">
         <h2 class="mobile-section-title">{{ $t('subscription_title') }}</h2>
         <div class="mobile-button-stack">
           <RouterLink to="/subscription-management" class="button btn-pink">
             <div class="button-content">
               <KingIcon class="button-icon" />
-              <span>{{ $t('subscription_management')}}</span>
+              <span>{{ $t('subscription_management') }}</span>
               <RightArrowIcon class="button-icon arrow-icon" />
             </div>
           </RouterLink>
           <RouterLink to="/subscription" class="button btn-blue">
             <div class="button-content">
               <BolyIcon class="button-icon" />
-              <span>{{ $t('available_subscriptions')}}</span>
+              <span>{{ $t('available_subscriptions') }}</span>
               <RightArrowIcon class="button-icon arrow-icon" />
             </div>
           </RouterLink>
         </div>
       </div>
-      
+
       <div class="mobile-section">
         <h2 class="mobile-section-title">{{ $t('payment_title') }}</h2>
         <div class="mobile-button-stack">
           <a href="https://boly.cl/payment-methods" target="_blank" class="button btn-pink">
             <div class="button-content">
               <CreditCardIcon class="button-icon" />
-              <span>{{ $t('my_cards')}}</span>
+              <span>{{ $t('my_cards') }}</span>
               <RightArrowIcon class="button-icon arrow-icon" />
             </div>
           </a>
           <RouterLink to="/orders" class="button btn-blue">
             <div class="button-content">
               <IconDocumentation class="button-icon" />
-              <span>{{ $t('order_history')}}</span>
+              <span>{{ $t('order_history') }}</span>
               <RightArrowIcon class="button-icon arrow-icon" />
             </div>
           </RouterLink>
-            <RouterLink to="/my-discount-codes" class="button btn-pink">
+          <RouterLink to="/my-discount-codes" class="button btn-pink">
             <div class="button-content">
               <PercentageIcon class="button-icon" />
-              <span>{{ $t('my_discount_codes')}}</span>
+              <span>{{ $t('my_discount_codes') }}</span>
               <RightArrowIcon class="button-icon arrow-icon" />
             </div>
-            </RouterLink>
+          </RouterLink>
         </div>
       </div>
 
@@ -201,14 +211,14 @@ const sendVerification = async () => {
           <RouterLink to="/wishlist" class="button btn-pink">
             <div class="button-content">
               <WishlistIcon class="button-icon" />
-              <span>{{ $t('wishlist')}}</span>
+              <span>{{ $t('wishlist') }}</span>
               <RightArrowIcon class="button-icon arrow-icon" />
             </div>
           </RouterLink>
           <RouterLink to="/player-stats" class="button btn-blue">
             <div class="button-content">
               <GameStatsIcon class="button-icon" />
-              <span>{{ $t('player_stats')}}</span>
+              <span>{{ $t('player_stats') }}</span>
               <RightArrowIcon class="button-icon arrow-icon" />
             </div>
           </RouterLink>
@@ -221,7 +231,7 @@ const sendVerification = async () => {
           <RouterLink to="/contact" class="button btn-pink">
             <div class="button-content">
               <HelpIcon class="button-icon" />
-              <span>{{ $t('help_text')}}</span>
+              <span>{{ $t('help_text') }}</span>
               <RightArrowIcon class="button-icon arrow-icon" />
             </div>
           </RouterLink>
@@ -230,55 +240,71 @@ const sendVerification = async () => {
     </div>
   </div>
   <div v-else>
-    <div class="loading_container" v-if="!auth.isLoggedIn && auth.token">
+    <div v-if="!auth.isLoggedIn && auth.token" class="loading_container">
       <Loading />
     </div>
-    <div class="section" v-if="auth.isLoggedIn">
+    <div v-if="auth.isLoggedIn" class="section">
       <div class="main-container">
         <div class="left-container">
           <div class="account-preview">
-            <img class="profile-pic" 
-              :src="user.profilePictureUrl || 'https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg'" 
+            <img
+              class="profile-pic"
+              :src="
+                user.profilePictureUrl ||
+                'https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg'
+              "
               alt="Profile picture"
-            >
-            <div class="details">              <div class="name">
+            />
+            <div class="details">
+              <div class="name">
                 <h1>{{ user.username }}</h1>
-                <DiagonalPencilIcon class="icon" @click="EditProfile"/>
+                <DiagonalPencilIcon class="icon" @click="EditProfile" />
               </div>
               <p>{{ user.email }}</p>
-              <p v-if="!user.email_verified" class="text-warning" style="font-size: 0.9rem; color: var(--boly-yellow);">{{ $t('email_not_verified') }}</p>
-              <br>
-            </div>          
-          </div>          
-          <div class="account-details">              
+              <p
+                v-if="!user.email_verified"
+                class="text-warning"
+                style="font-size: 0.9rem; color: var(--boly-yellow)"
+              >
+                {{ $t('email_not_verified') }}
+              </p>
+              <br />
+            </div>
+          </div>
+          <div class="account-details">
             <div class="account-section">
               <h2 class="section-title">{{ $t('account_title') }}</h2>
-              <div class="button-stack">             
-                <RouterLink to="/edit" class="button btn-pink">                  
+              <div class="button-stack">
+                <RouterLink to="/edit" class="button btn-pink">
                   <div class="button-content">
                     <DiagonalPencilIcon class="button-icon" />
-                    <span>{{ $t('edit_profile')}}</span>
+                    <span>{{ $t('edit_profile') }}</span>
                     <RightArrowIcon class="button-icon arrow-icon" />
                   </div>
                 </RouterLink>
-                <button class="button btn-blue" style="cursor: pointer;" @click="logout">
+                <button class="button btn-blue" style="cursor: pointer" @click="logout">
                   <div class="button-content">
                     <DoorIcon class="button-icon" />
-                    <span>{{ $t('logout')}}</span>
+                    <span>{{ $t('logout') }}</span>
                     <RightArrowIcon class="button-icon arrow-icon" />
                   </div>
-                </button> 
-                <button v-if="!user.email_verified" class="button btn-pink" style="cursor: pointer;" @click="sendVerification">
+                </button>
+                <button
+                  v-if="!user.email_verified"
+                  class="button btn-pink"
+                  style="cursor: pointer"
+                  @click="sendVerification"
+                >
                   <div class="button-content">
                     <VerifiedPersonIcon class="button-icon" />
                     <span>{{ $t('verify_account') }}</span>
                     <RightArrowIcon class="button-icon arrow-icon" />
                   </div>
-                </button>  
+                </button>
               </div>
             </div>
 
-            <div class="account-section" v-if="user.roleId === 1">
+            <div v-if="user.roleId === 1" class="account-section">
               <h2 class="section-title">{{ $t('Admin') }}</h2>
               <div class="button-stack">
                 <RouterLink to="/discount-codes" class="button btn-pink">
@@ -296,14 +322,14 @@ const sendVerification = async () => {
                 <RouterLink to="/subscription-management" class="button btn-pink">
                   <div class="button-content">
                     <KingIcon class="button-icon" />
-                    <span>{{ $t('subscription_management')}}</span>
+                    <span>{{ $t('subscription_management') }}</span>
                     <RightArrowIcon class="button-icon arrow-icon" />
                   </div>
                 </RouterLink>
                 <RouterLink to="/subscription" class="button btn-blue">
                   <div class="button-content">
                     <BolyIcon class="button-icon" />
-                    <span>{{ $t('available_subscriptions')}}</span>
+                    <span>{{ $t('available_subscriptions') }}</span>
                     <RightArrowIcon class="button-icon arrow-icon" />
                   </div>
                 </RouterLink>
@@ -316,21 +342,21 @@ const sendVerification = async () => {
                 <a href="https://boly.cl/payment-methods" target="_blank" class="button btn-pink">
                   <div class="button-content">
                     <CreditCardIcon class="button-icon" />
-                    <span>{{ $t('my_cards')}}</span>
+                    <span>{{ $t('my_cards') }}</span>
                     <RightArrowIcon class="button-icon arrow-icon" />
                   </div>
                 </a>
                 <RouterLink to="/orders" class="button btn-blue">
                   <div class="button-content">
                     <IconDocumentation class="button-icon" />
-                    <span>{{ $t('order_history')}}</span>
+                    <span>{{ $t('order_history') }}</span>
                     <RightArrowIcon class="button-icon arrow-icon" />
                   </div>
                 </RouterLink>
                 <RouterLink to="/my-discount-codes" class="button btn-pink">
                   <div class="button-content">
                     <PercentageIcon class="button-icon" />
-                    <span>{{ $t('my_discount_codes')}}</span>
+                    <span>{{ $t('my_discount_codes') }}</span>
                     <RightArrowIcon class="button-icon arrow-icon" />
                   </div>
                 </RouterLink>
@@ -343,20 +369,19 @@ const sendVerification = async () => {
                 <RouterLink to="/wishlist" class="button btn-pink">
                   <div class="button-content">
                     <WishlistIcon class="button-icon" />
-                    <span>{{ $t('wishlist')}}</span>
+                    <span>{{ $t('wishlist') }}</span>
                     <RightArrowIcon class="button-icon arrow-icon" />
                   </div>
                 </RouterLink>
                 <RouterLink to="/player-stats" class="button btn-blue">
                   <div class="button-content">
                     <GameStatsIcon class="button-icon" />
-                    <span>{{ $t('player_stats')}}</span>
+                    <span>{{ $t('player_stats') }}</span>
                     <RightArrowIcon class="button-icon arrow-icon" />
                   </div>
                 </RouterLink>
               </div>
             </div>
-            
 
             <div class="account-section">
               <h2 class="section-title">{{ $t('help') }}</h2>
@@ -364,7 +389,7 @@ const sendVerification = async () => {
                 <RouterLink to="/contact" class="button btn-pink">
                   <div class="button-content">
                     <HelpIcon class="button-icon" />
-                    <span>{{ $t('help_text')}}</span>
+                    <span>{{ $t('help_text') }}</span>
                     <RightArrowIcon class="button-icon arrow-icon" />
                   </div>
                 </RouterLink>
@@ -373,13 +398,21 @@ const sendVerification = async () => {
           </div>
         </div>
         <div class="bio">
-          <p class="info" style="font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif; font-size: 100%;">{{ $t('profile_info', {username: user.username})}}</p>
-          <br>
-          <p class="title-bold">{{ $t('role')}}</p>
+          <p
+            class="info"
+            style="
+              font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+              font-size: 100%;
+            "
+          >
+            {{ $t('profile_info', { username: user.username }) }}
+          </p>
+          <br />
+          <p class="title-bold">{{ $t('role') }}</p>
           <p class="role-id">{{ $t(String(user.roleId)) }}</p>
-          <p class="title-bold">{{ $t('birthday')}}</p>
+          <p class="title-bold">{{ $t('birthday') }}</p>
           <p>{{ user.birthday }}</p>
-          <p class="title-bold">{{ $t('bio')}}</p>
+          <p class="title-bold">{{ $t('bio') }}</p>
           <p class="bio-text">{{ user.bio }}</p>
         </div>
       </div>
@@ -387,30 +420,28 @@ const sendVerification = async () => {
   </div>
 </template>
 
-
-
 <style scoped>
-.main-container{
+.main-container {
   display: flex;
   flex-direction: row;
   gap: 1rem;
 }
 
-.left-container{
+.left-container {
   width: 850px;
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-.profile-pic{
+.profile-pic {
   height: 200px;
   width: 200px;
   border-radius: 50%;
   border: 3px solid var(--boly-bg-dark);
 }
 
-.account-preview{
+.account-preview {
   width: 100%;
   display: flex;
   flex-direction: row;
@@ -419,7 +450,7 @@ const sendVerification = async () => {
   border-radius: 20px;
   padding: 20px;
 }
-.account-details{
+.account-details {
   width: 100%;
   min-width: 915px;
   padding: 30px;
@@ -485,12 +516,12 @@ const sendVerification = async () => {
   margin-left: auto;
 }
 
-.account-details .info{
+.account-details .info {
   font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-size: 100%;
 }
 
-.bio{
+.bio {
   min-width: 350px;
   display: flex;
   flex-direction: column;
@@ -501,7 +532,7 @@ const sendVerification = async () => {
   gap: 0.75rem;
 }
 
-.mobile-bio{
+.mobile-bio {
   width: 100%;
   min-height: 100px;
   display: flex;
@@ -512,28 +543,28 @@ const sendVerification = async () => {
   gap: 1rem;
 }
 
-.bio .title-bold{
+.bio .title-bold {
   font-size: 100%;
   margin-top: 15px;
   margin-bottom: -12px;
 }
 
-.bio-text{
+.bio-text {
   font-size: large;
   font-family: 'Poppins', sans-serif;
   color: var(--white);
 }
 
-.account-details > p{
+.account-details > p {
   font-size: large;
 }
 
-.role-id{
+.role-id {
   font-family: 'Poppins', sans-serif;
   color: var(--white);
 }
 
-.details{
+.details {
   width: 100%;
   margin-top: 25px;
   text-align: left;
@@ -542,16 +573,16 @@ const sendVerification = async () => {
   color: var(--white);
 }
 
-.details > a{
+.details > a {
   font-size: 125%;
   cursor: pointer;
 }
 
-.details > a:hover{
+.details > a:hover {
   color: var(--lightGreen);
 }
 
-.name{
+.name {
   font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   display: flex;
   flex-direction: row;
@@ -559,27 +590,28 @@ const sendVerification = async () => {
   gap: 1rem;
 }
 
-.name > .icon{
+.name > .icon {
   width: 25px;
   height: 25px;
 }
 
-.name svg{
+.name svg {
   color: var(--gray);
   fill: var(--gray);
 }
 
-.name svg:hover{
+.name svg:hover {
   color: var(--lightGreen);
   fill: var(--lightGreen);
-  transition: .1s;
+  transition: 0.1s;
   cursor: pointer;
 }
 
-button, .button{
+button,
+.button {
   padding: 5px;
   width: 100%;
-  font-family: "Anton", serif;
+  font-family: 'Anton', serif;
   font-size: larger;
   flex-grow: 1;
   margin-top: 10px;
@@ -587,31 +619,31 @@ button, .button{
   justify-content: center;
   border-radius: 5px;
   border: none;
-  transition: .2s;
+  transition: 0.2s;
   text-align: center;
 }
 
-.btn-purple{
+.btn-purple {
   background-color: var(--boly-button-purple);
 }
 
-.btn-pink:hover{
+.btn-pink:hover {
   background-color: var(--boly-button-purple-hover);
 }
 
-.btn-dark{
+.btn-dark {
   background-color: var(--boly-bg-dark-transparent);
 }
 
-.btn-dark:hover{
+.btn-dark:hover {
   background-color: var(--boly-bg-blue);
 }
 
-.btn-blue{
+.btn-blue {
   background-color: var(--boly-button-blue);
 }
 
-.btn-blue:hover{
+.btn-blue:hover {
   background-color: var(--boly-button-blue-hover);
 }
 
@@ -636,7 +668,7 @@ button, .button{
   padding-bottom: 0.5rem;
 }
 
-.mobile-bio{
+.mobile-bio {
   width: 100%;
   min-height: 80px;
   display: flex;
@@ -710,16 +742,16 @@ button, .button{
   box-sizing: border-box;
 }
 
-.mobile-container button, 
+.mobile-container button,
 .mobile-container .button {
   padding: 8px;
-  font-family: "Anton", serif;
+  font-family: 'Anton', serif;
   font-size: 1rem;
   color: var(--light);
   text-align: center;
   border-radius: 5px;
   border: none;
-  transition: .2s;
+  transition: 0.2s;
   width: 100%;
   margin: 0;
   box-sizing: border-box;

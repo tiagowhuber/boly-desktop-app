@@ -2,7 +2,7 @@
 import { useAuth, useUser } from '@/stores'
 import { useRouter } from 'vue-router'
 import TagAbove from '@/components/forms/TagAbove.vue'
-import { onMounted, ref, onBeforeUnmount } from 'vue';
+import { onMounted, ref, onBeforeUnmount } from 'vue'
 import AlertModal from '@/components/AlertModal.vue'
 import SimpleLoadingIcon from '@/components/icons/SimpleLoadingIcon.vue'
 import type { UserUpdateRequest, PasswordUpdateRequest } from '@/types'
@@ -42,7 +42,7 @@ onMounted(() => {
   email.value = user.email
   birthday.value = user.birthday?.toString() || ''
   bio.value = user.bio || ''
-  
+
   // Add resize event listener
   window.addEventListener('resize', handleResize)
 })
@@ -78,7 +78,7 @@ async function UpdateUser(patch: UserUpdateRequest): Promise<void> {
     const result = await user.updateUserInfo(patch)
     showModal.value = true
     modalWarning.value = result.message
-    
+
     if (result.success) {
       // Refresh user data before navigating back
       const response = await axios.get(`/v1/users/${user.userId}`)
@@ -96,13 +96,13 @@ function ChangePassword(): void {
   if (repassword.value === password.value) {
     const request: PasswordUpdateRequest = {
       oldpass: oldpassword.value,
-      pass: password.value,
+      pass: password.value
     }
 
     UpdatePassword(request)
   } else {
     showModal.value = true
-    modalWarning.value = "Passwords are different!"
+    modalWarning.value = 'Passwords are different!'
   }
 }
 
@@ -112,7 +112,7 @@ async function UpdatePassword(request: PasswordUpdateRequest): Promise<void> {
     const result = await user.updatePassword(request)
     showModal.value = true
     modalWarning.value = result.message
-    
+
     if (result.success) {
       // Clear password fields after successful update
       oldpassword.value = ''
@@ -131,25 +131,26 @@ async function UpdatePassword(request: PasswordUpdateRequest): Promise<void> {
     <div class="mform" :class="{ mobile: isMobile }">
       <h2 class="section-title">{{ $t('user_info').toUpperCase() }}</h2>
       <p class="user-email">{{ user.email }}</p>
-      
+
       <!-- Mobile view for profile section -->
       <div v-if="isMobile" class="mobile-input-container">
         <div class="profile-pic-container">
           <div class="profile-pic-wrapper">
-            <img 
-              :src="user.profilePictureUrl || 'https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg'" 
+            <img
+              :src="
+                user.profilePictureUrl ||
+                'https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg'
+              "
               class="current-profile-pic"
               alt="Profile picture"
-            >
-            <label for="profile-pic-input" class="edit-icon">
-              +
-            </label>
-            <input 
+            />
+            <label for="profile-pic-input" class="edit-icon"> + </label>
+            <input
               id="profile-pic-input"
-              type="file" 
+              type="file"
               accept="image/*"
-              @change="handleProfilePicUpload"
               class="profile-pic-input"
+              @change="handleProfilePicUpload"
             />
           </div>
         </div>
@@ -157,31 +158,41 @@ async function UpdatePassword(request: PasswordUpdateRequest): Promise<void> {
         <TagAbove class="form-label field-spacing">
           {{ $t('username') }}
           <template #child>
-            <input class="text" type="text" :placeholder="$t('enter_new_username')" v-model="username" />
+            <input
+              v-model="username"
+              class="text"
+              type="text"
+              :placeholder="$t('enter_new_username')"
+            />
           </template>
         </TagAbove>
-        
+
         <TagAbove class="form-label field-spacing">
           {{ $t('email') }}
           <template #child>
-            <input class="text" type="email" :placeholder="$t('enter_new_email')" v-model="email" />
+            <input v-model="email" class="text" type="email" :placeholder="$t('enter_new_email')" />
           </template>
         </TagAbove>
-        
+
         <TagAbove class="form-label field-spacing">
           {{ $t('birthday') }}
           <template #child>
-            <input class="text" type="date" v-model="birthday" />
+            <input v-model="birthday" class="text" type="date" />
           </template>
         </TagAbove>
-        
+
         <TagAbove class="form-label field-spacing">
           {{ $t('bio') }}
           <template #child>
-            <textarea class="text mobile-textarea" type="text" :placeholder="$t('enter_new_bio')" v-model="bio"></textarea>
+            <textarea
+              v-model="bio"
+              class="text mobile-textarea"
+              type="text"
+              :placeholder="$t('enter_new_bio')"
+            ></textarea>
           </template>
         </TagAbove>
-        
+
         <button class="apply-button btn-purple mobile-button" @click="ChangeUserInfo()">
           <SimpleLoadingIcon v-if="dataLoading" />
           <span v-if="!dataLoading">{{ $t('apply') }}</span>
@@ -195,20 +206,21 @@ async function UpdatePassword(request: PasswordUpdateRequest): Promise<void> {
             <template #child>
               <div class="profile-pic-container">
                 <div class="profile-pic-wrapper">
-                  <img 
-                    :src="user.profilePictureUrl || 'https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg'" 
+                  <img
+                    :src="
+                      user.profilePictureUrl ||
+                      'https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg'
+                    "
                     class="current-profile-pic"
                     alt="Profile picture"
-                  >
-                  <label for="profile-pic-input" class="edit-icon">
-                    +
-                  </label>
-                  <input 
+                  />
+                  <label for="profile-pic-input" class="edit-icon"> + </label>
+                  <input
                     id="profile-pic-input"
-                    type="file" 
+                    type="file"
                     accept="image/*"
-                    @change="handleProfilePicUpload"
                     class="profile-pic-input"
+                    @change="handleProfilePicUpload"
                   />
                 </div>
               </div>
@@ -217,19 +229,29 @@ async function UpdatePassword(request: PasswordUpdateRequest): Promise<void> {
           <TagAbove class="form-label field-spacing">
             {{ $t('username') }}
             <template #child>
-              <input class="text" type="text" :placeholder="$t('enter_new_username')" v-model="username" />
+              <input
+                v-model="username"
+                class="text"
+                type="text"
+                :placeholder="$t('enter_new_username')"
+              />
             </template>
           </TagAbove>
           <TagAbove class="form-label field-spacing">
             {{ $t('email') }}
             <template #child>
-              <input class="text" type="email" :placeholder="$t('enter_new_email')" v-model="email" />
+              <input
+                v-model="email"
+                class="text"
+                type="email"
+                :placeholder="$t('enter_new_email')"
+              />
             </template>
           </TagAbove>
           <TagAbove class="form-label field-spacing">
             {{ $t('birthday') }}
             <template #child>
-              <input class="text" type="date" v-model="birthday" />
+              <input v-model="birthday" class="text" type="date" />
             </template>
           </TagAbove>
           <button class="apply-button btn-purple" @click="ChangeUserInfo()">
@@ -238,11 +260,17 @@ async function UpdatePassword(request: PasswordUpdateRequest): Promise<void> {
           </button>
         </div>
         <div class="halfsize form-label">
-          <TagAbove class ="field-spacing">
+          <TagAbove class="field-spacing">
             {{ $t('bio') }}
             {{ $t('profile_biography') }}
             <template #child>
-                <textarea class="text" type="text" :placeholder="$t('enter_new_bio')" v-model="bio" style="height: 400px;"></textarea>
+              <textarea
+                v-model="bio"
+                class="text"
+                type="text"
+                :placeholder="$t('enter_new_bio')"
+                style="height: 400px"
+              ></textarea>
             </template>
           </TagAbove>
           <button class="apply-button btn-purple" @click="ChangeUserInfo()">
@@ -253,38 +281,67 @@ async function UpdatePassword(request: PasswordUpdateRequest): Promise<void> {
       </div>
 
       <h2 class="change-pass-section-title">{{ $t('change_password').toUpperCase() }}</h2>
-      
+
       <!-- Mobile password section -->
       <div v-if="isMobile" class="mobile-password-section">
         <TagAbove class="form-label">
           {{ $t('password') }}
           <template #child>
-            <input class="text" type="password" :placeholder="$t('enter_old_password')" v-model="oldpassword" />
-            <input class="text password-field" type="password" :placeholder="$t('enter_new_password')" v-model="password" />
-            <input class="text password-field" type="password" :placeholder="$t('repeat_password')" v-model="repassword" />
+            <input
+              v-model="oldpassword"
+              class="text"
+              type="password"
+              :placeholder="$t('enter_old_password')"
+            />
+            <input
+              v-model="password"
+              class="text password-field"
+              type="password"
+              :placeholder="$t('enter_new_password')"
+            />
+            <input
+              v-model="repassword"
+              class="text password-field"
+              type="password"
+              :placeholder="$t('repeat_password')"
+            />
           </template>
         </TagAbove>
         <button class="apply-button btn-purple mobile-button" @click="ChangeUserInfo()">
           <SimpleLoadingIcon v-if="dataLoading" />
           <span v-if="!dataLoading">{{ $t('apply') }}</span>
         </button>
-
       </div>
-      
+
       <!-- Desktop password section -->
       <div v-else class="password-container">
         <TagAbove class="halfsize form-label">
           {{ $t('password') }}
           <template #child>
-            <input class="text" type="password" :placeholder="$t('enter_old_password')" v-model="oldpassword" />
-            <input class="text" type="password" :placeholder="$t('enter_new_password')" v-model="password" />
-            <input class="text" type="password" :placeholder="$t('repeat_password')" v-model="repassword" />
+            <input
+              v-model="oldpassword"
+              class="text"
+              type="password"
+              :placeholder="$t('enter_old_password')"
+            />
+            <input
+              v-model="password"
+              class="text"
+              type="password"
+              :placeholder="$t('enter_new_password')"
+            />
+            <input
+              v-model="repassword"
+              class="text"
+              type="password"
+              :placeholder="$t('repeat_password')"
+            />
           </template>
         </TagAbove>
         <div class="password-button-container">
           <button class="apply-button btn-purple" @click="ChangePassword()">
             <SimpleLoadingIcon v-if="passwordLoading" />
-            <span v-if="!passwordLoading">{{ $t('apply') }}</span> 
+            <span v-if="!passwordLoading">{{ $t('apply') }}</span>
           </button>
         </div>
       </div>
@@ -315,12 +372,12 @@ async function UpdatePassword(request: PasswordUpdateRequest): Promise<void> {
 }
 
 .section-title {
-  font-family: "Anton", serif;
+  font-family: 'Anton', serif;
   font-size: 150%;
 }
 
 .change-pass-section-title {
-  font-family: "Anton", serif;
+  font-family: 'Anton', serif;
   font-size: 120%;
 }
 
@@ -337,7 +394,7 @@ h2 {
   background-color: var(--boly-bg-blue-transparent);
   padding: 30px;
   border-radius: 20px;
- box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 .mform.mobile {
@@ -349,7 +406,7 @@ h2 {
 }
 
 .change-password {
-  font-family: "Anton", serif;
+  font-family: 'Anton', serif;
   font-size: 100%;
 }
 
@@ -357,7 +414,7 @@ h2 {
   width: 50%;
 }
 
-.mform>div {
+.mform > div {
   display: flex;
   gap: 5px;
 }
@@ -453,7 +510,7 @@ textarea {
     width: 120px;
     height: 120px;
   }
-  
+
   .current-profile-pic {
     width: 120px !important;
     height: 120px !important;
@@ -494,7 +551,7 @@ textarea {
   text-align: left;
   font-size: 1rem;
   color: var(--light);
-  margin-top: -15px; 
+  margin-top: -15px;
 }
 
 .form-label {
@@ -515,33 +572,34 @@ textarea {
     box-sizing: border-box;
     overflow-x: hidden;
   }
-  
+
   .field-spacing {
     margin-bottom: 10px;
   }
-  
-  input, textarea {
+
+  input,
+  textarea {
     padding: 0.7rem 0.7rem;
     width: 100%;
     max-width: 100%;
   }
-  
+
   .user-email {
     font-size: 0.9rem;
     margin-top: -10px;
     word-break: break-word;
   }
-  
+
   .edit-icon {
     width: 25px;
     height: 25px;
     font-size: 16px;
   }
-  
+
   .section-title {
     font-size: 120%;
   }
-  
+
   .change-pass-section-title {
     font-size: 110%;
     margin-top: 5px;

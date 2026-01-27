@@ -29,24 +29,26 @@ if (!auth.isLoggedIn && !auth.verifying) {
 }
 
 async function filterWishlistGames() {
-
   if (!games.value.length || !wishlistItems.value.length) {
     wishlistGames.value = []
     return
   }
 
-  const gamesInWishlist = games.value.filter(game => 
-    wishlistItems.value.some(item => item.game_game_id === game.game_id)
+  const gamesInWishlist = games.value.filter((game) =>
+    wishlistItems.value.some((item) => item.game_game_id === game.game_id)
   )
   const filteredGames: typeof games.value = []
   for (const game of gamesInWishlist) {
-    const ownership = user.userId !== undefined ? await gamesStore.ownsGame(game.game_id, user.userId) : { owned: false, subscriptionAccess: false }
+    const ownership =
+      user.userId !== undefined
+        ? await gamesStore.ownsGame(game.game_id, user.userId)
+        : { owned: false, subscriptionAccess: false }
     if (!ownership.owned) {
       filteredGames.push(game)
     }
   }
-  
-  console.log('Final wishlist games (after ownership check):', filteredGames.length, filteredGames); 
+
+  console.log('Final wishlist games (after ownership check):', filteredGames.length, filteredGames)
   wishlistGames.value = filteredGames
 }
 
@@ -56,7 +58,7 @@ async function refreshData() {
     if (games.value.length === 0) {
       await gamesStore.getAll()
     }
-    
+
     if (auth.isLoggedIn && user.userId) {
       await wishlistStore.fetchWishlist()
     }
@@ -85,26 +87,26 @@ watch([wishlistItems, games], async () => {
 </script>
 
 <template>
-  <div class="loading_container" v-if="loading">
+  <div v-if="loading" class="loading_container">
     <Loading />
   </div>
-  <div class="section" v-else>
+  <div v-else class="section">
     <div class="wishlist-header">
-      <h1 v-if="i18n.locale.value === 'es'">{{ $t('wishlist') }} {{ $t('of') }} {{ user.username }}</h1>
+      <h1 v-if="i18n.locale.value === 'es'">
+        {{ $t('wishlist') }} {{ $t('of') }} {{ user.username }}
+      </h1>
       <h1 v-else>{{ user.username }}'s {{ $t('wishlist') }}</h1>
     </div>
     <div class="game-count">{{ $t('all_games') }} ({{ wishlistGames.length }})</div>
-    
+
     <div v-if="wishlistGames.length > 0" class="list">
-      <GameItem v-for="item in wishlistGames" 
-                :key="item.game_id" 
-                :item="item" />
+      <GameItem v-for="item in wishlistGames" :key="item.game_id" :item="item" />
     </div>
     <div v-else class="empty-wishlist">
       <p>{{ $t('no_wishlist_games') }}</p>
       <button class="browse-button" @click="router.push('/games')">{{ $t('browse_games') }}</button>
     </div>
-    
+
     <div class="bottom-browse-section">
       <button class="browse-button" @click="router.push('/games')">{{ $t('browse_games') }}</button>
     </div>

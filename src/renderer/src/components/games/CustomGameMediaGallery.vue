@@ -22,15 +22,14 @@ const props = defineProps({
     validator: (value: string) => ['all', 'image', 'video'].includes(value)
   }
 })
- 
+
 const gameStore = useGames()
 const loading = ref(true)
 const mediaItems = ref<any[]>([])
 const selectedMedia = ref<any>(null)
 
 const sortedMediaItems = computed(() => {
-  return mediaItems.value
-    .sort((a, b) => a.display_order - b.display_order)
+  return [...mediaItems.value].sort((a, b) => a.display_order - b.display_order)
 })
 
 const hasMedia = computed(() => mediaItems.value.length > 0)
@@ -40,7 +39,7 @@ async function loadMedia() {
   try {
     const data = await gameStore.getGameMedia(props.gameId, props.mediaType)
     mediaItems.value = data
-    
+
     if (data.length > 0) {
       selectedMedia.value = data[0]
     }
@@ -66,35 +65,35 @@ function isYouTubeUrl(url: string): boolean {
 
 function getYouTubeEmbedUrl(url: string): string {
   if (!url) return ''
-  
+
   let videoId = ''
-  
+
   if (url.includes('youtube.com/watch')) {
     const urlParams = new URLSearchParams(new URL(url).search)
     videoId = urlParams.get('v') || ''
   } else if (url.includes('youtu.be/')) {
     videoId = url.split('youtu.be/')[1]?.split('?')[0] || ''
   }
-  
+
   if (!videoId) return ''
-  
+
   return `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0`
 }
 
 function getYouTubeThumbnailUrl(url: string): string {
   if (!url) return ''
-  
+
   let videoId = ''
-  
+
   if (url.includes('youtube.com/watch')) {
     const urlParams = new URLSearchParams(new URL(url).search)
     videoId = urlParams.get('v') || ''
   } else if (url.includes('youtu.be/')) {
     videoId = url.split('youtu.be/')[1]?.split('?')[0] || ''
   }
-  
+
   if (!videoId) return ''
-  
+
   return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
 }
 
@@ -102,39 +101,45 @@ onMounted(() => {
   loadMedia()
 })
 
-watch(() => props.gameId, (newId) => {
-  if (newId) {
+watch(
+  () => props.gameId,
+  (newId) => {
+    if (newId) {
+      loadMedia()
+    }
+  }
+)
+
+watch(
+  () => props.mediaType,
+  () => {
     loadMedia()
   }
-})
-
-watch(() => props.mediaType, () => {
-  loadMedia()
-})
+)
 </script>
 
 <template>
   <div class="custom-game-media-gallery">
     <h3 v-if="title" class="gallery-title">{{ title }}</h3>
-    
+
     <div v-if="loading" class="loading-container">
       <LoadingIcon />
     </div>
-    
+
     <div v-else-if="!hasMedia" class="no-media">
       <slot name="no-media">No media available</slot>
     </div>
-    
+
     <div v-else class="media-gallery">
       <!-- Main display area for the currently selected media -->
       <div class="main-media-display">
-        <img 
-          v-if="selectedMedia?.media_type === 'image'" 
-          :src="selectedMedia?.media_url" 
-          :alt="getAltText(selectedMedia)" 
+        <img
+          v-if="selectedMedia?.media_type === 'image'"
+          :src="selectedMedia?.media_url"
+          :alt="getAltText(selectedMedia)"
           class="main-media"
         />
-        
+
         <div v-else-if="selectedMedia?.media_type === 'video'" class="youtube-container">
           <iframe
             v-if="isYouTubeUrl(selectedMedia?.media_url)"
@@ -144,45 +149,42 @@ watch(() => props.mediaType, () => {
             allowfullscreen
             class="youtube-embed"
           ></iframe>
-          <video 
-            v-else
-            controls 
-            :src="selectedMedia?.media_url" 
-            class="main-media"
-          ></video>
+          <video v-else controls :src="selectedMedia?.media_url" class="main-media"></video>
         </div>
       </div>
-      
+
       <!-- Thumbnails row for all media items -->
       <div class="thumbnails-row">
-        <div 
-          v-for="media in sortedMediaItems" 
-          :key="media.media_id" 
+        <div
+          v-for="media in sortedMediaItems"
+          :key="media.media_id"
           :class="['thumbnail-item', { active: media.media_id === selectedMedia?.media_id }]"
           @click="selectMedia(media)"
         >
-          <img 
-            v-if="media.media_type === 'image'" 
-            :src="media.media_url" 
-            :alt="getAltText(media)" 
-            loading="lazy" 
+          <img
+            v-if="media.media_type === 'image'"
+            :src="media.media_url"
+            :alt="getAltText(media)"
+            loading="lazy"
           />
-          
+
           <div v-else-if="media.media_type === 'video'" class="video-thumbnail">
-            <img 
+            <img
               v-if="isYouTubeUrl(media.media_url)"
               :src="getYouTubeThumbnailUrl(media.media_url)"
               :alt="getAltText(media)"
               loading="lazy"
             />
-            <video 
-              v-else
-              :src="media.media_url" 
-              preload="metadata"
-            ></video>
+            <video v-else :src="media.media_url" preload="metadata"></video>
             <div class="play-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="48px" height="48px">
-                <path d="M8 5v14l11-7z"/>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="white"
+                width="48px"
+                height="48px"
+              >
+                <path d="M8 5v14l11-7z" />
               </svg>
             </div>
           </div>
@@ -308,11 +310,11 @@ watch(() => props.mediaType, () => {
   .main-media-display {
     height: 250px;
   }
-  
+
   .thumbnails-row {
     gap: 0.5rem;
   }
-  
+
   .thumbnail-item {
     flex: 0 0 80px;
     height: 60px;

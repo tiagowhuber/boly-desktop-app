@@ -25,22 +25,16 @@ const closeApp = () => {
       <div class="icon-container">
         <WarningPersonIcon class="warning-icon" />
       </div>
-      
+
       <h1 class="title">{{ $t('sessionInvalidated.title') }}</h1>
       <p class="message">{{ $t('sessionInvalidated.message') }}</p>
-      
+
       <div class="actions">
-        <button 
-          @click="goToLogin" 
-          class="primary-button"
-        >
+        <button class="primary-button" @click="goToLogin">
           {{ $t('sessionInvalidated.loginButton') }}
         </button>
-        
-        <button 
-          @click="closeApp" 
-          class="secondary-button"
-        >
+
+        <button class="secondary-button" @click="closeApp">
           {{ $t('sessionInvalidated.closeButton') }}
         </button>
       </div>
@@ -153,11 +147,11 @@ const closeApp = () => {
   .session-invalidated-card {
     padding: 32px 24px;
   }
-  
+
   .actions {
     flex-direction: column;
   }
-  
+
   .primary-button,
   .secondary-button {
     width: 100%;

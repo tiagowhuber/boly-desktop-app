@@ -1,56 +1,64 @@
 <script setup lang="ts">
-import { computed, ref, watch, onBeforeUnmount } from 'vue';
+import { computed, ref, watch, onBeforeUnmount } from 'vue'
 
 const props = defineProps<{
-  progress: number;
-  gameName: string;
-  isVisible: boolean;
-}>();
+  progress: number
+  gameName: string
+  isVisible: boolean
+}>()
 
 const progressWidth = computed(() => {
-  return `${props.progress}%`;
-});
+  return `${props.progress}%`
+})
 
 const formattedProgress = computed(() => {
-  return props.progress.toFixed(1);
-});
+  return props.progress.toFixed(1)
+})
 
-const animatedProgress = ref(0);
-const isRendered = ref(false);
-const shouldShow = ref(props.isVisible);
+const animatedProgress = ref(0)
+const isRendered = ref(false)
+const shouldShow = ref(props.isVisible)
 
-let hideTimeout: number | null = null;
+let hideTimeout: number | null = null
 
-watch(() => props.progress, (newValue) => {
-  requestAnimationFrame(() => {
-    animatedProgress.value = newValue;
-  });
-}, { immediate: true });
+watch(
+  () => props.progress,
+  (newValue) => {
+    requestAnimationFrame(() => {
+      animatedProgress.value = newValue
+    })
+  },
+  { immediate: true }
+)
 
-watch(() => props.isVisible, (newValue) => {
-  if (newValue) {
-    if (hideTimeout !== null) {
-      window.clearTimeout(hideTimeout);
-      hideTimeout = null;
+watch(
+  () => props.isVisible,
+  (newValue) => {
+    if (newValue) {
+      if (hideTimeout !== null) {
+        window.clearTimeout(hideTimeout)
+        hideTimeout = null
+      }
+      shouldShow.value = true
+      setTimeout(() => {
+        isRendered.value = true
+      }, 10)
+    } else {
+      isRendered.value = false
+      hideTimeout = window.setTimeout(() => {
+        shouldShow.value = false
+        hideTimeout = null
+      }, 300)
     }
-    shouldShow.value = true;
-    setTimeout(() => {
-      isRendered.value = true;
-    }, 10);
-  } else {
-    isRendered.value = false;
-    hideTimeout = window.setTimeout(() => {
-      shouldShow.value = false;
-      hideTimeout = null;
-    }, 300); 
-  }
-}, { immediate: true });
+  },
+  { immediate: true }
+)
 
 onBeforeUnmount(() => {
   if (hideTimeout !== null) {
-    window.clearTimeout(hideTimeout);
+    window.clearTimeout(hideTimeout)
   }
-});
+})
 </script>
 
 <template>
@@ -75,8 +83,8 @@ onBeforeUnmount(() => {
   z-index: 9999;
   padding: 8px 16px;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
-  pointer-events: none; 
-  backdrop-filter: blur(5px); 
+  pointer-events: none;
+  backdrop-filter: blur(5px);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   animation: slideUp 0.3s ease-out;
 }
@@ -122,7 +130,11 @@ onBeforeUnmount(() => {
 
 .progress-bar {
   height: 100%;
-  background: linear-gradient(to right, var(--color-primary, #8c52ff) 0%, var(--color-secondary, #5e17eb) 100%);
+  background: linear-gradient(
+    to right,
+    var(--color-primary, #8c52ff) 0%,
+    var(--color-secondary, #5e17eb) 100%
+  );
   border-radius: 2px;
   transition: width 0.3s ease;
   box-shadow: 0 0 8px rgba(140, 82, 255, 0.5);

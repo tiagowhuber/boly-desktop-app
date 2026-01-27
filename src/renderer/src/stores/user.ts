@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import type { User, UserUpdateRequest, PasswordUpdateRequest } from '@/types'
 import axios from 'axios'
-import { useSubscription } from './subscription';
+import { useSubscription } from './subscription'
 
 const useUser = defineStore('user', {
   state: (): User => ({
@@ -19,18 +19,18 @@ const useUser = defineStore('user', {
   actions: {
     setUser(userData: any) {
       if (!userData) {
-        console.warn('setUser received null userData');
-        return;
+        console.warn('setUser received null userData')
+        return
       }
-      this.userId = userData.user_id || userData.id;
-      this.email = userData.email;
-      this.username = userData.username;
-      this.roleId = userData.role_id || userData.roleId;
-      this.birthday = userData.birthday;
-      this.bio = userData.bio;
-      this.profilePictureUrl = userData.profile_picture_url || userData.profilePictureUrl;
-      this.developerId = userData.developer_id || userData.developerId;
-      this.email_verified = userData.email_verified || userData.emailVerified || false;
+      this.userId = userData.user_id || userData.id
+      this.email = userData.email
+      this.username = userData.username
+      this.roleId = userData.role_id || userData.roleId
+      this.birthday = userData.birthday
+      this.bio = userData.bio
+      this.profilePictureUrl = userData.profile_picture_url || userData.profilePictureUrl
+      this.developerId = userData.developer_id || userData.developerId
+      this.email_verified = userData.email_verified || userData.emailVerified || false
     },
     clearUser() {
       this.$state = {
@@ -45,12 +45,14 @@ const useUser = defineStore('user', {
         email_verified: false,
         isSubscribed: false
       }
-    },    
+    },
     async checkSubscription() {
-      const subscriptionStore = useSubscription();
+      const subscriptionStore = useSubscription()
       if (this.userId) {
-        await subscriptionStore.getUserSubscriptions(this.userId, { token: localStorage.getItem('token') || '' });
-        this.isSubscribed = subscriptionStore.subscriptions.some(sub => sub.is_active);
+        await subscriptionStore.getUserSubscriptions(this.userId, {
+          token: localStorage.getItem('token') || ''
+        })
+        this.isSubscribed = subscriptionStore.subscriptions.some((sub) => sub.is_active)
       }
     },
     async updateUserInfo(data: UserUpdateRequest) {
@@ -69,7 +71,10 @@ const useUser = defineStore('user', {
         return { success: false, message: response.data.message }
       } catch (error: any) {
         console.error('Error updating user info:', error)
-        return { success: false, message: error.response?.data?.message || 'Error updating user info' }
+        return {
+          success: false,
+          message: error.response?.data?.message || 'Error updating user info'
+        }
       }
     },
     async updatePassword(data: PasswordUpdateRequest) {
@@ -81,37 +86,44 @@ const useUser = defineStore('user', {
         return { success: false, message: response.data.message }
       } catch (error: any) {
         console.error('Error updating password:', error)
-        return { success: false, message: error.response?.data?.message || 'Error updating password' }
+        return {
+          success: false,
+          message: error.response?.data?.message || 'Error updating password'
+        }
       }
     },
     async updateProfilePicture(file: File) {
-      const toBase64 = (file: File) => new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => {
-          const result = reader.result;
-          if (typeof result === 'string') {
-            resolve(result.split(',')[1]);
-          } else {
-            resolve('');
+      const toBase64 = (file: File) =>
+        new Promise<string>((resolve, reject) => {
+          const reader = new FileReader()
+          reader.readAsDataURL(file)
+          reader.onload = () => {
+            const result = reader.result
+            if (typeof result === 'string') {
+              resolve(result.split(',')[1])
+            } else {
+              resolve('')
+            }
           }
-        };
-        reader.onerror = error => reject(error);
-      });
+          reader.onerror = (error) => reject(error)
+        })
 
       try {
-        const base64 = await toBase64(file);
+        const base64 = await toBase64(file)
         const response = await axios.post(`/v1/users/profile-picture/${this.userId}`, {
           profile_picture: base64
-        });
+        })
         if (response.status === 200) {
-          this.profilePictureUrl = response.data.profile_picture_url;
-          return { success: true, message: 'Profile picture updated successfully' };
+          this.profilePictureUrl = response.data.profile_picture_url
+          return { success: true, message: 'Profile picture updated successfully' }
         }
-        return { success: false, message: response.data.message };
+        return { success: false, message: response.data.message }
       } catch (error: any) {
-        console.error('Error uploading profile picture:', error);
-        return { success: false, message: error.response?.data?.message || 'Error uploading profile picture' };
+        console.error('Error uploading profile picture:', error)
+        return {
+          success: false,
+          message: error.response?.data?.message || 'Error uploading profile picture'
+        }
       }
     }
   }

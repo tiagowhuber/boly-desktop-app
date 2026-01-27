@@ -1,10 +1,10 @@
 <script setup>
 import TagAbove from '@/components/forms/TagAbove.vue'
 import AlertModal from '@/components/AlertModal.vue'
-import { onMounted, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
-import axios from 'axios';
-const i18n = useI18n();
+import { onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import axios from 'axios'
+const i18n = useI18n()
 
 const form = ref(null)
 const showModal = ref(false)
@@ -27,15 +27,13 @@ const categories = [
 ]
 
 async function SendReport() {
-  if (title.value.length == 0 
-  || category.value.length == 0 
-  || details.value.length == 0) {
-    modalText.value = i18n.t('modal_required_fields') || 'Please fill in all required fields';
+  if (title.value.length == 0 || category.value.length == 0 || details.value.length == 0) {
+    modalText.value = i18n.t('modal_required_fields') || 'Please fill in all required fields'
     showModal.value = true
     return
   }
 
-  canSend.value = false;
+  canSend.value = false
 
   try {
     // Send report through your backend API
@@ -48,26 +46,29 @@ async function SendReport() {
       timestamp: new Date().toISOString()
     }
 
-    const response = await axios.post('/v1/support/report', reportData);
-    
+    const response = await axios.post('/v1/support/report', reportData)
+
     if (response.data && response.data.success) {
-      modalText.value = i18n.t('report_sent_success') || 'Your report has been sent successfully. We will investigate and get back to you soon.'
-      showModal.value = true;
-      canSend.value = true;
-      
+      modalText.value =
+        i18n.t('report_sent_success') ||
+        'Your report has been sent successfully. We will investigate and get back to you soon.'
+      showModal.value = true
+      canSend.value = true
+
       // Reset form
       title.value = ''
       email.value = ''
       category.value = ''
       details.value = ''
     } else {
-      throw new Error('API response indicates failure');
+      throw new Error('API response indicates failure')
     }
   } catch (error) {
-    console.error('Failed to send report:', error);
-    modalText.value = i18n.t('report_sent_error') || 'Failed to send report. Please try again later.'
-    showModal.value = true;
-    canSend.value = true;
+    console.error('Failed to send report:', error)
+    modalText.value =
+      i18n.t('report_sent_error') || 'Failed to send report. Please try again later.'
+    showModal.value = true
+    canSend.value = true
   }
 }
 </script>
@@ -82,10 +83,10 @@ async function SendReport() {
             {{ $t('problem_title') || 'What happened?' }} *
             <template #child>
               <input
+                v-model="title"
                 class="text"
                 type="text"
                 name="title"
-                v-model="title" 
                 :placeholder="$t('problem_title_placeholder') || 'Brief description of the issue'"
                 required
               />
@@ -97,14 +98,17 @@ async function SendReport() {
             {{ $t('email') || 'Email' }} ({{ $t('optional') || 'Optional' }})
             <template #child>
               <input
+                v-model="email"
                 class="text"
                 type="email"
                 name="email"
-                v-model="email"
                 :placeholder="$t('email_placeholder') || 'your email'"
               />
               <p class="email-note">
-                {{ $t('email_feedback_note') || 'Provide your email if you want us to follow up with you about this issue.' }}
+                {{
+                  $t('email_feedback_note') ||
+                  'Provide your email if you want us to follow up with you about this issue.'
+                }}
               </p>
             </template>
           </TagAbove>
@@ -113,18 +117,9 @@ async function SendReport() {
           <TagAbove>
             {{ $t('problem_category') || 'Category' }} *
             <template #child>
-              <select
-                class="text select"
-                name="category"
-                v-model="category"
-                required
-              >
+              <select v-model="category" class="text select" name="category" required>
                 <option value="">{{ $t('select_category') || 'Select a category' }}</option>
-                <option 
-                  v-for="cat in categories" 
-                  :key="cat.value" 
-                  :value="cat.value"
-                >
+                <option v-for="cat in categories" :key="cat.value" :value="cat.value">
                   {{ $t('category_' + cat.value) || cat.label }}
                 </option>
               </select>
@@ -136,21 +131,24 @@ async function SendReport() {
             {{ $t('problem_details') || 'Details' }} *
             <template #child>
               <textarea
+                v-model="details"
                 class="text"
                 name="details"
-                v-model="details"
-                :placeholder="$t('problem_details_placeholder') || 'Please describe the issue in detail. Include steps to reproduce, expected behavior, and actual behavior.'"
+                :placeholder="
+                  $t('problem_details_placeholder') ||
+                  'Please describe the issue in detail. Include steps to reproduce, expected behavior, and actual behavior.'
+                "
                 required
               ></textarea>
             </template>
           </TagAbove>
 
-          <input 
-            class="submit-button button_text" 
-            type="submit" 
-            :value="$t('submit_report') || 'Submit Report'" 
+          <input
+            class="submit-button button_text"
+            type="submit"
+            :value="$t('submit_report') || 'Submit Report'"
             :disabled="!canSend"
-          >
+          />
         </div>
       </form>
     </div>

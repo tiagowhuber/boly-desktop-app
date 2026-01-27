@@ -8,34 +8,20 @@ const selectedLanguage = ref('en') // Default to 'en'
 watch(selectedLanguage, (newLanguage) => {
   emit('languageChanged', newLanguage)
 })
-
 </script>
 
 <template>
   <div id="firstFilter" class="filter-switch">
-    <input
-      id="option1"
-      name="options"
-      type="radio"
-      value="en"
-      v-model="selectedLanguage"
-    />
+    <input id="option1" v-model="selectedLanguage" name="options" type="radio" value="en" />
     <label class="option" for="option1">EN</label>
 
-    <input
-      id="option2"
-      name="options"
-      type="radio"
-      value="es"
-      v-model="selectedLanguage"
-    />
+    <input id="option2" v-model="selectedLanguage" name="options" type="radio" value="es" />
     <label class="option" for="option2">ES</label>
     <span class="background"></span>
   </div>
 </template>
 
 <style scoped>
-
 .filter-switch {
   border: 2px solid var(--light);
   border-radius: 30px;
@@ -74,20 +60,19 @@ watch(selectedLanguage, (newLanguage) => {
   top: 4px;
   left: 4px;
   border-radius: 30px;
-  transition: left 0.4s cubic-bezier(0.075, 0.82, 0.165, 1)
+  transition: left 0.4s cubic-bezier(0.075, 0.82, 0.165, 1);
 }
 #option2:checked ~ .background {
   left: 50%;
 }
-#option1:checked + label[for="option1"] {
+#option1:checked + label[for='option1'] {
   color: var(--light);
 }
-#option2:checked + label[for="option2"] {
+#option2:checked + label[for='option2'] {
   color: var(--light);
 }
-#option1:not(:checked) + label[for="option1"],
-#option2:not(:checked) + label[for="option2"] {
+#option1:not(:checked) + label[for='option1'],
+#option2:not(:checked) + label[for='option2'] {
   color: var(--boly-button-blue);
 }
-
 </style>

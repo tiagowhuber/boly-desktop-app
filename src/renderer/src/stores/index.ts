@@ -10,21 +10,21 @@ import useModal from './modal'
 import useAchievements from './achievements'
 import useOrder from './order'
 import useDownloadStore from '../desktop-stores/download'
-import useGameRoutes from "../desktop-stores/gameRoutes"
+import useGameRoutes from '../desktop-stores/gameRoutes'
 import useCodes from './codes'
 import useEmails from './emails'
 
-export { 
-  useAuth, 
-  useUser, 
-  useGames, 
-  useCart, 
-  useSubscription, 
-  useWishlist, 
-  useDeveloper, 
-  usePayment, 
-  useModal, 
-  useAchievements, 
+export {
+  useAuth,
+  useUser,
+  useGames,
+  useCart,
+  useSubscription,
+  useWishlist,
+  useDeveloper,
+  usePayment,
+  useModal,
+  useAchievements,
   useOrder,
   useDownloadStore,
   useGameRoutes,

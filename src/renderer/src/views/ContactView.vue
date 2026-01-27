@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import ContactForm from '@/components/ContactForm.vue';
+import ContactForm from '@/components/ContactForm.vue'
 // Mobile template removed for desktop-only app
-import { useAuth, useUser } from '@/stores';
-import { onMounted } from 'vue';
-import axios, { AxiosError } from 'axios';
+import { useAuth, useUser } from '@/stores'
+import { onMounted } from 'vue'
+import axios, { AxiosError } from 'axios'
 
-const auth = useAuth();
-const user = useUser();
+const auth = useAuth()
+const user = useUser()
 // Mobile detection removed for desktop-only app
 
 // Mobile resize listener removed for desktop-only app
@@ -14,16 +14,16 @@ const user = useUser();
 onMounted(async () => {
   if (auth.isLoggedIn && user.userId) {
     try {
-      const response = await axios.get(`/v1/users/${user.userId}`);
+      const response = await axios.get(`/v1/users/${user.userId}`)
       if (response.status === 200) {
-        user.setUser(response.data);
+        user.setUser(response.data)
       }
     } catch (error) {
-      const axiosError = error as AxiosError;
-      console.error('Error fetching user data:', axiosError.message);
+      const axiosError = error as AxiosError
+      console.error('Error fetching user data:', axiosError.message)
     }
   }
-});
+})
 
 // Function to handle back action from mobile template
 // const handleBack = () => {

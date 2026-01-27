@@ -13,7 +13,7 @@ const user = useUser()
 
 // Mobile detection removed for desktop-only app
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((_to, _from, next) => {
   auth.checkToken()
   next()
 })

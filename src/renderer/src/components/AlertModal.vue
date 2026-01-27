@@ -15,10 +15,8 @@ const props = defineProps(['show'])
         </div>
 
         <div class="alert-modal-footer">
-          <button
-              class="alert-modal-close-button"
-              @click="$emit('close')"
-            >{{$t('close')}}
+          <button class="alert-modal-close-button" @click="$emit('close')">
+            {{ $t('close') }}
           </button>
         </div>
       </div>
@@ -73,7 +71,7 @@ const props = defineProps(['show'])
   border-radius: 2px;
 }
 
-.alert-modal-close-button:hover{
+.alert-modal-close-button:hover {
   color: var(--lightCyan);
   border: var(--lightCyan) solid 1px;
 }

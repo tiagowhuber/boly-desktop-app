@@ -34,23 +34,22 @@ const redeemSuccess = ref(false)
 onMounted(() => {
   if (auth.isLoggedIn && user.userId) {
     try {
-      subscriptionStore.getUserSubscriptions(user.userId, { token: auth.token })
-        .then(success => {
-          console.log('subscriptions', subscriptions.value.length)
-          if (success && subscriptions.value.length > 0) {
-            const activeSubscription = subscriptions.value.find(sub => sub.is_active === 1)
-            if (activeSubscription) {
-              userPlan.value = getPlanType(activeSubscription.plan_id)
-            }
+      subscriptionStore.getUserSubscriptions(user.userId, { token: auth.token }).then((success) => {
+        console.log('subscriptions', subscriptions.value.length)
+        if (success && subscriptions.value.length > 0) {
+          const activeSubscription = subscriptions.value.find((sub) => sub.is_active === 1)
+          if (activeSubscription) {
+            userPlan.value = getPlanType(activeSubscription.plan_id)
           }
-        })
-      
+        }
+      })
+
       fetchPaymentMethods()
     } catch (error) {
       console.error('Error fetching subscription data:', error)
     }
   }
-  
+
   // Mobile resize listener removed for desktop-only app
 })
 
@@ -73,7 +72,7 @@ const getPlanType = (planId: number): string => {
 
 const fetchPaymentMethods = async () => {
   if (!auth.isLoggedIn || !user.userId) return
-  
+
   try {
     const paymentMethods = await paymentStore.fetchPaymentMethods(user.userId, auth.token)
     hasPaymentMethods.value = paymentMethods.length > 0
@@ -109,26 +108,26 @@ async function handleRedeemCode() {
     redeemingCode.value = true
     try {
       const success = await subscriptionStore.subscribeWithCode(
-        user.userId, 
-        discountCode.value.trim(), 
+        user.userId,
+        discountCode.value.trim(),
         { token: auth.token }
       )
-      
+
       if (success) {
         redeemSuccess.value = true
         showModal.value = true
-        
+
         await subscriptionStore.getUserSubscriptions(user.userId, { token: auth.token })
-        
+
         // Update user current plan
         if (subscriptions.value.length > 0) {
-          const activeSubscription = subscriptions.value.find(sub => sub.is_active === 1)
+          const activeSubscription = subscriptions.value.find((sub) => sub.is_active === 1)
           if (activeSubscription) {
             userPlan.value = getPlanType(activeSubscription.plan_id)
           }
         }
-        
-        discountCode.value = '' 
+
+        discountCode.value = ''
       }
     } catch (err) {
       console.error('Error redeeming code:', err)
@@ -142,12 +141,12 @@ async function handleRedeemCode() {
 </script>
 
 <template>
-  <div class="loading_container" v-if="loading">
+  <div v-if="loading" class="loading_container">
     <Loading />
   </div>
   <div class="section">
     <h1 class="title-bold">{{ t('subscription_plans').toUpperCase() }}</h1>
-    
+
     <!-- Desktop layout (mobile layout removed) -->
     <div class="plan-container">
       <div class="plan">
@@ -159,9 +158,8 @@ async function handleRedeemCode() {
           <li>{{ t('free_feature_3') }}</li>
         </div>
         <h3 class="price">{{ t('free').toUpperCase() }}</h3>
-        <button 
-          :class="buttonClass('free')" 
-          @click=""> <!-- handleSubscription('free') -->
+        <button :class="buttonClass('free')">
+          <!-- handleSubscription('free') -->
           {{ buttonText('free') }}
         </button>
       </div>
@@ -176,9 +174,8 @@ async function handleRedeemCode() {
         </div>
         <!-- <h3 class="price">{{ `$8 USD / ${t('month').toUpperCase()}` }}</h3> -->
         <h3 class="price">{{ $t('coming_soon') }}</h3>
-        <button 
-          :class="buttonClass('monthly')" 
-          @click=""> <!-- handleSubscription('monthly') -->
+        <button :class="buttonClass('monthly')">
+          <!-- handleSubscription('monthly') -->
           {{ buttonText('monthly') }}
         </button>
       </div>
@@ -192,90 +189,91 @@ async function handleRedeemCode() {
         </div>
         <!-- <h3 class="price">{{ `$90 USD / ${t('year').toUpperCase()}` }}</h3> -->
         <h3 class="price">{{ $t('coming_soon') }}</h3>
-        <button 
-          :class="buttonClass('yearly')" 
-          @click=""> <!-- handleSubscription('yearly') -->
+        <button :class="buttonClass('yearly')">
+          <!-- handleSubscription('yearly') -->
           {{ buttonText('yearly') }}
         </button>
       </div>
       <div class="plan">
         <h2>{{ t('redeem_code').toUpperCase() }}</h2>
-        <div class="credits"> {{ t('redeem_code_subtitle') }}</div>
+        <div class="credits">{{ t('redeem_code_subtitle') }}</div>
         <div class="details">
           <li>{{ t('redeem_code_description') }}</li>
         </div>
         <div class="redeem-form">
-          <input 
-            type="text" 
-            v-model="discountCode" 
+          <input
+            v-model="discountCode"
+            type="text"
             :placeholder="t('enter_discount_code')"
             :disabled="redeemingCode"
             @keyup.enter="handleRedeemCode"
           />
         </div>
-        <button 
-          class="btn-purple redeem-button" 
-          @click="handleRedeemCode"
+        <button
+          class="btn-purple redeem-button"
           :disabled="redeemingCode"
+          @click="handleRedeemCode"
         >
           <span v-if="!redeemingCode">{{ t('redeem').toUpperCase() }}</span>
           <Loading v-else class="button-loader" />
         </button>
       </div>
     </div>
-    
+
     <!-- Mobile layout removed for desktop-only app -->
-    
   </div>
-  
+
   <Teleport to="body">
     <AlertModal :show="showModal" @close="showModal = false">
       <template #header>
         <h3>{{ redeemSuccess ? t('code_redemption_success') : t('subscription_success') }}</h3>
       </template>
       <template #body>
-        <p>{{ redeemSuccess ? t('code_redemption_success_message') : t('subscription_success_message') }}</p>
+        <p>
+          {{
+            redeemSuccess ? t('code_redemption_success_message') : t('subscription_success_message')
+          }}
+        </p>
       </template>
     </AlertModal>
   </Teleport>
-    <!-- Enrollment Redirect Modal -->
-    <Teleport to="body">
-      <AlertModal :show="showModal" @close="showModal = false">
-        <template #header>
-          <h3>{{ redeemSuccess ? t('code_redemption_success') : t('subscription_success') }}</h3>
-        </template>
-        <template #body>
-          <p>{{ redeemSuccess ? t('code_redemption_success_message') : t('subscription_success_message') }}</p>
-        </template>
-      </AlertModal>
-    </Teleport>
-      <!-- Enrollment Redirect Modal -->
-    <Teleport to="body">
-      <AlertModal :show="showEnrollmentRedirectModal" @close="showEnrollmentRedirectModal = false">
-        <template #header>
-          <h3>{{ t('redirecting') }}</h3>
-        </template>
-        <template #body>
-          <p>{{ t('redirecting_to_payment_setup') }}</p>
-          <Loading />
-        </template>
-      </AlertModal>
-    </Teleport>
-    
-    <!-- WebPay OneClick Form (hidden) -->
-    <form 
-      ref="webpayForm" 
-      method="post" 
-      :action="webpayUrl" 
-      style="display: none;"
-    >
-      <input type="hidden" name="TBK_TOKEN" :value="webpayToken" />
-    </form>
-    
-    <!-- Display error if any -->
-    <div v-if="error" class="error-message">
-      {{ error }}
-    </div>
+  <!-- Enrollment Redirect Modal -->
+  <Teleport to="body">
+    <AlertModal :show="showModal" @close="showModal = false">
+      <template #header>
+        <h3>{{ redeemSuccess ? t('code_redemption_success') : t('subscription_success') }}</h3>
+      </template>
+      <template #body>
+        <p>
+          {{
+            redeemSuccess ? t('code_redemption_success_message') : t('subscription_success_message')
+          }}
+        </p>
+      </template>
+    </AlertModal>
+  </Teleport>
+  <!-- Enrollment Redirect Modal -->
+  <Teleport to="body">
+    <AlertModal :show="showEnrollmentRedirectModal" @close="showEnrollmentRedirectModal = false">
+      <template #header>
+        <h3>{{ t('redirecting') }}</h3>
+      </template>
+      <template #body>
+        <p>{{ t('redirecting_to_payment_setup') }}</p>
+        <Loading />
+      </template>
+    </AlertModal>
+  </Teleport>
+
+  <!-- WebPay OneClick Form (hidden) -->
+  <form ref="webpayForm" method="post" :action="webpayUrl" style="display: none">
+    <input type="hidden" name="TBK_TOKEN" :value="webpayToken" />
+  </form>
+
+  <!-- Display error if any -->
+  <div v-if="error" class="error-message">
+    {{ error }}
+  </div>
 </template>
 
 <style scoped>
@@ -601,20 +599,20 @@ button {
   .mobile-plan h2 {
     font-size: 1.2rem;
   }
-  
+
   .mobile-price {
     font-size: 1rem;
   }
-  
+
   .mobile-plan-footer {
     flex-direction: column;
     gap: 10px;
   }
-  
+
   .mobile-button {
     width: 100%;
   }
-  
+
   .redeem-code-section h2 {
     font-size: 1.2rem;
   }

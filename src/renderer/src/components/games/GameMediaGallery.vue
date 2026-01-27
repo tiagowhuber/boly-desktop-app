@@ -1,23 +1,23 @@
 <template>
   <div class="game-media-gallery">
     <h3 v-if="title" class="gallery-title">{{ title }}</h3>
-    
+
     <div v-if="loading" class="loading-container">
       <LoadingIcon />
     </div>
-    
+
     <div v-else-if="!hasMedia" class="no-media">
       <slot name="no-media">No media available</slot>
     </div>
-    
+
     <div v-else class="media-container">
       <!-- Images section -->
       <div v-if="images.length > 0" class="images-section">
         <h4 v-if="showSectionTitles">Screenshots</h4>
         <div class="images-grid">
-          <div 
-            v-for="image in images" 
-            :key="image.media_id" 
+          <div
+            v-for="image in images"
+            :key="image.media_id"
             class="image-item"
             @click="openMedia(image)"
           >
@@ -25,34 +25,30 @@
           </div>
         </div>
       </div>
-      
+
       <!-- Videos section -->
       <div v-if="videos.length > 0" class="videos-section">
         <h4 v-if="showSectionTitles">Videos</h4>
         <div class="videos-grid">
-          <div 
-            v-for="video in videos" 
-            :key="video.media_id" 
-            class="video-item"
-          >
-            <video 
-              controls 
-              :src="video.media_url" 
-              preload="metadata"
-            ></video>
+          <div v-for="video in videos" :key="video.media_id" class="video-item">
+            <video controls :src="video.media_url" preload="metadata"></video>
           </div>
         </div>
       </div>
     </div>
-    
+
     <!-- Modal for fullscreen image view -->
     <ModalComponent v-if="showModal" @close="closeModal">
       <div class="media-modal">
-        <img v-if="selectedMedia?.media_type === 'image'" :src="selectedMedia?.media_url" :alt="getAltText(selectedMedia)" />
-        <video 
+        <img
+          v-if="selectedMedia?.media_type === 'image'"
+          :src="selectedMedia?.media_url"
+          :alt="getAltText(selectedMedia)"
+        />
+        <video
           v-else-if="selectedMedia?.media_type === 'video'"
-          controls 
-          autoplay 
+          controls
+          autoplay
           :src="selectedMedia?.media_url"
         ></video>
       </div>
@@ -94,13 +90,13 @@ const showModal = ref(false)
 
 const images = computed(() => {
   return mediaItems.value
-    .filter(item => item.media_type === 'image')
+    .filter((item) => item.media_type === 'image')
     .sort((a, b) => a.display_order - b.display_order)
 })
 
 const videos = computed(() => {
   return mediaItems.value
-    .filter(item => item.media_type === 'video')
+    .filter((item) => item.media_type === 'video')
     .sort((a, b) => a.display_order - b.display_order)
 })
 
@@ -136,15 +132,21 @@ onMounted(() => {
   loadMedia()
 })
 
-watch(() => props.gameId, (newId) => {
-  if (newId) {
+watch(
+  () => props.gameId,
+  (newId) => {
+    if (newId) {
+      loadMedia()
+    }
+  }
+)
+
+watch(
+  () => props.mediaType,
+  () => {
     loadMedia()
   }
-})
-
-watch(() => props.mediaType, () => {
-  loadMedia()
-})
+)
 </script>
 
 <style scoped>
@@ -172,7 +174,8 @@ watch(() => props.mediaType, () => {
   border-radius: 8px;
 }
 
-.images-section, .videos-section {
+.images-section,
+.videos-section {
   margin-bottom: 2rem;
 }
 
@@ -237,10 +240,11 @@ watch(() => props.mediaType, () => {
 }
 
 @media (max-width: 768px) {
-  .images-grid, .videos-grid {
+  .images-grid,
+  .videos-grid {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   }
-  
+
   .image-item {
     height: 120px;
   }

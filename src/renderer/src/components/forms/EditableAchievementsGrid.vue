@@ -10,9 +10,7 @@ const props = defineProps({
 })
 
 const sortKey = ref('')
-const sortOrders = ref(
-  props.columns.reduce((o, key) => ((o[key] = 1), o), {})
-)
+const sortOrders = ref(props.columns.reduce((o, key) => ((o[key] = 1), o), {}))
 
 const filteredData = computed(() => {
   let { data, filterKey } = props
@@ -22,11 +20,15 @@ const filteredData = computed(() => {
     filterKey = filterKey.toLowerCase()
     data = data.filter((row) => {
       return Object.keys(row).some((key) => {
-        if(key == 'name' || key == 'description'){
-          return String(row[key][props.locale]).toLowerCase().indexOf(filterKey) > -1 && !excludeKeys.includes(key)
-        }
-        else{
-          return String(row[key]).toLowerCase().indexOf(filterKey) > -1 && !excludeKeys.includes(key)
+        if (key == 'name' || key == 'description') {
+          return (
+            String(row[key][props.locale]).toLowerCase().indexOf(filterKey) > -1 &&
+            !excludeKeys.includes(key)
+          )
+        } else {
+          return (
+            String(row[key]).toLowerCase().indexOf(filterKey) > -1 && !excludeKeys.includes(key)
+          )
         }
       })
     })
@@ -34,23 +36,21 @@ const filteredData = computed(() => {
 
   //Sorting
   const key = sortKey.value
-  if(key == 'unlock_requirement'){
+  if (key == 'unlock_requirement') {
     const order = sortOrders.value[key]
     data = data.slice().sort((a, b) => {
-      a = a['type'] == 'INSTANT'? 0 : a[key]
-      b = b['type'] == 'INSTANT'? 0 : b[key]
+      a = a['type'] == 'INSTANT' ? 0 : a[key]
+      b = b['type'] == 'INSTANT' ? 0 : b[key]
       return (a === b ? 0 : a > b ? 1 : -1) * order
     })
-  }
-  else if(key === 'name' || key === 'description'){
+  } else if (key === 'name' || key === 'description') {
     const order = sortOrders.value[key]
     data = data.slice().sort((a, b) => {
       a = a[key][props.locale]
       b = b[key][props.locale]
       return (a === b ? 0 : a > b ? 1 : -1) * order
     })
-  }
-  else if (key) {
+  } else if (key) {
     const order = sortOrders.value[key]
     data = data.slice().sort((a, b) => {
       a = a[key]
@@ -74,39 +74,41 @@ function sortBy(key) {
       <tr>
         <th
           v-for="key in columns"
-          @click="sortBy(key)"
-          :class="{ active: sortKey == key }"
           :key="key"
+          :class="{ active: sortKey == key }"
+          @click="sortBy(key)"
         >
-          <template v-if="key == 'name' || key == 'description'">{{ $t(columnNames[key]) }} ({{ locale.toUpperCase() }})</template>
+          <template v-if="key == 'name' || key == 'description'"
+            >{{ $t(columnNames[key]) }} ({{ locale.toUpperCase() }})</template
+          >
           <template v-else>{{ $t(columnNames[key]) }}</template>
           <span class="arrow" :class="sortOrders[key] > 0 ? 'asc' : 'dsc'"></span>
         </th>
 
-        <th> {{$t('remove')}} </th>
+        <th>{{ $t('remove') }}</th>
       </tr>
     </thead>
     <tbody>
       <tr v-for="entry in filteredData" :key="entry.id">
         <td v-for="key in columns" :key="key">
           <template v-if="key === 'secret'">
-            <input class="lock" type="checkbox" v-model="entry[key]"/>
+            <input v-model="entry[key]" class="lock" type="checkbox" />
           </template>
           <template v-else-if="key === 'unlock_requirement'">
-            <input type="number" v-model="entry[key]" v-if="entry.type == 'PROGRESS'" />
-            <input type="text" value="N/A" v-else :disabled="true"/>
+            <input v-if="entry.type == 'PROGRESS'" v-model="entry[key]" type="number" />
+            <input v-else type="text" value="N/A" :disabled="true" />
           </template>
           <template v-else-if="key === 'type'">
-            <select class="table-option" v-model="entry[key]">
-              <option value="PROGRESS" class="table-option">{{$t('progress')}}</option>
-              <option value="INSTANT"  class="table-option">{{$t('instant')}}</option>
+            <select v-model="entry[key]" class="table-option">
+              <option value="PROGRESS" class="table-option">{{ $t('progress') }}</option>
+              <option value="INSTANT" class="table-option">{{ $t('instant') }}</option>
             </select>
           </template>
           <template v-else-if="key === 'name' || key === 'description'">
-            <input type="text" v-model="entry[key][locale]" />
+            <input v-model="entry[key][locale]" type="text" />
           </template>
           <template v-else-if="key === 'achievement_code'">
-            <input type="text" v-model="entry[key]" />
+            <input v-model="entry[key]" type="text" />
           </template>
           <!-- Read-only fields -->
           <template v-else>
@@ -115,18 +117,22 @@ function sortBy(key) {
         </td>
         <!-- Add a save button to submit changes -->
         <td>
-          <button class="btn-remove remove-button" @click="$emit('remove-achievement', entry.id)">{{$t('remove')}}</button>
+          <button class="btn-remove remove-button" @click="$emit('remove-achievement', entry.id)">
+            {{ $t('remove') }}
+          </button>
         </td>
       </tr>
-      <tr> 
-        <button class="btn-blue add-button" @click="$emit('add-achievement')">+ {{$t('add_achievement')}}</button></tr>
+      <tr>
+        <button class="btn-blue add-button" @click="$emit('add-achievement')">
+          + {{ $t('add_achievement') }}
+        </button>
+      </tr>
     </tbody>
   </table>
 </template>
 
 <style scoped>
-
-.add-button{
+.add-button {
   width: 200px;
   margin-top: 10px;
   border-radius: 10px;
@@ -135,14 +141,14 @@ function sortBy(key) {
   color: var(--light);
 }
 
-.remove-button{
+.remove-button {
   border-radius: 10px;
   font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-size: 100%;
   color: var(--light);
 }
 
-table{
+table {
   border-spacing: 0px;
 }
 
@@ -174,7 +180,7 @@ th.active .arrow {
   opacity: 1;
 }
 
-.lock{
+.lock {
   width: 40%;
   scale: 2;
 }
@@ -189,7 +195,8 @@ input {
   color: var(--light);
 }
 
-button, select{
+button,
+select {
   padding: 0px;
   margin: 0px;
   width: 100%;
@@ -197,12 +204,12 @@ button, select{
   border: none;
 }
 
-select{
+select {
   color: var(--light);
   background-color: transparent;
 }
 
-select .table-option{
+select .table-option {
   color: var(--light);
   background-color: var(--boly-bg-dark);
 }
@@ -227,5 +234,4 @@ select .table-option{
   border-right: 4px solid transparent;
   border-top: 4px solid #fff;
 }
-
 </style>

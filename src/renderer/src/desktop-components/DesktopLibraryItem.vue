@@ -1,7 +1,8 @@
 <script setup lang="ts">
+/* eslint-disable vue/no-mutating-props */
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useAuth, useAchievements, useGames } from '@/stores' 
+import { useAuth, useAchievements, useGames } from '@/stores'
 import useGameRoutes from '@/desktop-stores/gameRoutes'
 import type { Game, Achievement } from '@/types'
 import PlayIcon from '@/components/icons/PlayIcon.vue'
@@ -18,7 +19,7 @@ const props = defineProps<{
 const i18n = useI18n()
 const auth = useAuth()
 const achievementsStore = useAchievements()
-const gamesStore = useGames() 
+const gamesStore = useGames()
 const gameRoutesStore = useGameRoutes()
 const loading = ref(false)
 const isDownloading = ref(false)
@@ -26,8 +27,8 @@ const isInstalling = ref(false)
 const isRunning = ref(false)
 const gameAchievements = ref<Achievement[]>([])
 const achievementsLoading = ref(true)
-const playTime = ref<number | null>(null) 
-const playTimeLoading = ref(true) 
+const playTime = ref<number | null>(null)
+const playTimeLoading = ref(true)
 const showOptionsMenu = ref(false)
 
 console.log('LibraryItem received game:', props.item)
@@ -42,229 +43,236 @@ const isWebGame = computed(() => {
 
 //const gameDataBaseUrl = import.meta.env.VITE_S3_BASE_URL + '/' + props.item.game_id + '/'
 
-
 const displayedAchievements = computed(() => {
-  return gameAchievements.value.slice(0, 4);
-});
+  return gameAchievements.value.slice(0, 4)
+})
 
 const hasAchievements = computed(() => {
-  return gameAchievements.value.length > 0;
-});
+  return gameAchievements.value.length > 0
+})
 
 // const gameCompletionPercentage = computed(() => {
 //   if (!gameAchievements.value.length) return 0;
-  
+
 //   const totalAchievements = gameAchievements.value.length;
-//   const completedAchievements = gameAchievements.value.filter(a => 
+//   const completedAchievements = gameAchievements.value.filter(a =>
 //     a.progress === 100 || a.progress === undefined
 //   ).length;
-  
+
 //   return Math.floor((completedAchievements / totalAchievements) * 100);
 // });
 
 async function fetchGameAchievements() {
-  if (!props.item.game_id || !auth.token) return;
-  
-  achievementsLoading.value = true;
+  if (!props.item.game_id || !auth.token) return
+
+  achievementsLoading.value = true
   try {
-    await achievementsStore.fetchAchievements(props.item.game_id, { token: auth.token });
-    gameAchievements.value = [...achievementsStore.achievements];
+    await achievementsStore.fetchAchievements(props.item.game_id, { token: auth.token })
+    gameAchievements.value = [...achievementsStore.achievements]
   } catch (error) {
-    console.error('Error fetching achievements:', error);
+    console.error('Error fetching achievements:', error)
   } finally {
-    achievementsLoading.value = false;
+    achievementsLoading.value = false
   }
 }
 
 async function fetchPlayTime() {
-  if (!props.item.game_id || !auth.token) return;
+  if (!props.item.game_id || !auth.token) return
 
-  playTimeLoading.value = true;
+  playTimeLoading.value = true
   try {
-    const time = await gamesStore.getPlayTime(props.item.game_id, { token: auth.token });
-    playTime.value = time;
-    console.log('Fetched play time:', playTime.value);
+    const time = await gamesStore.getPlayTime(props.item.game_id, { token: auth.token })
+    playTime.value = time
+    console.log('Fetched play time:', playTime.value)
   } catch (error) {
-    console.error('Error fetching play time:', error);
-    playTime.value = null; 
+    console.error('Error fetching play time:', error)
+    playTime.value = null
   } finally {
-    playTimeLoading.value = false;
+    playTimeLoading.value = false
   }
 }
 
 function toggleOptionsMenu(event: Event) {
-  event.stopPropagation();
-  showOptionsMenu.value = !showOptionsMenu.value;
+  event.stopPropagation()
+  showOptionsMenu.value = !showOptionsMenu.value
 }
 
 async function uninstallGame(event: Event) {
-  event.stopPropagation();
-  showOptionsMenu.value = false;
-  
-  if (!props.item.game_id) return;
-  
+  event.stopPropagation()
+  showOptionsMenu.value = false
+
+  if (!props.item.game_id) return
+
   try {
-    const uninstaller = gameRoutesStore.localUninstallers.find(u => u.gameId === props.item.game_id);
-    
+    const uninstaller = gameRoutesStore.localUninstallers.find(
+      (u) => u.gameId === props.item.game_id
+    )
+
     if (uninstaller && uninstaller.route) {
-      console.log('Uninstalling game:', props.item.game_id, 'using:', uninstaller.route);
-      
+      console.log('Uninstalling game:', props.item.game_id, 'using:', uninstaller.route)
+
       const result = await window.electronAPI.uninstallGame({
         game_id: props.item.game_id,
         uninstallerPath: uninstaller.route
-      });
-      
+      })
+
       if (result.success) {
-        console.log('Game uninstalled successfully:', result.message);
-        
-        gameRoutesStore.removeGameFromRoute({ gameId: props.item.game_id, route: props.item.game_Path || '' });
-        gameRoutesStore.removeUninstallerFromRoute({ gameId: props.item.game_id, route: uninstaller.route });
-        
-        props.item.isInstalled = false;
-        props.item.game_Path = '';
+        console.log('Game uninstalled successfully:', result.message)
+
+        gameRoutesStore.removeGameFromRoute({
+          gameId: props.item.game_id,
+          route: props.item.game_Path || ''
+        })
+        gameRoutesStore.removeUninstallerFromRoute({
+          gameId: props.item.game_id,
+          route: uninstaller.route
+        })
+
+        props.item.isInstalled = false
+        props.item.game_Path = ''
       } else {
-        console.error('Uninstall failed:', result.error);
+        console.error('Uninstall failed:', result.error)
       }
     } else {
-      console.warn('No uninstaller found for game:', props.item.game_id);
+      console.warn('No uninstaller found for game:', props.item.game_id)
     }
   } catch (error) {
-    console.error('Error uninstalling game:', error);
+    console.error('Error uninstalling game:', error)
   }
 }
 
 onMounted(() => {
-  fetchGameAchievements();
-  fetchPlayTime(); 
-  
+  fetchGameAchievements()
+  fetchPlayTime()
+
   // Check if this game is currently running
   if (props.item.game_id) {
     window.electronAPI.isGameRunning(props.item.game_id).then((running: boolean) => {
-      isRunning.value = running;
-    });
+      isRunning.value = running
+    })
   }
-  
+
   const handleClickOutside = (event: MouseEvent) => {
-    const target = event.target as Element;
+    const target = event.target as Element
     if (!target.closest('.options-container')) {
-      showOptionsMenu.value = false;
+      showOptionsMenu.value = false
     }
-  };
-    document.addEventListener('click', handleClickOutside);
-  
+  }
+  document.addEventListener('click', handleClickOutside)
+
   onUnmounted(() => {
-    document.removeEventListener('click', handleClickOutside);
-  });
-  
- //todo: use the download store
+    document.removeEventListener('click', handleClickOutside)
+  })
+
+  //todo: use the download store
   window.electronAPI.onDownloadComplete((data) => {
     if (data.gameId === props.item.game_id) {
-      loading.value = false;
-      isDownloading.value = false;
-      props.item.isInstalled = false;
-      props.item.game_Path = data.installPath;
-      isInstalling.value = true;
+      loading.value = false
+      isDownloading.value = false
+      props.item.isInstalled = false
+      props.item.game_Path = data.installPath
+      isInstalling.value = true
     }
-  });
-  
+  })
+
   window.electronAPI.onDownloadError((data) => {
     if (data.gameId === props.item.game_id) {
-      loading.value = false;
-      isDownloading.value = false;
-      isInstalling.value = false;
+      loading.value = false
+      isDownloading.value = false
+      isInstalling.value = false
     }
-  });
+  })
 
   window.electronAPI.onInstallStarted((data) => {
     if (data.gameId === props.item.game_id) {
-      loading.value = true;
-      isInstalling.value = true;
+      loading.value = true
+      isInstalling.value = true
     }
-  });
+  })
 
   window.electronAPI.onInstallComplete((data) => {
     if (data.gameId === props.item.game_id) {
-      loading.value = false;
-      isInstalling.value = false;
-      isDownloading.value = false;
-      props.item.isInstalled = true;
-      props.item.game_Path = data.installPath;
-      console.log('Setting game path to:', props.item.game_Path);
-      
+      loading.value = false
+      isInstalling.value = false
+      isDownloading.value = false
+      props.item.isInstalled = true
+      props.item.game_Path = data.installPath
+      console.log('Setting game path to:', props.item.game_Path)
     }
-  });
+  })
 
   window.electronAPI.onInstallError((data) => {
     if (data.gameId === props.item.game_id) {
-      loading.value = false;
-      isInstalling.value = false;
+      loading.value = false
+      isInstalling.value = false
     }
-  });
+  })
 
   window.electronAPI.onGameStarted((data) => {
     if (data.gameId === props.item.game_id) {
-      isRunning.value = true;
-      loading.value = false;
+      isRunning.value = true
+      loading.value = false
     }
-  });
+  })
 
   window.electronAPI.onGameStopped((data) => {
     if (data.gameId === props.item.game_id) {
-      isRunning.value = false;
+      isRunning.value = false
     }
-  });
-});
+  })
+})
 
 async function Play() {
-  if (props.item.file_name?.desktop && 
-        typeof props.item.file_name.desktop === 'string' && 
-        !props.item.file_name.desktop.endsWith('.exe')) {
-      // This is an HTML game, navigate to the route
-      router.push(props.item.file_name.desktop);
+  if (
+    props.item.file_name?.desktop &&
+    typeof props.item.file_name.desktop === 'string' &&
+    !props.item.file_name.desktop.endsWith('.exe')
+  ) {
+    // This is an HTML game, navigate to the route
+    router.push(props.item.file_name.desktop)
   } else if (props.item.game_id) {
-    console.log("clicked")
-    loading.value = true; // Set loading while game is starting
-    
+    console.log('clicked')
+    loading.value = true // Set loading while game is starting
+
     try {
       const result = await window.electronAPI.playGame({
         game_id: props.item.game_id,
         appPath: props.item.game_Path,
         token: auth.token
-      });
-      
+      })
+
       // If there was an error starting the game, reset loading state
       if (result && result.error) {
-        console.error('Failed to start game:', result.error);
-        loading.value = false;
+        console.error('Failed to start game:', result.error)
+        loading.value = false
       }
       // If successful, loading state will be cleared when game-started event is received
     } catch (error) {
-      console.error('Error starting game:', error);
-      loading.value = false;
+      console.error('Error starting game:', error)
+      loading.value = false
     }
   }
 }
 
-
 async function Download() {
-  if (loading.value || isDownloading.value) return;
-  loading.value = true;
-  isDownloading.value = true;
-  
+  if (loading.value || isDownloading.value) return
+  loading.value = true
+  isDownloading.value = true
+
   try {
     if (props.item.game_id) {
-      const gameName = props.item.name[i18n.locale.value] || props.item.name.es || "Game";
-      
+      const gameName = props.item.name[i18n.locale.value] || props.item.name.es || 'Game'
+
       window.electronAPI.downloadGame({
         game_id: props.item.game_id,
         token: auth.token,
         gameName: gameName
-      });
+      })
     }
   } catch (error) {
-    console.error('Error initiating download:', error);
-    loading.value = false;
-    isDownloading.value = false;
+    console.error('Error initiating download:', error)
+    loading.value = false
+    isDownloading.value = false
   }
 }
 
@@ -275,18 +283,17 @@ async function Download() {
 // }
 </script>
 
-
 <template>
   <!-- <div class="library-item" @click="navigateToGameDetails"> -->
-    <div class="library-item" @click="Play">
+  <div class="library-item" @click="Play">
     <img :src="props.item.banner_url" class="game-banner" />
     <div class="game-info">
       <div class="title-section">
         <h3>{{ props.item.name[i18n.locale.value].toUpperCase() }}</h3>
       </div>
-      
+
       <div class="divider"></div>
-      
+
       <!-- Achievements Section -->
       <div class="achievements-section">
         <h4 class="section-label">{{ $t('achievements') }}</h4>
@@ -297,20 +304,30 @@ async function Download() {
             <span class="loading-dot"></span>
           </div>
           <div v-else-if="hasAchievements" class="achievements-icons">
-            <div v-for="achievement in displayedAchievements" :key="achievement.id" class="achievement-icon-wrapper">
+            <div
+              v-for="achievement in displayedAchievements"
+              :key="achievement.id"
+              class="achievement-icon-wrapper"
+            >
               <div class="achievement-tooltip">
                 <strong>{{ achievement.name }}</strong>
                 <p>{{ achievement.description }}</p>
               </div>
               <div class="achievement-frame">
-                <img 
-                  :src="achievement.icon_url" 
-                  :class="{'achievement-icon': true, 'locked': achievement.progress !== undefined && achievement.progress < 100}" 
-                  alt="Achievement Icon" 
+                <img
+                  :src="achievement.icon_url"
+                  :class="{
+                    'achievement-icon': true,
+                    locked: achievement.progress !== undefined && achievement.progress < 100
+                  }"
+                  alt="Achievement Icon"
                 />
               </div>
-              <div class="achievement-progress" v-if="(achievement.progress !== 100) && achievement.progress !== undefined">
-                <div class="progress-bar" :style="{width: `${achievement.progress}%`}"></div>
+              <div
+                v-if="achievement.progress !== 100 && achievement.progress !== undefined"
+                class="achievement-progress"
+              >
+                <div class="progress-bar" :style="{ width: `${achievement.progress}%` }"></div>
               </div>
             </div>
           </div>
@@ -332,7 +349,9 @@ async function Download() {
           <div v-else-if="playTime !== null" class="play-time-value">
             <div class="time-display">
               <ClockhistoryIcon class="clock-icon" />
-              <span>{{ $t('play_time') }}: {{ Math.floor(playTime / 60) }}h {{ playTime % 60 }}m</span>
+              <span
+                >{{ $t('play_time') }}: {{ Math.floor(playTime / 60) }}h {{ playTime % 60 }}m</span
+              >
             </div>
           </div>
           <div v-else class="no-play-time">
@@ -343,10 +362,10 @@ async function Download() {
 
       <div class="game-actions">
         <button
-          :class=" [
+          :class="[
             'action-button',
             props.item.isInstalled || isWebGame
-              ? isRunning 
+              ? isRunning
                 ? 'running-button'
                 : 'play-button'
               : isDownloading
@@ -374,19 +393,19 @@ async function Download() {
           <LoadingSpinnerIcon v-else-if="isDownloading || isInstalling" class="icon" />
           <DownloadIcon v-else class="icon" />
         </button>
-        
+
         <!-- Options Button -->
-        <div class="options-container" v-if="props.item.isInstalled">
+        <div v-if="props.item.isInstalled" class="options-container">
           <button
             class="options-button"
-            @click.stop="toggleOptionsMenu"
             :class="{ active: showOptionsMenu }"
+            @click.stop="toggleOptionsMenu"
           >
             <VerticalDotsIcon class="options-icon" />
           </button>
-          
+
           <!-- Options Dropdown -->
-          <div class="options-dropdown" v-if="showOptionsMenu">
+          <div v-if="showOptionsMenu" class="options-dropdown">
             <button class="dropdown-item uninstall-item" @click="uninstallGame">
               <span>{{ $t('uninstall') }}</span>
             </button>
@@ -688,7 +707,8 @@ async function Download() {
 }
 
 @keyframes dot-pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(0.6);
     opacity: 0.6;
   }
@@ -763,7 +783,7 @@ async function Download() {
 
 .downloading-button {
   font-family: 'Poppins', sans-serif;
-  background: var(--boly-button-green); 
+  background: var(--boly-button-green);
   color: white;
   cursor: progress;
   position: relative;
@@ -772,7 +792,7 @@ async function Download() {
 
 .installing-button {
   font-family: 'Poppins', sans-serif;
-  background: var(--boly-button-green); 
+  background: var(--boly-button-green);
   color: white;
   cursor: progress;
   position: relative;
@@ -794,7 +814,8 @@ async function Download() {
 }
 
 @keyframes pulse-glow {
-  0%, 100% {
+  0%,
+  100% {
     filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.7));
   }
   50% {
@@ -931,7 +952,7 @@ async function Download() {
     width: 100%;
     max-width: 320px;
   }
-  
+
   .options-dropdown {
     right: -8px;
   }

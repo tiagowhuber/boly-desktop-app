@@ -6,54 +6,54 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import type { Order } from '@/types'
 
-const router = useRouter();
-const auth = useAuth();
-const user = useUser();
-const orderStore = useOrder();
-const { t } = useI18n();
+const router = useRouter()
+const auth = useAuth()
+const user = useUser()
+const orderStore = useOrder()
+const { t } = useI18n()
 
-const loading = computed(() => orderStore.loading);
-const orders = computed(() => orderStore.userOrders.slice().reverse());
-const error = ref<string | null>(null);
-const success = ref<string | null>(null);
-const isMobile = ref(window.innerWidth < 768);
-const showOrderDetailsModal = ref(false);
-const selectedOrder = ref<Order | null>(null);
+const loading = computed(() => orderStore.loading)
+const orders = computed(() => orderStore.userOrders.slice().reverse())
+const error = ref<string | null>(null)
+const success = ref<string | null>(null)
+const isMobile = ref(window.innerWidth < 768)
+const showOrderDetailsModal = ref(false)
+const selectedOrder = ref<Order | null>(null)
 
 const handleResize = () => {
-  isMobile.value = window.innerWidth < 768;
-};
+  isMobile.value = window.innerWidth < 768
+}
 
 onMounted(() => {
-  window.addEventListener('resize', handleResize);
-  
+  window.addEventListener('resize', handleResize)
+
   if (!auth.isLoggedIn && !auth.token) {
-    router.push('/login');
-    return;
+    router.push('/login')
+    return
   }
-  
+
   if (auth.isLoggedIn && user.userId) {
-    fetchOrders();
+    fetchOrders()
   }
-});
+})
 
 onUnmounted(() => {
-  window.removeEventListener('resize', handleResize);
-});
+  window.removeEventListener('resize', handleResize)
+})
 
 const fetchOrders = async () => {
-  if (!auth.isLoggedIn || !user.userId) return;
-  
+  if (!auth.isLoggedIn || !user.userId) return
+
   try {
-    const result = await orderStore.getOrdersByUserId(user.userId);
+    const result = await orderStore.getOrdersByUserId(user.userId)
     if (!result.success) {
-      error.value = result.message || t('error_fetching_orders');
+      error.value = result.message || t('error_fetching_orders')
     }
   } catch (err) {
-    console.error('Error fetching orders:', err);
-    error.value = t('error_fetching_orders');
+    console.error('Error fetching orders:', err)
+    error.value = t('error_fetching_orders')
   }
-};
+}
 
 // const viewOrderDetails = (order: Order) => {
 //   selectedOrder.value = order;
@@ -61,88 +61,89 @@ const fetchOrders = async () => {
 // };
 
 const closeOrderDetailsModal = () => {
-  showOrderDetailsModal.value = false;
-  selectedOrder.value = null;
-};
+  showOrderDetailsModal.value = false
+  selectedOrder.value = null
+}
 
 const formatDate = (date: Date | string): string => {
   if (date instanceof Date) {
-    return date.toLocaleDateString();
+    return date.toLocaleDateString()
   }
-  return new Date(date).toLocaleDateString();
-};
+  return new Date(date).toLocaleDateString()
+}
 
 const getOrderStatusClass = (status: string): string => {
   switch (status?.toLowerCase()) {
     case 'completed':
     case 'paid':
-      return 'status-completed';
+      return 'status-completed'
     case 'pending':
     case 'processing':
-      return 'status-pending';
+      return 'status-pending'
     case 'failed':
     case 'cancelled':
     case 'canceled':
-      return 'status-failed';
+      return 'status-failed'
     default:
-      return '';
+      return ''
   }
-};
+}
 
 const getOrderStatusText = (status: string): string => {
   switch (status?.toLowerCase()) {
     case 'completed':
     case 'paid':
-      return t('order_status_completed');
+      return t('order_status_completed')
     case 'pending':
-      return t('order_status_pending');
+      return t('order_status_pending')
     case 'processing':
-      return t('order_status_processing');
+      return t('order_status_processing')
     case 'failed':
-      return t('order_status_failed');
+      return t('order_status_failed')
     case 'cancelled':
     case 'canceled':
-      return t('order_status_cancelled');
+      return t('order_status_cancelled')
     default:
-      return status || t('order_status_unknown');
+      return status || t('order_status_unknown')
   }
-};
+}
 
 const formatCurrency = (amount: number | { amount: number; currency: string }): string => {
   if (typeof amount === 'object' && amount !== null) {
-    return new Intl.NumberFormat('en-US', { 
-      style: 'currency', 
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
       currency: amount.currency || 'USD',
       minimumFractionDigits: 2
-    }).format(amount.amount);
+    }).format(amount.amount)
   }
-  return new Intl.NumberFormat('en-US', { 
-    style: 'currency', 
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2
-  }).format(amount);
-};
+  }).format(amount)
+}
 </script>
 
 <template>
-  <div class="loading_container" v-if="loading">
+  <div v-if="loading" class="loading_container">
     <Loading />
   </div>
-  
-  <div :class="{ 'section': !isMobile, 'mobile-section': isMobile }">
+
+  <div :class="{ section: !isMobile, 'mobile-section': isMobile }">
     <div class="header">
       <h1>{{ t('order_history') }}</h1>
     </div>
-    
+
     <!-- Orders List -->
-    <div class="orders-container" v-if="!loading">
+    <div v-if="!loading" class="orders-container">
       <!-- Success or Error messages -->
       <div v-if="success" class="success-message">{{ success }}</div>
       <div v-if="error" class="error-message">{{ error }}</div>
-      
+
       <!-- Orders List -->
-      <div class="order-list" v-if="orders.length > 0">
-        <h2>{{ t('your_orders') }}</h2>        <div class="order-item" v-for="order in orders" :key="order.order_id">
+      <div v-if="orders.length > 0" class="order-list">
+        <h2>{{ t('your_orders') }}</h2>
+        <div v-for="order in orders" :key="order.order_id" class="order-item">
           <div class="order-info">
             <div class="order-header">
               <span class="order-id">{{ t('order') }} #{{ order.order_id }}</span>
@@ -151,24 +152,28 @@ const formatCurrency = (amount: number | { amount: number; currency: string }): 
               </span>
             </div>
             <div class="order-details">
-              <span class="order-date">{{ t('ordered_on') }}: {{ formatDate(order.created_at) }}</span>
-              <span class="order-amount">{{ t('total') }}: {{ formatCurrency(order.final_amount) }}</span>
+              <span class="order-date"
+                >{{ t('ordered_on') }}: {{ formatDate(order.created_at) }}</span
+              >
+              <span class="order-amount"
+                >{{ t('total') }}: {{ formatCurrency(order.final_amount) }}</span
+              >
               <span v-if="order.details" class="order-description">{{ order.details }}</span>
             </div>
           </div>
         </div>
       </div>
-      
+
       <div v-else class="no-orders">
         <p>{{ t('no_orders') }}</p>
-        <button @click="router.push('/games')" class="btn-purple">
+        <button class="btn-purple" @click="router.push('/games')">
           {{ t('browse_games') }}
         </button>
       </div>
     </div>
-    
-    <button @click="router.go(-1)" class="back-button">{{ t('back') }}</button>
-    
+
+    <button class="back-button" @click="router.go(-1)">{{ t('back') }}</button>
+
     <!-- Order Details Modal -->
     <div v-if="showOrderDetailsModal && selectedOrder" class="modal">
       <div class="modal-content" :class="{ 'mobile-modal-content': isMobile }">
@@ -192,7 +197,7 @@ const formatCurrency = (amount: number | { amount: number; currency: string }): 
             <span class="detail-label">{{ t('total_amount') }}:</span>
             <span class="detail-value">{{ formatCurrency(selectedOrder.final_amount) }}</span>
           </div>
-          
+
           <div v-if="selectedOrder.details" class="detail-row">
             <span class="detail-label">{{ t('details') }}:</span>
             <span class="detail-value">{{ selectedOrder.details }}</span>
@@ -202,11 +207,11 @@ const formatCurrency = (amount: number | { amount: number; currency: string }): 
             <span class="detail-label">{{ t('discount_code') }}:</span>
             <span class="detail-value">{{ selectedOrder.discount_code }}</span>
           </div>
-          
+
           <!-- Game or Subscription details could be added here if included in the API response -->
         </div>
         <div class="modal-buttons">
-          <button @click="closeOrderDetailsModal" class="btn-blue">{{ t('close') }}</button>
+          <button class="btn-blue" @click="closeOrderDetailsModal">{{ t('close') }}</button>
         </div>
       </div>
     </div>
@@ -263,7 +268,8 @@ h1 {
   max-width: 1200px;
 }
 
-.success-message, .error-message {
+.success-message,
+.error-message {
   padding: 10px;
   border-radius: 5px;
   margin-bottom: 15px;
@@ -384,7 +390,10 @@ h1 {
   gap: 15px;
 }
 
-button, .btn-purple, .btn-blue, .btn-red {
+button,
+.btn-purple,
+.btn-blue,
+.btn-red {
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
@@ -496,39 +505,39 @@ button, .btn-purple, .btn-blue, .btn-red {
     padding: 15px;
     margin: 0 0 20px 0;
   }
-  
+
   h1 {
     font-size: 1.8rem;
   }
-  
+
   .order-item {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .order-info {
     margin-bottom: 15px;
     width: 100%;
   }
-  
+
   .details-btn {
     align-self: flex-end;
   }
-  
+
   .modal-buttons {
     flex-direction: column;
     gap: 10px;
   }
-  
+
   .modal-buttons button {
     width: 100%;
   }
-  
+
   .order-header {
     flex-direction: column;
     gap: 5px;
   }
-  
+
   .order-status {
     align-self: flex-start;
   }
@@ -539,12 +548,12 @@ button, .btn-purple, .btn-blue, .btn-red {
   .mobile-section {
     padding: 10px 5px;
   }
-  
+
   .orders-container {
     padding: 10px;
     width: 100%;
   }
-  
+
   .detail-row {
     flex-direction: column;
     gap: 5px;

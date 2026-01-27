@@ -17,19 +17,26 @@ const selectedLocale = ref('en')
 const router = useRouter()
 const auth = useAuth()
 
-if(!auth.isLoggedIn){
+if (!auth.isLoggedIn) {
   router.back()
 }
 
 const searchQuery = ref('')
-const gridColumns = ['achievement_code', 'name', 'description', 'unlock_requirement', 'type', 'secret'] as const
+const gridColumns = [
+  'achievement_code',
+  'name',
+  'description',
+  'unlock_requirement',
+  'type',
+  'secret'
+] as const
 const gridColumnNames = {
   achievement_code: 'ach_code',
   name: 'ach_name',
   description: 'ach_desc',
   unlock_requirement: 'ach_unlock',
   type: 'ach_type',
-  secret: 'ach_secret',
+  secret: 'ach_secret'
 } as const
 
 const route = useRoute()
@@ -44,7 +51,7 @@ async function fetchData(): Promise<void> {
 }
 
 onMounted(() => {
-  if(auth.isLoggedIn) fetchData()
+  if (auth.isLoggedIn) fetchData()
 })
 
 const idToRemove = ref(0)
@@ -52,12 +59,16 @@ function removeHandler(id: number): void {
   idToRemove.value = id
   showConfirm.value = true
 
-  const code = achievementStore.achievements.find((a: Achievement) => a.id === idToRemove.value)?.achievement_code
+  const code = achievementStore.achievements.find(
+    (a: Achievement) => a.id === idToRemove.value
+  )?.achievement_code
   modalText.value = `Are you sure you want to remove the achievement "${code}"?`
 }
 
 function remove(): void {
-  achievementStore.achievements = achievementStore.achievements.filter((entry: Achievement) => entry.id !== idToRemove.value)
+  achievementStore.achievements = achievementStore.achievements.filter(
+    (entry: Achievement) => entry.id !== idToRemove.value
+  )
   showConfirm.value = false
 }
 
@@ -68,13 +79,13 @@ function addHandler(): void {
 
   const newAchievement: Achievement = {
     id: minId - 1,
-    achievement_code: "NEW_ACHIEVEMENT",
-    name: {es: 'Nuevo logro', en: 'New achievement'},
-    description: {es: '', en: ''},
+    achievement_code: 'NEW_ACHIEVEMENT',
+    name: { es: 'Nuevo logro', en: 'New achievement' },
+    description: { es: '', en: '' },
     unlock_requirement: 10,
-    type: "PROGRESS",
+    type: 'PROGRESS',
     secret: false,
-    gameId: achievementStore.inspectedGame.game_id!,
+    gameId: achievementStore.inspectedGame.game_id!
   }
 
   achievementStore.achievements.push(newAchievement)
@@ -82,7 +93,7 @@ function addHandler(): void {
 
 async function saveChanges(): Promise<void> {
   const response = await achievementStore.updateAchievements({ token: auth.token })
-  modalText.value = i18n.t(response.message, {error: response.error})
+  modalText.value = i18n.t(response.message, { error: response.error })
   showAlert.value = true
 }
 
@@ -93,48 +104,52 @@ const changeLocale = (newLocale: string): void => {
 const getLocalizedGameName = (locale: string): string => {
   return achievementStore.inspectedGame.name?.[locale] || ''
 }
-
 </script>
 
 <template>
-  <div class="loading_container" v-if="achievementStore.loading">
+  <div v-if="achievementStore.loading" class="loading_container">
     <Loading />
   </div>
-  <div class="section" v-else>
-    <h1 class="title-bold">{{$t('achievement_manager_title')}}</h1>
+  <div v-else class="section">
+    <h1 class="title-bold">{{ $t('achievement_manager_title') }}</h1>
     <div class="mform">
-      <h2>{{$t('achievement_manager_subtitle', {game: getLocalizedGameName(i18n.locale.value)})}}</h2>
+      <h2>
+        {{ $t('achievement_manager_subtitle', { game: getLocalizedGameName(i18n.locale.value) }) }}
+      </h2>
 
       <form id="search" class="filter">
         <div>
-          {{$t('filter')}} 
-          <input name="query" v-model="searchQuery">
+          {{ $t('filter') }}
+          <input v-model="searchQuery" name="query" />
         </div>
-        <LocaleSelector class="locale-selector" @languageChanged="changeLocale"/>
+        <LocaleSelector class="locale-selector" @language-changed="changeLocale" />
       </form>
 
-      <EditableGrid @remove-achievement="removeHandler" @add-achievement="addHandler"
+      <EditableGrid
         :data="achievementStore.achievements"
         :columns="[...gridColumns]"
-        :columnNames="gridColumnNames"
+        :column-names="gridColumnNames"
         :filter-key="searchQuery"
-        :locale="selectedLocale">
+        :locale="selectedLocale"
+        @remove-achievement="removeHandler"
+        @add-achievement="addHandler"
+      >
       </EditableGrid>
 
-      <button class="apply-button btn-purple" @click="saveChanges">{{$t('apply')}}</button>
+      <button class="apply-button btn-purple" @click="saveChanges">{{ $t('apply') }}</button>
     </div>
 
     <Teleport to="body">
       <ConfirmModal :show="showConfirm" @close="showConfirm = false" @confirm="remove">
         <template #header>
-          <h3>{{$t('remove_achievement')}}</h3>
+          <h3>{{ $t('remove_achievement') }}</h3>
         </template>
         <template #body> {{ modalText }}</template>
       </ConfirmModal>
 
       <AlertModal :show="showAlert" @close="showAlert = false">
         <template #header>
-          <h3>{{$t('notification')}}</h3>
+          <h3>{{ $t('notification') }}</h3>
         </template>
         <template #body> {{ modalText }} </template>
       </AlertModal>
@@ -143,7 +158,7 @@ const getLocalizedGameName = (locale: string): string => {
 </template>
 
 <style scoped>
-.title-bold{
+.title-bold {
   width: 100%;
   text-align: start;
   font-size: 300%;
@@ -174,7 +189,7 @@ h2 {
   gap: 1rem;
 }
 
-.input-container{
+.input-container {
   display: flex;
   flex-direction: row;
   gap: 1rem;
@@ -191,7 +206,7 @@ textarea {
   border: none;
 }
 
-.apply-button{
+.apply-button {
   font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-size: 120%;
   color: var(--light);

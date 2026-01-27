@@ -4,7 +4,7 @@ import BoliLogo from '../icons/BoliLogo.vue'
 
 <template>
   <div>
-    <BoliLogo class="icon"/>
+    <BoliLogo class="icon" />
   </div>
 </template>
 
@@ -16,9 +16,9 @@ import BoliLogo from '../icons/BoliLogo.vue'
   margin-bottom: 50px;
 }
 
-.icon:hover{
+.icon:hover {
   fill: var(--lightCyan);
-  transition-duration: .2s;
+  transition-duration: 0.2s;
 }
 
 @media only screen and (max-width: 768px) {

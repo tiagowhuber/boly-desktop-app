@@ -26,7 +26,6 @@ const PLAN_TYPES = {
   3: 'yearly'
 }
 
-
 const currentPlanType = computed(() => {
   if (!currentSubscription.value) return 'none'
   return getPlanType(currentSubscription.value.plan_id)
@@ -44,23 +43,27 @@ const currentPlanName = computed(() => {
 
 const currentPlanPrice = computed(() => {
   switch (currentPlanType.value) {
-    case 'free': 
+    case 'free':
       return t('free')
-    case 'monthly': 
+    case 'monthly':
       return t('month_price') + t('month')
-    case 'yearly': 
+    case 'yearly':
       return t('yearly_price') + t('year')
-    default: 
+    default:
       return ''
   }
 })
 
 const currentPlanCredits = computed(() => {
   switch (currentPlanType.value) {
-    case 'free': return '200'
-    case 'monthly': return '1000'
-    case 'yearly': return '12000'
-    default: return '0'
+    case 'free':
+      return '200'
+    case 'monthly':
+      return '1000'
+    case 'yearly':
+      return '12000'
+    default:
+      return '0'
   }
 })
 
@@ -74,18 +77,20 @@ const handleResize = () => {
 
 onMounted(async () => {
   window.addEventListener('resize', handleResize)
-  
+
   if (!auth.isLoggedIn && !auth.token) {
     router.push('/login')
     return
   }
-  
+
   if (auth.isLoggedIn && user.userId) {
     try {
-      const success = await subscriptionStore.getUserSubscriptions(user.userId, { token: auth.token })
-      
+      const success = await subscriptionStore.getUserSubscriptions(user.userId, {
+        token: auth.token
+      })
+
       if (success && subscriptions.value.length > 0) {
-        const activeSubscription = subscriptions.value.find(sub => sub.is_active === 1)
+        const activeSubscription = subscriptions.value.find((sub) => sub.is_active === 1)
         if (activeSubscription) {
           currentSubscription.value = activeSubscription
         }
@@ -93,7 +98,7 @@ onMounted(async () => {
     } catch (error) {
       console.error('Error fetching subscription data:', error)
     }
-    
+
     try {
       await paymentStore.fetchPaymentMethods(user.userId, auth.token)
       paymentMethods.value = paymentStore.paymentMethods
@@ -129,24 +134,22 @@ const goToPaymentMethods = () => {
   router.push('/payment-methods')
 }
 
-
 const cancelSubscription = async () => {
   if (!auth.isLoggedIn || !currentSubscription.value) {
     return
   }
-  
+
   try {
     const success = await subscriptionStore.cancelAutoRenewal(
-      currentSubscription.value.subscription_id, 
+      currentSubscription.value.subscription_id,
       { token: auth.token }
     )
-    
+
     if (success) {
       // Refresh subscription data
       if (user.userId) {
         await subscriptionStore.getUserSubscriptions(user.userId, { token: auth.token })
       }
-      
     }
   } catch (err) {
     console.error('Error cancelling subscription auto-renewal:', err)
@@ -159,13 +162,13 @@ const renewSubscription = async () => {
   if (!auth.isLoggedIn || !currentSubscription.value) {
     return
   }
-  
+
   try {
     const success = await subscriptionStore.renewSubscription(
-      currentSubscription.value.subscription_id, 
+      currentSubscription.value.subscription_id,
       { token: auth.token }
     )
-    
+
     if (success) {
       if (user.userId) {
         await subscriptionStore.getUserSubscriptions(user.userId, { token: auth.token })
@@ -178,109 +181,118 @@ const renewSubscription = async () => {
 </script>
 
 <template>
-  <div class="loading_container" v-if="loading">
+  <div v-if="loading" class="loading_container">
     <Loading />
   </div>
-  
-  <div :class="{ 'section': !isMobile, 'mobile-section': isMobile }">
+
+  <div :class="{ section: !isMobile, 'mobile-section': isMobile }">
     <div class="header">
       <h1>{{ t('subscription_management') }}</h1>
     </div>
-    
-    <div class="subscription-container" v-if="!loading">
+
+    <div v-if="!loading" class="subscription-container">
       <!-- Error message -->
       <div v-if="error" class="error-message">{{ error }}</div>
-      
+
       <!-- Current Plan Information -->
-      <div class="current-plan" v-if="currentSubscription">
+      <div v-if="currentSubscription" class="current-plan">
         <div class="plan-header">
           <h2>{{ t('current_subscription') }}</h2>
           <span :class="['plan-badge', `badge-${currentPlanType}`]">
             {{ currentPlanName }}
           </span>
         </div>
-        
+
         <div class="plan-details">
           <div class="detail-item">
             <span class="detail-label">{{ t('plan_name') }}:</span>
             <span class="detail-value">{{ currentPlanName }}</span>
           </div>
-          
+
           <div class="detail-item">
             <span class="detail-label">{{ t('price') }}:</span>
             <span class="detail-value">{{ currentPlanPrice }}</span>
           </div>
-          
+
           <div class="detail-item">
             <span class="detail-label">{{ t('credits') }}:</span>
             <span class="detail-value">{{ currentPlanCredits }} {{ t('credits') }}</span>
           </div>
-            <div class="detail-item" v-if="isAutoRenewEnabled">
+          <div v-if="isAutoRenewEnabled" class="detail-item">
             <span class="detail-label">{{ t('next_billing') }}:</span>
             <span class="detail-value">{{ formatDate(currentSubscription.active_until) }}</span>
           </div>
-          <div class="detail-item" v-else>
+          <div v-else class="detail-item">
             <span class="detail-label">{{ t('expiration_date') }}:</span>
             <span class="detail-value">{{ formatDate(currentSubscription.active_until) }}</span>
           </div>
         </div>
-          <div class="plan-actions">
-          <button @click="goToChangeSubscription" class="btn-purple">
+        <div class="plan-actions">
+          <button class="btn-purple" @click="goToChangeSubscription">
             {{ t('change_subscription') }}
           </button>
-          
-          <button @click="cancelSubscription" class="btn-red" 
-                  v-if="currentPlanType !== 'free' && isAutoRenewEnabled">
+
+          <button
+            v-if="currentPlanType !== 'free' && isAutoRenewEnabled"
+            class="btn-red"
+            @click="cancelSubscription"
+          >
             {{ t('cancel_subscription') }}
           </button>
-          
 
-          <button @click="renewSubscription" class="btn-green" 
-                  v-if="currentPlanType !== 'free' && !isAutoRenewEnabled">
+          <button
+            v-if="currentPlanType !== 'free' && !isAutoRenewEnabled"
+            class="btn-green"
+            @click="renewSubscription"
+          >
             {{ t('renew_subscription') }}
           </button>
         </div>
       </div>
-      
-      <div class="no-subscription" v-else>
+
+      <div v-else class="no-subscription">
         <p>{{ t('no_active_subscription') }}</p>
-        <button @click="goToChangeSubscription" class="btn-purple">
+        <button class="btn-purple" @click="goToChangeSubscription">
           {{ t('subscribe_now') }}
         </button>
       </div>
-      
+
       <!-- Payment Method Information -->
       <div class="payment-methods">
         <h2>{{ t('payment_methods') }}</h2>
-        
-        <div class="card-list" v-if="paymentMethods.length > 0">
-          <div class="card-item" v-for="method in paymentMethods" :key="method.payment_method_id">
+
+        <div v-if="paymentMethods.length > 0" class="card-list">
+          <div v-for="method in paymentMethods" :key="method.payment_method_id" class="card-item">
             <div class="card-info">
               <div class="card-type">{{ getCardIcon(method.card_type) }}</div>
               <div class="card-details">
-                <span class="card-number">{{ t('card_ending_in') }} {{ method.last_four_digits.slice(-4) }}</span>
-                <span class="card-added">{{ t('added_on') }} {{ formatDate(method.created_at) }}</span>
+                <span class="card-number"
+                  >{{ t('card_ending_in') }} {{ method.last_four_digits.slice(-4) }}</span
+                >
+                <span class="card-added"
+                  >{{ t('added_on') }} {{ formatDate(method.created_at) }}</span
+                >
               </div>
             </div>
           </div>
-          
-          <button @click="goToPaymentMethods" class="btn-blue manage-btn">
+
+          <button class="btn-blue manage-btn" @click="goToPaymentMethods">
             {{ t('manage_payment_methods') }}
           </button>
         </div>
-        
-        <div class="no-cards" v-else>
+
+        <div v-else class="no-cards">
           <p>{{ t('no_payment_methods') }}</p>
-          <button @click="goToPaymentMethods" class="btn-blue">
+          <button class="btn-blue" @click="goToPaymentMethods">
             {{ t('add_payment_method') }}
           </button>
         </div>
       </div>
     </div>
-    
+
     <!-- Navigation buttons -->
-    <button @click="router.go(-1)" class="back-button">{{ t('back') }}</button>
-    
+    <button class="back-button" @click="router.go(-1)">{{ t('back') }}</button>
+
     <!-- Cancel Confirmation Modal -->
     <!-- <ConfirmModal
       v-if="showCancelModal"
@@ -338,7 +350,8 @@ h2 {
   width: 100%;
 }
 
-.current-plan, .payment-methods {
+.current-plan,
+.payment-methods {
   background-color: var(--boly-bg-dark-transparent);
   border-radius: 15px;
   padding: 20px;
@@ -506,7 +519,11 @@ h2 {
   background-color: var(--boly-button-blue-hover);
 }
 
-button, .btn-purple, .btn-blue, .btn-red, .btn-green {
+button,
+.btn-purple,
+.btn-blue,
+.btn-red,
+.btn-green {
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
@@ -554,22 +571,22 @@ button, .btn-purple, .btn-blue, .btn-red, .btn-green {
   h1 {
     font-size: 1.8rem;
   }
-  
+
   .plan-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
   }
-  
+
   .plan-actions {
     flex-direction: column;
     width: 100%;
   }
-  
+
   .plan-actions button {
     width: 100%;
   }
-  
+
   .card-info {
     width: 100%;
   }
@@ -577,23 +594,24 @@ button, .btn-purple, .btn-blue, .btn-red, .btn-green {
 
 /* Very small screens */
 @media (max-width: 480px) {
-  .current-plan, .payment-methods {
+  .current-plan,
+  .payment-methods {
     padding: 15px;
   }
-  
+
   .plan-details {
     padding: 15px;
   }
-  
+
   .detail-item {
     flex-direction: column;
     gap: 5px;
   }
-  
+
   .card-item {
     padding: 10px;
   }
-  
+
   .card-type {
     font-size: 1rem;
   }

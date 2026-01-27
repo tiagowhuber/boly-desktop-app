@@ -1,8 +1,9 @@
-import { contextBridge,ipcRenderer  } from 'electron'
+/* eslint-disable @typescript-eslint/no-require-imports */
+import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 //import { on } from 'events';
 // @ts-ignore (define in dts)
-window.ipcRenderer = require('electron').ipcRenderer;
+window.ipcRenderer = require('electron').ipcRenderer
 
 // Custom APIs for renderer
 const api = {}
@@ -10,125 +11,150 @@ const api = {}
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
 // just add to the DOM global.
-console.log("contextIsolated: "+process.contextIsolated)
+console.log('contextIsolated: ' + process.contextIsolated)
 if (process.contextIsolated) {
-  try {    
+  try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
     contextBridge.exposeInMainWorld('api', api)
     contextBridge.exposeInMainWorld('electronAPI', {
       seleccionarArchivo: () => ipcRenderer.invoke('seleccionar-archivo'),
       seleccionarCarpeta: () => ipcRenderer.invoke('seleccionar-carpeta'),
-      instalarDesdeZip: (rutaExe, rutaDestion) => ipcRenderer.invoke('instalar-desde-zip', rutaExe, rutaDestion),
-      playGame:(appData) => ipcRenderer.invoke('play-game', appData),
-      downloadGame:(appData) => ipcRenderer.invoke('download-game', appData),
-      uninstallGame:(appData) => ipcRenderer.invoke('uninstall-game', appData),
+      instalarDesdeZip: (rutaExe, rutaDestion) =>
+        ipcRenderer.invoke('instalar-desde-zip', rutaExe, rutaDestion),
+      playGame: (appData) => ipcRenderer.invoke('play-game', appData),
+      downloadGame: (appData) => ipcRenderer.invoke('download-game', appData),
+      uninstallGame: (appData) => ipcRenderer.invoke('uninstall-game', appData),
       isGameRunning: (gameId) => ipcRenderer.invoke('is-game-running', gameId),
       searchExeFiles: (baseDir) => ipcRenderer.invoke('search-exe-files', baseDir),
-      loginWithGoogle: ()=> ipcRenderer.invoke('login-with-google'),
-      resolveGoogleLogin:()=>ipcRenderer.invoke('resolve-with-google'),
+      loginWithGoogle: () => ipcRenderer.invoke('login-with-google'),
+      resolveGoogleLogin: () => ipcRenderer.invoke('resolve-with-google'),
       apiRequest: (options) => ipcRenderer.invoke('api-request', options),
       checkUpdates: () => ipcRenderer.invoke('check-updates'),
-      getVersion: () => ipcRenderer.invoke('get-version'), 
+      getVersion: () => ipcRenderer.invoke('get-version'),
       onDeepLinkUrl: (callback) => {
-        ipcRenderer.on('deep-link-url', (_event, url) => callback(url));
+        ipcRenderer.on('deep-link-url', (_event, url) => callback(url))
       },
       updateMessage: (callback) => {
-        ipcRenderer.on('update-message', (_event, ...args) => callback(...args));
+        ipcRenderer.on('update-message', (_event, ...args) => callback(...args))
       },
       onDownloadStarted: (callback) => {
-        ipcRenderer.on('download-started', (_event, ...args) => callback(...args));
+        ipcRenderer.on('download-started', (_event, ...args) => callback(...args))
       },
       onDownloadProgress: (callback) => {
-        ipcRenderer.on('download-progress', (_event, ...args) => callback(...args));
+        ipcRenderer.on('download-progress', (_event, ...args) => callback(...args))
       },
       onDownloadComplete: (callback) => {
-        ipcRenderer.on('download-complete', (_event, ...args) => callback(...args));
+        ipcRenderer.on('download-complete', (_event, ...args) => callback(...args))
       },
       onDownloadError: (callback) => {
-        ipcRenderer.on('download-error', (_event, ...args) => callback(...args));
+        ipcRenderer.on('download-error', (_event, ...args) => callback(...args))
       },
       onInstallStarted: (callback) => {
-        ipcRenderer.on('install-started', (_event, ...args) => callback(...args));
+        ipcRenderer.on('install-started', (_event, ...args) => callback(...args))
       },
       onInstallError: (callback) => {
-        ipcRenderer.on('install-error', (_event, ...args) => callback(...args));
+        ipcRenderer.on('install-error', (_event, ...args) => callback(...args))
       },
       onInstallComplete: (callback) => {
-        ipcRenderer.on('install-complete', (_event, ...args) => callback(...args));
+        ipcRenderer.on('install-complete', (_event, ...args) => callback(...args))
       },
       onGameStarted: (callback) => {
-        ipcRenderer.on('game-started', (_event, ...args) => callback(...args));
+        ipcRenderer.on('game-started', (_event, ...args) => callback(...args))
       },
       onGameStopped: (callback) => {
-        ipcRenderer.on('game-stopped', (_event, ...args) => callback(...args));
+        ipcRenderer.on('game-stopped', (_event, ...args) => callback(...args))
       },
       removeAllListeners: (channel) => {
-        if (['download-started', 'download-progress', 'download-complete', 'download-error', 'install-started', 'install-error', 'install-complete', 'game-started', 'game-stopped'].includes(channel)) {
-          ipcRenderer.removeAllListeners(channel);
+        if (
+          [
+            'download-started',
+            'download-progress',
+            'download-complete',
+            'download-error',
+            'install-started',
+            'install-error',
+            'install-complete',
+            'game-started',
+            'game-stopped'
+          ].includes(channel)
+        ) {
+          ipcRenderer.removeAllListeners(channel)
         }
       }
-    });
+    })
   } catch (error) {
     console.error(error)
   }
 } else {
-    // @ts-ignore (define in dts)
+  // @ts-ignore (define in dts)
   window.electron = electronAPI
   // @ts-ignore (define in dts)
   window.api = api
-  // @ts-ignore (define in dts)  
+  // @ts-ignore (define in dts)
   window.electronAPI = {
     seleccionarArchivo: () => ipcRenderer.invoke('seleccionar-archivo'),
     seleccionarCarpeta: () => ipcRenderer.invoke('seleccionar-carpeta'),
-    instalarDesdeZip: (rutaExe, rutaDestion) => ipcRenderer.invoke('instalar-desde-zip', rutaExe, rutaDestion),
+    instalarDesdeZip: (rutaExe, rutaDestion) =>
+      ipcRenderer.invoke('instalar-desde-zip', rutaExe, rutaDestion),
     playGame: (appData) => ipcRenderer.invoke('play-game', appData),
-    downloadGame:(appData) => ipcRenderer.invoke('download-game', appData),
-    uninstallGame:(appData) => ipcRenderer.invoke('uninstall-game', appData),
+    downloadGame: (appData) => ipcRenderer.invoke('download-game', appData),
+    uninstallGame: (appData) => ipcRenderer.invoke('uninstall-game', appData),
     isGameRunning: (gameId) => ipcRenderer.invoke('is-game-running', gameId),
     searchExeFiles: (baseDir) => ipcRenderer.invoke('search-exe-files', baseDir),
-    loginWithGoogle: ()=> ipcRenderer.invoke('login-with-google'),
-    resolveGoogleLogin:()=>ipcRenderer.invoke('resolve-with-google'),
+    loginWithGoogle: () => ipcRenderer.invoke('login-with-google'),
+    resolveGoogleLogin: () => ipcRenderer.invoke('resolve-with-google'),
     apiRequest: (options) => ipcRenderer.invoke('api-request', options),
-    checkUpdates: () => ipcRenderer.invoke('check-updates'), 
+    checkUpdates: () => ipcRenderer.invoke('check-updates'),
     getVersion: () => ipcRenderer.invoke('get-version'), // Added proper method to get version
     onDeepLinkUrl: (callback) => {
-      ipcRenderer.on('deep-link-url', (_event, url) => callback(url));
+      ipcRenderer.on('deep-link-url', (_event, url) => callback(url))
     },
     updateMessage: (callback) => {
-      ipcRenderer.on('update-message', (_event, ...args) => callback(...args));
+      ipcRenderer.on('update-message', (_event, ...args) => callback(...args))
     },
     onDownloadStarted: (callback) => {
-      ipcRenderer.on('download-started', (_event, ...args) => callback(...args));
+      ipcRenderer.on('download-started', (_event, ...args) => callback(...args))
     },
     onDownloadProgress: (callback) => {
-      ipcRenderer.on('download-progress', (_event, ...args) => callback(...args));
+      ipcRenderer.on('download-progress', (_event, ...args) => callback(...args))
     },
     onDownloadComplete: (callback) => {
-      ipcRenderer.on('download-complete', (_event, ...args) => callback(...args));
+      ipcRenderer.on('download-complete', (_event, ...args) => callback(...args))
     },
     onDownloadError: (callback) => {
-      ipcRenderer.on('download-error', (_event, ...args) => callback(...args));
+      ipcRenderer.on('download-error', (_event, ...args) => callback(...args))
     },
     onInstallStarted: (callback) => {
-      ipcRenderer.on('install-started', (_event, ...args) => callback(...args));
+      ipcRenderer.on('install-started', (_event, ...args) => callback(...args))
     },
     onInstallError: (callback) => {
-      ipcRenderer.on('install-error', (_event, ...args) => callback(...args));
+      ipcRenderer.on('install-error', (_event, ...args) => callback(...args))
     },
     onInstallComplete: (callback) => {
-      ipcRenderer.on('install-complete', (_event, ...args) => callback(...args));
+      ipcRenderer.on('install-complete', (_event, ...args) => callback(...args))
     },
     onGameStarted: (callback) => {
-      ipcRenderer.on('game-started', (_event, ...args) => callback(...args));
+      ipcRenderer.on('game-started', (_event, ...args) => callback(...args))
     },
     onGameStopped: (callback) => {
-      ipcRenderer.on('game-stopped', (_event, ...args) => callback(...args));
+      ipcRenderer.on('game-stopped', (_event, ...args) => callback(...args))
     },
     removeAllListeners: (channel) => {
-      if (['download-started', 'download-progress', 'download-complete', 'download-error', 'install-started', 'install-error', 'install-complete', 'game-started', 'game-stopped'].includes(channel)) {
-        ipcRenderer.removeAllListeners(channel);
+      if (
+        [
+          'download-started',
+          'download-progress',
+          'download-complete',
+          'download-error',
+          'install-started',
+          'install-error',
+          'install-complete',
+          'game-started',
+          'game-stopped'
+        ].includes(channel)
+      ) {
+        ipcRenderer.removeAllListeners(channel)
       }
     }
   }
-  
 }

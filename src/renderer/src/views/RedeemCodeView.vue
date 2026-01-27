@@ -1,90 +1,91 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n';
-import useCodesStore from '@/stores/codes';
-import useUserStore from '@/stores/user';
-import LoadingIcon from '@/components/LoadingIcon.vue';
-import FloppyIcon from '@/components/icons/FloppyIcon.vue';
-import BackspaceXIcon from '@/components/icons/BackspaceXIcon.vue';
+import { ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import useCodesStore from '@/stores/codes'
+import useUserStore from '@/stores/user'
+import LoadingIcon from '@/components/LoadingIcon.vue'
+import FloppyIcon from '@/components/icons/FloppyIcon.vue'
+import BackspaceXIcon from '@/components/icons/BackspaceXIcon.vue'
 
-const { t } = useI18n();
-const route = useRoute();
-const router = useRouter();
-const codesStore = useCodesStore();
-const userStore = useUserStore();
+const { t } = useI18n()
+const route = useRoute()
+const router = useRouter()
+const codesStore = useCodesStore()
+const userStore = useUserStore()
 
-const isRedeeming = ref(false);
-const redeemMessage = ref('');
-const redeemStatus = ref<'success' | 'error' | 'loading'>('loading');
-const discountCode = ref('');
+const isRedeeming = ref(false)
+const redeemMessage = ref('')
+const redeemStatus = ref<'success' | 'error' | 'loading'>('loading')
+const discountCode = ref('')
 
 onMounted(async () => {
   // Get the discount code from the URL parameter
-  const code = route.params.code as string;
-  
+  const code = route.params.code as string
+
   if (!code) {
-    redeemMessage.value = t('invalid_redemption_link');
-    redeemStatus.value = 'error';
-    return;
+    redeemMessage.value = t('invalid_redemption_link')
+    redeemStatus.value = 'error'
+    return
   }
 
-  discountCode.value = code;
+  discountCode.value = code
 
-  const currentUserId = userStore.userId;
+  const currentUserId = userStore.userId
   if (!currentUserId || currentUserId <= 0) {
-    redeemMessage.value = t('login_to_redeem');
-    redeemStatus.value = 'error';
-    return;
+    redeemMessage.value = t('login_to_redeem')
+    redeemStatus.value = 'error'
+    return
   }
 
-  await redeemCode(code, currentUserId);
-});
+  await redeemCode(code, currentUserId)
+})
 
 const redeemCode = async (code: string, userId: number) => {
-  isRedeeming.value = true;
-  redeemStatus.value = 'loading';
+  isRedeeming.value = true
+  redeemStatus.value = 'loading'
 
   try {
-    const response = await codesStore.assignDiscountCodeToUserByLink(code, userId);
+    const response = await codesStore.assignDiscountCodeToUserByLink(code, userId)
 
     if (response.success) {
-      redeemMessage.value = t('code_redeemed_success', { code });
-      redeemStatus.value = 'success';
-      
+      redeemMessage.value = t('code_redeemed_success', { code })
+      redeemStatus.value = 'success'
+
       // Refresh user's discount codes
-      await codesStore.getUserDiscountCodes(userId);
+      await codesStore.getUserDiscountCodes(userId)
     } else {
-      redeemMessage.value = response.message || t('failed_redeem_code');
-      redeemStatus.value = 'error';
+      redeemMessage.value = response.message || t('failed_redeem_code')
+      redeemStatus.value = 'error'
     }
   } catch (error) {
-    console.error('Error redeeming code:', error);
-    redeemMessage.value = t('unexpected_error_redeem');
-    redeemStatus.value = 'error';
+    console.error('Error redeeming code:', error)
+    redeemMessage.value = t('unexpected_error_redeem')
+    redeemStatus.value = 'error'
   } finally {
-    isRedeeming.value = false;
+    isRedeeming.value = false
   }
-};
+}
 
 const goToDiscountCodes = () => {
-  router.push('/my-discount-codes');
-};
+  router.push('/my-discount-codes')
+}
 
 const goToHome = () => {
-  router.push('/');
-};
+  router.push('/')
+}
 </script>
 
 <template>
   <div class="redeem-code-container">
-    <div class="redeem-code-card">      
+    <div class="redeem-code-card">
       <div class="card-header">
         <h1 class="title">{{ $t('redeem_code_title') }}</h1>
         <p v-if="discountCode" class="code-display">{{ discountCode }}</p>
       </div>
 
-      <div class="card-content">        <!-- Loading State -->
+      <div class="card-content">
+        <!-- Loading State -->
         <div v-if="redeemStatus === 'loading'" class="status-section loading">
           <LoadingIcon class="loading-icon" />
           <p class="status-message">{{ $t('redeeming_discount_code') }}</p>
@@ -94,12 +95,13 @@ const goToHome = () => {
         <div v-else-if="redeemStatus === 'success'" class="status-section success">
           <div class="success-icon">
             <FloppyIcon />
-          </div>          <p class="status-message">{{ redeemMessage }}</p>
+          </div>
+          <p class="status-message">{{ redeemMessage }}</p>
           <div class="action-buttons">
-            <button @click="goToDiscountCodes" class="primary-button">
+            <button class="primary-button" @click="goToDiscountCodes">
               {{ $t('view_my_codes') }}
             </button>
-            <button @click="goToHome" class="secondary-button">
+            <button class="secondary-button" @click="goToHome">
               {{ $t('continue_shopping') }}
             </button>
           </div>
@@ -109,12 +111,13 @@ const goToHome = () => {
         <div v-else-if="redeemStatus === 'error'" class="status-section error">
           <div class="error-icon">
             <BackspaceXIcon />
-          </div>          <p class="status-message">{{ redeemMessage }}</p>
+          </div>
+          <p class="status-message">{{ redeemMessage }}</p>
           <div class="action-buttons">
-            <button @click="goToDiscountCodes" class="primary-button">
+            <button class="primary-button" @click="goToDiscountCodes">
               {{ $t('view_my_codes') }}
             </button>
-            <button @click="goToHome" class="secondary-button">
+            <button class="secondary-button" @click="goToHome">
               {{ $t('go_home') }}
             </button>
           </div>
@@ -148,7 +151,7 @@ const goToHome = () => {
 }
 
 .title {
-  font-family: "Anton", serif;
+  font-family: 'Anton', serif;
   font-style: italic;
   font-size: 2.5rem;
   color: white;
@@ -156,7 +159,7 @@ const goToHome = () => {
 }
 
 .code-display {
-  font-family: "Poppins", serif;
+  font-family: 'Poppins', serif;
   font-size: 1.2rem;
   background-color: rgba(255, 255, 255, 0.1);
   padding: 0.5rem 1rem;
@@ -166,7 +169,7 @@ const goToHome = () => {
 }
 
 .status-section {
-  font-family: "Poppins", serif;
+  font-family: 'Poppins', serif;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -256,11 +259,11 @@ const goToHome = () => {
   .redeem-code-card {
     padding: 1.5rem;
   }
-  
+
   .title {
     font-size: 2rem;
   }
-  
+
   .code-display {
     font-size: 1rem;
   }

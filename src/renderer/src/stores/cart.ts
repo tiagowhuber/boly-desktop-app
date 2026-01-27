@@ -19,7 +19,7 @@ const useCart = defineStore('cart', {
       }
     },
     removeGameFromCart(game: { game_id: number }) {
-      this.cart = this.cart.filter(id => id !== game.game_id)
+      this.cart = this.cart.filter((id) => id !== game.game_id)
       this.saveToLocalStorage()
     },
     clearCart() {

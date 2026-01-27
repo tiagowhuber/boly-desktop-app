@@ -99,9 +99,9 @@ async function checkDiscountCode(): Promise<void> {
   }
   try {
     const response = await fetch(import.meta.env.VITE_APP_API_URL+'/api/v1/discount_codes/'+ discountCode.value)
-    
+
     const data = await response.json() as DiscountCodeResponse
-    
+
     percentage = data.percentage ? data.percentage : 0
     isCodeValid = data.percentage && data.percentage !== 0 ? true : false
     isCodeInvalid = data.percentage && data.percentage !== 0 ? false : true
@@ -124,6 +124,7 @@ function Clear(): void {
 </script> -->
 
 <template>
+  <div></div>
   <!-- <div class="loading_container" v-if="loading">
     <Loading />
   </div>
@@ -151,7 +152,7 @@ function Clear(): void {
         </div>
         <div class="buttons">
         <button>Aplicar codigo</button> -->
-        <!-- <input type="submit" class="pay_button text" value="Aplicar código" />
+  <!-- <input type="submit" class="pay_button text" value="Aplicar código" />
       </div>
       </form>
     </div>
@@ -198,7 +199,7 @@ p {
   color: white;
 }
 
-.pay_button:disabled{
+.pay_button:disabled {
   border: 1px solid #999999;
   background-color: #cccccc;
   color: #666666;

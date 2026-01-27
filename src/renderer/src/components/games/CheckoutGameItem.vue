@@ -44,7 +44,6 @@ h3 {
   flex-direction: row;
   align-items: center;
   background-color: var(--light);
-  
 }
 
 .item:hover {
@@ -85,7 +84,6 @@ h3 {
   padding: 0 2rem;
   color: var(--bgGreen);
   font-weight: bold;
-  
 }
 
 .buy-button {

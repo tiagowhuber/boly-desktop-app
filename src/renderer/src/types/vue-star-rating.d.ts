@@ -1,6 +1,6 @@
 declare module 'vue-star-rating' {
   import { DefineComponent } from 'vue'
-  
+
   interface StarRatingProps {
     rating?: number
     roundStartRating?: boolean
@@ -18,7 +18,7 @@ declare module 'vue-star-rating' {
 }
 
 declare module '@/components/games/GameDetails.vue' {
-  import { DefineComponent } from 'vue';
-  const component: DefineComponent<{}, {}, any>;
-  export default component;
+  import { DefineComponent } from 'vue'
+  const component: DefineComponent<object, object, any>
+  export default component
 }

@@ -1,13 +1,15 @@
 <script setup>
 const props = defineProps({
   width: Number,
-  imgSize: Number,
+  imgSize: Number
 })
-
 </script>
 
 <template>
-  <div class="info-card" :style="'width: ' + props.width + 'px; max-height: ' + props.imgSize + 'px;'">
+  <div
+    class="info-card"
+    :style="'width: ' + props.width + 'px; max-height: ' + props.imgSize + 'px;'"
+  >
     <slot name="image"></slot>
     <div class="info-card-title">
       <slot name="content"></slot>
@@ -41,17 +43,17 @@ const props = defineProps({
 
 .info-card-title h2 {
   text-align: left;
-  font-family: "Anton", serif;
+  font-family: 'Anton', serif;
   font-style: italic;
   font-size: 300%;
 }
 
 .info-card-title h3 {
   text-align: left;
-  font-family: "Anton", serif;
+  font-family: 'Anton', serif;
   font-style: italic;
   font-size: 200%;
-  color: var(--boly-highlight)
+  color: var(--boly-highlight);
 }
 
 .info-card-title button {

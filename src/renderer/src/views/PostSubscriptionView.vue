@@ -4,7 +4,7 @@ import SuccessIcon from '@/components/icons/SuccessIcon.vue'
 import FailureIcon from '@/components/icons/FailureIcon.vue'
 import CheckoutGameItem from '@/components/games/CheckoutGameItem.vue'
 import { storeToRefs } from 'pinia'
-import { useRouter,useRoute } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { inject, onMounted } from 'vue'
 import { ref } from 'vue'
 import { useSubscription } from '@/stores/subscription'
@@ -21,17 +21,16 @@ async function reqTransaction(_cart) {
 
 const router = useRouter()
 
-const loadingOrder = ref(true);
+const loadingOrder = ref(true)
 
-async function checkSub(){
+async function checkSub() {
   const route = useRoute()
   const token = route.query.TBK_TOKEN
-  await subscriptionStore.checkSub(token,auth)
+  await subscriptionStore.checkSub(token, auth)
 
-  if(orderResult.value.status == 'AUTHORIZED'){
-    
+  if (orderResult.value.status == 'AUTHORIZED') {
+    // Authorized
   }
-
 }
 
 const showModal = ref(false)
@@ -39,20 +38,19 @@ const showModal = ref(false)
 onMounted(() => {
   checkSub()
 })
-
 </script>
 
 <template>
-  <div class="loading_container" v-if="!orderResult">
+  <div v-if="!orderResult" class="loading_container">
     <Loading />
   </div>
   <!--<div class="section" v-else-if="orderResult.authorization_code == 0">-->
-  <div class="section" v-else>
+  <div v-else class="section">
     <div class="result">
       <SuccessIcon class="big-icon" />
       <div>
         <p>{{ $t('postorder_congrats') }}</p>
-        <br>
+        <br />
         <p>{{ JSON.stringify(orderResult) }}</p>
         <!--
         <p> code:  {{ orderResult.response_code }} </p>
@@ -60,16 +58,11 @@ onMounted(() => {
         <p> authorization_code:  {{ orderResult.authorization_code }} </p>
         <p> card_type:  {{ orderResult.card_type }} </p>
         <p> card_number:  {{ orderResult.card_number }} </p>
-      -->
-      </div>
+      --></div>
     </div>
-    <p> {{ $t('postorder_article_list') }}</p>
+    <p>{{ $t('postorder_article_list') }}</p>
     <div class="list">
-      <CheckoutGameItem
-        v-for="item in orderCart"
-        :key="item.id"
-        :item="item"
-      />
+      <CheckoutGameItem v-for="item in orderCart" :key="item.id" :item="item" />
     </div>
     <RouterLink class="bold" to="/"><p>Volver</p></RouterLink>
   </div>
@@ -86,14 +79,13 @@ onMounted(() => {
 </template>
 
 <style scoped>
-
-.big-icon{
+.big-icon {
   fill: var(--bgGreen);
   height: 150px;
   width: 150px;
 }
 
-.result{
+.result {
   margin-top: 30px;
   width: 100%;
   display: flex;
@@ -102,7 +94,7 @@ onMounted(() => {
   gap: 3rem;
 }
 
-.result p{
+.result p {
   font-size: larger;
 }
 
@@ -125,8 +117,7 @@ p {
   color: var(--dark);
 }
 
-.bold:hover{
-  color: var(--lightGreen)
+.bold:hover {
+  color: var(--lightGreen);
 }
 </style>
-

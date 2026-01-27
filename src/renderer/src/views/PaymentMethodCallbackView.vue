@@ -33,13 +33,13 @@ onMounted(async () => {
   }
 
   const tbkToken = queryParams.get('TBK_TOKEN')
-  
+
   if (!tbkToken) {
     error.value = true
-    errorMessage.value = t('missing_token')
+    errorMessage.value = t('missing_token_payment')
     return
   }
-  
+
   // Retrieve stored token to compare
   const savedToken = localStorage.getItem('tbk_enrollment_token')
   if (savedToken !== tbkToken) {
@@ -47,36 +47,36 @@ onMounted(async () => {
   }
 
   await auth.checkToken()
-  
+
   if (!user.username) {
     console.log('User data not immediately available, waiting...')
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
     if (!auth.isLoggedIn) {
       await auth.refreshToken()
     }
   }
-  
+
   if (!user.username) {
     console.error('Username not available after waiting')
     error.value = true
     errorMessage.value = t('missing_username')
     return
   }
-    try {
+  try {
     if (!user.userId) {
       throw new Error('User ID is undefined')
     }
     await paymentStore.fetchPaymentMethods(user.userId, auth.token)
-    
+
     if (paymentStore.paymentMethods.length === 0) {
       await paymentStore.confirmEnrollment(tbkToken, user.username, auth.token)
       await paymentStore.fetchPaymentMethods(user.userId, auth.token)
     }
-    
+
     success.value = true
     error.value = false
-    
+
     const pendingPlan = localStorage.getItem('pendingSubscriptionPlan')
     if (pendingPlan && user.userId && paymentStore.paymentMethods.length > 0) {
       try {
@@ -84,7 +84,7 @@ onMounted(async () => {
         if (planId) {
           const amount = getAmountForPlan(pendingPlan)
           const currency = locale.value === 'en' ? 'USD' : 'CLP'
-          
+
           const paymentMethod = paymentStore.paymentMethods[0]
           const subscribed = await subscriptionStore.subscribeWithOneClick(
             user.userId,
@@ -95,12 +95,12 @@ onMounted(async () => {
             { token: auth.token },
             currency
           )
-          
+
           subscriptionProcessed.value = true
           subscriptionSuccess.value = subscribed
-          
+
           localStorage.removeItem('pendingSubscriptionPlan')
-          
+
           if (subscribed) {
             setTimeout(() => {
               router.push(returnUrl.value)
@@ -120,7 +120,7 @@ onMounted(async () => {
       errorMessage.value = paymentStore.error || t('error_confirming_enrollment')
     }
     success.value = false
-    
+
     localStorage.removeItem('pendingSubscriptionPlan')
   }
 })
@@ -139,7 +139,7 @@ const getPlanIdFromType = (planType: string): number => {
     2: 'monthly',
     3: 'yearly'
   }
-  
+
   const planEntry = Object.entries(PLAN_TYPES).find(([_id, type]) => type === planType)
   return planEntry ? parseInt(planEntry[0]) : 0
 }
@@ -156,16 +156,16 @@ const getAmountForPlan = (planType: string): number => {
 </script>
 
 <template>
-  <div class="loading_container" v-if="loading">
+  <div v-if="loading" class="loading_container">
     <Loading />
   </div>
-  
-  <div :class="{ 'section': !isMobile, 'mobile-section': isMobile }">
+
+  <div :class="{ section: !isMobile, 'mobile-section': isMobile }">
     <div class="card" :class="{ 'mobile-card': isMobile }">
       <div v-if="success" class="success">
         <h2>{{ t('card_registration_success') }}</h2>
         <p v-if="!subscriptionProcessed">{{ t('card_registration_success_description') }}</p>
-        
+
         <div v-if="subscriptionProcessed">
           <p v-if="subscriptionSuccess" class="subscription-success">
             {{ t('subscription_processed_success') }}
@@ -174,12 +174,12 @@ const getAmountForPlan = (planType: string): number => {
             {{ t('subscription_processed_error') }}
           </p>
         </div>
-        
+
         <div class="buttons">
-          <button @click="goToPaymentMethods" class="btn-blue">
+          <button class="btn-blue" @click="goToPaymentMethods">
             {{ t('view_payment_methods') }}
           </button>
-          <button v-if="!subscriptionSuccess" @click="goToSubscription" class="btn-green">
+          <button v-if="!subscriptionSuccess" class="btn-green" @click="goToSubscription">
             {{ t('go_to_subscriptions') }}
           </button>
         </div>
@@ -188,10 +188,10 @@ const getAmountForPlan = (planType: string): number => {
         <h2>{{ t('card_registration_error') }}</h2>
         <p>{{ errorMessage }}</p>
         <div class="buttons">
-          <button @click="goToPaymentMethods" class="btn-blue">
+          <button class="btn-blue" @click="goToPaymentMethods">
             {{ t('view_payment_methods') }}
           </button>
-          <button @click="router.push('/payment-methods?addCard=true')" class="btn-green">
+          <button class="btn-green" @click="router.push('/payment-methods?addCard=true')">
             {{ t('try_again') }}
           </button>
         </div>
@@ -239,12 +239,14 @@ const getAmountForPlan = (planType: string): number => {
   margin-bottom: 1rem;
 }
 
-.success h2, .error h2 {
+.success h2,
+.error h2 {
   font-family: 'Poppins', sans-serif;
   margin-bottom: 1rem;
 }
 
-.success p, .error p {
+.success p,
+.error p {
   font-family: 'Poppins', sans-serif;
   margin-bottom: 1.5rem;
   color: var(--color-text-light);

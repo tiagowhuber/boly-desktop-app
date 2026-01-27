@@ -1,152 +1,157 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import { useRoute, useRouter, RouterLink } from 'vue-router';
-import { useAuth, useUser, useGames, useCart, usePayment, useOrder, useEmails } from '@/stores';
-import Loading from '@/components/LoadingIcon.vue';
-import LibraryItem from '@/components/games/LibraryItem.vue';
-import type { Game } from '@/types';
+import { onMounted, ref } from 'vue'
+import { useRoute, useRouter, RouterLink } from 'vue-router'
+import { useAuth, useUser, useGames, useCart, usePayment, useOrder, useEmails } from '@/stores'
+import Loading from '@/components/LoadingIcon.vue'
+import LibraryItem from '@/components/games/LibraryItem.vue'
+import type { Game } from '@/types'
 
-const route = useRoute();
-const router = useRouter();
-const auth = useAuth();
-const user = useUser();
-const games = useGames();
-const cart = useCart();
-const payment = usePayment();
-const order = useOrder();
-const email = useEmails();
+const route = useRoute()
+const router = useRouter()
+const auth = useAuth()
+const user = useUser()
+const games = useGames()
+const cart = useCart()
+const payment = usePayment()
+const order = useOrder()
+const email = useEmails()
 
-const isLoading = ref(true);
-const purchasedGames = ref<Game[]>([]);
-const isRejected = ref(false);
-const errorMessage = ref('');
-const processedOrderToken = localStorage.getItem('processed_order_token');
-const isProcessed = ref(processedOrderToken === route.query.token_ws?.toString());
+const isLoading = ref(true)
+const purchasedGames = ref<Game[]>([])
+const isRejected = ref(false)
+const errorMessage = ref('')
+const processedOrderToken = localStorage.getItem('processed_order_token')
+const isProcessed = ref(processedOrderToken === route.query.token_ws?.toString())
 
 onMounted(async () => {
   if (!auth.isLoggedIn) {
-    console.log('PostOrderView: Not logged in, redirecting to login');
-    router.push('/login');
-    return;
+    console.log('PostOrderView: Not logged in, redirecting to login')
+    router.push('/login')
+    return
   }
 
   if (isProcessed.value) {
-    isLoading.value = false;
-    return;
+    isLoading.value = false
+    return
   }
 
   try {
-    const token = route.query.token_ws;
-    
+    const token = route.query.token_ws
+
     if (token) {
-      const gameIds = cart.getCartItems;
-      console.log('PostOrderView: Received game IDs:', gameIds);
-      
+      const gameIds = cart.getCartItems
+      console.log('PostOrderView: Received game IDs:', gameIds)
+
       if (gameIds.length === 0 || !user.userId) {
-        console.log('PostOrderView: No valid game IDs found or no user ID');
-        router.push('/');
-        return;
+        console.log('PostOrderView: No valid game IDs found or no user ID')
+        router.push('/')
+        return
       }
       try {
-        const orderSuccess = await payment.checkOrder(token as string);
+        const orderSuccess = await payment.checkOrder(token as string)
         if (!orderSuccess) {
-          isRejected.value = true;
-          errorMessage.value = payment.error || 'Your order was rejected or failed. Please try again.';
-          isLoading.value = false;
-          return;
+          isRejected.value = true
+          errorMessage.value =
+            payment.error || 'Your order was rejected or failed. Please try again.'
+          isLoading.value = false
+          return
         }
-        
+
         // Only proceed with library addition if payment was successful
         try {
           // Get the orderId from the payment result
-          const orderId = payment.orderId ? parseInt(payment.orderId, 10) : 
-                         payment.orderResult.buy_order ? parseInt(payment.orderResult.buy_order, 10) : null;
-          
+          const orderId = payment.orderId
+            ? parseInt(payment.orderId, 10)
+            : payment.orderResult.buy_order
+              ? parseInt(payment.orderResult.buy_order, 10)
+              : null
+
           if (!orderId) {
-            console.error('PostOrderView: No valid order ID found in payment result');
-            isRejected.value = true;
-            errorMessage.value = 'Failed to find order information. Your games may have been added but order tracking failed.';
-            isLoading.value = false;
-            return;
+            console.error('PostOrderView: No valid order ID found in payment result')
+            isRejected.value = true
+            errorMessage.value =
+              'Failed to find order information. Your games may have been added but order tracking failed.'
+            isLoading.value = false
+            return
           }
-          
-          console.log('PostOrderView: Processing order ID:', orderId);
-          
+
+          console.log('PostOrderView: Processing order ID:', orderId)
+
           await Promise.all(
-            gameIds.map(gameId => 
+            gameIds.map((gameId) =>
               games.addToLibrary(gameId, user.userId as number, { token: auth.token })
             )
-          );
+          )
 
-          const orderGamePromises = gameIds.map(gameId => 
+          const orderGamePromises = gameIds.map((gameId) =>
             order.updateOrderHasGame({
-              order_id: orderId, 
+              order_id: orderId,
               game_id: gameId
             })
-          );
-          
-          const orderGameResults = await Promise.all(orderGamePromises);
-          
-          
+          )
+
+          const orderGameResults = await Promise.all(orderGamePromises)
+
           orderGameResults.forEach((result, index) => {
             if (!result.success) {
-              console.error(`Failed to create order-game relationship for game ID ${gameIds[index]}: ${result.message}`);
+              console.error(
+                `Failed to create order-game relationship for game ID ${gameIds[index]}: ${result.message}`
+              )
             }
-          });          
-          const gamesData = await Promise.all(
-            gameIds.map(id => games.getById(id))
-          );          
-          purchasedGames.value = gamesData.filter((game): game is Game => game !== null);
-          cart.clearCart();
-          email.sendOrderConfirmationEmail(user.userId as number, orderId);
+          })
+          const gamesData = await Promise.all(gameIds.map((id) => games.getById(id)))
+          purchasedGames.value = gamesData.filter((game): game is Game => game !== null)
+          cart.clearCart()
+          email.sendOrderConfirmationEmail(user.userId as number, orderId)
           // Save the processed token to localStorage to prevent reprocessing
           if (token) {
-            localStorage.setItem('processed_order_token', token.toString());
+            localStorage.setItem('processed_order_token', token.toString())
           }
-          isProcessed.value = true;
+          isProcessed.value = true
         } catch (error) {
-          console.error('Error adding games to library:', error);
-          isRejected.value = true;
-          errorMessage.value = 'Failed to add games to your library.';
+          console.error('Error adding games to library:', error)
+          isRejected.value = true
+          errorMessage.value = 'Failed to add games to your library.'
         }
       } catch (error) {
-        console.error('Error checking order status:', error);
-        isRejected.value = true;
-        errorMessage.value = 'Failed to verify order status.';
+        console.error('Error checking order status:', error)
+        isRejected.value = true
+        errorMessage.value = 'Failed to verify order status.'
       }
     } else {
-      isRejected.value = true;
-      errorMessage.value = 'No payment information found. Please try your purchase again.';
+      isRejected.value = true
+      errorMessage.value = 'No payment information found. Please try your purchase again.'
     }
   } catch (error) {
-    console.error('Error in PostOrderView:', error);
-    isRejected.value = true;
-    errorMessage.value = 'An unexpected error occurred.';
+    console.error('Error in PostOrderView:', error)
+    isRejected.value = true
+    errorMessage.value = 'An unexpected error occurred.'
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
-});
+})
 </script>
 
 <template>
-  <div class="loading_container" v-if="isLoading">
+  <div v-if="isLoading" class="loading_container">
     <Loading />
   </div>
-  <div class="section" v-else-if="isRejected">
+  <div v-else-if="isRejected" class="section">
     <div class="main-container">
       <div class="title-container">
         <h1>{{ $t('postorder_error') }}</h1>
       </div>
       <div class="error-message">
         <p>{{ errorMessage }}</p>
-      </div>      <div class="actions">
+      </div>
+      <div class="actions">
         <RouterLink to="/cart" class="action-button">
           {{ $t('return_to_cart') }}
         </RouterLink>
       </div>
     </div>
   </div>
-  <div class="section" v-else>
+  <div v-else class="section">
     <div class="main-container">
       <div class="title-container">
         <h1>{{ $t('postorder_congrats') }}</h1>
@@ -159,7 +164,8 @@ onMounted(async () => {
       </div>
       <div class="list">
         <LibraryItem v-for="game in purchasedGames" :key="game.game_id" :item="game" />
-      </div>      <div class="actions">
+      </div>
+      <div class="actions">
         <RouterLink to="/library" class="action-button">
           {{ $t('go_to_library') }}
         </RouterLink>

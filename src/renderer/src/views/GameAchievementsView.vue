@@ -2,8 +2,8 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useAuth, useAchievements, useGames, useUser} from '@/stores'
-import type { Achievement, Game} from '@/types'
+import { useAuth, useAchievements, useGames, useUser } from '@/stores'
+import type { Achievement, Game } from '@/types'
 
 const route = useRoute()
 const { locale } = useI18n()
@@ -28,28 +28,36 @@ const gameTitle = computed(() => {
     const name = game.value.name as { [key: string]: string }
     return name[locale.value] || name.en || ''
   }
-  
+
   if (achievementsStore.inspectedGame.name) {
     const name = achievementsStore.inspectedGame.name as { [key: string]: string }
     return name[locale.value] || name.en || ''
   }
-  
+
   return ''
 })
 
 function getAchievementName(achievement: Achievement): string {
-  if (!achievement.name) return '';
-  return (locale.value in achievement.name ? achievement.name[locale.value as keyof typeof achievement.name] : achievement.name.en) || '';
+  if (!achievement.name) return ''
+  return (
+    (locale.value in achievement.name
+      ? achievement.name[locale.value as keyof typeof achievement.name]
+      : achievement.name.en) || ''
+  )
 }
 
 function getAchievementDescription(achievement: Achievement): string {
-  if (!achievement.description) return '';
-  return (locale.value in achievement.description ? achievement.description[locale.value as keyof typeof achievement.description] : achievement.description.en) || '';
+  if (!achievement.description) return ''
+  return (
+    (locale.value in achievement.description
+      ? achievement.description[locale.value as keyof typeof achievement.description]
+      : achievement.description.en) || ''
+  )
 }
 
 async function fetchGameData() {
   if (!gameId.value) return
-  
+
   try {
     const fetchedGame = await gamesStore.getById(gameId.value)
     if (fetchedGame) {
@@ -61,24 +69,24 @@ async function fetchGameData() {
 }
 
 async function fetchAchievementsData() {
-  error.value = null;
+  error.value = null
   if (!gameId.value) {
-    error.value = 'Invalid game ID';
-    return;
+    error.value = 'Invalid game ID'
+    return
   }
-  
+
   if (!authStore.token) {
-    error.value = 'Authentication required';
-    return;
+    error.value = 'Authentication required'
+    return
   }
-  
+
   try {
-    await achievementsStore.fetchAchievements(gameId.value, { token: authStore.token });
+    await achievementsStore.fetchAchievements(gameId.value, { token: authStore.token })
     if (user.userId) {
-      await achievementsStore.fetchUserProgress(user.userId, { token: authStore.token });
+      await achievementsStore.fetchUserProgress(user.userId, { token: authStore.token })
     }
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to fetch achievements';
+    error.value = err instanceof Error ? err.message : 'Failed to fetch achievements'
   }
 }
 
@@ -92,39 +100,38 @@ onMounted(() => {
   fetchAchievementsData()
 })
 
-watch(() => gameId.value, () => {
-  fetchGameData()
-  fetchAchievementsData()
-})
+watch(
+  () => gameId.value,
+  () => {
+    fetchGameData()
+    fetchAchievementsData()
+  }
+)
 </script>
 
 <template>
   <div class="achievements-container">
     <h1 class="title-bold">{{ gameTitle.toUpperCase() }} {{ $t('achievements').toUpperCase() }}</h1>
-    
+
     <div v-if="loading" class="loading">
       <div class="spinner"></div>
       {{ $t('loading_achievements') }}
     </div>
-    
+
     <div v-else-if="error" class="error-message">
       <p>{{ error }}</p>
-      <button @click="retryFetch" class="retry-button">{{ $t('retry') }}</button>
+      <button class="retry-button" @click="retryFetch">{{ $t('retry') }}</button>
     </div>
-    
+
     <div v-else-if="achievements.length === 0" class="no-achievements">
       {{ $t('no_achievements_found') }}
     </div>
-    
+
     <div v-else class="achievements-list">
-      <div 
-        v-for="achievement in achievements" 
-        :key="achievement.id"
-        class="achievement-item"
-      >
+      <div v-for="achievement in achievements" :key="achievement.id" class="achievement-item">
         <div class="achievement-icon">
-          <img 
-            :src="achievement.icon_url || '/images/default-achievement.png'" 
+          <img
+            :src="achievement.icon_url || '/images/default-achievement.png'"
             :alt="getAchievementName(achievement)"
           />
         </div>
@@ -138,12 +145,16 @@ watch(() => gameId.value, () => {
           </p>
           <div v-if="typeof achievement.progress === 'number'" class="progress-container">
             <div class="progress-bar">
-              <div 
-                class="progress-fill" 
-                :style="{width: `${((achievement.current_progress || 0) / achievement.progress) * 100}%`}"
+              <div
+                class="progress-fill"
+                :style="{
+                  width: `${((achievement.current_progress || 0) / achievement.progress) * 100}%`
+                }"
               ></div>
             </div>
-            <span class="progress-text">{{ achievement.current_progress || 0 }}/{{ achievement.progress }}</span>
+            <span class="progress-text"
+              >{{ achievement.current_progress || 0 }}/{{ achievement.progress }}</span
+            >
           </div>
         </div>
       </div>

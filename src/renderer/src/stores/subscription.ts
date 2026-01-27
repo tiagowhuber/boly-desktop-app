@@ -3,7 +3,8 @@ import type { SubscriptionState, SubscriptionResponse, AuthToken } from '@/types
 import axios from 'axios'
 import usePayment from './payment'
 
-export const useSubscription = defineStore('subscription', {  state: (): SubscriptionState => ({
+export const useSubscription = defineStore('subscription', {
+  state: (): SubscriptionState => ({
     subscriptions: [],
     loading: false,
     error: null,
@@ -16,32 +17,36 @@ export const useSubscription = defineStore('subscription', {  state: (): Subscri
       this.loading = true
       this.error = null
       try {
-        const response = await axios.post('/v1/subscription', {
-          userId,
-          planId
-        }, {
-          headers: {
-            Authorization: `Bearer ${auth.token}`
+        const response = await axios.post(
+          '/v1/subscription',
+          {
+            userId,
+            planId
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${auth.token}`
+            }
           }
-        })
-        
+        )
+
         if (response.status === 201) {
           // Refresh subscriptions list after creation
           await this.getUserSubscriptions(userId, auth)
           return true
         }
-        
+
         this.error = response.data.message || 'Failed to create subscription'
         return false
       } catch (error: any) {
-        console.error("Error creating subscription:", error)
+        console.error('Error creating subscription:', error)
         this.error = error.response?.data?.message || error.message || 'Unknown error occurred'
         return false
       } finally {
         this.loading = false
       }
     },
-    
+
     async getUserSubscriptions(userId: number, auth: AuthToken): Promise<boolean> {
       this.loading = true
       this.error = null
@@ -51,26 +56,26 @@ export const useSubscription = defineStore('subscription', {  state: (): Subscri
             Authorization: `Bearer ${auth.token}`
           }
         })
-        
+
         if (response.status === 200) {
           const data = response.data as SubscriptionResponse
-          this.subscriptions = Array.isArray(data.subscription) 
-            ? data.subscription 
+          this.subscriptions = Array.isArray(data.subscription)
+            ? data.subscription
             : [data.subscription]
           return true
         }
-        
+
         this.error = response.data.message || 'Failed to fetch subscriptions'
         return false
       } catch (error: any) {
-        console.error("Error fetching subscriptions:", error)
+        console.error('Error fetching subscriptions:', error)
         this.error = error.response?.data?.message || error.message || 'Unknown error occurred'
         return false
       } finally {
         this.loading = false
       }
     },
-    
+
     async deleteSubscription(subscriptionId: number, auth: AuthToken): Promise<boolean> {
       this.loading = true
       this.error = null
@@ -80,29 +85,36 @@ export const useSubscription = defineStore('subscription', {  state: (): Subscri
             Authorization: `Bearer ${auth.token}`
           }
         })
-        
+
         if (response.status === 200) {
           // Remove the deleted subscription from the local state
-          this.subscriptions = this.subscriptions.filter(sub => sub.subscription_id !== subscriptionId)
+          this.subscriptions = this.subscriptions.filter(
+            (sub) => sub.subscription_id !== subscriptionId
+          )
           return true
         }
-        
+
         this.error = response.data.message || 'Failed to delete subscription'
         return false
       } catch (error: any) {
-        console.error("Error deleting subscription:", error)
+        console.error('Error deleting subscription:', error)
         this.error = error.response?.data?.message || error.message || 'Unknown error occurred'
         return false
       } finally {
         this.loading = false
       }
     },
-    
-    async updateSubscriptionState(subscriptionId: number, isActive: number, auth: AuthToken): Promise<boolean> {
+
+    async updateSubscriptionState(
+      subscriptionId: number,
+      isActive: number,
+      auth: AuthToken
+    ): Promise<boolean> {
       this.loading = true
       this.error = null
       try {
-        const response = await axios.patch(`/v1/subscription/${subscriptionId}`, 
+        const response = await axios.patch(
+          `/v1/subscription/${subscriptionId}`,
           { isActive },
           {
             headers: {
@@ -110,42 +122,42 @@ export const useSubscription = defineStore('subscription', {  state: (): Subscri
             }
           }
         )
-        
+
         if (response.status === 200) {
           // Update the subscription state in the local state
-          this.subscriptions = this.subscriptions.map(sub => 
+          this.subscriptions = this.subscriptions.map((sub) =>
             sub.subscription_id === subscriptionId ? { ...sub, is_active: isActive } : sub
           )
           return true
         }
-        
+
         this.error = response.data.message || 'Failed to update subscription state'
         return false
       } catch (error: any) {
-        console.error("Error updating subscription state:", error)
+        console.error('Error updating subscription state:', error)
         this.error = error.response?.data?.message || error.message || 'Unknown error occurred'
         return false
       } finally {
         this.loading = false
       }
     },
-    
+
     async subscribeWithOneClick(
-      userId: number, 
-      planId: number, 
-      username: string, 
-      tbkUser: string, 
-      amount: number, 
+      userId: number,
+      planId: number,
+      username: string,
+      tbkUser: string,
+      amount: number,
       auth: AuthToken,
       currency: string
     ): Promise<boolean> {
       this.loading = true
       this.error = null
       this.paymentResult = null
-      
+
       try {
-        const paymentStore = usePayment();
-        const paymentMethodId = paymentStore.paymentMethods[0]?.payment_method_id;
+        const paymentStore = usePayment()
+        const paymentMethodId = paymentStore.paymentMethods[0]?.payment_method_id
         console.log('Making subscription payment with params:', {
           userId,
           planId,
@@ -155,8 +167,7 @@ export const useSubscription = defineStore('subscription', {  state: (): Subscri
           currency,
           paymentMethodId
         })
-        
-        
+
         const response = await axios.post(
           '/v1/subscription/oneclick',
           {
@@ -166,21 +177,21 @@ export const useSubscription = defineStore('subscription', {  state: (): Subscri
             tbk_user: tbkUser,
             amount,
             currency,
-            paymentMethodId 
+            paymentMethodId
           },
-          { 
-            headers: { Authorization: `Bearer ${auth.token}` } 
+          {
+            headers: { Authorization: `Bearer ${auth.token}` }
           }
         )
-          console.log('Subscription API response:', response)
-        
+        console.log('Subscription API response:', response)
+
         this.paymentResult = response.data?.payment || null
-        
+
         console.log('Payment result stored:', this.paymentResult)
-        
+
         if (response.status === 201 && response.data && response.data.subscription) {
           await this.getUserSubscriptions(userId, auth)
-          
+
           // Ensure we have a token for redirection
           if (!this.paymentResult || !this.paymentResult.token) {
             console.warn('No token in payment result, extracting from response data')
@@ -190,15 +201,18 @@ export const useSubscription = defineStore('subscription', {  state: (): Subscri
               token: response.data.token || response.data.subscription.token || null
             }
           }
-          
+
           return true
         } else if (response.data && response.data.payment) {
-          if (response.data.payment.details && 
-              Array.isArray(response.data.payment.details) && 
-              response.data.payment.details[0].response_code !== 0) {
+          if (
+            response.data.payment.details &&
+            Array.isArray(response.data.payment.details) &&
+            response.data.payment.details[0].response_code !== 0
+          ) {
             this.error = `Payment declined (code: ${response.data.payment.details[0].response_code}). Please try again or use a different payment method.`
           } else {
-            this.error = response.data.message || 'Subscription creation failed. Please contact support.'
+            this.error =
+              response.data.message || 'Subscription creation failed. Please contact support.'
           }
           return false
         } else {
@@ -207,10 +221,10 @@ export const useSubscription = defineStore('subscription', {  state: (): Subscri
         }
       } catch (error: any) {
         console.error('Error in subscription payment:', error)
-        
+
         if (error.response) {
           console.error('Error response data:', error.response.data)
-          
+
           const errorData = error.response.data
           if (errorData && errorData.payment) {
             this.error = `Payment declined: ${errorData.message || 'Unknown error'}`
@@ -219,7 +233,7 @@ export const useSubscription = defineStore('subscription', {  state: (): Subscri
           } else {
             this.error = 'Failed to process payment. Please try again later.'
           }
-          
+
           if (errorData && errorData.errors) {
             const errorDetails = errorData.errors.map((e: any) => e.msg).join(', ')
             this.error += `: ${errorDetails}`
@@ -227,133 +241,150 @@ export const useSubscription = defineStore('subscription', {  state: (): Subscri
         } else {
           this.error = 'An unexpected error occurred. Please try again later.'
         }
-        
+
         return false
       } finally {
         this.loading = false
       }
     },
-      async getTransactionStatus(buyOrder: string, auth: AuthToken): Promise<boolean> {
-      this.loading = true;
-      this.error = null;
-      this.transactionStatus = null;
-      
+    async getTransactionStatus(buyOrder: string, auth: AuthToken): Promise<boolean> {
+      this.loading = true
+      this.error = null
+      this.transactionStatus = null
+
       try {
-        const response = await axios.get(
-          `/v1/subscription/transaction-status/${buyOrder}`,
-          { headers: { Authorization: `Bearer ${auth.token}` } }
-        );
-        
+        const response = await axios.get(`/v1/subscription/transaction-status/${buyOrder}`, {
+          headers: { Authorization: `Bearer ${auth.token}` }
+        })
+
         if (response.status === 200 && response.data) {
-          this.transactionStatus = response.data.status;
-          return true;
+          this.transactionStatus = response.data.status
+          return true
         }
-        
-        this.error = response.data?.message || 'Failed to retrieve transaction status';
-        return false;
+
+        this.error = response.data?.message || 'Failed to retrieve transaction status'
+        return false
       } catch (error: any) {
-        console.error('Error getting transaction status:', error);
-        this.error = error.response?.data?.message || error.message || 'Unknown error occurred while checking transaction status';
-        return false;
+        console.error('Error getting transaction status:', error)
+        this.error =
+          error.response?.data?.message ||
+          error.message ||
+          'Unknown error occurred while checking transaction status'
+        return false
       } finally {
-        this.loading = false;
+        this.loading = false
       }
-    },    async cancelAutoRenewal(subscriptionId: number, auth: AuthToken): Promise<boolean> {
-      this.loading = true;
-      this.error = null;
-      this.cancelSuccess = false;
-      
+    },
+    async cancelAutoRenewal(subscriptionId: number, auth: AuthToken): Promise<boolean> {
+      this.loading = true
+      this.error = null
+      this.cancelSuccess = false
+
       try {
         const response = await axios.patch(
           `/v1/subscription/${subscriptionId}/cancel`,
           {},
           { headers: { Authorization: `Bearer ${auth.token}` } }
-        );
-        
+        )
+
         if (response.status === 200) {
-          this.subscriptions = this.subscriptions.map(sub => 
+          this.subscriptions = this.subscriptions.map((sub) =>
             sub.subscription_id === subscriptionId ? { ...sub, auto_renew: 0 } : sub
-          );
-          this.cancelSuccess = true;
-          return true;
+          )
+          this.cancelSuccess = true
+          return true
         }
-        
-        this.error = response.data?.message || 'Failed to cancel subscription auto-renewal';
-        return false;
+
+        this.error = response.data?.message || 'Failed to cancel subscription auto-renewal'
+        return false
       } catch (error: any) {
-        console.error('Error canceling subscription auto-renewal:', error);
-        this.error = error.response?.data?.message || error.message || 'Unknown error occurred while canceling subscription auto-renewal';
-        return false;
+        console.error('Error canceling subscription auto-renewal:', error)
+        this.error =
+          error.response?.data?.message ||
+          error.message ||
+          'Unknown error occurred while canceling subscription auto-renewal'
+        return false
       } finally {
-        this.loading = false;
+        this.loading = false
       }
     },
-    
+
     async renewSubscription(subscriptionId: number, auth: AuthToken): Promise<boolean> {
-      this.loading = true;
-      this.error = null;
-      
+      this.loading = true
+      this.error = null
+
       try {
         const response = await axios.patch(
           `/v1/subscription/${subscriptionId}/renew`,
           {},
           { headers: { Authorization: `Bearer ${auth.token}` } }
-        );
-        
+        )
+
         if (response.status === 200) {
           // Update the subscription in the local state with the new active_until date
           // and ensure is_active and auto_renew are set to 1
           if (response.data && response.data.active_until) {
-            this.subscriptions = this.subscriptions.map(sub => 
-              sub.subscription_id === subscriptionId ? 
-              { 
-                ...sub, 
-                is_active: 1,
-                auto_renew: 1,
-                active_until: response.data.active_until 
-              } : sub
-            );
+            this.subscriptions = this.subscriptions.map((sub) =>
+              sub.subscription_id === subscriptionId
+                ? {
+                    ...sub,
+                    is_active: 1,
+                    auto_renew: 1,
+                    active_until: response.data.active_until
+                  }
+                : sub
+            )
           }
-          return true;
+          return true
         }
-        
-        this.error = response.data?.message || 'Failed to renew subscription';
-        return false;
+
+        this.error = response.data?.message || 'Failed to renew subscription'
+        return false
       } catch (error: any) {
-        console.error('Error renewing subscription:', error);
-        this.error = error.response?.data?.message || error.message || 'Unknown error occurred while renewing subscription';
-        return false;
+        console.error('Error renewing subscription:', error)
+        this.error =
+          error.response?.data?.message ||
+          error.message ||
+          'Unknown error occurred while renewing subscription'
+        return false
       } finally {
-        this.loading = false;
+        this.loading = false
       }
     },
 
-    async subscribeWithCode(userId: number, discountCode: string, auth: AuthToken): Promise<boolean> {
-      this.loading = true;
-      this.error = null;
+    async subscribeWithCode(
+      userId: number,
+      discountCode: string,
+      auth: AuthToken
+    ): Promise<boolean> {
+      this.loading = true
+      this.error = null
 
       try {
         const response = await axios.post(
           `/v1/subscription/subscribe-with-discount-code`,
           { discountCode, userId },
           { headers: { Authorization: `Bearer ${auth.token}` } }
-        );
+        )
 
         if (response.status === 200) {
-          this.subscriptions = this.subscriptions.map(sub =>
+          this.subscriptions = this.subscriptions.map((sub) =>
             sub.subscription_id === userId ? { ...sub, is_active: 1 } : sub
-          );
-          return true;
+          )
+          return true
         }
 
-        this.error = response.data?.message || 'Failed to subscribe with code';
-        return false;
+        this.error = response.data?.message || 'Failed to subscribe with code'
+        return false
       } catch (error: any) {
-        console.error('Error subscribing with code:', error);
-        this.error = error.response?.data?.message || error.message || 'Unknown error occurred while subscribing with code';
-        return false;
+        console.error('Error subscribing with code:', error)
+        this.error =
+          error.response?.data?.message ||
+          error.message ||
+          'Unknown error occurred while subscribing with code'
+        return false
       } finally {
-        this.loading = false;
+        this.loading = false
       }
     }
   }

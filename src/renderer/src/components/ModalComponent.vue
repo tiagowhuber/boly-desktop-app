@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { useModal } from '@/stores';
-import { computed } from 'vue';
+import { useModal } from '@/stores'
+import { computed } from 'vue'
 
-const modalStore = useModal();
+const modalStore = useModal()
 
-const isVisible = computed(() => modalStore.isVisible);
-const title = computed(() => modalStore.title);
-const message = computed(() => modalStore.message);
+const isVisible = computed(() => modalStore.isVisible)
+const title = computed(() => modalStore.title)
+const message = computed(() => modalStore.message)
 
 function closeModal() {
-  modalStore.hideModal();
+  modalStore.hideModal()
 }
 </script>
 
@@ -19,7 +19,7 @@ function closeModal() {
       <div class="modal-container">
         <div class="modal-header">
           <h3>{{ title }}</h3>
-          <button @click="closeModal" class="close-button">&times;</button>
+          <button class="close-button" @click="closeModal">&times;</button>
         </div>
         <div class="modal-body">
           <p>{{ message }}</p>

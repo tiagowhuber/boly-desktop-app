@@ -1,10 +1,10 @@
 <script setup>
 import TagAbove from '@/components/forms/TagAbove.vue'
 import AlertModal from '@/components/AlertModal.vue'
-import { onMounted, ref } from 'vue';
-import axios from 'axios';
-import { useI18n } from 'vue-i18n';
-const i18n = useI18n();
+import { onMounted, ref } from 'vue'
+import axios from 'axios'
+import { useI18n } from 'vue-i18n'
+const i18n = useI18n()
 
 const form = ref(null)
 const showModal = ref(false)
@@ -18,17 +18,19 @@ const phone = ref('')
 const message = ref('')
 
 async function SendEmail() {
-  if (email.value.length == 0 
-  || name.value.length == 0 
-  || company.value.length == 0 
-  || phone.value.length == 0
-  || message.value.length == 0) {
-    modalText.value = i18n.t('modal_all_fields');
+  if (
+    email.value.length == 0 ||
+    name.value.length == 0 ||
+    company.value.length == 0 ||
+    phone.value.length == 0 ||
+    message.value.length == 0
+  ) {
+    modalText.value = i18n.t('modal_all_fields')
     showModal.value = true
     return
   }
 
-  canSend.value = false;
+  canSend.value = false
 
   try {
     // Send contact form through your backend API
@@ -41,13 +43,15 @@ async function SendEmail() {
       timestamp: new Date().toISOString()
     }
 
-    const response = await axios.post('/v1/support/contact', contactData);
-    
+    const response = await axios.post('/v1/support/contact', contactData)
+
     if (response.data && response.data.success) {
-      modalText.value = i18n.t('send_query_success') || 'Your message has been sent successfully. We will get back to you soon.'
-      showModal.value = true;
-      canSend.value = true;
-      
+      modalText.value =
+        i18n.t('send_query_success') ||
+        'Your message has been sent successfully. We will get back to you soon.'
+      showModal.value = true
+      canSend.value = true
+
       // Reset form
       name.value = ''
       company.value = ''
@@ -55,13 +59,14 @@ async function SendEmail() {
       phone.value = ''
       message.value = ''
     } else {
-      throw new Error('API response indicates failure');
+      throw new Error('API response indicates failure')
     }
   } catch (error) {
-    console.error('Failed to send contact form:', error);
-    modalText.value = i18n.t('send_query_error') || 'Failed to send message. Please try again later.'
-    showModal.value = true;
-    canSend.value = true;
+    console.error('Failed to send contact form:', error)
+    modalText.value =
+      i18n.t('send_query_error') || 'Failed to send message. Please try again later.'
+    showModal.value = true
+    canSend.value = true
   }
 }
 </script>
@@ -70,93 +75,99 @@ async function SendEmail() {
   <div class="contact-form">
     <div class="contact-form-title">
       <h3>{{ $t('contact_lets_talk').toUpperCase() }}</h3>
-        <h2>{{ $t('contact_body').toUpperCase() }}</h2>
-        <p style="font-family: 'Poppins', sans-serif;">{{ $t('contact_text') }}</p>
-      </div>
-      <div class="form-container">
-        <form ref="form" class="mform" @submit.prevent="SendEmail">
-          <div>
-            <TagAbove>
-              {{$t('name')}}
-              <template #child>
+      <h2>{{ $t('contact_body').toUpperCase() }}</h2>
+      <p style="font-family: 'Poppins', sans-serif">{{ $t('contact_text') }}</p>
+    </div>
+    <div class="form-container">
+      <form ref="form" class="mform" @submit.prevent="SendEmail">
+        <div>
+          <TagAbove>
+            {{ $t('name') }}
+            <template #child>
+              <input
+                v-model="name"
+                class="text"
+                type="text"
+                name="name"
+                :placeholder="$t('name')"
+              />
+            </template>
+          </TagAbove>
+          <TagAbove>
+            {{ $t('company') }}
+            <template #child>
+              <input
+                v-model="company"
+                class="text"
+                type="text"
+                name="company"
+                :placeholder="$t('company')"
+              />
+            </template>
+          </TagAbove>
+          <TagAbove>
+            {{ $t('email') }}
+            <template #child>
+              <input
+                v-model="email"
+                class="text"
+                type="email"
+                name="email"
+                :placeholder="$t('email')"
+              />
+            </template>
+          </TagAbove>
+          <TagAbove>
+            {{ $t('phone') }}
+            <template #child>
+              <div class="phone-input">
+                <p>+56</p>
                 <input
-                  class="text"
-                  type="text"
-                  name="name"
-                  v-model="name" 
-                  :placeholder="$t('name')"
-                />
-              </template>
-            </TagAbove>
-            <TagAbove>
-              {{$t('company')}}
-              <template #child>
-                <input
-                  class="text"
-                  type="text"
-                  name="company"
-                  v-model="company"
-                  :placeholder="$t('company')"
-                />
-              </template>
-            </TagAbove>
-            <TagAbove>
-              {{$t('email')}}
-              <template #child>
-                <input
-                  class="text"
-                  type="email"
-                  name="email"
-                  v-model="email"
-                  :placeholder="$t('email')"
-                />
-              </template>
-            </TagAbove>
-            <TagAbove>
-              {{$t('phone')}}
-              <template #child>
-                <div class="phone-input">
-                  <p>+56</p>
-                  <input type="tel" 
+                  v-model="phone"
+                  type="tel"
                   pattern="((\+\d{1,3}(-|.| )?\(?\d\)?(-| |.)?\d{1,5})|(\(?\d{2,6}\)?))(-|.| )?(\d{3,4})(-|.| )?(\d{4})(( x| ext)\d{1,5}){0,1}$"
                   name="phone"
-                  v-model="phone"
                   placeholder="---------"
-                  @input="phone = phone.replace(/\D/g, '').slice(0, 9)">
-                </div>
-              </template>
-            </TagAbove>
-            <TagAbove>
-              {{$t('query')}}
-              <template #child>
-                <textarea
-                  class="text"
-                  type="text"
-                  name="message"
-                  v-model="message"
-                  :placeholder="$t('query')"
-                ></textarea>
-              </template>
-            </TagAbove>
-            <input class="apply-button button_text" type="submit" :value="i18n.t('send_query')" :disabled="!canSend">
-          </div>
-        </form>
+                  @input="phone = phone.replace(/\D/g, '').slice(0, 9)"
+                />
+              </div>
+            </template>
+          </TagAbove>
+          <TagAbove>
+            {{ $t('query') }}
+            <template #child>
+              <textarea
+                v-model="message"
+                class="text"
+                type="text"
+                name="message"
+                :placeholder="$t('query')"
+              ></textarea>
+            </template>
+          </TagAbove>
+          <input
+            class="apply-button button_text"
+            type="submit"
+            :value="i18n.t('send_query')"
+            :disabled="!canSend"
+          />
+        </div>
+      </form>
     </div>
   </div>
-  
 
   <Teleport to="body">
-      <AlertModal :show="showModal" @close="showModal = false">
-        <template #header>
-          <h3>{{$t('notification')}}</h3>
-        </template>
-        <template #body> {{ modalText }} </template>
-      </AlertModal>
-    </Teleport>
+    <AlertModal :show="showModal" @close="showModal = false">
+      <template #header>
+        <h3>{{ $t('notification') }}</h3>
+      </template>
+      <template #body> {{ modalText }} </template>
+    </AlertModal>
+  </Teleport>
 </template>
 
 <style scoped>
-.contact-form{
+.contact-form {
   width: 1600px;
   height: 800px;
   display: flex;
@@ -165,19 +176,19 @@ async function SendEmail() {
   align-items: center;
 }
 
-.form-container{
-  flex-grow: .8;
+.form-container {
+  flex-grow: 0.8;
   background-color: var(--boly-bg-dark-transparent);
   border-radius: 20px;
   padding: 30px;
 }
 
-.contact-form img{
+.contact-form img {
   height: 100%;
   width: auto;
 }
 
-.contact-form-title{
+.contact-form-title {
   width: 700px;
   display: flex;
   text-align: left;
@@ -186,22 +197,22 @@ async function SendEmail() {
   gap: 1rem;
 }
 
-.contact-form-title p{
+.contact-form-title p {
   font-size: 120%;
 }
 
-.contact-form-title h2{
-  font-family: "Anton", serif;
+.contact-form-title h2 {
+  font-family: 'Anton', serif;
   font-style: italic;
   font-size: 300%;
 }
 
-.contact-form-title h3{
+.contact-form-title h3 {
   text-align: left;
-  font-family: "Anton", serif;
+  font-family: 'Anton', serif;
   font-style: italic;
   font-size: 200%;
-  color: var(--boly-highlight)
+  color: var(--boly-highlight);
 }
 
 .contact-form-title button {
@@ -214,10 +225,9 @@ async function SendEmail() {
   border: none;
 }
 
-.contact-form-title button:hover{
+.contact-form-title button:hover {
   background-color: var(--boly-button-purple-hover);
 }
-
 
 .mform {
   display: flex;
@@ -247,25 +257,25 @@ textarea {
   height: 200px;
 }
 
-.phone-input{
+.phone-input {
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 1rem;
 }
 
-.phone-input > input{
+.phone-input > input {
   flex-grow: 1;
   color: var(--light);
 }
 
-.phone-input > p{
+.phone-input > p {
   padding: 1rem 0px;
   border-radius: 1rem;
   margin-top: 5px;
 }
 
-.apply-button{
+.apply-button {
   width: 100%;
   height: 50px;
   background-color: var(--boly-button-purple);
@@ -274,15 +284,15 @@ textarea {
 
   font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-size: larger;
-  transition: .2s;
+  transition: 0.2s;
 }
 
-.apply-button:hover{
+.apply-button:hover {
   background-color: var(--boly-button-purple-hover);
-  transition: .2s;
+  transition: 0.2s;
 }
 
-.button_text{
+.button_text {
   padding: 0px;
 }
 </style>

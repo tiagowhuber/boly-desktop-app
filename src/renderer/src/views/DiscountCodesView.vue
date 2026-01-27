@@ -1,112 +1,122 @@
 <script setup lang="ts">
-import { ref, onMounted} from 'vue';
-import { storeToRefs } from 'pinia';
-import { useI18n } from 'vue-i18n';
-import useCodesStore from '@/stores/codes';
-import useUserStore from '@/stores/user';
-import useGamesStore from '@/stores/games';
-import type { Game } from '@/types/index.d.ts';
-import LoadingIcon from '@/components/LoadingIcon.vue';
+import { ref, onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
+import useCodesStore from '@/stores/codes'
+import useUserStore from '@/stores/user'
+import useGamesStore from '@/stores/games'
+import type { Game } from '@/types/index.d.ts'
+import LoadingIcon from '@/components/LoadingIcon.vue'
 
-const { t } = useI18n();
-const codesStore = useCodesStore();
-const userStore = useUserStore();
-const gamesStore = useGamesStore();
+const { t } = useI18n()
+const codesStore = useCodesStore()
+const userStore = useUserStore()
+const gamesStore = useGamesStore()
 
-const { userDiscountCodes, isLoading: isLoadingCodes, validationError: codesError } = storeToRefs(codesStore);
+const {
+  userDiscountCodes,
+  isLoading: isLoadingCodes,
+  validationError: codesError
+} = storeToRefs(codesStore)
 
-const newCodeInput = ref('');
-const claimMessage = ref('');
-const claimStatus = ref<'success' | 'error' | ''>('');
-const isClaiming = ref(false);
-const gamesMap = ref<Map<number, Game>>(new Map());
+const newCodeInput = ref('')
+const claimMessage = ref('')
+const claimStatus = ref<'success' | 'error' | ''>('')
+const isClaiming = ref(false)
+const gamesMap = ref<Map<number, Game>>(new Map())
 
 onMounted(async () => {
-  const currentUserId = userStore.userId;
+  const currentUserId = userStore.userId
   if (currentUserId && currentUserId > 0) {
-    await codesStore.getUserDiscountCodes(currentUserId);
-    await loadGamesData();
+    await codesStore.getUserDiscountCodes(currentUserId)
+    await loadGamesData()
   } else {
-    codesStore.validationError = t('user_not_authenticated_codes');
+    codesStore.validationError = t('user_not_authenticated_codes')
   }
-});
+})
 
 const loadGamesData = async () => {
   try {
-    await gamesStore.getAll();
+    await gamesStore.getAll()
     // Create a map for quick game lookup
-    gamesStore.games.forEach(game => {
-      gamesMap.value.set(game.game_id, game);
-    });
+    gamesStore.games.forEach((game) => {
+      gamesMap.value.set(game.game_id, game)
+    })
   } catch (error) {
-    console.error('Failed to load games data:', error);
+    console.error('Failed to load games data:', error)
   }
-};
+}
 
 const handleClaimCode = async () => {
   if (!newCodeInput.value.trim()) {
-    claimMessage.value = t('please_enter_discount_code');
-    claimStatus.value = 'error';
-    return;
+    claimMessage.value = t('please_enter_discount_code')
+    claimStatus.value = 'error'
+    return
   }
-  
-  const currentUserId = userStore.userId;
+
+  const currentUserId = userStore.userId
   if (!currentUserId || currentUserId <= 0) {
-    claimMessage.value = t('user_not_authenticated_claim');
-    claimStatus.value = 'error';
-    return;
+    claimMessage.value = t('user_not_authenticated_claim')
+    claimStatus.value = 'error'
+    return
   }
 
-  isClaiming.value = true;
-  claimMessage.value = '';
-  claimStatus.value = '';
-  const response = await codesStore.assignDiscountCodeToUserByLink(newCodeInput.value.trim(), currentUserId);
+  isClaiming.value = true
+  claimMessage.value = ''
+  claimStatus.value = ''
+  const response = await codesStore.assignDiscountCodeToUserByLink(
+    newCodeInput.value.trim(),
+    currentUserId
+  )
 
-  console.log('Claim response:', response); // Debug log
+  console.log('Claim response:', response) // Debug log
 
-  isClaiming.value = false;
+  isClaiming.value = false
   if (response.success) {
-    claimMessage.value = response.message || t('discount_code_claimed_success');
-    claimStatus.value = 'success';
-    newCodeInput.value = ''; 
-    const refreshUserId = userStore.userId;
+    claimMessage.value = response.message || t('discount_code_claimed_success')
+    claimStatus.value = 'success'
+    newCodeInput.value = ''
+    const refreshUserId = userStore.userId
     if (refreshUserId && refreshUserId > 0) {
-      await codesStore.getUserDiscountCodes(refreshUserId);
-      await loadGamesData(); 
+      await codesStore.getUserDiscountCodes(refreshUserId)
+      await loadGamesData()
     }
   } else {
-    claimMessage.value = response.message || t('failed_claim_discount_code');
-    claimStatus.value = 'error';
+    claimMessage.value = response.message || t('failed_claim_discount_code')
+    claimStatus.value = 'error'
   }
-};
+}
 
 const formatDate = (dateString?: string | Date | null) => {
-  if (!dateString) return 'N/A';
-  return new Date(dateString).toLocaleDateString();
-};
+  if (!dateString) return 'N/A'
+  return new Date(dateString).toLocaleDateString()
+}
 
 const getGameName = (gameId: number) => {
-  const game = gamesMap.value.get(gameId);
-  if (!game) return `Game ID: ${gameId}`;
-  
-  const { locale } = useI18n();
+  const game = gamesMap.value.get(gameId)
+  if (!game) return `Game ID: ${gameId}`
+
+  const { locale } = useI18n()
   if (game.name && typeof game.name === 'object') {
-    return game.name[locale.value] || game.name['en'] || `Game ID: ${gameId}`;
+    return game.name[locale.value] || game.name['en'] || `Game ID: ${gameId}`
   }
   // Fallback to string name
-  return game.name || `Game ID: ${gameId}`;
-};
+  return game.name || `Game ID: ${gameId}`
+}
 </script>
 
 <template>
   <div class="discount-codes-container">
-    <div class="discount-codes-dashboard p-6">      <div class="dashboard-header mb-6">
+    <div class="discount-codes-dashboard p-6">
+      <div class="dashboard-header mb-6">
         <h1 class="dashboard-title">{{ $t('discount_codes_title') }}</h1>
-      </div>      <!-- Claim New Code Section -->
+      </div>
+      <!-- Claim New Code Section -->
       <div class="claim-code-section mb-6">
         <h2 class="section-title claim-section-title mb-3">{{ $t('claim_new_code') }}</h2>
-        <form @submit.prevent="handleClaimCode" class="claim-form">
-          <div class="claim-input-group">            <input
+        <form class="claim-form" @submit.prevent="handleClaimCode">
+          <div class="claim-input-group">
+            <input
               v-model="newCodeInput"
               type="text"
               :placeholder="$t('enter_your_code')"
@@ -114,18 +124,22 @@ const getGameName = (gameId: number) => {
               :disabled="isClaiming"
             />
           </div>
-          <div class="claim-button-group">            <button type="submit" class="claim-button" :disabled="isClaiming">
+          <div class="claim-button-group">
+            <button type="submit" class="claim-button" :disabled="isClaiming">
               <LoadingIcon v-if="isClaiming" class="loading-icon-inline" />
               {{ isClaiming ? $t('claiming') : $t('claim_code') }}
             </button>
           </div>
         </form>
-        <p v-if="claimMessage" 
-           class="claim-feedback-message"
-           :class="[claimStatus === 'success' ? 'claim-message-success' : 'claim-message-error']">
+        <p
+          v-if="claimMessage"
+          class="claim-feedback-message"
+          :class="[claimStatus === 'success' ? 'claim-message-success' : 'claim-message-error']"
+        >
           {{ claimMessage }}
         </p>
-      </div>      <!-- Loading State for User Codes -->
+      </div>
+      <!-- Loading State for User Codes -->
       <div v-if="isLoadingCodes" class="loading-container">
         <LoadingIcon />
         <p class="mt-2 text-lg">{{ $t('loading_discount_codes') }}</p>
@@ -134,11 +148,16 @@ const getGameName = (gameId: number) => {
       <!-- Error State for User Codes -->
       <div v-else-if="codesError" class="error-message">
         <p class="text-xl">{{ codesError }}</p>
-      </div>      <!-- User's Discount Codes List -->
+      </div>
+      <!-- User's Discount Codes List -->
       <div v-else>
         <h2 class="section-title mb-4">{{ $t('your_available_codes') }}</h2>
         <div v-if="userDiscountCodes && userDiscountCodes.length > 0" class="codes-grid">
-          <div v-for="assignedCode in userDiscountCodes" :key="`${assignedCode.user_id}-${assignedCode.discount_code_id}`" class="code-card">
+          <div
+            v-for="assignedCode in userDiscountCodes"
+            :key="`${assignedCode.user_id}-${assignedCode.discount_code_id}`"
+            class="code-card"
+          >
             <template v-if="assignedCode.discountCode">
               <div class="code-card-content">
                 <h3 class="code-name">{{ assignedCode.discountCode.code }}</h3>
@@ -146,8 +165,18 @@ const getGameName = (gameId: number) => {
                   <span v-if="assignedCode.used_at" class="status-badge used">
                     {{ $t('code_status_used') }}
                   </span>
-                  <span v-else :class="['status-badge', assignedCode.discountCode.is_active ? 'active' : 'inactive']">
-                    {{ assignedCode.discountCode.is_active ? $t('code_status_available') : $t('code_status_inactive') }}
+                  <span
+                    v-else
+                    :class="[
+                      'status-badge',
+                      assignedCode.discountCode.is_active ? 'active' : 'inactive'
+                    ]"
+                  >
+                    {{
+                      assignedCode.discountCode.is_active
+                        ? $t('code_status_available')
+                        : $t('code_status_inactive')
+                    }}
                   </span>
                 </div>
               </div>
@@ -158,41 +187,59 @@ const getGameName = (gameId: number) => {
                 </p>
                 <p v-if="assignedCode.discountCode.discount_percentage" class="detail-item">
                   <span>{{ $t('code_detail_discount') }}</span>
-                  <span class="detail-value">{{ assignedCode.discountCode.discount_percentage }}%</span>
-                </p>                
+                  <span class="detail-value"
+                    >{{ assignedCode.discountCode.discount_percentage }}%</span
+                  >
+                </p>
                 <p v-if="assignedCode.discountCode.applies_to_game_id" class="detail-item">
                   <span>{{ $t('code_detail_applies_game') }}</span>
-                  <span class="detail-value">{{ getGameName(assignedCode.discountCode.applies_to_game_id) }}</span>
+                  <span class="detail-value">{{
+                    getGameName(assignedCode.discountCode.applies_to_game_id)
+                  }}</span>
                 </p>
-                 <p v-if="assignedCode.discountCode.applies_to_plan_id" class="detail-item">
+                <p v-if="assignedCode.discountCode.applies_to_plan_id" class="detail-item">
                   <span>{{ $t('code_detail_applies_plan') }}</span>
-                  <span class="detail-value">{{ assignedCode.discountCode.applies_to_plan_id }}</span>
+                  <span class="detail-value">{{
+                    assignedCode.discountCode.applies_to_plan_id
+                  }}</span>
                 </p>
-                <p v-if="assignedCode.discountCode.subscription_duration_value && assignedCode.discountCode.subscription_duration_unit" class="detail-item">
+                <p
+                  v-if="
+                    assignedCode.discountCode.subscription_duration_value &&
+                    assignedCode.discountCode.subscription_duration_unit
+                  "
+                  class="detail-item"
+                >
                   <span>{{ $t('code_detail_subscription_benefit') }}</span>
                   <span class="detail-value">
-                    {{ assignedCode.discountCode.subscription_duration_value }} {{ assignedCode.discountCode.subscription_duration_unit }}(s)
+                    {{ assignedCode.discountCode.subscription_duration_value }}
+                    {{ assignedCode.discountCode.subscription_duration_unit }}(s)
                   </span>
                 </p>
                 <p v-if="assignedCode.discountCode.valid_until" class="detail-item">
                   <span>{{ $t('code_detail_expires') }}</span>
-                  <span class="detail-value">{{ formatDate(assignedCode.discountCode.valid_until) }}</span>
+                  <span class="detail-value">{{
+                    formatDate(assignedCode.discountCode.valid_until)
+                  }}</span>
                 </p>
                 <p v-if="assignedCode.used_at" class="detail-item">
                   <span>{{ $t('code_detail_used_on') }}</span>
                   <span class="detail-value">{{ formatDate(assignedCode.used_at) }}</span>
                 </p>
-                 <p v-if="assignedCode.discountCode.max_total_uses" class="detail-item">
+                <p v-if="assignedCode.discountCode.max_total_uses" class="detail-item">
                   <span>{{ $t('code_detail_uses') }}</span>
-                  <span class="detail-value">{{ assignedCode.discountCode.current_total_uses || 0 }} / {{ assignedCode.discountCode.max_total_uses }}</span>
+                  <span class="detail-value"
+                    >{{ assignedCode.discountCode.current_total_uses || 0 }} /
+                    {{ assignedCode.discountCode.max_total_uses }}</span
+                  >
                 </p>
               </div>
-            </template>            
+            </template>
             <template v-else>
               <p>{{ $t('code_details_not_available') }} {{ assignedCode.discount_code_id }}.</p>
             </template>
           </div>
-        </div>        
+        </div>
         <div v-else class="no-codes-message text-center">
           <p class="text-xl">{{ $t('no_discount_codes') }}</p>
         </div>
@@ -223,7 +270,7 @@ const getGameName = (gameId: number) => {
 .discount-codes-container {
   min-height: 100vh;
   padding: 20px;
-  color: var(--light); 
+  color: var(--light);
 }
 
 .discount-codes-dashboard {
@@ -235,11 +282,11 @@ const getGameName = (gameId: number) => {
 .dashboard-header {
   display: flex;
   align-items: center;
-  justify-content: center; 
+  justify-content: center;
 }
 
 .dashboard-title {
-  font-family: "Anton", serif; 
+  font-family: 'Anton', serif;
   font-style: italic;
   font-size: 2.5rem;
   text-align: center;
@@ -248,7 +295,7 @@ const getGameName = (gameId: number) => {
 }
 
 .section-title {
-  font-family: "Anton", serif;
+  font-family: 'Anton', serif;
   font-size: 1.8rem;
   border-bottom: 2px solid white;
   padding-bottom: 0.5rem;
@@ -269,27 +316,28 @@ const getGameName = (gameId: number) => {
 .error-message p,
 .no-codes-message p {
   text-align: center;
-  color: var(--light-gray); 
+  color: var(--light-gray);
 }
 .no-codes-message .text-md {
   font-size: 1rem;
   margin-top: 0.5rem;
 }
 
-
 .codes-grid {
   display: grid;
-  grid-template-columns: 1fr; 
+  grid-template-columns: 1fr;
   gap: 1.5rem;
   list-style: none;
   padding: 0;
 }
 
 .code-card {
-  background-color: rgba(255, 255, 255, 0.05); 
+  background-color: rgba(255, 255, 255, 0.05);
   border-radius: 10px;
   padding: 1.5rem;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -359,7 +407,7 @@ const getGameName = (gameId: number) => {
 }
 
 .detail-item span:first-child {
-  color: var(--light-gray);  
+  color: var(--light-gray);
 }
 
 .detail-value {
@@ -377,7 +425,7 @@ const getGameName = (gameId: number) => {
 
 .claim-section-title {
   font-size: 1.5rem; /* Smaller title for this section */
-  border-bottom: 1px solid rgba(255,255,255,0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   padding-bottom: 0.3rem;
   margin-bottom: 1rem;
 }
@@ -400,7 +448,9 @@ const getGameName = (gameId: number) => {
   background-color: rgba(255, 255, 255, 0.05);
   color: var(--light);
   font-size: 1rem;
-  transition: border-color 0.3s ease, background-color 0.3s ease;
+  transition:
+    border-color 0.3s ease,
+    background-color 0.3s ease;
   height: 100%; /* Fill height of flex container */
 }
 
@@ -442,10 +492,10 @@ const getGameName = (gameId: number) => {
 }
 
 .loading-icon-inline {
-  height: 1.25em; 
+  height: 1.25em;
   width: 1.25em;
-  margin-right: 0.5em; 
-  display: inline-block; 
+  margin-right: 0.5em;
+  display: inline-block;
   vertical-align: middle;
 }
 
@@ -456,35 +506,34 @@ const getGameName = (gameId: number) => {
 }
 
 .claim-message-success {
-  color: var(--boly-green); 
+  color: var(--boly-green);
 }
 .claim-message-error {
-  color: #ff6b6b; 
+  color: #ff6b6b;
 }
-
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .discount-codes-dashboard {
     padding: 1rem;
   }
-  
+
   .dashboard-title {
     font-size: 2rem;
   }
-  
+
   .section-title {
     font-size: 1.5rem;
   }
-  
+
   .codes-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .code-name {
     font-size: 1.2rem;
   }
-  
+
   .code-card-content {
     flex-direction: column;
     align-items: flex-start;
@@ -493,7 +542,8 @@ const getGameName = (gameId: number) => {
   .claim-form {
     flex-direction: column;
   }
-  .claim-input-group, .claim-button-group {
+  .claim-input-group,
+  .claim-button-group {
     width: 100%;
   }
   .claim-button {

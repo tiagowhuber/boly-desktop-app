@@ -27,43 +27,59 @@ const goToReportProblem = () => {
 </script>
 
 <template>
-  <div class="view-container" v-if="auth.verifying && $route.path !== '/login' && $route.path !== '/register'">
+  <div
+    v-if="auth.verifying && $route.path !== '/login' && $route.path !== '/register'"
+    class="view-container"
+  >
     <div class="app-loading">
       <Loading />
     </div>
   </div>
   <template v-else>
-    <template v-if="$route.path == '/login' || $route.path == '/register' || $route.path == '/forgot-password' || $route.path == '/confirm-password-reset' || $route.path == '/session-invalidated'">
+    <template
+      v-if="
+        $route.path == '/login' ||
+        $route.path == '/register' ||
+        $route.path == '/forgot-password' ||
+        $route.path == '/confirm-password-reset' ||
+        $route.path == '/session-invalidated'
+      "
+    >
       <span class="view-container-login">
-        <RouterView class="view-container"/>
-        <TheFooter :small="true"/>
+        <RouterView class="view-container" />
+        <TheFooter :small="true" />
       </span>
     </template>
     <template v-else>
-      <TheNavbar :color="'orange'" v-if="$route.path == '/'" style="z-index: 100!important;"/>
-      <TheNavbar :color="'pink'" v-else style="z-index: 100!important;"/>
+      <TheNavbar v-if="$route.path == '/'" :color="'orange'" style="z-index: 100 !important" />
+      <TheNavbar v-else :color="'pink'" style="z-index: 100 !important" />
       <RouterView class="view-container" />
-      <TheFooter :small="false" :color="'dark-purple'" v-if="$route.path == '/'"/>
-      <TheFooter :small="false" :color="'blue'" v-else/>
-  </template>
+      <TheFooter v-if="$route.path == '/'" :small="false" :color="'dark-purple'" />
+      <TheFooter v-else :small="false" :color="'blue'" />
+    </template>
     <div class="bottom-buttons">
-      <button class="report-button" @click="goToReportProblem" :title="$t('report_problem_title') || 'Report a Problem'">
+      <button
+        class="report-button"
+        :title="$t('report_problem_title') || 'Report a Problem'"
+        @click="goToReportProblem"
+      >
         <ExclamationTriangle />
       </button>
-      <button class="lang-button" @click="$i18n.locale = $i18n.locale == 'es'? 'en' : 'es'">{{ $i18n.locale.toUpperCase() }}</button>
+      <button class="lang-button" @click="$i18n.locale = $i18n.locale == 'es' ? 'en' : 'es'">
+        {{ $i18n.locale.toUpperCase() }}
+      </button>
     </div>
     <ModalComponent />
-    
+
     <DownloadProgressBar
       :progress="downloadStore.downloadProgress"
-      :gameName="downloadStore.downloadingGameName"
-      :isVisible="downloadStore.isDownloading"
+      :game-name="downloadStore.downloadingGameName"
+      :is-visible="downloadStore.isDownloading"
     />
   </template>
 </template>
 
 <style>
-
 .bottom-buttons {
   position: fixed;
   bottom: 20px;
@@ -74,7 +90,7 @@ const goToReportProblem = () => {
   align-items: center;
 }
 
-.lang-button{
+.lang-button {
   /* Removed position: fixed to work with flexbox */
   width: 100px;
   height: 50px;
@@ -84,13 +100,13 @@ const goToReportProblem = () => {
   color: var(--bgGreen);
   font-size: large;
   font-weight: bold;
-  transition: .1s;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); 
+  transition: 0.1s;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
-.lang-button:hover{
+.lang-button:hover {
   background-color: var(--lightCyan);
-  transition: .1s;
+  transition: 0.1s;
 }
 
 .report-button {
@@ -103,7 +119,7 @@ const goToReportProblem = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: .1s;
+  transition: 0.1s;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   cursor: pointer;
 }
@@ -116,10 +132,10 @@ const goToReportProblem = () => {
 .report-button:hover {
   background-color: lightgray;
   transform: scale(1.05);
-  transition: .1s;
+  transition: 0.1s;
 }
 
-.app-loading{
+.app-loading {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -138,5 +154,4 @@ const goToReportProblem = () => {
   justify-content: center;
   align-items: center;
 }
-
 </style>

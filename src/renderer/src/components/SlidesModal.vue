@@ -11,12 +11,18 @@ const selected = inject('selected_main_image')
 <template>
   <Transition name="modal">
     <div v-if="show" class="modal-mask" @click="$emit('close')">
-      <div class="modal-container" v-on:click.stop>
+      <div class="modal-container" @click.stop>
         <img :src="props.images[selected].url" />
-        <button class="arrow_container arrow_left" @click="selected = (selected - 1 + props.images.length) % props.images.length">
+        <button
+          class="arrow_container arrow_left"
+          @click="selected = (selected - 1 + props.images.length) % props.images.length"
+        >
           <ChevronLeft class="icon"></ChevronLeft>
         </button>
-        <button class="arrow_container arrow_right" @click="selected = (selected + 1 + props.images.length) % props.images.length">
+        <button
+          class="arrow_container arrow_right"
+          @click="selected = (selected + 1 + props.images.length) % props.images.length"
+        >
           <ChevronRight class="icon"></ChevronRight>
         </button>
         <button class="xmark" @click="$emit('close')">

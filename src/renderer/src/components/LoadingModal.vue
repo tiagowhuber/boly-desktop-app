@@ -8,20 +8,18 @@ const props = defineProps(['show'])
     <div v-if="show" class="loading-modal-mask">
       <div class="loading-modal-container">
         <div class="load-icon">
-          <Loading/>
+          <Loading />
         </div>
         <div class="loading-modal-body">
           <slot name="body"></slot>
         </div>
-
       </div>
     </div>
   </Transition>
 </template>
 
 <style>
-
-.load-icon{
+.load-icon {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -69,7 +67,7 @@ const props = defineProps(['show'])
   border-radius: 2px;
 }
 
-.loading-modal-close-button:hover{
+.loading-modal-close-button:hover {
   color: var(--lightCyan);
   border: var(--lightCyan) solid 1px;
 }

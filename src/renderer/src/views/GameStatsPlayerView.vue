@@ -9,7 +9,7 @@ import LoadingIcon from '@/components/LoadingIcon.vue'
 import axios from 'axios'
 
 const router = useRouter()
-const { t, locale } = useI18n()
+const { locale } = useI18n()
 const auth = useAuth()
 const user = useUser()
 const gamesStore = useGames()
@@ -43,13 +43,13 @@ const formatPlayTime = (minutes: number): string => {
 
 async function fetchUserGames() {
   if (!user.userId) return
-  
+
   try {
     const response = await axios.get(`/v1/games/user/${user.userId}`)
     if (response.status === 200 && response.data) {
       const gamesList = response.data[0]?.game || []
       console.log('Extracted games list for stats:', gamesList)
-      
+
       userGames.value = gamesList.map((game: Game) => {
         if (!game.banner_url) {
           game.banner_url = 'banner.jpg'
@@ -90,7 +90,7 @@ async function fetchSubscriptionGames() {
 
 async function fetchPlayTimeForGame(gameId: number) {
   if (!auth.token) return
-  
+
   playTimeLoading.value[gameId] = true
   try {
     const time = await gamesStore.getPlayTime(gameId, { token: auth.token })
@@ -141,10 +141,10 @@ onMounted(async () => {
         user.setUser(response.data)
         // Check for subscription and fetch appropriate games
         await user.checkSubscription()
-        
+
         // Fetch owned games and their play times
         await fetchUserGames()
-        
+
         // If user has subscription, fetch subscription games
         if (user.isSubscribed) {
           await fetchSubscriptionGames()
@@ -166,32 +166,30 @@ onMounted(async () => {
     <div v-if="isLoading" class="loading-container">
       <LoadingIcon />
     </div>
-    
+
     <div v-else class="main-content">
       <div class="header-section">
         <h1 class="title-bold">{{ $t('game_stats').toUpperCase() }}</h1>
-        
+
         <!-- Section Buttons -->
         <div v-if="user.isSubscribed" class="section-buttons">
-          <button 
-            class="section-button" 
+          <button
+            class="section-button"
             :class="{ active: activeSection === 'owned' }"
             @click="activeSection = 'owned'"
           >
             {{ $t('my_games') }} ({{ userGames.length }})
           </button>
-          <button 
-            class="section-button" 
+          <button
+            class="section-button"
             :class="{ active: activeSection === 'subscription' }"
             @click="activeSection = 'subscription'"
           >
             {{ $t('subscription_access_games') }} ({{ subscriptionGames.length }})
           </button>
         </div>
-        <div v-else class="single-section-title">
-          {{ $t('my_games') }} ({{ userGames.length }})
-        </div>
-        
+        <div v-else class="single-section-title">{{ $t('my_games') }} ({{ userGames.length }})</div>
+
         <div class="total-stats">
           <div class="total-play-time">
             <ClockhistoryIcon class="clock-icon" />
@@ -199,7 +197,10 @@ onMounted(async () => {
             <span class="total-time-value">{{ formatPlayTime(totalPlayTime) }}</span>
           </div>
           <div class="games-count">
-            <span>{{ activeSection === 'owned' ? $t('my_games') : $t('subscription_access_games') }}: {{ currentGamesCount }}</span>
+            <span
+              >{{ activeSection === 'owned' ? $t('my_games') : $t('subscription_access_games') }}:
+              {{ currentGamesCount }}</span
+            >
           </div>
         </div>
       </div>
@@ -213,7 +214,10 @@ onMounted(async () => {
       </div>
 
       <!-- Empty State for Subscription Games -->
-      <div v-if="activeSection === 'subscription' && subscriptionGames.length === 0" class="empty-stats">
+      <div
+        v-if="activeSection === 'subscription' && subscriptionGames.length === 0"
+        class="empty-stats"
+      >
         <p>{{ $t('no_subscription_games') }}</p>
         <button class="browse-button" @click="router.push('/subscription')">
           {{ $t('subscribe') }}
@@ -222,23 +226,19 @@ onMounted(async () => {
 
       <!-- Games Stats List -->
       <div v-if="sortedGames.length > 0" class="games-stats-list">
-        <div 
-          v-for="game in sortedGames" 
-          :key="game.game_id"
-          class="game-stat-card"
-        >
+        <div v-for="game in sortedGames" :key="game.game_id" class="game-stat-card">
           <div class="game-image" @click="viewGameDetails(game.game_id)">
             <img :src="game.banner_url" :alt="gameTitle(game)" />
             <div class="game-overlay">
               <span class="view-details">{{ $t('see_more') }}</span>
             </div>
           </div>
-          
+
           <div class="game-info">
             <h3 class="game-title" @click="viewGameDetails(game.game_id)">
               {{ gameTitle(game).toUpperCase() }}
             </h3>
-            
+
             <div class="play-time-section">
               <div class="play-time-container">
                 <div v-if="playTimeLoading[game.game_id]" class="play-time-loading">
@@ -248,16 +248,15 @@ onMounted(async () => {
                 </div>
                 <div v-else class="play-time-display">
                   <ClockhistoryIcon class="clock-icon" />
-                  <span class="play-time-value">{{ formatPlayTime(playTimes[game.game_id] || 0) }}</span>
+                  <span class="play-time-value">{{
+                    formatPlayTime(playTimes[game.game_id] || 0)
+                  }}</span>
                 </div>
               </div>
             </div>
 
             <div class="game-actions">
-              <button 
-                class="achievements-button"
-                @click="viewAchievements(game.game_id)"
-              >
+              <button class="achievements-button" @click="viewAchievements(game.game_id)">
                 {{ $t('see_achievements') }}
               </button>
             </div>
@@ -573,7 +572,8 @@ onMounted(async () => {
 }
 
 @keyframes dot-pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(0.6);
     opacity: 0.6;
   }
@@ -615,40 +615,40 @@ onMounted(async () => {
   .title-bold {
     font-size: 2rem;
   }
-  
+
   .section-buttons {
     flex-direction: column;
     gap: 0.5rem;
     align-items: center;
   }
-  
+
   .section-button {
     width: 280px;
     max-width: 90%;
   }
-  
+
   .single-section-title {
     font-size: 1rem;
     padding: 6px 16px;
     width: 280px;
     max-width: 90%;
   }
-  
+
   .total-stats {
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   .games-stats-list {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .game-stat-card {
     flex-direction: column;
     min-height: auto;
   }
-  
+
   .game-image {
     width: 100%;
     height: 180px;
@@ -659,11 +659,11 @@ onMounted(async () => {
   .stats-container {
     padding: 0.5rem;
   }
-  
+
   .title-bold {
     font-size: 1.5rem;
   }
-  
+
   .game-info {
     padding: 0.75rem;
   }

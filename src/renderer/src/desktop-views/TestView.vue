@@ -1,26 +1,29 @@
 <template>
-    <div class="section">
-        <h1>Welcome test</h1>
-        <p>hello</p>
-    </div>
-    <div class="p-4">
+  <div class="section">
+    <h1>Welcome test</h1>
+    <p>hello</p>
+  </div>
+  <div class="p-4">
     <h1>Instalador de Archivos ZIP</h1>
     <button @click="seleccionarZip">Seleccionar Instalador</button>
-    <input v-model="rutaExe"></input>
+    <input v-model="rutaExe" />
     <button @click="seleccionarDestino">Seleccionar Destino</button>
-    <input v-model="rutaDestino"></input>
-    <button @click="instalar" :disabled="!rutaExe || !rutaDestino">Instalar</button>
+    <input v-model="rutaDestino" />
+    <button :disabled="!rutaExe || !rutaDestino" @click="instalar">Instalar</button>
     <p>Archivos extraídos:</p>
     <ul>
       <li v-for="(item, index) in archivos" :key="index">{{ item }}</li>
     </ul>
 
     <h1>Ejecutar Aplicaciones</h1>
-    <input type="text" id="appPath" placeholder="Ruta de la aplicación (ej: C:\Windows\System32\notepad.exe)">
-    <input type="text" id="appArgs" placeholder="Parámetros de ejecución (opcional)">
+    <input
+      id="appPath"
+      type="text"
+      placeholder="Ruta de la aplicación (ej: C:\Windows\System32\notepad.exe)"
+    />
+    <input id="appArgs" type="text" placeholder="Parámetros de ejecución (opcional)" />
     <button @click="play">Ejecutar</button>
   </div>
-
 </template>
 
 <script>
@@ -30,39 +33,41 @@ export default {
       rutaExe: '',
       rutaDestino: '',
       archivos: []
-    };
+    }
   },
   methods: {
     async seleccionarZip() {
       window.electronAPI.seleccionarArchivo().then((archivo) => {
-  console.log('Archivo seleccionado:', archivo)
-  this.rutaExe = archivo
-})
+        console.log('Archivo seleccionado:', archivo)
+        this.rutaExe = archivo
+      })
       // this.zipPath = await window.electronAPI.invoke('seleccionar-archivo');
     },
     async seleccionarDestino() {
       window.electronAPI.seleccionarCarpeta().then((path) => {
-        this.rutaDestino=path
-})
+        this.rutaDestino = path
+      })
     },
     async instalar() {
       console.log(this.rutaExe)
       console.log(this.rutaDestino)
-      window.electronAPI.instalarDesdeZip(this.rutaExe,this.rutaDestino).then((archivo) => {
+      window.electronAPI.instalarDesdeZip(this.rutaExe, this.rutaDestino).then((archivo) => {
         // this.archivos=archivo
-})
+      })
     },
-    async play(){
-      const appPath = document.getElementById('appPath').value;
-            const appArgs = document.getElementById('appArgs').value;
-            window.electronAPI.playGame( {appPath, args: appArgs });
+    async play() {
+      const appPath = document.getElementById('appPath').value
+      const appArgs = document.getElementById('appArgs').value
+      window.electronAPI.playGame({ appPath, args: appArgs })
     }
   }
-};
+}
 </script>
 
 <style scoped>
-ul { margin-top: 10px; }
+ul {
+  margin-top: 10px;
+}
 .section {
   padding-bottom: 10px;
 }
@@ -73,7 +78,7 @@ ul { margin-top: 10px; }
 
 .contact-bg {
   height: 800px;
-  background-image: url("src/assets/images/fondo-xd.png");
+  background-image: url('src/assets/images/fondo-xd.png');
   background-size: cover;
 }
 
@@ -90,7 +95,7 @@ ul { margin-top: 10px; }
 .boly-container {
   position: absolute;
   top: 150px;
-  left: 30%; 
+  left: 30%;
   width: 300px;
   height: 300px;
   z-index: 5;
@@ -98,7 +103,7 @@ ul { margin-top: 10px; }
 
 h2 {
   text-align: left;
-  font-family: "Anton", serif;
+  font-family: 'Anton', serif;
   font-style: italic;
   font-size: 300%;
   width: 60%;
@@ -106,7 +111,7 @@ h2 {
 
 .section-title {
   text-align: left;
-  font-family: "Anton", serif;
+  font-family: 'Anton', serif;
   font-style: italic;
   font-size: 300%;
 }
@@ -121,5 +126,4 @@ h2 {
 .home-title-card {
   margin-left: auto;
 }
-
 </style>

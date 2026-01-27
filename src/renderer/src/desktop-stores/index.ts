@@ -1,3 +1,3 @@
 import useGameRoutes from './gameRoutes'
 
-export { useGameRoutes}
+export { useGameRoutes }

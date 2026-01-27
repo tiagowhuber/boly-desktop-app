@@ -1,35 +1,35 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useRoute, RouterLink } from 'vue-router';
-import { useAuth } from '@/stores';
-import { useI18n } from 'vue-i18n';
+import { ref, onMounted } from 'vue'
+import { useRoute, RouterLink } from 'vue-router'
+import { useAuth } from '@/stores'
+import { useI18n } from 'vue-i18n'
 
-const route = useRoute();
-const auth = useAuth();
-const { t } = useI18n();
+const route = useRoute()
+const auth = useAuth()
+const { t } = useI18n()
 
-const verificationStatus = ref<'pending' | 'success' | 'error'>('pending');
-const message = ref('');
+const verificationStatus = ref<'pending' | 'success' | 'error'>('pending')
+const message = ref('')
 
 onMounted(async () => {
-  const token = route.query.token as string;
+  const token = route.query.token as string
 
   if (!token) {
-    verificationStatus.value = 'error';
-    message.value = t('verify_email.missing_token');
-    return;
+    verificationStatus.value = 'error'
+    message.value = t('verify_email.missing_token')
+    return
   }
 
   try {
-    const response = await auth.verifyEmail(token);
-    verificationStatus.value = 'success';
-    message.value = response.message || t('verify_email.success_default');
+    const response = await auth.verifyEmail(token)
+    verificationStatus.value = 'success'
+    message.value = response.message || t('verify_email.success_default')
   } catch (error: any) {
-    verificationStatus.value = 'error';
-    message.value = error.message || t('verify_email.error_default');
-    console.error('Email verification error:', error);
+    verificationStatus.value = 'error'
+    message.value = error.message || t('verify_email.error_default')
+    console.error('Email verification error:', error)
   }
-});
+})
 </script>
 
 <template>
@@ -65,7 +65,7 @@ onMounted(async () => {
 .status-message {
   padding: 2rem;
   border-radius: 8px;
-  background-color: var(--dark-purple); 
+  background-color: var(--dark-purple);
   max-width: 500px;
   width: 100%;
 }
@@ -83,11 +83,11 @@ onMounted(async () => {
 }
 
 .success-message {
-  border-left: 5px solid var(--boly-green); 
+  border-left: 5px solid var(--boly-green);
 }
 
 .error-message {
-  border-left: 5px solid var(--danger); 
+  border-left: 5px solid var(--danger);
 }
 
 .home-link {
@@ -104,5 +104,4 @@ onMounted(async () => {
 .home-link:hover {
   background-color: var(--boly-button-purple-hover);
 }
-
 </style>

@@ -22,16 +22,16 @@ const isMenuOpen = ref(false)
 
 function GoToCart() {
   if (cartStore.cart.length > 0) {
-    router.push("/cart")
+    router.push('/cart')
   }
 }
 
 function GoToHome() {
-  router.push("/")
+  router.push('/')
 }
 
 function GoToAccount() {
-  router.push("/account")
+  router.push('/account')
 }
 
 function toggleMenu() {
@@ -40,6 +40,16 @@ function toggleMenu() {
 
 function closeMenu() {
   isMenuOpen.value = false
+}
+
+function handleProfileClick() {
+  GoToAccount()
+  closeMenu()
+}
+
+function handleCartClick() {
+  GoToCart()
+  closeMenu()
 }
 
 function isActive(path: string) {
@@ -51,36 +61,44 @@ function isActive(path: string) {
   <header :class="props.color">
     <nav class="mobile-nav">
       <div class="mobile-left-section">
-        <TheLogo class="logo mobile-logo" @click="GoToHome()"/>
+        <TheLogo class="logo mobile-logo" @click="GoToHome()" />
       </div>
-      
+
       <!-- Mobile Menu Toggle -->
       <button class="burger-menu" @click="toggleMenu">
         <span></span>
         <span></span>
         <span></span>
       </button>
-      
+
       <!-- Profile Picture in Top Right -->
       <div v-if="auth.isLoggedIn" class="mobile-user-navigation">
-        <img 
-          :src="user.profilePictureUrl || 'https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg'" 
-          class="icon user_icon" 
+        <img
+          :src="
+            user.profilePictureUrl ||
+            'https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg'
+          "
+          class="icon user_icon"
           alt="Profile picture"
-          @click="GoToAccount()" />
+          @click="GoToAccount()"
+        />
       </div>
-      
+
       <!-- Main Navigation Links -->
       <div class="navigation mobile-menu" :class="{ 'mobile-menu-open': isMenuOpen }">
         <!-- User Profile Section in Menu -->
-        <div v-if="auth.isLoggedIn" class="mobile-profile-section" @click="GoToAccount(); closeMenu();">
-          <img 
-            :src="user.profilePictureUrl || 'https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg'" 
-            class="menu-profile-pic" 
-            alt="Profile picture" />
+        <div v-if="auth.isLoggedIn" class="mobile-profile-section" @click="handleProfileClick">
+          <img
+            :src="
+              user.profilePictureUrl ||
+              'https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg'
+            "
+            class="menu-profile-pic"
+            alt="Profile picture"
+          />
           <p class="menu-username">{{ user.username }}</p>
         </div>
-      
+
         <RouterLink :class="{ active: isActive('/') }" to="/" @click="closeMenu">
           <p>{{ $t('home') }}</p>
         </RouterLink>
@@ -90,53 +108,68 @@ function isActive(path: string) {
         <RouterLink :class="{ active: isActive('/contact') }" to="/contact" @click="closeMenu">
           <p>{{ $t('contact') }}</p>
         </RouterLink>
-        <RouterLink :class="{ active: isActive('/subscription') }" to="/subscription" @click="closeMenu">
+        <RouterLink
+          :class="{ active: isActive('/subscription') }"
+          to="/subscription"
+          @click="closeMenu"
+        >
           <p>{{ $t('subscription') }}</p>
         </RouterLink>
-        
+
         <!-- Authenticated User Links -->
-        <RouterLink :class="{ active: isActive('/developer') }" 
-                  to="/developer" 
-                  v-if="auth.isLoggedIn && user.roleId === 1" 
-                  @click="closeMenu">
+        <RouterLink
+          v-if="auth.isLoggedIn && user.roleId === 1"
+          :class="{ active: isActive('/developer') }"
+          to="/developer"
+          @click="closeMenu"
+        >
           <p>{{ $t('developer') }}</p>
         </RouterLink>
-        <RouterLink :class="{ active: isActive('/library') }" 
-                  to="/library" 
-                  v-if="auth.isLoggedIn" 
-                  @click="closeMenu">
+        <RouterLink
+          v-if="auth.isLoggedIn"
+          :class="{ active: isActive('/library') }"
+          to="/library"
+          @click="closeMenu"
+        >
           <p>{{ $t('my_library') }}</p>
         </RouterLink>
-        <RouterLink :class="{ active: isActive('/wishlist') }" 
-                  to="/wishlist" 
-                  v-if="auth.isLoggedIn" 
-                  @click="closeMenu">
+        <RouterLink
+          v-if="auth.isLoggedIn"
+          :class="{ active: isActive('/wishlist') }"
+          to="/wishlist"
+          @click="closeMenu"
+        >
           <p>{{ $t('wishlist') }}</p>
         </RouterLink>
-        
+
         <!-- Mobile-only Navigation Items -->
-        <RouterLink v-if="auth.isLoggedIn" 
-                  :class="{ active: isActive('/account') }" 
-                  to="/account" 
-                  @click="closeMenu" 
-                  class="mobile-menu-item">
+        <RouterLink
+          v-if="auth.isLoggedIn"
+          :class="{ active: isActive('/account') }"
+          to="/account"
+          class="mobile-menu-item"
+          @click="closeMenu"
+        >
           <p>{{ $t('account') }}</p>
         </RouterLink>
         <!-- Authentication Links for Mobile Menu -->
-        <RouterLink v-if="!auth.isLoggedIn"
-                  :class="{ active: isActive('/login') }"
-                  to="/login"
-                  @click="closeMenu"
-                  class="mobile-menu-item mobile-auth-link">
+        <RouterLink
+          v-if="!auth.isLoggedIn"
+          :class="{ active: isActive('/login') }"
+          to="/login"
+          class="mobile-menu-item mobile-auth-link"
+          @click="closeMenu"
+        >
           <p>{{ $t('log_in') }}</p>
         </RouterLink>
-        <a @click="GoToCart(); closeMenu();" 
+        <a
           class="mobile-menu-item"
-          :class="{ 'cart-disabled': cartLength === 0 }">
+          :class="{ 'cart-disabled': cartLength === 0 }"
+          @click="handleCartClick"
+        >
           <p>{{ $t('cart') }} ({{ cartLength }})</p>
         </a>
       </div>
-    
     </nav>
   </header>
 </template>
@@ -145,10 +178,10 @@ function isActive(path: string) {
 /* Base Layout Styles
 -------------------------------------------- */
 header {
-  padding: 1rem 1.5rem;  
-  font-family: "Anton", serif;
-  transform: skewY(-3.5deg); 
-  transform-origin: top left; 
+  padding: 1rem 1.5rem;
+  font-family: 'Anton', serif;
+  transform: skewY(-3.5deg);
+  transform-origin: top left;
   position: relative;
   z-index: 1;
   width: 100vw;
@@ -163,9 +196,9 @@ nav.mobile-nav {
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  transform: skewY(3.5deg); 
-  transform-origin: top left; 
-  z-index: 100!important;
+  transform: skewY(3.5deg);
+  transform-origin: top left;
+  z-index: 100 !important;
 }
 
 /* Logo Section Styles
@@ -175,8 +208,8 @@ nav.mobile-nav {
   left: 10px;
   top: 50%;
   transform: translateY(-50%);
-  display: flex; 
-  align-items: center; 
+  display: flex;
+  align-items: center;
   gap: 10px;
 }
 
@@ -192,7 +225,6 @@ nav.mobile-nav {
 -------------------------------------------- */
 .navigation {
   margin-left: 0;
-  
 }
 
 .navigation a {
@@ -310,12 +342,12 @@ nav.mobile-nav {
   display: none;
   flex-direction: column;
   position: absolute;
-  top: 80px;  
+  top: 80px;
   left: 0;
   width: 100%;
   padding: 1rem;
   z-index: 100 !important;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   min-height: fit-content;
   max-height: calc(100vh - 80px);
   overflow-y: auto;
@@ -347,7 +379,8 @@ nav.mobile-nav {
 
 /* Authentication & Cart Button Styles
 -------------------------------------------- */
-.login, .signup {
+.login,
+.signup {
   display: flex;
   justify-content: center;
   align-items: center;

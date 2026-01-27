@@ -22,15 +22,15 @@ if (!auth.isLoggedIn && !auth.token) {
 
 const { loading, games } = storeToRefs(gamesStore)
 
-const hasUserData = computed((): boolean => 
+const hasUserData = computed((): boolean =>
   auth.isLoggedIn && Array.isArray(user.DevelopedGames)
 )
 
-const previewGames = computed((): Game[] => 
+const previewGames = computed((): Game[] =>
   hasUserData.value ? user.DevelopedGames.filter((x: Game) => x.is_preview) : []
 )
 
-const publishedGames = computed((): Game[] => 
+const publishedGames = computed((): Game[] =>
   hasUserData.value ? user.DevelopedGames.filter((x: Game) => !x.is_preview) : []
 )
 
@@ -100,7 +100,7 @@ function goToPreview(): void {
           />
         </div>
       </div>
-  
+
       <div class="container" v-if="hasPublishedGames">
         <h1>{{ $t('developer_published')}}</h1>
         <p>{{ $t('developer_published_desc')}}</p>
@@ -188,5 +188,4 @@ h2 {
   margin-top: 5px;
 }
 </style> -->
-<template>
-</template>
+<template><div></div></template>

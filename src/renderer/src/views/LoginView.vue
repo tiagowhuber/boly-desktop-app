@@ -67,27 +67,32 @@ async function signGoogle() {
         <form @submit.prevent="submit()">
           <h1 class="login-title">{{ $t('login').toUpperCase() }}</h1>
           <div class="form_group">
-            <input type="text" v-model="email" class="form_field" placeholder="email or username" />
+            <input v-model="email" type="text" class="form_field" placeholder="email or username" />
             <label for="name" class="form_label">{{ $t('login_email') }}</label>
           </div>
           <div class="form_group">
-            <input :type="showPassword ? 'text' : 'password'" v-model="password" class="form_field" placeholder="Password" />
+            <input
+              v-model="password"
+              :type="showPassword ? 'text' : 'password'"
+              class="form_field"
+              placeholder="Password"
+            />
             <label for="name" class="form_label">{{ $t('password') }}</label>
-            <button type="button" @click="togglePasswordVisibility" class="password-toggle-btn">
+            <button type="button" class="password-toggle-btn" @click="togglePasswordVisibility">
               <EyeIcon v-if="!showPassword" />
               <EyeSlashIcon v-else />
             </button>
           </div>
-          
+
           <!-- Remember me checkbox -->
           <div class="form_group remember-me-group">
             <label class="remember-me-label">
-              <input type="checkbox" v-model="rememberMe" class="remember-me-checkbox" />
+              <input v-model="rememberMe" type="checkbox" class="remember-me-checkbox" />
               <span class="checkmark"></span>
               {{ $t('remember_me') }}
             </label>
           </div>
-          
+
           <button class="login_button_text">{{ $t('login').toUpperCase() }}</button>
 
           <Teleport to="body">
@@ -98,7 +103,7 @@ async function signGoogle() {
               <template #body> {{ modalWarning }} </template>
             </AlertModal>
           </Teleport>
-        </form>        
+        </form>
         <div class="google-login">
           <form @submit.prevent="signGoogle()">
             <!-- <button class="google-login-button">
@@ -112,10 +117,17 @@ async function signGoogle() {
         </div>
         <div class="register">
           <p>{{ $t('no_account') }}</p>
-          <a href="https://boly.cl/register-pending" target="_blank" style="color: white; text-decoration: underline">{{ $t('register') }}</a>
+          <a
+            href="https://boly.cl/register-pending"
+            target="_blank"
+            style="color: white; text-decoration: underline"
+            >{{ $t('register') }}</a
+          >
         </div>
         <div class="forgot-password">
-          <RouterLink to="/forgot-password" style="color: white; text-decoration: underline;">{{ $t('forgot_your_password') }}</RouterLink>
+          <RouterLink to="/forgot-password" style="color: white; text-decoration: underline">{{
+            $t('forgot_your_password')
+          }}</RouterLink>
         </div>
       </div>
       <img
@@ -346,13 +358,13 @@ h1 {
   align-items: center;
   justify-content: center;
   color: var(--light);
-  margin-top: 1rem; 
+  margin-top: 1rem;
 }
 
 .forgot-password {
   font-size: small;
   text-align: center;
-  margin-top: 0.5rem; 
+  margin-top: 0.5rem;
 }
 
 .login_button_text {
@@ -380,15 +392,19 @@ h1 {
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 0.21px;
-  transition: background-color 0.218s, border-color 0.218s, box-shadow 0.218s;
+  transition:
+    background-color 0.218s,
+    border-color 0.218s,
+    box-shadow 0.218s;
   cursor: pointer;
 }
 
 .google-sign-in-button:hover {
   background-color: #f7f8f8;
   border-color: #d2d2d2;
-  box-shadow: 0 1px 1px 0 rgba(66, 133, 244, 0.3),
-              0 1px 3px 1px rgba(66, 133, 244, 0.15);
+  box-shadow:
+    0 1px 1px 0 rgba(66, 133, 244, 0.3),
+    0 1px 3px 1px rgba(66, 133, 244, 0.15);
 }
 
 .google-sign-in-button:active {
@@ -423,7 +439,10 @@ h1 {
   letter-spacing: 0.21px;
   cursor: pointer;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
-  transition: background-color 0.218s, border-color 0.218s, box-shadow 0.218s;
+  transition:
+    background-color 0.218s,
+    border-color 0.218s,
+    box-shadow 0.218s;
   position: relative;
   overflow: visible;
   padding: 0;
@@ -432,8 +451,9 @@ h1 {
 .google-login-button:hover {
   background-color: #f7f8f8;
   border-color: #d2d2d2;
-  box-shadow: 0 1px 1px 0 rgba(66, 133, 244, 0.3),
-              0 1px 3px 1px rgba(66, 133, 244, 0.15);
+  box-shadow:
+    0 1px 1px 0 rgba(66, 133, 244, 0.3),
+    0 1px 3px 1px rgba(66, 133, 244, 0.15);
 }
 
 .google-logo {

@@ -1,21 +1,20 @@
 <script setup lang="ts">
 import Loading from '@/components/LoadingIcon.vue'
-import { useGames, useUser} from '@/stores'
+import { useGames, useUser } from '@/stores'
 import { computed, inject, onMounted, ref, onBeforeUnmount } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n'
 import 'vue3-carousel/dist/carousel.css'
 import { Carousel, Slide, Navigation } from 'vue3-carousel'
-import { useRouter } from 'vue-router';
+import { useRouter } from 'vue-router'
 
-const router = useRouter();
-const i18n = useI18n();
+const router = useRouter()
+const i18n = useI18n()
 const gamesStore = useGames()
 const user = useUser()
 const { loading, games } = storeToRefs(gamesStore)
 const featuredGames = ref<any[]>([])
 const isMobile = ref(window.innerWidth <= 768)
-
 
 async function refreshGames() {
   await gamesStore.getAll()
@@ -27,10 +26,10 @@ function AddToCart(item: any) {
   shoppingCart.addGameToCart({ game_id: item.game_id })
 }
 
-const featuredIds = ref<number[]>([2,5])
+const featuredIds = ref<number[]>([2, 5])
 
-const carouselRef = ref<any>();
-const currentSlide = ref<number>(0);
+const carouselRef = ref<any>()
+const currentSlide = ref<number>(0)
 
 // Update carousel settings based on device type
 const settings = computed(() => ({
@@ -45,9 +44,8 @@ const settings = computed(() => ({
   touchDrag: true
 }))
 
-
-function moveToSlide(i: number){
-  carouselRef.value.slideTo(i);
+function moveToSlide(i: number) {
+  carouselRef.value.slideTo(i)
   carouselRef.value.updateSlidesData()
 }
 
@@ -58,12 +56,14 @@ const handleResize = () => {
 
 onMounted(async () => {
   await refreshGames()
-  console.log('Games:', games.value);
+  console.log('Games:', games.value)
 
-  const gameMap = new Map(games.value.map((game: any) => [game.game_id, game]));
-  featuredGames.value = featuredIds.value.map(id => gameMap.get(id)).filter(game => game !== undefined);
-  console.log('Featured Games:', featuredGames.value);
-  
+  const gameMap = new Map(games.value.map((game: any) => [game.game_id, game]))
+  featuredGames.value = featuredIds.value
+    .map((id) => gameMap.get(id))
+    .filter((game) => game !== undefined)
+  console.log('Featured Games:', featuredGames.value)
+
   // Add resize event listener
   window.addEventListener('resize', handleResize)
 })
@@ -76,37 +76,48 @@ onBeforeUnmount(() => {
 function GoToGame(id: number) {
   router.push('/games/' + id)
 }
-
 </script>
 
 <template>
-  <div class="loading_container" v-if="loading">
+  <div v-if="loading" class="loading_container">
     <Loading />
   </div>
-  <div class="section" v-else>
+  <div v-else class="section">
     <div class="carousel-container" :class="{ 'mobile-carousel': isMobile }">
       <carousel v-bind="settings" ref="carouselRef" v-model="currentSlide">
         <slide v-for="item in featuredGames" :key="item.game_id">
-          <div class="main" v-if="item != null" :class="{ 'mobile-main': isMobile }">
+          <div v-if="item != null" class="main" :class="{ 'mobile-main': isMobile }">
             <div class="image-wrapper" :class="{ 'mobile-image': isMobile }">
-              <img 
-                :src="item.banner_url" 
-                @click="GoToGame(item.game_id)"
-                loading="lazy"
-              >
+              <img :src="item.banner_url" loading="lazy" @click="GoToGame(item.game_id)" />
             </div>
             <div class="details" :class="{ 'mobile-details': isMobile }">
               <h3>{{ $t('featured').toUpperCase() }}</h3>
               <h2>{{ item.name[i18n.locale.value].toUpperCase() }}</h2>
               <!-- hardcoded bc item.developer is the id. will fix later -->
-              <p class="dev"> {{ $t('ff studios') }}</p>
-              <p class="desc" :class="{ 'mobile-desc': isMobile }">{{item.description[i18n.locale.value]}}</p>
-              
+              <p class="dev">{{ $t('ff studios') }}</p>
+              <p class="desc" :class="{ 'mobile-desc': isMobile }">
+                {{ item.description[i18n.locale.value] }}
+              </p>
+
               <div :class="{ 'mobile-buttons': isMobile }">
-                <button class="btn-pink" @click="GoToGame(item.game_id)" :class="{ 'mobile-see-more': isMobile }"> {{ $t('see_more').toUpperCase() }}</button>
+                <button
+                  class="btn-pink"
+                  :class="{ 'mobile-see-more': isMobile }"
+                  @click="GoToGame(item.game_id)"
+                >
+                  {{ $t('see_more').toUpperCase() }}
+                </button>
                 <template v-if="user.userId && !gamesStore.ownsGame(item.game_id, user.userId)">
-                  <button class="btn-blue" v-if="shoppingCart.cart.includes(item.game_id)" @click="shoppingCart.removeGameFromCart({ game_id: item.game_id })">{{ $t('remove_from_cart_nq').toUpperCase() }}</button>
-                  <button class="btn-purple" v-else @click="AddToCart(item)">{{ $t('add_to_cart').toUpperCase() }}</button>
+                  <button
+                    v-if="shoppingCart.cart.includes(item.game_id)"
+                    class="btn-blue"
+                    @click="shoppingCart.removeGameFromCart({ game_id: item.game_id })"
+                  >
+                    {{ $t('remove_from_cart_nq').toUpperCase() }}
+                  </button>
+                  <button v-else class="btn-purple" @click="AddToCart(item)">
+                    {{ $t('add_to_cart').toUpperCase() }}
+                  </button>
                   <!-- <button class="btn-purple" v-else @click="">{{ $t('coming_soon').toUpperCase() }}</button> -->
                 </template>
               </div>
@@ -120,14 +131,14 @@ function GoToGame(id: number) {
       </carousel>
     </div>
     <div class="nav-counter" :class="{ 'mobile-nav-counter': isMobile }">
-      <span 
-        v-for="i in featuredGames.length" 
-        :key="i" 
-        @click="moveToSlide(i-1)"
+      <span
+        v-for="i in featuredGames.length"
+        :key="i"
         class="nav-dot"
-        :class="{ active: currentSlide === i-1 }"
+        :class="{ active: currentSlide === i - 1 }"
+        @click="moveToSlide(i - 1)"
       >
-        {{ currentSlide === i-1 ? '●' : '○' }}
+        {{ currentSlide === i - 1 ? '●' : '○' }}
       </span>
     </div>
   </div>
@@ -194,7 +205,9 @@ function GoToGame(id: number) {
 }
 
 .nav-dot {
-  transition: transform 0.2s ease, color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
   user-select: none;
 }
 
@@ -220,7 +233,7 @@ function GoToGame(id: number) {
   gap: 1rem;
 }
 
-.details{
+.details {
   text-align: left;
   display: flex;
   flex-direction: column;
@@ -233,8 +246,8 @@ function GoToGame(id: number) {
   max-width: 100%;
 }
 
-.details h2{
-  font-family: "Anton", serif;
+.details h2 {
+  font-family: 'Anton', serif;
   font-style: italic;
 }
 
@@ -243,10 +256,10 @@ function GoToGame(id: number) {
   margin: 5px 0;
 }
 
-.details h3{
+.details h3 {
   text-align: start;
   color: var(--boly-featured-green);
-  font-family: "Anton", serif;
+  font-family: 'Anton', serif;
   font-style: italic;
 }
 
@@ -254,7 +267,7 @@ function GoToGame(id: number) {
   font-size: 1rem;
 }
 
-.details .dev{
+.details .dev {
   color: rgba(179, 184, 212, 0.527);
   padding: 10px 0px;
 }
@@ -264,7 +277,7 @@ function GoToGame(id: number) {
   font-size: 0.9rem;
 }
 
-.details .desc{
+.details .desc {
   min-height: 100px;
 }
 
@@ -279,17 +292,17 @@ function GoToGame(id: number) {
 button {
   height: 30px;
   margin-top: 10px;
-  font-family: "Anton", serif;
+  font-family: 'Anton', serif;
   font-size: large;
   color: var(--light);
   border: none;
   justify-content: center;
   border-radius: 5px;
   flex-grow: 1;
-  transition: .2s;
+  transition: 0.2s;
 }
 
-.details > div{
+.details > div {
   display: flex;
   gap: 1rem;
 }
@@ -357,13 +370,13 @@ button {
   transform: scale(1.2);
 }
 
-.carousel-container .carousel__icon{
+.carousel-container .carousel__icon {
   fill: white;
-  transition: .2s;
+  transition: 0.2s;
 }
 
-.carousel-container .carousel__icon:hover{
-  transition: .2s;
+.carousel-container .carousel__icon:hover {
+  transition: 0.2s;
   scale: 1.5;
 }
 
@@ -371,11 +384,11 @@ button {
   .carousel__slide {
     touch-action: pan-y;
   }
-  
+
   .carousel-container .carousel__pagination {
     margin-top: 10px;
   }
-  
+
   .carousel-container .carousel__pagination-button {
     padding: 5px;
   }

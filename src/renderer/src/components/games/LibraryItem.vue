@@ -21,44 +21,42 @@ const achievementsLoading = ref(true)
 
 console.log('LibraryItem received game:', props.item)
 
-
-
 const displayedAchievements = computed(() => {
-  return gameAchievements.value.slice(0, 4);
-});
+  return gameAchievements.value.slice(0, 4)
+})
 
 const hasAchievements = computed(() => {
-  return gameAchievements.value.length > 0;
-});
+  return gameAchievements.value.length > 0
+})
 
 const gameCompletionPercentage = computed(() => {
-  if (!gameAchievements.value.length) return 0;
-  
-  const totalAchievements = gameAchievements.value.length;
-  const completedAchievements = gameAchievements.value.filter(a => 
-    a.progress === 100 || a.progress === undefined
-  ).length;
-  
-  return Math.floor((completedAchievements / totalAchievements) * 100);
-});
+  if (!gameAchievements.value.length) return 0
+
+  const totalAchievements = gameAchievements.value.length
+  const completedAchievements = gameAchievements.value.filter(
+    (a) => a.progress === 100 || a.progress === undefined
+  ).length
+
+  return Math.floor((completedAchievements / totalAchievements) * 100)
+})
 
 async function fetchGameAchievements() {
-  if (!props.item.game_id || !auth.token) return;
-  
-  achievementsLoading.value = true;
+  if (!props.item.game_id || !auth.token) return
+
+  achievementsLoading.value = true
   try {
-    await achievementsStore.fetchAchievements(props.item.game_id, { token: auth.token });
-    gameAchievements.value = [...achievementsStore.achievements];
+    await achievementsStore.fetchAchievements(props.item.game_id, { token: auth.token })
+    gameAchievements.value = [...achievementsStore.achievements]
   } catch (error) {
-    console.error('Error fetching achievements:', error);
+    console.error('Error fetching achievements:', error)
   } finally {
-    achievementsLoading.value = false;
+    achievementsLoading.value = false
   }
 }
 
 onMounted(() => {
-  fetchGameAchievements();
-});
+  fetchGameAchievements()
+})
 
 async function Play() {
   if (props.item.game_id) {
@@ -93,16 +91,19 @@ function navigateToGameDetails() {
     <div class="game-info">
       <div class="title-section">
         <h3>{{ props.item.name[i18n.locale.value] }}</h3>
-        <div class="completion-indicator" v-if="!achievementsLoading && hasAchievements">
+        <div v-if="!achievementsLoading && hasAchievements" class="completion-indicator">
           <div class="completion-bar">
-            <div class="completion-progress" :style="{width: `${gameCompletionPercentage}%`}"></div>
+            <div
+              class="completion-progress"
+              :style="{ width: `${gameCompletionPercentage}%` }"
+            ></div>
           </div>
           <span class="completion-text">{{ gameCompletionPercentage }}%</span>
         </div>
       </div>
-      
+
       <div class="divider"></div>
-      
+
       <!-- Achievements Section -->
       <div class="achievements-section">
         <h4 class="section-label">{{ $t('achievements') }}</h4>
@@ -113,20 +114,30 @@ function navigateToGameDetails() {
             <span class="loading-dot"></span>
           </div>
           <div v-else-if="hasAchievements" class="achievements-icons">
-            <div v-for="achievement in displayedAchievements" :key="achievement.id" class="achievement-icon-wrapper">
+            <div
+              v-for="achievement in displayedAchievements"
+              :key="achievement.id"
+              class="achievement-icon-wrapper"
+            >
               <div class="achievement-tooltip">
                 <strong>{{ achievement.name }}</strong>
                 <p>{{ achievement.description }}</p>
               </div>
               <div class="achievement-frame">
-                <img 
-                  :src="achievement.icon_url" 
-                  :class="{'achievement-icon': true, 'locked': achievement.progress !== undefined && achievement.progress < 100}" 
-                  alt="Achievement Icon" 
+                <img
+                  :src="achievement.icon_url"
+                  :class="{
+                    'achievement-icon': true,
+                    locked: achievement.progress !== undefined && achievement.progress < 100
+                  }"
+                  alt="Achievement Icon"
                 />
               </div>
-              <div class="achievement-progress" v-if="(achievement.progress !== 100) && achievement.progress !== undefined">
-                <div class="progress-bar" :style="{width: `${achievement.progress}%`}"></div>
+              <div
+                v-if="achievement.progress !== 100 && achievement.progress !== undefined"
+                class="achievement-progress"
+              >
+                <div class="progress-bar" :style="{ width: `${achievement.progress}%` }"></div>
               </div>
             </div>
           </div>
@@ -135,15 +146,24 @@ function navigateToGameDetails() {
           </div>
         </div>
       </div>
-      
+
       <div class="divider"></div>
-      
+
       <div class="game-actions">
-        <button v-if="props.item.game_type_id === 2" class="action-button play-button" @click.stop="Play">
+        <button
+          v-if="props.item.game_type_id === 2"
+          class="action-button play-button"
+          @click.stop="Play"
+        >
           <span class="button-text">{{ $t('play') }}</span>
           <PlayIcon class="icon" />
         </button>
-        <button v-else class="action-button download-button" :disabled="loading" @click.stop="Download">
+        <button
+          v-else
+          class="action-button download-button"
+          :disabled="loading"
+          @click.stop="Download"
+        >
           <span class="button-text">{{ loading ? $t('downloading') : $t('download') }}</span>
           <DownloadIcon class="icon" />
         </button>
@@ -177,7 +197,11 @@ function navigateToGameDetails() {
 }
 
 .game-info {
-  background: linear-gradient(to bottom, var(--color-background-soft) 0%, rgba(30, 30, 40, 0.95) 100%);
+  background: linear-gradient(
+    to bottom,
+    var(--color-background-soft) 0%,
+    rgba(30, 30, 40, 0.95) 100%
+  );
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -394,7 +418,8 @@ function navigateToGameDetails() {
 }
 
 @keyframes dot-pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(0.6);
     opacity: 0.6;
   }

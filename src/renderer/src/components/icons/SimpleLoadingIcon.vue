@@ -1,7 +1,7 @@
 <script setup></script>
 
 <template>
-    <div class="loader"></div>
+  <div class="loader"></div>
 </template>
 
 <style>
@@ -15,7 +15,7 @@
   animation: spin89345 1s reverse linear infinite;
 }
 
-.loading_container{
+.loading_container {
   position: relative;
   width: 100%;
   height: 100%;

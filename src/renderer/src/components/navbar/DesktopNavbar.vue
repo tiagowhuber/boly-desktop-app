@@ -22,12 +22,12 @@ const cartLength = computed(() => cartStore.cart.length)
 
 function GoToCart() {
   if (cartStore.cart.length > 0) {
-    router.push("/cart")
+    router.push('/cart')
   }
 }
 
 function GoToHome() {
-  router.push("/")
+  router.push('/')
 }
 
 function isActive(path: string) {
@@ -39,9 +39,9 @@ function isActive(path: string) {
   <header :class="props.color">
     <nav>
       <div class="left-section">
-        <TheLogo class="logo" @click="GoToHome()"/>
+        <TheLogo class="logo" @click="GoToHome()" />
       </div>
-      
+
       <div class="navigation">
         <RouterLink :class="{ active: isActive('/') }" to="/">
           <p>{{ $t('home') }}</p>
@@ -54,10 +54,20 @@ function isActive(path: string) {
             <p>{{ $t('contact') }}</p>
           </button>
           <div class="dropdown-menu">
-            <a href="https://boly.cl/developer-contact" target="_blank" rel="noopener noreferrer" class="dropdown-item">
+            <a
+              href="https://boly.cl/developer-contact"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="dropdown-item"
+            >
               <p>{{ $t('developer_contact') }}</p>
             </a>
-            <a href="https://boly.cl/educators" target="_blank" rel="noopener noreferrer" class="dropdown-item">
+            <a
+              href="https://boly.cl/educators"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="dropdown-item"
+            >
               <p>{{ $t('educators') }}</p>
             </a>
             <RouterLink to="/contact" class="dropdown-item">
@@ -68,39 +78,45 @@ function isActive(path: string) {
         <RouterLink :class="{ active: isActive('/subscription') }" to="/subscription">
           <p>{{ $t('subscription') }}</p>
         </RouterLink>
-        
+
         <!-- Authenticated User Links -->
-        <RouterLink :class="{ active: isActive('/library') }" 
-                   to="/library" 
-                   v-if="auth.isLoggedIn">
+        <RouterLink v-if="auth.isLoggedIn" :class="{ active: isActive('/library') }" to="/library">
           <p>{{ $t('my_library') }}</p>
         </RouterLink>
-        <!-- <RouterLink :class="{ active: isActive('/wishlist') }" 
-                   to="/wishlist" 
+        <!-- <RouterLink :class="{ active: isActive('/wishlist') }"
+                   to="/wishlist"
                    v-if="auth.isLoggedIn">
           <p>{{ $t('wishlist') }}</p>
         </RouterLink> -->
       </div>
-      
+
       <div class="user-navigation">
         <!-- Authentication Links -->
-        <RouterLink class="login" to="/login" v-if="!auth.isLoggedIn">
+        <RouterLink v-if="!auth.isLoggedIn" class="login" to="/login">
           <p>{{ $t('log_in') }}</p>
         </RouterLink>
-        <a class="signup" href="https://boly.cl/register-pending" target="_blank" v-if="!auth.isLoggedIn">
+        <a
+          v-if="!auth.isLoggedIn"
+          class="signup"
+          href="https://boly.cl/register-pending"
+          target="_blank"
+        >
           <p>{{ $t('sign_up') }}</p>
         </a>
-        
+
         <!-- User Profile & Cart -->
-        <RouterLink to="/account" v-if="auth.isLoggedIn" class="user-profile-link">
-          <img :src="user.profilePictureUrl || 'https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg'"
-               class="icon user_icon"
-               alt="Profile picture" />
+        <RouterLink v-if="auth.isLoggedIn" to="/account" class="user-profile-link">
+          <img
+            :src="
+              user.profilePictureUrl ||
+              'https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg'
+            "
+            class="icon user_icon"
+            alt="Profile picture"
+          />
           <p>{{ user.username }}</p>
         </RouterLink>
-        <a class="cart-button"
-           :class="{ 'cart-disabled': cartLength === 0 }"
-           @click="GoToCart()">
+        <a class="cart-button" :class="{ 'cart-disabled': cartLength === 0 }" @click="GoToCart()">
           <p>{{ cartLength }}</p>
           <CartIcon class="icon cart_icon"></CartIcon>
         </a>
@@ -111,10 +127,10 @@ function isActive(path: string) {
 
 <style scoped>
 header {
-  padding: 2rem 4rem;  
-  font-family: "Anton", serif;
-  transform: skewY(-3.5deg); 
-  transform-origin: top left; 
+  padding: 2rem 4rem;
+  font-family: 'Anton', serif;
+  transform: skewY(-3.5deg);
+  transform-origin: top left;
   position: relative;
   z-index: 1;
 }
@@ -122,20 +138,20 @@ header {
 nav {
   margin: 0 auto;
   max-width: 1500px;
-  height: 150px;  
+  height: 150px;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  transform: skewY(3.5deg); 
-  transform-origin: top left; 
+  transform: skewY(3.5deg);
+  transform-origin: top left;
 }
 
 /* Logo Section Styles
 -------------------------------------------- */
 .left-section {
-  display: flex; 
-  align-items: center; 
+  display: flex;
+  align-items: center;
   gap: 10px;
 }
 
@@ -148,17 +164,17 @@ nav {
 /* Main Navigation Styles
 -------------------------------------------- */
 .navigation {
-  flex-grow: .5;
+  flex-grow: 0.5;
   height: 46px;
   display: flex;
   align-items: center;
-  justify-content: flex-start;  
-  margin-left: -10px;  
+  justify-content: flex-start;
+  margin-left: -10px;
 }
 
 .navigation a {
-  margin-right: 30px; 
-  margin-top: -80px;  
+  margin-right: 30px;
+  margin-top: -80px;
   color: white;
   font-size: 22px;
   text-transform: uppercase;
@@ -251,7 +267,7 @@ nav {
 }
 
 .user-navigation a {
-  margin-top: -80px;  
+  margin-top: -80px;
   font-size: 22px;
 }
 
@@ -263,7 +279,8 @@ nav {
 
 /* Authentication Button Styles
 -------------------------------------------- */
-.login, .signup {
+.login,
+.signup {
   display: flex;
   justify-content: center;
   align-items: center;

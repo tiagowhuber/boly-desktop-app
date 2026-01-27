@@ -11,10 +11,10 @@ const currentBoard = ref<number[][]>([])
 const solutionBoard = ref<number[][]>([])
 const initialBoard = ref<number[][]>([])
 const difficultyLevel = ref(1)
-const timerInterval = ref<number | NodeJS.Timeout | null>(null)
+const timerInterval = ref<number | ReturnType<typeof setTimeout> | null>(null)
 const timeLeft = ref(0)
 const originalTimeLimit = ref(0)
-const selectedCell = ref<{row: number, col: number} | null>(null)
+const selectedCell = ref<{ row: number; col: number } | null>(null)
 const gameMode = ref('')
 const userCredits = ref(10)
 const isGameConcluded = ref(false)
@@ -71,21 +71,21 @@ function isValid(board: number[][], row: number, col: number, num: number): bool
   for (let x = 0; x < 9; x++) {
     if (board[row][x] === num) return false
   }
-  
+
   // Check column
   for (let x = 0; x < 9; x++) {
     if (board[x][col] === num) return false
   }
-  
+
   // Check 3x3 box
-  const startRow = row - row % 3
-  const startCol = col - col % 3
+  const startRow = row - (row % 3)
+  const startCol = col - (col % 3)
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 3; j++) {
       if (board[i + startRow][j + startCol] === num) return false
     }
   }
-  
+
   return true
 }
 
@@ -108,20 +108,33 @@ function solveSudoku(board: number[][]): boolean {
 }
 
 function generateSudoku(): number[][] {
-  const board = Array(9).fill(null).map(() => Array(9).fill(0))
+  const board = Array(9)
+    .fill(null)
+    .map(() => Array(9).fill(0))
   solveSudoku(board)
   solutionBoard.value = JSON.parse(JSON.stringify(board))
-  
+
   let cellsToRemove: number
   switch (difficultyLevel.value) {
-    case 1: cellsToRemove = 81 - 40; break
-    case 2: cellsToRemove = 81 - 35; break
-    case 3: cellsToRemove = 81 - 30; break
-    case 4: cellsToRemove = 81 - 25; break
-    case 5: cellsToRemove = 81 - 22; break
-    default: cellsToRemove = 81 - 30
+    case 1:
+      cellsToRemove = 81 - 40
+      break
+    case 2:
+      cellsToRemove = 81 - 35
+      break
+    case 3:
+      cellsToRemove = 81 - 30
+      break
+    case 4:
+      cellsToRemove = 81 - 25
+      break
+    case 5:
+      cellsToRemove = 81 - 22
+      break
+    default:
+      cellsToRemove = 81 - 30
   }
-  
+
   const currentPuzzleBoard = JSON.parse(JSON.stringify(solutionBoard.value))
   let removedCount = 0
   while (removedCount < cellsToRemove) {
@@ -132,27 +145,27 @@ function generateSudoku(): number[][] {
       removedCount++
     }
   }
-  
+
   initialBoard.value = JSON.parse(JSON.stringify(currentPuzzleBoard))
   return currentPuzzleBoard
 }
 
 function getCellClass(row: number, col: number): string {
   const classes = ['sudoku-cell']
-  
+
   if (initialBoard.value[row][col] !== 0) {
     classes.push('prefilled')
   }
-  
+
   const cellKey = `${row}-${col}`
   if (highlightedCells.has(cellKey)) {
     classes.push('highlight')
   }
-  
+
   if (selectedCellKey.value === cellKey) {
     classes.push('selected')
   }
-  
+
   const currentValue = currentBoard.value[row][col]
   if (currentValue !== 0 && selectedCell.value) {
     const selectedValue = currentBoard.value[selectedCell.value.row][selectedCell.value.col]
@@ -160,7 +173,7 @@ function getCellClass(row: number, col: number): string {
       classes.push('highlight-same-number')
     }
   }
-  
+
   // Check for errors
   if (currentValue !== 0 && initialBoard.value[row][col] === 0) {
     const tempBoard = JSON.parse(JSON.stringify(currentBoard.value))
@@ -169,7 +182,7 @@ function getCellClass(row: number, col: number): string {
       classes.push('error')
     }
   }
-  
+
   return classes.join(' ')
 }
 
@@ -181,18 +194,18 @@ function clearHighlights() {
 function applyHighlights(row: number, col: number) {
   clearHighlights()
   if (isGameConcluded.value) return
-  
+
   selectedCellKey.value = `${row}-${col}`
-  
-  const startRow = row - row % 3
-  const startCol = col - col % 3
-  
+
+  const startRow = row - (row % 3)
+  const startCol = col - (col % 3)
+
   // Highlight row, column, and 3x3 box
   for (let i = 0; i < 9; i++) {
     highlightedCells.add(`${row}-${i}`) // Row
     highlightedCells.add(`${i}-${col}`) // Column
   }
-  
+
   // 3x3 box
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 3; j++) {
@@ -215,25 +228,30 @@ function handleCellSelect(row: number, col: number) {
 
 function handleInput(event: Event, row: number, col: number) {
   const target = event.target as HTMLInputElement
-  
+
   if (isGameConcluded.value) {
     target.value = currentBoard.value[row][col] === 0 ? '' : currentBoard.value[row][col].toString()
     return
   }
-  
+
   const value = /^[1-9]$/.test(target.value) ? parseInt(target.value) : 0
   target.value = value === 0 ? '' : value.toString()
-  
+
   currentBoard.value[row][col] = value
   applyHighlights(row, col)
-  
+
   if (checkWin()) {
     handleWin()
   }
 }
 
 function handleKeydown(event: KeyboardEvent) {
-  if (event.key.length === 1 && !/[1-9]/.test(event.key) && event.key !== 'Backspace' && event.key !== 'Delete') {
+  if (
+    event.key.length === 1 &&
+    !/[1-9]/.test(event.key) &&
+    event.key !== 'Backspace' &&
+    event.key !== 'Delete'
+  ) {
     event.preventDefault()
   }
 }
@@ -246,9 +264,9 @@ function handleDragOver(event: DragEvent) {
 
 function handleDrop(event: DragEvent, row: number, col: number) {
   if (isGameConcluded.value || initialBoard.value[row][col] !== 0) return
-  
+
   event.preventDefault()
-  const draggedNumber = parseInt(event.dataTransfer?.getData("text/plain") || '0')
+  const draggedNumber = parseInt(event.dataTransfer?.getData('text/plain') || '0')
   if (draggedNumber) {
     currentBoard.value[row][col] = draggedNumber
     applyHighlights(row, col)
@@ -260,7 +278,7 @@ function handleDrop(event: DragEvent, row: number, col: number) {
 
 function handleDragStart(event: DragEvent, num: number) {
   if (isGameConcluded.value) return event.preventDefault()
-  event.dataTransfer?.setData("text/plain", num.toString())
+  event.dataTransfer?.setData('text/plain', num.toString())
   ;(event.target as HTMLElement).classList.add('dragging')
 }
 
@@ -270,7 +288,7 @@ function handleDragEnd(event: DragEvent) {
 
 function selectNumber(num: number) {
   if (isGameConcluded.value || !selectedCell.value) return
-  
+
   const { row, col } = selectedCell.value
   if (initialBoard.value[row][col] === 0) {
     currentBoard.value[row][col] = num
@@ -284,42 +302,42 @@ function selectNumber(num: number) {
 function startGame(mode: string, param: number) {
   gameMode.value = mode
   difficultyLevel.value = param
-  
+
   if (mode === 'time') {
     if (param <= 60) difficultyLevel.value = 2
     else if (param <= 180) difficultyLevel.value = 3
     else difficultyLevel.value = 4
   }
-  
+
   isGameConcluded.value = false
   messageText.value = ''
   showGameOverModal.value = false
   showSolutionModal.value = false
-  
+
   let cost = 0
   if (mode === 'difficulty' && difficultyLevel.value >= 4) {
     cost = 1
   }
-  
+
   if (cost > 0 && !canAfford(cost)) {
-    modalTitle.value = "Créditos Insuficientes"
+    modalTitle.value = 'Créditos Insuficientes'
     modalMessage.value = `Necesitas ${cost} crédito(s) para jugar este nivel. Gana más en niveles fáciles.`
     showNextPuzzleButton.value = false
     backToMenuText.value = 'Entendido'
     showGameOverModal.value = true
     return
   }
-  
+
   if (cost > 0) {
     userCredits.value -= cost
     saveCredits()
   }
-  
+
   if (mode === 'time') {
     originalTimeLimit.value = timeLeft.value = param
     startTimer()
   }
-  
+
   showMenu.value = false
   currentBoard.value = generateSudoku()
 }
@@ -328,7 +346,7 @@ function startTimer() {
   if (timerInterval.value) {
     clearInterval(timerInterval.value)
   }
-  
+
   timerInterval.value = setInterval(() => {
     if (isGameConcluded.value) {
       if (timerInterval.value) {
@@ -336,7 +354,7 @@ function startTimer() {
       }
       return
     }
-    
+
     timeLeft.value--
     if (timeLeft.value <= 0) {
       if (timerInterval.value) {
@@ -381,12 +399,12 @@ function handleWin() {
     clearInterval(timerInterval.value)
   }
   clearHighlights()
-  
-  const creditsEarned = (gameMode.value === 'difficulty') ? (difficultyLevel.value <= 3 ? 2 : 10) : 5
+
+  const creditsEarned = gameMode.value === 'difficulty' ? (difficultyLevel.value <= 3 ? 2 : 10) : 5
   userCredits.value += creditsEarned
   saveCredits()
-  
-  modalTitle.value = "¡Ganaste!"
+
+  modalTitle.value = '¡Ganaste!'
   modalMessage.value = `¡Excelente trabajo! Has ganado ${creditsEarned} crédito(s).`
   showNextPuzzleButton.value = true
   backToMenuText.value = 'Menú Principal'
@@ -400,7 +418,7 @@ function showSolutionWithAnimation() {
   }
   clearHighlights()
   currentBoard.value = JSON.parse(JSON.stringify(solutionBoard.value))
-  messageText.value = "Solución mostrada."
+  messageText.value = 'Solución mostrada.'
 }
 
 function closeModalAndShowMenu() {
@@ -412,7 +430,7 @@ function resetPuzzle() {
   if (isGameConcluded.value) return
   currentBoard.value = JSON.parse(JSON.stringify(initialBoard.value))
   clearHighlights()
-  messageText.value = "Tablero reiniciado."
+  messageText.value = 'Tablero reiniciado.'
 }
 
 function validateSolution() {
@@ -420,27 +438,27 @@ function validateSolution() {
   if (checkWin()) {
     handleWin()
   } else {
-    messageText.value = "Incompleto o con errores. ¡Sigue intentando!"
+    messageText.value = 'Incompleto o con errores. ¡Sigue intentando!'
     setTimeout(() => {
-      if (!isGameConcluded.value) messageText.value = ""
+      if (!isGameConcluded.value) messageText.value = ''
     }, 3000)
   }
 }
 
 function promptShowSolution() {
   if (isGameConcluded.value) return
-  solutionModalTitle.value = "¿Mostrar Solución?"
-  solutionModalMessage.value = "¿Quieres ver la solución completa del puzzle?"
-  solutionModalCost.value = "Costo: 1 crédito"
-  confirmButtonText.value = "Sí, ver solución"
-  cancelButtonText.value = "No, seguir intentando"
-  solutionError.value = ""
+  solutionModalTitle.value = '¿Mostrar Solución?'
+  solutionModalMessage.value = '¿Quieres ver la solución completa del puzzle?'
+  solutionModalCost.value = 'Costo: 1 crédito'
+  confirmButtonText.value = 'Sí, ver solución'
+  cancelButtonText.value = 'No, seguir intentando'
+  solutionError.value = ''
   showSolutionModal.value = true
 }
 
 function confirmShowSolution() {
   if (!canAfford(1)) {
-    solutionError.value = "No tienes suficientes créditos."
+    solutionError.value = 'No tienes suficientes créditos.'
     return
   }
   userCredits.value -= 1
@@ -455,18 +473,19 @@ function cancelShowSolution() {
 
 function handleTimeUp() {
   isGameConcluded.value = true
-  solutionModalTitle.value = "¡Tiempo Agotado!"
-  solutionModalMessage.value = "¿Quieres ver la solución?"
-  solutionModalCost.value = "Costo: 1 crédito"
-  confirmButtonText.value = "Sí, ver solución"
-  cancelButtonText.value = "Volver al Menú"
-  solutionError.value = ""
+  solutionModalTitle.value = '¡Tiempo Agotado!'
+  solutionModalMessage.value = '¿Quieres ver la solución?'
+  solutionModalCost.value = 'Costo: 1 crédito'
+  confirmButtonText.value = 'Sí, ver solución'
+  cancelButtonText.value = 'Volver al Menú'
+  solutionError.value = ''
   showSolutionModal.value = true
 }
 
 function startNextPuzzle() {
   showGameOverModal.value = false
-  const nextParam = (gameMode.value === 'difficulty') ? difficultyLevel.value : originalTimeLimit.value
+  const nextParam =
+    gameMode.value === 'difficulty' ? difficultyLevel.value : originalTimeLimit.value
   startGame(gameMode.value, nextParam)
 }
 
@@ -474,7 +493,7 @@ function checkDailyChallenge() {
   const lastPlayed = localStorage.getItem('sudokuLastPlayed')
   const today = new Date().toDateString()
   let streak = parseInt(localStorage.getItem('sudokuStreak') || '0')
-  
+
   if (lastPlayed !== today) {
     const yesterday = new Date(Date.now() - 86400000).toDateString()
     if (lastPlayed === yesterday) {
@@ -511,54 +530,66 @@ onUnmounted(() => {
     <!-- Main Menu -->
     <div v-if="showMenu" id="main-menu" class="text-center p-4">
       <h1 class="text-4xl font-bold mb-8 text-sky-400">Sudoku Infinito</h1>
-      
+
       <div class="mb-6">
         <h2 class="text-2xl font-semibold mb-3 text-teal-300">Modo por Dificultad</h2>
         <div class="difficulty-buttons">
-          <button @click="startGame('difficulty', 1)" class="btn btn-easy">Nivel 1 (Fácil, +2 Créditos)</button>
-          <button @click="startGame('difficulty', 2)" class="btn btn-easy">Nivel 2 (Fácil, +2 Créditos)</button>
-          <button @click="startGame('difficulty', 3)" class="btn btn-normal">Nivel 3 (Normal, +2 Créditos)</button>
-          <button @click="startGame('difficulty', 4)" class="btn btn-hard">Nivel 4 (Difícil, Costo: 1, +10 Créditos)</button>
-          <button @click="startGame('difficulty', 5)" class="btn btn-expert">Nivel 5 (Experto, Costo: 1, +10 Créditos)</button>
+          <button class="btn btn-easy" @click="startGame('difficulty', 1)">
+            Nivel 1 (Fácil, +2 Créditos)
+          </button>
+          <button class="btn btn-easy" @click="startGame('difficulty', 2)">
+            Nivel 2 (Fácil, +2 Créditos)
+          </button>
+          <button class="btn btn-normal" @click="startGame('difficulty', 3)">
+            Nivel 3 (Normal, +2 Créditos)
+          </button>
+          <button class="btn btn-hard" @click="startGame('difficulty', 4)">
+            Nivel 4 (Difícil, Costo: 1, +10 Créditos)
+          </button>
+          <button class="btn btn-expert" @click="startGame('difficulty', 5)">
+            Nivel 5 (Experto, Costo: 1, +10 Créditos)
+          </button>
         </div>
       </div>
 
       <div>
         <h2 class="text-2xl font-semibold mb-3 text-amber-300">Modo por Tiempo (+5 Créditos)</h2>
         <div class="time-buttons">
-          <button @click="startGame('time', 60)" class="btn btn-normal">1 Minuto (Fácil)</button>
-          <button @click="startGame('time', 180)" class="btn btn-normal">3 Minutos (Medio)</button>
-          <button @click="startGame('time', 300)" class="btn btn-normal">5 Minutos (Difícil)</button>
+          <button class="btn btn-normal" @click="startGame('time', 60)">1 Minuto (Fácil)</button>
+          <button class="btn btn-normal" @click="startGame('time', 180)">3 Minutos (Medio)</button>
+          <button class="btn btn-normal" @click="startGame('time', 300)">
+            5 Minutos (Difícil)
+          </button>
         </div>
       </div>
 
       <div id="credits-section" class="mt-6 p-4 bg-gray-800 rounded-lg">
         <h3>Sistema de Créditos</h3>
-        <p>Créditos Actuales: <span>{{ userCredits }}</span></p>
+        <p>
+          Créditos Actuales: <span>{{ userCredits }}</span>
+        </p>
       </div>
 
       <div id="recurrence-section" class="mt-4 p-4 bg-gray-800 rounded-lg">
         <h3>Recompensas por Recurrencia</h3>
-        <p>Racha Actual: <span>{{ streakCount }}</span> días</p>
+        <p>
+          Racha Actual: <span>{{ streakCount }}</span> días
+        </p>
       </div>
     </div>
 
     <!-- Game Area -->
     <div v-if="!showMenu" id="game-area" class="flex flex-col items-center">
       <div class="flex justify-between items-center w-full max-w-lg mb-4 px-2">
-        <button @click="showMainMenu" class="btn btn-secondary">Menú Principal</button>
+        <button class="btn btn-secondary" @click="showMainMenu">Menú Principal</button>
         <div class="text-lg font-semibold text-yellow-400">Créditos: {{ userCredits }}</div>
         <div class="text-xl font-semibold text-rose-400">{{ timerDisplay }}</div>
       </div>
 
       <div id="sudoku-board" class="sudoku-grid">
-        <div
-          v-for="(row, i) in currentBoard"
-          :key="`row-${i}`"
-          class="contents"
-        >
+        <div v-for="(row, i) in currentBoard" :key="`row-${i}`" class="contents">
           <div
-            v-for="(cell, j) in row"
+            v-for="(_cell, j) in row"
             :key="`cell-${i}-${j}`"
             :class="getCellClass(i, j)"
             :data-row="i"
@@ -577,49 +608,66 @@ onUnmounted(() => {
               pattern="[1-9]"
               inputmode="numeric"
               :value="currentBoard[i][j] === 0 ? '' : currentBoard[i][j]"
+              class="cell-input"
               @input="(e) => handleInput(e, i, j)"
               @focus="handleCellSelect(i, j)"
               @keydown="handleKeydown"
-              class="cell-input"
             />
           </div>
         </div>
       </div>
-      
+
       <div class="number-palette mt-4">
         <button
           v-for="num in 9"
           :key="num"
           :draggable="!isGameConcluded"
+          class="btn btn-normal palette-btn"
           @dragstart="(e) => handleDragStart(e, num)"
           @dragend="handleDragEnd"
           @click="selectNumber(num)"
-          class="btn btn-normal palette-btn"
         >
           {{ num }}
         </button>
         <button
-          @click="selectNumber(0)"
           class="btn btn-danger palette-btn"
           aria-label="Borrar número"
+          @click="selectNumber(0)"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V7a2 2 0 00-2-2h-8.172a2 2 0 00-1.414.586L3 12z" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V7a2 2 0 00-2-2h-8.172a2 2 0 00-1.414.586L3 12z"
+            />
           </svg>
         </button>
       </div>
 
       <div v-if="!isGameConcluded" class="mt-6 space-x-1">
-        <button v-if="gameMode === 'difficulty'" @click="promptShowSolution" class="btn btn-secondary">Mostrar Solución</button>
-        <button @click="validateSolution" class="btn btn-normal">Comprobar</button>
-        <button @click="resetPuzzle" class="btn btn-secondary">Reiniciar</button>
+        <button
+          v-if="gameMode === 'difficulty'"
+          class="btn btn-secondary"
+          @click="promptShowSolution"
+        >
+          Mostrar Solución
+        </button>
+        <button class="btn btn-normal" @click="validateSolution">Comprobar</button>
+        <button class="btn btn-secondary" @click="resetPuzzle">Reiniciar</button>
       </div>
-      
+
       <div v-if="isGameConcluded" class="mt-6 space-x-1">
-        <button @click="startNextPuzzle" class="btn btn-normal">Siguiente Puzzle</button>
-        <button @click="showMainMenu" class="btn btn-secondary">Menú Principal</button>
+        <button class="btn btn-normal" @click="startNextPuzzle">Siguiente Puzzle</button>
+        <button class="btn btn-secondary" @click="showMainMenu">Menú Principal</button>
       </div>
-      
+
       <p class="mt-4 text-lg h-6">{{ messageText }}</p>
     </div>
 
@@ -629,8 +677,12 @@ onUnmounted(() => {
         <h2 class="text-3xl font-bold mb-4">{{ modalTitle }}</h2>
         <p class="mb-6 text-lg">{{ modalMessage }}</p>
         <div class="flex justify-center gap-4">
-          <button v-if="showNextPuzzleButton" @click="startNextPuzzle" class="btn btn-normal">Siguiente Puzzle</button>
-          <button @click="closeModalAndShowMenu" class="btn btn-secondary">{{ backToMenuText }}</button>
+          <button v-if="showNextPuzzleButton" class="btn btn-normal" @click="startNextPuzzle">
+            Siguiente Puzzle
+          </button>
+          <button class="btn btn-secondary" @click="closeModalAndShowMenu">
+            {{ backToMenuText }}
+          </button>
         </div>
       </div>
     </div>
@@ -642,8 +694,12 @@ onUnmounted(() => {
         <p class="mb-6 text-lg">{{ solutionModalMessage }}</p>
         <p class="mb-6 text-md font-semibold text-yellow-500">{{ solutionModalCost }}</p>
         <div class="flex justify-center gap-4">
-          <button @click="confirmShowSolution" class="btn btn-danger">{{ confirmButtonText }}</button>
-          <button @click="cancelShowSolution" class="btn btn-secondary">{{ cancelButtonText }}</button>
+          <button class="btn btn-danger" @click="confirmShowSolution">
+            {{ confirmButtonText }}
+          </button>
+          <button class="btn btn-secondary" @click="cancelShowSolution">
+            {{ cancelButtonText }}
+          </button>
         </div>
         <p v-if="solutionError" class="mt-3 text-red-400">{{ solutionError }}</p>
       </div>
@@ -676,7 +732,9 @@ onUnmounted(() => {
   border-radius: 8px;
   gap: 0;
   background-color: #4a5568;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 .sudoku-cell {
@@ -692,11 +750,13 @@ onUnmounted(() => {
   cursor: pointer;
 }
 
-.sudoku-cell[data-col='2'], .sudoku-cell[data-col='5'] {
+.sudoku-cell[data-col='2'],
+.sudoku-cell[data-col='5'] {
   border-right: 2px solid #a0aec0;
 }
 
-.sudoku-cell[data-row='2'], .sudoku-cell[data-row='5'] {
+.sudoku-cell[data-row='2'],
+.sudoku-cell[data-row='5'] {
   border-bottom: 2px solid #a0aec0;
 }
 
@@ -769,62 +829,64 @@ onUnmounted(() => {
   padding: 0.5rem 1rem;
   border-radius: 0.375rem;
   font-weight: 600;
-  transition: background-color 0.2s, transform 0.1s;
+  transition:
+    background-color 0.2s,
+    transform 0.1s;
   cursor: pointer;
   border: none;
   color: white;
   margin: 0.25rem;
 }
 
-.btn-secondary { 
-  background-color: #4a5568; 
+.btn-secondary {
+  background-color: #4a5568;
 }
-.btn-secondary:hover { 
-  background-color: #2d3748; 
-}
-
-.btn-danger { 
-  background-color: #e53e3e; 
-}
-.btn-danger:hover { 
-  background-color: #c53030; 
+.btn-secondary:hover {
+  background-color: #2d3748;
 }
 
-.btn:active { 
-  transform: scale(0.95); 
+.btn-danger {
+  background-color: #e53e3e;
+}
+.btn-danger:hover {
+  background-color: #c53030;
 }
 
-.btn:disabled { 
-  background-color: #718096; 
-  cursor: not-allowed; 
+.btn:active {
+  transform: scale(0.95);
 }
 
-.btn-easy { 
-  background-color: #38a169; 
-}
-.btn-easy:hover { 
-  background-color: #2f855a; 
+.btn:disabled {
+  background-color: #718096;
+  cursor: not-allowed;
 }
 
-.btn-normal { 
-  background-color: #4299e1; 
+.btn-easy {
+  background-color: #38a169;
 }
-.btn-normal:hover { 
-  background-color: #3182ce; 
-}
-
-.btn-hard { 
-  background-color: #dd6b20; 
-}
-.btn-hard:hover { 
-  background-color: #c05621; 
+.btn-easy:hover {
+  background-color: #2f855a;
 }
 
-.btn-expert { 
-  background-color: #c53030; 
+.btn-normal {
+  background-color: #4299e1;
 }
-.btn-expert:hover { 
-  background-color: #9b2c2c; 
+.btn-normal:hover {
+  background-color: #3182ce;
+}
+
+.btn-hard {
+  background-color: #dd6b20;
+}
+.btn-hard:hover {
+  background-color: #c05621;
+}
+
+.btn-expert {
+  background-color: #c53030;
+}
+.btn-expert:hover {
+  background-color: #9b2c2c;
 }
 
 .modal {
@@ -833,7 +895,7 @@ onUnmounted(() => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.7);
+  background-color: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -845,7 +907,9 @@ onUnmounted(() => {
   padding: 2rem;
   border-radius: 0.5rem;
   text-align: center;
-  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
   max-width: 90vw;
 }
 </style>

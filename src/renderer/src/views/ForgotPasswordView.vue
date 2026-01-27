@@ -1,38 +1,38 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useAuth } from '@/stores';
-import { useI18n } from 'vue-i18n';
-import AlertModal from '@/components/AlertModal.vue';
+import { ref } from 'vue'
+import { useAuth } from '@/stores'
+import { useI18n } from 'vue-i18n'
+import AlertModal from '@/components/AlertModal.vue'
 
-const i18n = useI18n();
-const auth = useAuth();
+const i18n = useI18n()
+const auth = useAuth()
 
-const email = ref<string>('');
-const showModal = ref<boolean>(false);
-const modalTitle = ref<string>('');
-const modalMessage = ref<string>('');
+const email = ref<string>('')
+const showModal = ref<boolean>(false)
+const modalTitle = ref<string>('')
+const modalMessage = ref<string>('')
 
 function modalCallback(): void {
-  showModal.value = false;
+  showModal.value = false
 }
 
 async function submit(): Promise<void> {
   if (email.value.length === 0) {
-    modalTitle.value = i18n.t("notification") as string;
-    modalMessage.value = i18n.t("modal_email_required") as string; 
-    showModal.value = true;
-    return;
+    modalTitle.value = i18n.t('notification') as string
+    modalMessage.value = i18n.t('modal_email_required') as string
+    showModal.value = true
+    return
   }
 
   try {
-    await auth.requestPasswordReset(email.value);
-    modalTitle.value = i18n.t("success") as string; 
-    modalMessage.value = i18n.t("password_reset_email_sent") as string;
-    showModal.value = true;
+    await auth.requestPasswordReset(email.value)
+    modalTitle.value = i18n.t('success') as string
+    modalMessage.value = i18n.t('password_reset_email_sent') as string
+    showModal.value = true
   } catch (error: any) {
-    modalTitle.value = i18n.t("error") as string;
-    modalMessage.value = error.message || (i18n.t("error_requesting_password_reset") as string); 
-    showModal.value = true;
+    modalTitle.value = i18n.t('error') as string
+    modalMessage.value = error.message || (i18n.t('error_requesting_password_reset') as string)
+    showModal.value = true
   }
 }
 </script>
@@ -41,13 +41,17 @@ async function submit(): Promise<void> {
   <div class="forgot-password-page-wrapper">
     <img src="@/assets/images/elements/11.png" alt="Decorative element" class="left-side-image" />
     <div class="forgot-password-container">
-      <img src="@/assets/images/elements/9.png" alt="Decorative element" class="forgot-password-element-image top-image" />
+      <img
+        src="@/assets/images/elements/9.png"
+        alt="Decorative element"
+        class="forgot-password-element-image top-image"
+      />
       <h1 class="forgot-password-title">{{ $t('forgot_password_title').toUpperCase() }}</h1>
       <div class="fields">
         <form @submit.prevent="submit()">
           <p class="info-text">{{ $t('forgot_password_info_text') }}</p>
           <div class="form_group">
-            <input type="email" v-model="email" class="form_field" placeholder="email" required />
+            <input v-model="email" type="email" class="form_field" placeholder="email" required />
             <label for="email" class="form_label">{{ $t('login_email') }}</label>
           </div>
           <button class="submit_button_text" type="submit">{{ $t('submit').toUpperCase() }}</button>
@@ -61,10 +65,16 @@ async function submit(): Promise<void> {
           </Teleport>
         </form>
         <div class="back-to-login">
-          <RouterLink to="/login" style="color: white; text-decoration: underline;">{{ $t('back_to_login') }}</RouterLink>
+          <RouterLink to="/login" style="color: white; text-decoration: underline">{{
+            $t('back_to_login')
+          }}</RouterLink>
         </div>
       </div>
-      <img src="@/assets/images/elements/8.png" alt="Decorative element" class="forgot-password-element-image bottom-image" />
+      <img
+        src="@/assets/images/elements/8.png"
+        alt="Decorative element"
+        class="forgot-password-element-image bottom-image"
+      />
     </div>
     <img src="@/assets/images/elements/10.png" alt="Decorative element" class="right-side-image" />
   </div>
@@ -138,7 +148,7 @@ h1 {
   color: transparent;
 }
 
-.form_field:placeholder-shown~.form_label {
+.form_field:placeholder-shown ~ .form_label {
   cursor: text;
   top: 20px;
 }
@@ -159,7 +169,7 @@ h1 {
   border-image-slice: 1;
 }
 
-.form_field:focus~.form_label {
+.form_field:focus ~ .form_label {
   position: absolute;
   top: 0;
   display: block;
@@ -215,13 +225,13 @@ form {
 
 .top-image {
   position: absolute;
-  top: -50px; 
+  top: -50px;
   align-self: center;
 }
 
 .bottom-image {
   position: absolute;
-  bottom: -30px; 
+  bottom: -30px;
   align-self: center;
 }
 
@@ -249,7 +259,7 @@ form {
   .forgot-password-container {
     padding: 1.5rem;
   }
-  .right-side-image{
+  .right-side-image {
     width: 20px;
     margin: 1rem 0;
     top: 30px;
@@ -268,7 +278,8 @@ form {
   .forgot-password-title {
     font-size: 1.8rem;
   }
-  .right-side-image, .left-side-image {
+  .right-side-image,
+  .left-side-image {
     width: 20px;
   }
   .forgot-password-element-image {

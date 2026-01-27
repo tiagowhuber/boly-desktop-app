@@ -1,28 +1,28 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
-import axios from 'axios';
-import 'vue3-carousel/dist/carousel.css';
-import { Carousel, Slide, Navigation } from 'vue3-carousel';
-import AlertModal from '@/components/AlertModal.vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
+import axios from 'axios'
+import 'vue3-carousel/dist/carousel.css'
+import { Carousel, Slide, Navigation } from 'vue3-carousel'
+import AlertModal from '@/components/AlertModal.vue'
 
 // Import Boly action images
-import bolyAction1 from '@/assets/images/boly/bolyaction/1action.jpg';
-import bolyAction2 from '@/assets/images/boly/bolyaction/2action.jpg';
-import bolyAction3 from '@/assets/images/boly/bolyaction/3action.jpg';
-import bolyAction4 from '@/assets/images/boly/bolyaction/4action.jpg';
+import bolyAction1 from '@/assets/images/boly/bolyaction/1action.jpg'
+import bolyAction2 from '@/assets/images/boly/bolyaction/2action.jpg'
+import bolyAction3 from '@/assets/images/boly/bolyaction/3action.jpg'
+import bolyAction4 from '@/assets/images/boly/bolyaction/4action.jpg'
 
-const i18n = useI18n();
-const router = useRouter();
+const i18n = useI18n()
+const router = useRouter()
 
 // Carousel setup
-const carouselRef = ref<any>();
-const currentSlide = ref<number>(0);
-const isMobile = ref(window.innerWidth <= 768);
-const currentVersion = ref('');
-const showUpdateStatus = ref(false);
-const updateStatus = ref('');
+const carouselRef = ref<any>()
+const currentSlide = ref<number>(0)
+const isMobile = ref(window.innerWidth <= 768)
+const currentVersion = ref('')
+const showUpdateStatus = ref(false)
+const updateStatus = ref('')
 
 // Boly images data
 const bolyImages = ref([
@@ -50,7 +50,7 @@ const bolyImages = ref([
     title: 'Boly in Action 4',
     description: 'Educational gaming at its best'
   }
-]);
+])
 
 // Carousel settings
 const settings = computed(() => ({
@@ -62,49 +62,50 @@ const settings = computed(() => ({
   transition: 300,
   mouseDrag: isMobile.value,
   touchDrag: true
-}));
+}))
 
 // Calculate number of navigation dots needed
 const totalSlides = computed(() => {
-  const itemsPerSlide = isMobile.value ? 1 : 2;
-  return Math.ceil(bolyImages.value.length / itemsPerSlide);
-});
-
+  const itemsPerSlide = isMobile.value ? 1 : 2
+  return Math.ceil(bolyImages.value.length / itemsPerSlide)
+})
 
 function moveToSlide(i: number) {
-  carouselRef.value.slideTo(i);
-  carouselRef.value.updateSlidesData();
+  carouselRef.value.slideTo(i)
+  carouselRef.value.updateSlidesData()
 }
 
 // Handle window resize
 const handleResize = () => {
-  isMobile.value = window.innerWidth <= 768;
-};
+  isMobile.value = window.innerWidth <= 768
+}
 
 // Contact form reactive variables
-const form = ref(null);
-const showModal = ref(false);
-const modalText = ref('');
-const canSend = ref(true);
-const name = ref('');
-const company = ref('');
-const email = ref('');
-const phone = ref('');
-const message = ref('');
-const reason = ref('');
+const form = ref(null)
+const showModal = ref(false)
+const modalText = ref('')
+const canSend = ref(true)
+const name = ref('')
+const company = ref('')
+const email = ref('')
+const phone = ref('')
+const message = ref('')
+const reason = ref('')
 
 async function SendEmail() {
-  if (email.value.length === 0 ||
-      name.value.length === 0 ||
-      company.value.length === 0 ||
-      phone.value.length === 0 ||
-      message.value.length === 0) {
-    modalText.value = i18n.t('modal_all_fields');
-    showModal.value = true;
-    return;
+  if (
+    email.value.length === 0 ||
+    name.value.length === 0 ||
+    company.value.length === 0 ||
+    phone.value.length === 0 ||
+    message.value.length === 0
+  ) {
+    modalText.value = i18n.t('modal_all_fields')
+    showModal.value = true
+    return
   }
 
-  canSend.value = false;
+  canSend.value = false
 
   try {
     // Send contact form through your backend API
@@ -118,8 +119,8 @@ async function SendEmail() {
       timestamp: new Date().toISOString()
     }
 
-    const response = await axios.post('/v1/support/contact', contactData);
-    
+    const response = await axios.post('/v1/support/contact', contactData)
+
     if (response.data && response.data.success) {
       // Reset form
       name.value = ''
@@ -128,76 +129,80 @@ async function SendEmail() {
       phone.value = ''
       message.value = ''
       reason.value = ''
-      canSend.value = true;
-      
+      canSend.value = true
+
       // Redirect to success page
-      router.push('/email-success');
+      router.push('/email-success')
     } else {
-      throw new Error('API response indicates failure');
+      throw new Error('API response indicates failure')
     }
   } catch (error) {
-    console.error('Failed to send contact form:', error);
-    modalText.value = i18n.t('send_query_error') || 'Failed to send message. Please try again later.'
-    showModal.value = true;
-    canSend.value = true;
+    console.error('Failed to send contact form:', error)
+    modalText.value =
+      i18n.t('send_query_error') || 'Failed to send message. Please try again later.'
+    showModal.value = true
+    canSend.value = true
   }
 }
 
 // Lifecycle hooks
 onMounted(() => {
   // Add resize event listener
-  window.addEventListener('resize', handleResize);
-  
-  console.log("Checking electronAPI availability:", window.electronAPI);
-  console.log("Checking updateMessage availability:", window.electronAPI?.updateMessage);
-  
+  window.addEventListener('resize', handleResize)
+
+  console.log('Checking electronAPI availability:', window.electronAPI)
+  console.log('Checking updateMessage availability:', window.electronAPI?.updateMessage)
+
   // Add the update message listener
   if (window.electronAPI && window.electronAPI.updateMessage) {
-    console.log("Setting up updateMessage listener");
+    console.log('Setting up updateMessage listener')
     window.electronAPI.updateMessage((message: string) => {
-      console.log("Update message received:", message);
-      updateStatus.value = message;
-    });
-    
+      console.log('Update message received:', message)
+      updateStatus.value = message
+    })
+
     // Get current version using the proper method
     if (window.electronAPI.getVersion) {
-      window.electronAPI.getVersion().then((version: string) => {
-        console.log("Current version received:", version);
-        currentVersion.value = version;
-      }).catch((error: any) => {
-        console.error("Error getting version:", error);
-      });
+      window.electronAPI
+        .getVersion()
+        .then((version: string) => {
+          console.log('Current version received:', version)
+          currentVersion.value = version
+        })
+        .catch((error: any) => {
+          console.error('Error getting version:', error)
+        })
     } else {
-      console.error("getVersion function not available");
+      console.error('getVersion function not available')
     }
-    
-    checkForUpdates();
+
+    checkForUpdates()
   } else {
-    console.error("electronAPI or updateMessage function not available");
-    updateStatus.value = "Update system not available";
+    console.error('electronAPI or updateMessage function not available')
+    updateStatus.value = 'Update system not available'
   }
-});
+})
 
 async function checkForUpdates() {
   try {
     if (window.electronAPI && window.electronAPI.checkUpdates) {
-      const result = await window.electronAPI.checkUpdates();
-      console.log("Check for updates result:", result);
-      updateStatus.value = result;
+      const result = await window.electronAPI.checkUpdates()
+      console.log('Check for updates result:', result)
+      updateStatus.value = result
     } else {
-      console.error("checkUpdates function not available");
-      updateStatus.value = "Update check not available";
+      console.error('checkUpdates function not available')
+      updateStatus.value = 'Update check not available'
     }
   } catch (error) {
-    console.error("Error checking for updates:", error);
-    updateStatus.value = "Error checking for updates";
+    console.error('Error checking for updates:', error)
+    updateStatus.value = 'Error checking for updates'
   }
 }
 
 onBeforeUnmount(() => {
   // Clean up event listener
-  window.removeEventListener('resize', handleResize);
-});
+  window.removeEventListener('resize', handleResize)
+})
 </script>
 
 <template>
@@ -209,20 +214,31 @@ onBeforeUnmount(() => {
           <button class="close-button" @click="showUpdateStatus = false">×</button>
         </div>
         <p class="update-status">{{ updateStatus }}</p>
-        <button class="update-button" @click="checkForUpdates">{{ $t('check_for_updates') || 'Check for updates' }}</button>
+        <button class="update-button" @click="checkForUpdates">
+          {{ $t('check_for_updates') || 'Check for updates' }}
+        </button>
         <p class="version">{{ currentVersion }}</p>
       </div>
     </div>
   </transition>
-  
+
   <button class="info-button" @click="showUpdateStatus = !showUpdateStatus">
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-info-square-fill" viewBox="0 0 16 16">
-      <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm8.93 4.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM8 5.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      fill="currentColor"
+      class="bi bi-info-square-fill"
+      viewBox="0 0 16 16"
+    >
+      <path
+        d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm8.93 4.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM8 5.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2"
+      />
     </svg>
   </button>
 
   <div class="section color-orange header"></div>
-  
+
   <div class="logo">
     <img src="@/assets/images/elements/1.png" />
     <div class="romboid">
@@ -230,35 +246,44 @@ onBeforeUnmount(() => {
       <p class="home-body1-description">{{ $t('home_body1_description') }}</p>
     </div>
   </div>
-  
-  
+
   <div class="section color-pink main"></div>
-  
+
   <div class="section color-pink home-section">
     <div class="svg-container">
-        <a href="https://boly.cl/educators" class="svg-link" target="_blank" rel="noopener noreferrer">
-          <div class="svg-left">
-              <img src="@/assets/svgs/HomeViewSvgs/teacherwithbook.svg" alt="Teacher with book" />
-              <h3>{{ $t('home_svg1_title').toLocaleUpperCase() }}</h3>
-              <p>{{ $t('home_svg1_description') }}</p>
-          </div>
-        </a>
-        <a href="https://boly.cl/developer-contact" class="svg-link" target="_blank" rel="noopener noreferrer">
-          <div class="svg-right">
-              <img src="@/assets/svgs/HomeViewSvgs/womanwithlaptop.svg" alt="Woman with laptop" />
-              <h3>{{ $t('home_svg2_title').toLocaleUpperCase() }}</h3>
-              <p>{{ $t('home_svg2_description') }}</p>
-          </div>
-        </a>
+      <a
+        href="https://boly.cl/educators"
+        class="svg-link"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <div class="svg-left">
+          <img src="@/assets/svgs/HomeViewSvgs/teacherwithbook.svg" alt="Teacher with book" />
+          <h3>{{ $t('home_svg1_title').toLocaleUpperCase() }}</h3>
+          <p>{{ $t('home_svg1_description') }}</p>
+        </div>
+      </a>
+      <a
+        href="https://boly.cl/developer-contact"
+        class="svg-link"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <div class="svg-right">
+          <img src="@/assets/svgs/HomeViewSvgs/womanwithlaptop.svg" alt="Woman with laptop" />
+          <h3>{{ $t('home_svg2_title').toLocaleUpperCase() }}</h3>
+          <p>{{ $t('home_svg2_description') }}</p>
+        </div>
+      </a>
     </div>
   </div>
-  
+
   <div class="divider color-blue"></div>
-  
-  <div id="our-project-section" class="section color-blue view-container" style="--h:100rem">
+
+  <div id="our-project-section" class="section color-blue view-container" style="--h: 100rem">
     <div class="our-project-content">
       <h1 class="our-project-title">{{ $t('home_title2').toUpperCase() }}</h1>
-      
+
       <div class="project-description">
         <p class="main-description">
           {{ $t('project_main_text') }}
@@ -274,25 +299,25 @@ onBeforeUnmount(() => {
             <img src="@/assets/svgs/HomeViewSvgs/book.svg" alt="Book" />
           </div>
         </div>
-        
+
         <div class="flow-arrow">→</div>
-        
+
         <div class="flow-item">
           <div class="flow-icon affinity-icon">
             <img src="@/assets/svgs/HomeViewSvgs/affinity.svg" alt="Affinity" />
           </div>
         </div>
-        
+
         <div class="flow-arrow">→</div>
-        
+
         <div class="flow-item">
           <div class="flow-icon">
             <img src="@/assets/svgs/HomeViewSvgs/gamepad.svg" alt="Game Controller" />
           </div>
         </div>
-        
+
         <div class="flow-arrow">→</div>
-        
+
         <div class="flow-item">
           <div class="flow-icon">
             <img src="@/assets/svgs/HomeViewSvgs/innovation.svg" alt="Innovation" />
@@ -308,7 +333,7 @@ onBeforeUnmount(() => {
 
       <div class="target-audience">
         <h2>{{ $t('revolution_question') }}</h2>
-        
+
         <div class="audience-grid">
           <div class="audience-column">
             <h3>{{ $t('educators') }}</h3>
@@ -321,7 +346,7 @@ onBeforeUnmount(() => {
               <button class="cta-button educators-btn">{{ $t('want_know_more') }}</button>
             </a>
           </div>
-          
+
           <div class="audience-column">
             <h3>{{ $t('developers') }}</h3>
             <ul>
@@ -339,28 +364,42 @@ onBeforeUnmount(() => {
   </div>
 
   <div class="divider color-orange"></div>
-  
-  <div id="technology-section" class="section color-orange view-container" style="--h:50rem">
+
+  <div id="technology-section" class="section color-orange view-container" style="--h: 50rem">
     <div class="technology-content">
       <h1 class="our-project-title">{{ $t('home_title3').toUpperCase() }}</h1>
-      
+
       <div class="technology-cards">
         <div class="tech-card">
           <div class="card-visual">
-            <img src="@/assets/svgs/HomeViewSvgs/down88.svg" alt="88% Statistics" class="card-svg" />
+            <img
+              src="@/assets/svgs/HomeViewSvgs/down88.svg"
+              alt="88% Statistics"
+              class="card-svg"
+            />
           </div>
           <div class="card-text">
-            <p>{{ $t('home_graph1_data_text1') }}<strong>{{ $t('home_graph1_data_text2') }}</strong></p>
+            <p>
+              {{ $t('home_graph1_data_text1') }}<strong>{{ $t('home_graph1_data_text2') }}</strong>
+            </p>
           </div>
         </div>
 
         <div class="tech-card solution-card">
           <div class="card-visual">
-            <img src="@/assets/svgs/HomeViewSvgs/lampandgear.svg" alt="Solution" class="card-svg solution-svg" />
+            <img
+              src="@/assets/svgs/HomeViewSvgs/lampandgear.svg"
+              alt="Solution"
+              class="card-svg solution-svg"
+            />
           </div>
           <div class="card-text">
-            <p><strong>{{ $t('technology_solution_text1') }}</strong></p>
-            <p><strong>{{ $t('technology_solution_text2') }}</strong></p>
+            <p>
+              <strong>{{ $t('technology_solution_text1') }}</strong>
+            </p>
+            <p>
+              <strong>{{ $t('technology_solution_text2') }}</strong>
+            </p>
           </div>
         </div>
 
@@ -370,48 +409,49 @@ onBeforeUnmount(() => {
           </div>
           <div class="card-text">
             <p>{{ $t('technology_mobile_learning_text1') }}</p>
-            <p><strong>{{ $t('technology_mobile_learning_text2') }}</strong></p>
+            <p>
+              <strong>{{ $t('technology_mobile_learning_text2') }}</strong>
+            </p>
           </div>
         </div>
       </div>
-
     </div>
   </div>
-  
-  <div id="games-section" class="color-pink section view-container games-section-bg"style="--h:60rem">
+
+  <div
+    id="games-section"
+    class="color-pink section view-container games-section-bg"
+    style="--h: 60rem"
+  >
     <div class="our-games-content">
       <h2 class="our-games-title">{{ $t('our_games_title') }}</h2>
-      
+
       <div class="project-description">
         <p class="secondary-description">
           {{ $t('our_games_secondary_text') }}
         </p>
         <router-link to="/games">
           <button class="cta-button developers-btn games-btn">
-        {{ $t('lets_go') }}
+            {{ $t('lets_go') }}
           </button>
         </router-link>
       </div>
     </div>
   </div>
-  
+
   <div class="divider color-pink"></div>
-  
+
   <!-- Boly Images Carousel Section -->
-  <div class="section color-pink view-container" style="--h:50rem">
+  <div class="section color-pink view-container" style="--h: 50rem">
     <div class="boly-carousel-content">
       <h1 class="our-project-title">{{ $t('boly_gallery_title').toUpperCase() || 'MEET BOLY' }}</h1>
-      
+
       <div class="carousel-container" :class="{ 'mobile-carousel': isMobile }">
         <carousel v-bind="settings" ref="carouselRef" v-model="currentSlide">
           <slide v-for="item in bolyImages" :key="item.id">
             <div class="boly-slide-image-only" :class="{ 'mobile-slide': isMobile }">
               <div class="boly-image-wrapper" :class="{ 'mobile-image': isMobile }">
-                <img 
-                  :src="item.src" 
-                  :alt="item.title"
-                  loading="lazy"
-                >
+                <img :src="item.src" :alt="item.title" loading="lazy" />
               </div>
             </div>
           </slide>
@@ -421,61 +461,80 @@ onBeforeUnmount(() => {
           </template>
         </carousel>
       </div>
-      
+
       <div class="boly-nav-counter" :class="{ 'mobile-nav-counter': isMobile }">
-        <span 
-          v-for="i in totalSlides" 
-          :key="i" 
-          @click="moveToSlide(i-1)"
+        <span
+          v-for="i in totalSlides"
+          :key="i"
           class="boly-nav-dot"
-          :class="{ active: currentSlide === i-1 }"
+          :class="{ active: currentSlide === i - 1 }"
+          @click="moveToSlide(i - 1)"
         >
-          {{ currentSlide === i-1 ? '●' : '○' }}
+          {{ currentSlide === i - 1 ? '●' : '○' }}
         </span>
       </div>
     </div>
   </div>
-   
-  
+
   <div class="divider color-blue"></div>
-  
+
   <div class="color-blue">
-      <h1 class="our-project-title">{{ $t('home_title5').toUpperCase() }}</h1>
+    <h1 class="our-project-title">{{ $t('home_title5').toUpperCase() }}</h1>
   </div>
-  
+
   <div class="view-container-grid form-grid color-blue">
-    <div class="item-form-grid" style="--column-s:1;">
+    <div class="item-form-grid" style="--column-s: 1">
       <h1 class="form-subtitle">{{ $t('home_form_title').toUpperCase() }}</h1>
     </div>
-    <div class="item-form-grid" style="--column-s:1;--row-s:2;">
-      <p style="font-family: 'Poppins', sans-serif; font-size: 1.9rem">{{ $t('home_form_text') }}</p>
+    <div class="item-form-grid" style="--column-s: 1; --row-s: 2">
+      <p style="font-family: 'Poppins', sans-serif; font-size: 1.9rem">
+        {{ $t('home_form_text') }}
+      </p>
     </div>
     <form ref="form" @submit.prevent="SendEmail">
-      <div class="item-form-grid" style="--column-s:2;--row-s:1;--row-e:2">
-        <input class="form-element" type="text" name="name" v-model="name" :placeholder="$t('name')" />
-        <input class="form-element" type="text" name="company" v-model="company" :placeholder="$t('company')" />
-        <input class="form-element" type="email" name="email" v-model="email" :placeholder="$t('email')" />
-        <input 
-          class="form-element" 
+      <div class="item-form-grid" style="--column-s: 2; --row-s: 1; --row-e: 2">
+        <input
+          v-model="name"
+          class="form-element"
+          type="text"
+          name="name"
+          :placeholder="$t('name')"
+        />
+        <input
+          v-model="company"
+          class="form-element"
+          type="text"
+          name="company"
+          :placeholder="$t('company')"
+        />
+        <input
+          v-model="email"
+          class="form-element"
+          type="email"
+          name="email"
+          :placeholder="$t('email')"
+        />
+        <input
+          v-model="phone"
+          class="form-element"
           type="tel"
           pattern="((\+\d{1,3}(-|.| )?\(?\d\)?(-| |.)?\d{1,5})|(\(?\d{2,6}\)?))(-|.| )?(\d{3,4})(-|.| )?(\d{4})(( x| ext)\d{1,5}){0,1}$"
-          name="phone" 
-          v-model="phone" 
+          name="phone"
           :placeholder="$t('phone')"
-          @input="phone = phone.replace(/\D/g, '').slice(0, 9)" 
+          @input="phone = phone.replace(/\D/g, '').slice(0, 9)"
         />
-        <select class="form-element" name="reason" v-model="reason">
+        <select v-model="reason" class="form-element" name="reason">
           <option value="" disabled>{{ $t('select_reason') || 'Select reason (optional)' }}</option>
           <option value="demo_request">{{ $t('demo_request') || 'Demo Request' }}</option>
           <option value="query">{{ $t('query_dropdown') || 'Query' }}</option>
           <option value="other">{{ $t('other') || 'Other' }}</option>
         </select>
-        <textarea 
-          class="form-element" 
-          style="--h:10rem;" 
-          type="text" 
-          name="message" 
+        <textarea
           v-model="message"
+          class="form-element"
+          style="--h: 10rem"
+          type="text"
+          name="message"
           :placeholder="$t('query_home')"
         ></textarea>
         <button class="form-button" type="submit" :disabled="!canSend">
@@ -484,9 +543,9 @@ onBeforeUnmount(() => {
       </div>
     </form>
   </div>
-  
+
   <div class="divider color-purple"></div>
-  
+
   <div class="color-purple RRSS-container-section">
     <div class="RRSS-container-grid">
       <a href="https://www.instagram.com/boly_games/">
@@ -509,13 +568,13 @@ onBeforeUnmount(() => {
       </a>
     </div>
   </div>
-  
+
   <div class="pre-footer color-purple"></div>
 
   <Teleport to="body">
     <AlertModal :show="showModal" @close="showModal = false">
       <template #header>
-        <h3>{{$t('notification')}}</h3>
+        <h3>{{ $t('notification') }}</h3>
       </template>
       <template #body> {{ modalText }} </template>
     </AlertModal>
@@ -561,7 +620,7 @@ body {
   padding-top: 25vw;
   padding-bottom: 10rem;
   margin-top: -10rem;
-  font-family: "Anton", serif;
+  font-family: 'Anton', serif;
   clip-path: polygon(0% 10%, 100% 0%, 100% 100%, 0% 100%);
   transform-origin: top left;
   position: relative;
@@ -608,7 +667,7 @@ body {
 
 .romboid h2 {
   font-family: 'Poppins', sans-serif;
-  background: white; 
+  background: white;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -617,7 +676,8 @@ body {
   transform: rotate(-2deg);
   font-weight: 900;
   -webkit-text-stroke: 3px rgba(255, 255, 255, 0.2);
-  filter: drop-shadow(2px 2px 0px rgba(135, 206, 250, 0.6)) drop-shadow(0 2px 4px rgba(173, 216, 230, 0.4));
+  filter: drop-shadow(2px 2px 0px rgba(135, 206, 250, 0.6))
+    drop-shadow(0 2px 4px rgba(173, 216, 230, 0.4));
 }
 
 .home-body1-description {
@@ -640,7 +700,7 @@ body {
   padding-top: 30rem;
   margin-bottom: 0rem;
   margin-top: -20rem;
-  font-family: "Anton", serif;
+  font-family: 'Anton', serif;
   clip-path: polygon(0% 20%, 100% 0%, 100% 100%, 0% 100%);
   transform-origin: top left;
   z-index: 2;
@@ -651,7 +711,7 @@ body {
 .home-section {
   padding: 12rem 4rem;
   margin-top: -1rem;
-  font-family: "Anton", serif;
+  font-family: 'Anton', serif;
   transform-origin: top left;
   z-index: 2;
   position: relative;
@@ -853,7 +913,7 @@ body {
   margin-left: -6rem;
   text-align: end;
   font-size: 4rem;
-  font-family: "Anton", serif;
+  font-family: 'Anton', serif;
   color: rgb(78, 69, 153);
   width: 22rem;
 }
@@ -907,7 +967,7 @@ body {
 
 .contact-bg {
   height: 800px;
-  background-image: url("src/assets/images/fondo-xd.png");
+  background-image: url('src/assets/images/fondo-xd.png');
   background-size: cover;
 }
 
@@ -947,14 +1007,14 @@ p {
 
 h2 {
   text-align: center;
-  font-family: "Anton", serif;
+  font-family: 'Anton', serif;
   font-size: 3.75rem;
   width: 100%;
 }
 
 h1 {
   text-align: center;
-  font-family: "Anton", serif;
+  font-family: 'Anton', serif;
   font-size: 500%;
   width: 100%;
 }
@@ -966,7 +1026,7 @@ h1 {
 
 .section-title {
   text-align: left;
-  font-family: "Anton", serif;
+  font-family: 'Anton', serif;
   font-style: italic;
   font-size: 300%;
 }
@@ -1025,7 +1085,6 @@ h1 {
   transform: scale(1.05);
 }
 
-
 .svg-left:hover::before,
 .svg-right:hover::before {
   content: '';
@@ -1042,7 +1101,7 @@ h1 {
 
 .svg-left h3,
 .svg-right h3 {
-  font-family: "Anton", serif;
+  font-family: 'Anton', serif;
   font-size: 2rem;
   color: white;
   text-align: center;
@@ -1080,9 +1139,9 @@ h1 {
 }
 
 .flow-item {
-    display: flex;
-    align-items: center;
-    filter: drop-shadow(10px 8px 2px rgba(0, 0, 0, 0.2));
+  display: flex;
+  align-items: center;
+  filter: drop-shadow(10px 8px 2px rgba(0, 0, 0, 0.2));
 }
 
 .flow-icon {
@@ -1161,13 +1220,13 @@ h1 {
 }
 
 .target-audience h2 {
-    text-align: center;
-    font-family: "Anton", serif;
-    font-size: 2.5rem;
-    color: white;
-    margin: 0 auto 3rem auto;
-    width: 65%;
-    filter: drop-shadow(0 12px 40px rgba(0, 0, 0, 0.3));
+  text-align: center;
+  font-family: 'Anton', serif;
+  font-size: 2.5rem;
+  color: white;
+  margin: 0 auto 3rem auto;
+  width: 65%;
+  filter: drop-shadow(0 12px 40px rgba(0, 0, 0, 0.3));
 }
 
 .audience-grid {
@@ -1202,7 +1261,7 @@ h1 {
 }
 
 .audience-column h3 {
-  font-family: "Anton", serif;
+  font-family: 'Anton', serif;
   font-size: 2rem;
   color: white;
   margin-bottom: 1.5rem;
@@ -1275,7 +1334,7 @@ h1 {
 
 .our-project-title {
   font-family: 'Poppins', sans-serif;
-  background: white; 
+  background: white;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1287,7 +1346,7 @@ h1 {
 
 .our-games-title {
   font-family: 'Poppins', sans-serif;
-  background: white; 
+  background: white;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1338,15 +1397,15 @@ h1 {
     grid-template-columns: 1fr;
     gap: 2rem;
   }
-  
+
   .main-description {
     font-size: 1.5rem;
   }
-  
+
   .secondary-description {
     font-size: 1.2rem;
   }
-  
+
   .dev-icons-image {
     max-width: 90%;
   }
@@ -1423,7 +1482,8 @@ h1 {
 }
 
 @keyframes pulse-glow {
-  0%, 100% {
+  0%,
+  100% {
     filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
     transform: scale(1);
   }
@@ -1434,7 +1494,7 @@ h1 {
 }
 
 .card-percentage {
-  font-family: "Anton", serif;
+  font-family: 'Anton', serif;
   font-size: 3rem;
   color: white;
   font-weight: 900;
@@ -1481,15 +1541,15 @@ h1 {
     grid-template-columns: 1fr;
     gap: 2rem;
   }
-  
+
   .card-percentage {
     font-size: 2.5rem;
   }
-  
+
   .concrete-example {
     padding: 1.5rem;
   }
-  
+
   .concrete-example p {
     font-size: 1rem;
   }
@@ -1598,7 +1658,7 @@ h1 {
 }
 
 .boly-details h3 {
-  font-family: "Anton", serif;
+  font-family: 'Anton', serif;
   font-style: italic;
   font-size: 2rem;
   color: white;
@@ -1640,7 +1700,9 @@ h1 {
 }
 
 .boly-nav-dot {
-  transition: transform 0.2s ease, color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
   user-select: none;
   color: rgba(255, 255, 255, 0.5);
 }
@@ -1786,11 +1848,13 @@ h1 {
   height: 24px;
 }
 
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
   transition: opacity 0.3s ease;
 }
 
-.fade-enter-from, .fade-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
 }
 
@@ -1801,12 +1865,12 @@ h1 {
     bottom: 15px;
     right: 15px;
   }
-  
+
   .info-button svg {
     width: 20px;
     height: 20px;
   }
-  
+
   .update-status-container {
     bottom: 65px;
     right: 15px;
@@ -1821,15 +1885,15 @@ h1 {
   .boly-slide {
     padding: 1.5rem;
   }
-  
+
   .boly-carousel-content .carousel__slide {
     touch-action: pan-y;
   }
-  
+
   .boly-carousel-content .carousel__pagination {
     margin-top: 10px;
   }
-  
+
   .boly-carousel-content .carousel__pagination-button {
     padding: 5px;
   }

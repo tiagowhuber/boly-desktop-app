@@ -6,7 +6,8 @@ export const en = {
 
   home_title1: 'Boly',
   home_body1: 'Revolutionizing the classroom',
-  home_body1_description: 'Boly connects teachers, students, and developers with personalized educational video games.',
+  home_body1_description:
+    'Boly connects teachers, students, and developers with personalized educational video games.',
 
   home_svg1_title: "I'm a teacher",
   home_svg1_description: 'How to improve learning in your classroom',
@@ -14,31 +15,37 @@ export const en = {
   home_svg2_description: 'Publish, receive metrics and monetize',
   home_title2: 'OUR PROJECT',
   home_body2: 'AT BOLY, WE UNDERSTAND GAMERS, DEVELOPERS AND EDUCATORS',
-  home_text3: 'Boly is a high-quality educational video game distribution platform that uses gamification & AI to personalize learning. We connect developers with students and schools and provide educators with tools to enhance the educational experience.',
+  home_text3:
+    'Boly is a high-quality educational video game distribution platform that uses gamification & AI to personalize learning. We connect developers with students and schools and provide educators with tools to enhance the educational experience.',
 
   home_title3: 'TECHNOLOGY AND EDUCATION',
   home_graph1_data_title: 'No laboratories',
   home_graph1_data_text1: 'According to the IDB, 88% of schools in LATAM',
   home_graph1_data_text2: ' do not have science laboratories',
-  home_graph1_data_text3: ' and there is a trend towards an increase in the use of mobile phones by younger and younger children.',
+  home_graph1_data_text3:
+    ' and there is a trend towards an increase in the use of mobile phones by younger and younger children.',
 
   home_graph2_data_title: 'Phone access',
   home_graph2_data_text1: 'Currently, 92% of children ',
   home_graph2_data_text2: 'have access to and play on mobile phones,',
   home_graph2_data_text3: ` generating a battle in the classroom for students' attention and great concern among parents about the use of this technology.`,
 
-  home_title4: "Boly in action",
-  home_slider_text: "Slide to see more action",
+  home_title4: 'Boly in action',
+  home_slider_text: 'Slide to see more action',
 
   home_title5: `LET'S TALK`,
   home_form_title: `At Boly, we count on you to take education to the next level`,
-  home_form_text: 'Do you or your team have an experience, game or application for educational purposes? Contact us or write us your inquiry so you can be part of Boly.',
+  home_form_text:
+    'Do you or your team have an experience, game or application for educational purposes? Contact us or write us your inquiry so you can be part of Boly.',
 
   home_meet_us: 'Meet us',
   // Our Project Section
-  project_main_text: 'Boly is an educational video game platform that makes learning as entertaining as playing.',
-  project_secondary_text: 'Thanks to gamification and artificial intelligence, we adapt content according to learning level, promoting step-by-step progress.',
-  connection_text: 'We connect developers with students, schools and teachers, providing tools that motivate, reinforce learning and transform every class into a dynamic experience.',
+  project_main_text:
+    'Boly is an educational video game platform that makes learning as entertaining as playing.',
+  project_secondary_text:
+    'Thanks to gamification and artificial intelligence, we adapt content according to learning level, promoting step-by-step progress.',
+  connection_text:
+    'We connect developers with students, schools and teachers, providing tools that motivate, reinforce learning and transform every class into a dynamic experience.',
   revolution_question: 'DO YOU WANT TO BE PART OF THE LEARNING REVOLUTION WITH VIDEO GAMES?',
   educators: 'Educators',
   developers: 'Developers',
@@ -51,40 +58,22 @@ export const en = {
   want_know_more: 'I want to know more',
   query_home: 'Message',
 
-  home_title3: 'TECHNOLOGY AND EDUCATION',
-  home_graph1_data_title: 'No laboratories',
-  home_graph1_data_text1: 'According to the IDB, 88% of schools in LATAM',
-  home_graph1_data_text2: ' do not have science laboratories',
-  home_graph1_data_text3: ' and there is a trend towards an increase in the use of mobile phones by younger and younger children.',
-
-  home_graph2_data_title: 'Phone access',
-  home_graph2_data_text1: 'Currently, 92% of children ',
-  home_graph2_data_text2: 'have access to and play on mobile phones,',
-  home_graph2_data_text3: ` generating a battle in the classroom for students' attention and great concern among parents about the use of this technology.`,
-
   // Technology section specific translations
   technology_solution_text1: 'Boly solves this by bringing',
   technology_solution_text2: 'virtual laboratories',
-  technology_mobile_learning_text1: 'That\'s why more than 92% of',
+  technology_mobile_learning_text1: "That's why more than 92% of",
   technology_mobile_learning_text2: 'children already learn on mobile phones.',
-  technology_classroom_example: 'See how this looks in the classroom: "a student performs a digital experiment on their phone and their teacher receives an immediate report."',
+  technology_classroom_example:
+    'See how this looks in the classroom: "a student performs a digital experiment on their phone and their teacher receives an immediate report."',
 
   // Our games section
   our_games_title: 'DISCOVER OUR EDUCATIONAL VIDEO GAMES',
-  our_games_secondary_text: 'Discover the games that are revolutionizing learning in classrooms and homes. Learning has never been so entertaining!',
-  lets_go: 'Let\'s go!',
+  our_games_secondary_text:
+    'Discover the games that are revolutionizing learning in classrooms and homes. Learning has never been so entertaining!',
+  lets_go: "Let's go!",
 
   //boly in action section
   boly_gallery_title: 'Boly in action',
-
-  home_title4: "Boly in action",
-  home_slider_text: "Slide to see more action",
-
-  home_title5: `LET'S TALK`,
-  home_form_title: `At Boly, we count on you to take education to the next level`,
-  home_form_text: 'Do you or your team have an experience, game or application for educational purposes? Contact us or write us your inquiry so you can be part of Boly.',
-
-  home_meet_us: 'Meet us',
 
   // Contact form reason dropdown
   select_reason: 'Select reason (optional)',
@@ -94,7 +83,8 @@ export const en = {
 
   // Email success page
   email_sent_success_title: 'Message Sent Successfully!',
-  email_sent_success_message: 'Thank you for contacting us! We have received your message and will get back to you as soon as possible.',
+  email_sent_success_message:
+    'Thank you for contacting us! We have received your message and will get back to you as soon as possible.',
   send_another_message: 'Send Another Message',
   contact_alternative: 'You can also reach us directly at:',
 
@@ -111,7 +101,8 @@ export const en = {
   developer_contact: 'Developers',
 
   // footer
-  copyright_disclaimer: '© 2024. All rights reserved. All trademarks are the property of their respective owners / developers.',
+  copyright_disclaimer:
+    '© 2024. All rights reserved. All trademarks are the property of their respective owners / developers.',
   vat_disclaimer: 'All prices include VAT (where applicable).',
 
   privacy_policy: 'Privacy Policy',
@@ -131,18 +122,18 @@ export const en = {
   view_in_cart: 'View in cart',
   coming_soon: 'Coming soon!',
 
-  game_platforms:'Platforms',
-  go_to_library:'Go to library',
-  see_more:'See more',
-  claim_for_free:'Claim for free',
-  general_info:'General information',
-  faq:'FAQ',
+  game_platforms: 'Platforms',
+  go_to_library: 'Go to library',
+  see_more: 'See more',
+  claim_for_free: 'Claim for free',
+  general_info: 'General information',
+  faq: 'FAQ',
 
-  featured:'Featured',
+  featured: 'Featured',
 
-  downloadable_games:'Downloadable games',
-  web_games:'Web games',
-  downloadable_content:'Downloadable content',
+  downloadable_games: 'Downloadable games',
+  web_games: 'Web games',
+  downloadable_content: 'Downloadable content',
 
   // library view
   library_title: 'LIBRARY',
@@ -163,7 +154,7 @@ export const en = {
   achievements_not_available: 'Achievements not available',
   no_achievements: 'No achievements for this game.',
   no_owned_games: "It's empty here...",
-  browse_games: "Browse Games",
+  browse_games: 'Browse Games',
   show_all_games: 'Show all games',
   show_all_owned_games: 'Library',
   show_installed_only: 'Installed Games',
@@ -173,7 +164,6 @@ export const en = {
   update_info: 'Update Info',
   check_for_updates: 'Check for updates',
   play_time: 'Play time',
-  no_subscription_games: 'Subscribe to access all games!',
   uninstall: 'Uninstall',
   trial_access_games: 'Trial Access',
   no_trial_games: 'You do not have any trial games yet.',
@@ -193,7 +183,8 @@ export const en = {
   send_query_error: 'Oops! An error occurred while sending your inquiry. Please try again.',
   contact_lets_talk: `Let's talk`,
   contact_body: `How can we help you?`,
-  contact_text: 'We are here to assist you with any questions or inquiries you may have. Please fill out the form below, and we will get back to you as soon as possible.',
+  contact_text:
+    'We are here to assist you with any questions or inquiries you may have. Please fill out the form below, and we will get back to you as soon as possible.',
 
   // subscription view
   subscription_plans: 'Subscription plans',
@@ -203,13 +194,15 @@ export const en = {
   yearly_plan: 'Yearly Plan',
   subscribe: 'Subscribe',
   current_plan: 'Current Plan',
-  month: "Month",
+  month: 'Month',
   free_feature_1: 'Ideal for beginners and explorers.',
   free_feature_2: 'Limited access to a selection of our most popular educational games.',
-  free_feature_3: 'Designed for those who want to try how BOLY can transform the classroom and the learning process.',
+  free_feature_3:
+    'Designed for those who want to try how BOLY can transform the classroom and the learning process.',
   monthly_feature_1: 'All content, with no limitations.',
   monthly_feature_2: 'Complete access to all educational games available on our platform.',
-  monthly_feature_3: 'Perfect for families, educators and students looking to learn and play, month by month.',
+  monthly_feature_3:
+    'Perfect for families, educators and students looking to learn and play, month by month.',
   monthly_feature_4: 'Cancel at any time.',
   yearly_feature_1: 'For fans of continuous learning.',
   yearly_feature_2: 'Complete access to all educational games available on our platform.',
@@ -222,7 +215,8 @@ export const en = {
   redeem: 'Redeem',
   please_enter_code: 'Please enter a valid code',
   code_redemption_success: 'Code redemption successful',
-  code_redemption_success_message: 'Your discount code has been successfully applied to your account.',
+  code_redemption_success_message:
+    'Your discount code has been successfully applied to your account.',
   invalid_discount_code: 'Invalid discount code',
   discount_code: 'Discount code',
   redeem_code_subtitle: 'Do you have a subscription/trial code?',
@@ -293,7 +287,8 @@ export const en = {
   // achievement manager
   ach_pass_title: 'ACHIEVEMENTS PASS',
   ach_pass_1: 'Here you can generate your AchievementPass for Boly games!',
-  ach_pass_2: 'Generate a pass to link a game to your account and update your achievement progress.',
+  ach_pass_2:
+    'Generate a pass to link a game to your account and update your achievement progress.',
   ach_pass_3: 'This code can only be used once and expires in 2 minutes.',
   generate_pass: 'Generate pass',
   achievement_manager_title: 'ACHIEVEMENT MANAGER',
@@ -332,9 +327,9 @@ export const en = {
   username: 'Username',
   enter_new_username: 'Enter a new username',
   email: 'email',
-  enter_new_email:'Enter a new email',
+  enter_new_email: 'Enter a new email',
   profile_biography: 'Profile biography',
-  enter_new_bio:'Enter your bio',
+  enter_new_bio: 'Enter your bio',
   change_password: 'Change Password',
   password: 'Password',
   enter_old_password: 'Enter your current password',
@@ -342,7 +337,7 @@ export const en = {
   repeat_password: 'Repeat password',
   profile_picture: 'Profile Picture',
   profile_picture_upload: 'Choose a new profile picture',
-  order_history : 'Order history',
+  order_history: 'Order history',
   order_status_completed: 'Completed',
   order_status_pending: 'Pending',
   order_status_processing: 'Processing',
@@ -350,7 +345,6 @@ export const en = {
   no_orders: 'No orders found.',
   your_orders: 'Your orders',
   ordered_on: 'Ordered on',
-  order_status_failed: 'Failed',
   game_stats: 'Game stats',
   player_stats: 'Player Stats',
   total_play_time: 'Total play time',
@@ -368,7 +362,6 @@ export const en = {
   cart: 'Cart',
   total: 'Total',
   empty_cart: 'Empty cart',
-  discount_code: 'Discount code',
   apply_code: 'Apply discount',
   validating: 'Validating...',
   discount_applied: 'Discount applied',
@@ -377,13 +370,14 @@ export const en = {
   modal_empty_cart: 'Are you sure you want to empty the cart?',
   modal_cart_redirect: 'Wait until we redirect you to the payment page...',
   modal_cart_remove_item: 'Are you sure you want to remove {item} from the cart?',
-  auto_applied_best_discount: 'The best available discount has been automatically applied to your cart.',
+  auto_applied_best_discount:
+    'The best available discount has been automatically applied to your cart.',
   remove_discount_code: 'Remove discount code',
   discount_code_applied: 'applied',
 
   // login/register view
   login: 'Login',
-  login_google:'Login with Google',
+  login_google: 'Login with Google',
   register: 'Register',
   login_email: 'email or username',
   repassword: 'Repeat password',
@@ -397,7 +391,8 @@ export const en = {
   modal_same_passwords: 'Passwords must be the same.',
   modal_register_success: 'Registered successfully!',
   modal_email_taken: 'Email already in use!',
-  modal_weak_password: 'Password must be at least 8 characters, include an uppercase letter, and a digit.',
+  modal_weak_password:
+    'Password must be at least 8 characters, include an uppercase letter, and a digit.',
   modal_invalid_email: 'Please enter a valid email address',
   invalid_credentials: 'Invalid credentials',
 
@@ -413,7 +408,6 @@ export const en = {
   purchased_games: 'Purchased Games',
   return_to_cart: 'Return to Cart',
   browse_more_games: 'Browse More Games',
-  go_to_library: 'Go to Library',
 
   // payment methods management  manage_payment_methods: 'My cards',
   my_cards: 'My cards',
@@ -423,7 +417,7 @@ export const en = {
   add_card_description: 'Register a new card for subscription payments.',
   your_payment_methods: 'Your Payment Methods',
   card_ending_in: 'Card ending in',
-  no_payment_methods: 'You don\'t have any payment methods registered yet.',
+  no_payment_methods: "You don't have any payment methods registered yet.",
   delete: 'Delete',
   added_on: 'Added on',
   back: 'Back',
@@ -440,9 +434,11 @@ export const en = {
   next_billing: 'Next Billing Date',
   change_subscription: 'Change Subscription',
   cancel_subscription: 'Cancel Subscription',
-  no_active_subscription: 'You don\'t have an active subscription.',  subscribe_now: 'Subscribe Now',
+  no_active_subscription: "You don't have an active subscription.",
+  subscribe_now: 'Subscribe Now',
   confirm_cancellation: 'Confirm Cancellation',
-  confirm_cancel_subscription: 'Are you sure you want to cancel your subscription? Your account will be downgraded to the free plan.',
+  confirm_cancel_subscription:
+    'Are you sure you want to cancel your subscription? Your account will be downgraded to the free plan.',
   account_title: 'Account',
   subscription_title: 'Subscription',
   payment_title: 'Payment',
@@ -458,7 +454,7 @@ export const en = {
   go_to_subscriptions: 'Go to Subscriptions',
   card_registration_error: 'Card Registration Failed',
   card_registration_canceled: 'Card Registration Canceled',
-  missing_token: 'Missing registration token',
+  missing_token_payment: 'Missing registration token',
   error_confirming_enrollment: 'Error confirming card enrollment',
   view_payment_methods: 'View Payment Methods',
   try_again: 'Try Again',
@@ -472,7 +468,8 @@ export const en = {
   year_price: '90 USD / ',
 
   // Developer Contact View
-  dev_title_mobile: 'We sell your <span class="highlight-green">educational <br>video game</span><br> game worldwide.',
+  dev_title_mobile:
+    'We sell your <span class="highlight-green">educational <br>video game</span><br> game worldwide.',
   dev_title_1: 'We sell your',
   dev_title_2: '<span class="highlight-green">educational video game</span>',
   dev_title_3: 'worldwide.',
@@ -486,8 +483,10 @@ export const en = {
   dev_text_1_3_line2: 'campaigns',
   dev_text_1_4_line1: 'Monetize and reduce',
   dev_text_1_4_line2: 'operational costs',
-  dev_subtitle_2: 'Together, we have the mission to let everyone discover the joy of <span class="highlight-blue">playing and learning.</span>',
-  dev_subtitle_2_1: 'Sell your video game on our platform through Subscriptions available for parents, schools, and institutions.',
+  dev_subtitle_2:
+    'Together, we have the mission to let everyone discover the joy of <span class="highlight-blue">playing and learning.</span>',
+  dev_subtitle_2_1:
+    'Sell your video game on our platform through Subscriptions available for parents, schools, and institutions.',
   dev_text_2_1_line1: 'Annual school',
   dev_text_2_1_line2: 'subscription',
   dev_text_2_2_line1: 'Individual',
@@ -496,23 +495,30 @@ export const en = {
   dev_text_2_3_line2: 'and partnerships',
   dev_subtitle_3: 'Monetization system',
   dev_subtitle_3_1: 'Total earnings',
-  dev_text_3_1: 'The earnings generated by subscriptions are proportional to the time the video game has been played.',
+  dev_text_3_1:
+    'The earnings generated by subscriptions are proportional to the time the video game has been played.',
   dev_subtitle_3_2: 'Revenue sharing',
   dev_text_3_2: '70% of those earnings go to developers and 30% to Boly.',
   dev_subtitle_4: 'Are you ready to take it to the next level?',
-  dev_subtitle_4_1: 'Contact us through this form, briefly tell us about your project, and let’s get started!',
+  dev_subtitle_4_1:
+    'Contact us through this form, briefly tell us about your project, and let’s get started!',
   dev_subtitle_5: 'Want to clear up doubts?',
   dev_subtitle_5_1: 'Write to us on our WhatsApp',
   dev_subtitle_6: 'Get to know us',
-  dev_text_6_1: 'Boly is a high-quality educational video game distribution platform that uses gamification & AI to personalize learning. We connect developers with students and schools and provide educators with tools to enhance the educational experience.',
+  dev_text_6_1:
+    'Boly is a high-quality educational video game distribution platform that uses gamification & AI to personalize learning. We connect developers with students and schools and provide educators with tools to enhance the educational experience.',
   dev_subtitle_6_1: 'For players:',
-  dev_text_6_2: 'We are a high-quality educational video game platform with the best deals, secure payments, fast refunds, and efficient customer support.',
+  dev_text_6_2:
+    'We are a high-quality educational video game platform with the best deals, secure payments, fast refunds, and efficient customer support.',
   dev_subtitle_6_2: 'For developers and creators:',
-  dev_text_6_3: 'We are a distribution platform that opens new markets and revenue streams, and allows reducing operational costs. We offer unlimited earnings, no minimum withdrawals, optimization tools, and assistance.',
+  dev_text_6_3:
+    'We are a distribution platform that opens new markets and revenue streams, and allows reducing operational costs. We offer unlimited earnings, no minimum withdrawals, optimization tools, and assistance.',
   dev_subtitle_6_3: 'For sellers:',
-  dev_text_6_4: 'We provide a fair playing field to showcase your offer to players, compete with other verified sellers, and sell your stock using our simple tools and automated API integration.',
+  dev_text_6_4:
+    'We provide a fair playing field to showcase your offer to players, compete with other verified sellers, and sell your stock using our simple tools and automated API integration.',
   dev_subtitle_6_4: 'For future team members:',
-  dev_text_6_5: 'Flexible on-site, hybrid, and remote career opportunities to drive your personal and professional growth.',
+  dev_text_6_5:
+    'Flexible on-site, hybrid, and remote career opportunities to drive your personal and professional growth.',
   dev_button_1: 'learn more at boly.cl',
   dev_button_2: 'Download our one-pager',
   lets_start: 'Let’s start',
@@ -533,8 +539,6 @@ export const en = {
   subtotal: 'Subtotal',
   proceed_to_checkout: 'Proceed to Checkout',
   cart_empty: 'Your cart is empty',
-  continue_shopping: 'Continue Shopping',
-  remove: 'Remove',
   manage_payment_methods: 'Manage Payment Methods',
 
   // achievements view
@@ -546,18 +550,7 @@ export const en = {
   retry: 'Retry',
   loading: 'Loading',
   release_date: 'Release date',
-  see_achievements: 'View achievements',
   no_play_time_recorded: 'No play time recorded',
-  secret: 'Secret',
-  retry: 'Retry',
-  loading: 'Loading',
-  release_date: 'Release date',
-  see_achievements: 'View achievements',
-  no_play_time_recorded: 'No play time recorded',
-  secret: 'Secret',
-  retry: 'Retry',
-  loading: 'Loading',
-  release_date: 'Release date',
 
   // dev dashboard view
   subscribers_total_hours: 'Total subscribers hours played',
@@ -577,39 +570,47 @@ export const en = {
   confirm_new_password_label: 'Confirm New Password',
   reset_password_loading_button: 'Resetting',
   reset_password_submit_button: 'Reset Password',
-  reset_password_invalid_token_on_mount: 'Invalid or missing password reset token. Please request a new one if needed.',
-  reset_password_token_missing: 'Password reset token is missing. Please use the link from your email.',
+  reset_password_invalid_token_on_mount:
+    'Invalid or missing password reset token. Please request a new one if needed.',
+  reset_password_token_missing:
+    'Password reset token is missing. Please use the link from your email.',
   reset_password_too_short: 'Password must be at least 8 characters long.',
   reset_password_mismatch: 'Passwords do not match.',
   reset_password_success_message: 'Your password has been reset successfully. You can now log in.',
-  reset_password_error_generic: 'An error occurred while resetting your password. Please try again or contact support.',
+  reset_password_error_generic:
+    'An error occurred while resetting your password. Please try again or contact support.',
 
   // ForgotPasswordView
   forgot_password_title: 'FORGOT YOUR PASSWORD?',
-  forgot_password_info_text: 'Enter your email address below and we\'ll send you a link to reset your password.',
+  forgot_password_info_text:
+    "Enter your email address below and we'll send you a link to reset your password.",
   modal_email_required: 'Email address is required.',
-  password_reset_email_sent: 'If an account with that email exists, a password reset link has been sent.',
-  error_requesting_password_reset: 'There was an error requesting the password reset. Please try again.',
+  password_reset_email_sent:
+    'If an account with that email exists, a password reset link has been sent.',
+  error_requesting_password_reset:
+    'There was an error requesting the password reset. Please try again.',
   back_to_login: 'Back to Login',
   forgot_your_password: 'Forgot your password?',
   remember_me: 'Remember me',
 
   verifying: 'Verifying your email...',
-  missing_token: 'Email verification token is missing or invalid. Please try the link from your email again or request a new verification.',
+  missing_token:
+    'Email verification token is missing or invalid. Please try the link from your email again or request a new verification.',
   verify_email_success_title: 'Email Verified',
   verify_email_success_default: 'Your email address has been successfully verified.',
   verify_email_error_title: 'Verification Failed',
-  verify_email_error_default: 'Could not verify your email. The link may be expired or invalid. Please try again or request a new verification email.',
+  verify_email_error_default:
+    'Could not verify your email. The link may be expired or invalid. Please try again or request a new verification email.',
   email_verified_success: 'Your email address has been successfully verified.',
   back_to_home: 'Back to Home',
   verify_email_verifying: 'Verifying your email address...',
-
 
   // Report Problem View
   report_problem_title: 'Report a Problem',
   report_problem_subtitle: 'Help us improve by reporting any issues you encounter',
   tell_us_what_happened: 'Tell us what happened',
-  report_problem_description: 'Please provide as much detail as possible to help us resolve the issue quickly.',
+  report_problem_description:
+    'Please provide as much detail as possible to help us resolve the issue quickly.',
   problem_title: 'What happened?',
   problem_title_placeholder: 'Brief description of the issue',
   optional: 'Optional',
@@ -625,10 +626,12 @@ export const en = {
   category_ui: 'UI/UX Issue',
   category_other: 'Other',
   problem_details: 'Details',
-  problem_details_placeholder: 'Please describe the issue in detail. Include steps to reproduce, expected behavior, and actual behavior.',
+  problem_details_placeholder:
+    'Please describe the issue in detail. Include steps to reproduce, expected behavior, and actual behavior.',
   submit_report: 'Submit Report',
   modal_required_fields: 'Please fill in all required fields',
-  report_sent_success: 'Your report has been sent successfully. We will investigate and get back to you soon.',
+  report_sent_success:
+    'Your report has been sent successfully. We will investigate and get back to you soon.',
   report_sent_error: 'Failed to send report. Please try again later.',
 
   // Session Invalidated View
@@ -637,7 +640,7 @@ export const en = {
     message: 'This Boly account is being used elsewhere. You have been logged out.',
     loginButton: 'Log In Again',
     closeButton: 'Close App'
-  },
+  }
 }
 
 export default en

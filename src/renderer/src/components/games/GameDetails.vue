@@ -87,7 +87,7 @@ const isInWishlist = ref(false);
 
 async function fetchDeveloperDetails(developerId: number): Promise<void> {
   if (!developerId) return;
-  
+
   try {
     developer.value = await developerStore.fetchDeveloperById(developerId);
     console.log('Developer details:', developer.value);
@@ -101,7 +101,7 @@ function toggleWishlist(): void {
     router.push('/login');
     return;
   }
-  
+
   if (isInWishlist.value) {
     wishlist.removeFromWishlist(props.item.game_id.toString())
       .then(() => {
@@ -125,11 +125,11 @@ onMounted(async () => {
   if (props.item?.game_id) {
     console.log('GameDetails: Component mounted with game:', props.item.game_id);
     updateGameImages();
-    
+
     if (props.item.developer_id) {
       await fetchDeveloperDetails(props.item.developer_id);
     }
-    
+
     if (auth.isLoggedIn && user.userId) {
       const userId = Number(user.userId);
       const gameId = Number(props.item.game_id);
@@ -149,11 +149,11 @@ watch(
     if (newItem?.game_id) {
       console.log('GameDetails: Item prop changed:', newItem.game_id);
       updateGameImages();
-      
+
       if (newItem.developer_id) {
         await fetchDeveloperDetails(newItem.developer_id);
       }
-      
+
       if (auth.isLoggedIn && user.userId) {
         const userId = Number(user.userId);
         const gameId = Number(newItem.game_id);
@@ -167,13 +167,18 @@ watch(
     }
   }
 );
+
+function getGameName() {
+  const name = props.item?.name as Record<string, string> | undefined
+  return name?.[i18n.locale.value] || name?.['en'] || ''
+}
 </script>
 
 <template>
-  <div class="section" v-if="props.item">
+  <div v-if="props.item" class="section">
     <div class="details">
       {{ console.log('GameDetails: Rendering template with game:', props.item.game_id) }}
-      <h1>{{ ((props.item?.name as Record<string, string>)?.[i18n.locale.value] || (props.item?.name as Record<string, string>)?.['en'] || '') }}</h1>
+      <h1>{{ getGameName() }}</h1>
       <p class="dev">{{ $t('developer') }}</p>
       <br>
       <div class="info-faq">
@@ -184,10 +189,10 @@ watch(
 
       <div class="main-container">
         <!-- Replace carousel with GameMediaGallery component -->
-        <div class="images" v-if="props.item?.game_id">
-          <CustomGameMediaGallery 
-            :gameId="Number(props.item.game_id)" 
-            :showSectionTitles="false"
+        <div v-if="props.item?.game_id" class="images">
+          <CustomGameMediaGallery
+            :game-id="Number(props.item.game_id)"
+            :show-section-titles="false"
           />
         </div>
         <div class="dev-details">
@@ -217,39 +222,41 @@ watch(
           </div>
 
           <div class="price">
-            <p v-if="ownsCurrentGame">{{ $t('already_owned')}}</p>
-            <p v-else-if="hasSubscriptionAccess">{{ $t('subscription_access')}}</p>
-            <!-- <p v-else-if="(props.item.price as Record<string, number>)?.[i18n.locale.value] > 0">
-              {{ currency === 'USD' ? 'USD' : 'CLP' }} {{ Intl.NumberFormat(i18n.locale.value === 'en' ? 'en-US' : 'es-CL', { style: 'currency', currency: currency, currencyDisplay: 'symbol' }).format((props.item.price as Record<string, number>)[i18n.locale.value]) }}
-            </p>
-            <p v-else>{{$t('claim_for_free')}}</p> -->
-            <p v-else>{{$t('coming_soon')}}</p>
+            <template v-if="ownsCurrentGame">
+              <p>{{ $t('already_owned') }}</p>
+            </template>
+            <template v-else-if="hasSubscriptionAccess">
+              <p>{{ $t('subscription_access') }}</p>
+            </template>
+            <template v-else>
+              <p>{{ $t('coming_soon') }}</p>
+            </template>
           </div>
 
           <div class="buttons">
             <div v-if="ownsCurrentGame || hasSubscriptionAccess">
-              <button class="btn-purple" type="button" @click="goToLibrary" v-on:click.stop>
+              <button class="btn-purple" type="button" @click="goToLibrary" @click.stop>
                 {{ $t('view_in_library').toUpperCase() }}
               </button>
 
-              <button class="btn-blue" type="button" @click="GoToAchievements()" v-on:click.stop>
+              <button class="btn-blue" type="button" @click="GoToAchievements()" @click.stop>
                 {{ $t('see_achievements').toUpperCase() }} <StarIcon/>
               </button>
             </div>
             <div v-else>
-              <button 
-                class="btn-blue" 
-                v-if="cart.cart.includes(props.item.game_id)" 
+              <button
+                v-if="cart.cart.includes(props.item.game_id)"
+                class="btn-blue"
                 @click="router.push('/cart')"
               >
                 {{ $t('view_in_cart').toUpperCase() }}
               </button>
-              <button class="btn-purple" v-else @click="AddToCart">
+              <button v-else class="btn-purple" @click="AddToCart">
                 {{ $t('add_to_cart').toUpperCase() }}
               </button>
-              
-              <button 
-                :class="['btn-wishlist', isInWishlist ? 'in-wishlist' : '']" 
+
+              <button
+                :class="['btn-wishlist', isInWishlist ? 'in-wishlist' : '']"
                 @click="toggleWishlist()"
               >
                 {{ isInWishlist ? $t('remove from wishlist').toUpperCase() : $t('add to wishlist').toUpperCase() }}

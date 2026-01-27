@@ -4,9 +4,10 @@ import { useAuth } from '@/stores'
 
 // Use createMemoryHistory for Electron production build to avoid issues with file:// protocol
 // and createWebHistory for development
-const history = process.env.NODE_ENV === 'production' 
-  ? createMemoryHistory(process.env.BASE_URL)
-  : createWebHistory(import.meta.env.BASE_URL)
+const history =
+  process.env.NODE_ENV === 'production'
+    ? createMemoryHistory(process.env.BASE_URL)
+    : createWebHistory(import.meta.env.BASE_URL)
 
 export const router = createRouter({
   history,
@@ -101,7 +102,8 @@ export const router = createRouter({
       path: '/upload',
       name: 'upload',
       component: () => import('../views/UploadView.vue')
-    },    {
+    },
+    {
       path: '/library',
       name: 'library',
       component: () => import('../desktop-views/DesktopLibraryView.vue')
@@ -177,7 +179,8 @@ export const router = createRouter({
       meta: {
         requiresAuth: true
       }
-    },    {
+    },
+    {
       path: '/payment-methods/callback',
       name: 'payment-methods-callback',
       component: () => import('../views/PaymentMethodCallbackView.vue'),
@@ -196,7 +199,7 @@ export const router = createRouter({
     {
       path: '/post-google-login',
       name: '/post-google-login',
-      component: () => import ('../desktop-views/PostGoogleAuth.vue')
+      component: () => import('../desktop-views/PostGoogleAuth.vue')
     },
     {
       path: '/verify-email',
@@ -266,7 +269,7 @@ export const router = createRouter({
       meta: {
         requiresAuth: true
       }
-    },
+    }
   ],
   //@ts-ignore
   scrollBehavior(to, from, savedPosition) {
@@ -281,16 +284,16 @@ export const router = createRouter({
 //@ts-ignore
 router.beforeEach(async (to, from, next) => {
   const auth = useAuth()
-  
+
   try {
     await auth.checkToken()
-    
+
     // If user is not logged in and accessing home route, redirect to login
     if (to.path === '/' && !auth.isLoggedIn) {
       next('/login')
       return
     }
-    
+
     if (to.meta.requiresAuth && !auth.isLoggedIn) {
       next('/login')
     } else if (to.path === '/account' && !auth.isLoggedIn) {
@@ -300,7 +303,7 @@ router.beforeEach(async (to, from, next) => {
     }
   } catch (error) {
     console.error('Auth error in router guard:', error)
-    
+
     // If auth check fails and user is accessing home route, redirect to login
     if (to.path === '/') {
       next('/login')

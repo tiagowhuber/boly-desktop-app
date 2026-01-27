@@ -10,7 +10,7 @@ const router = useRouter()
 const auth = useAuth()
 const user = useUser()
 
-if(!auth.isLoggedIn && !auth.verifying){
+if (!auth.isLoggedIn && !auth.verifying) {
   router.back()
 }
 
@@ -18,47 +18,47 @@ const name = ref('')
 const description = ref('')
 const price = ref(0)
 
-async function createPreview(){
+async function createPreview() {
   try {
-
     const preview = {
       name: name.value,
       description: description.value,
-      price: price.value,
+      price: price.value
     }
 
-    console.log(preview);
+    console.log(preview)
 
-    const response = await fetch(import.meta.env.VITE_APP_API_URL+'/api/v1/games/createGamePreview', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${auth.token}`
-      },
-      body: JSON.stringify(preview)
-    })
+    const response = await fetch(
+      import.meta.env.VITE_APP_API_URL + '/api/v1/games/createGamePreview',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${auth.token}`
+        },
+        body: JSON.stringify(preview)
+      }
+    )
 
-    if(response.ok){
+    if (response.ok) {
       await auth.checkToken()
       router.push('/developer')
-    }
-    else{
+    } else {
       console.log(await response.json())
     }
   } catch (error) {
     console.log(error)
   }
 }
-
 </script>
 
 <template>
   <div class="section">
     <h1 class="title-bold">Create a game preview</h1>
     <p>
-      If you intend to publish a game in boly, this is the place! 
-      Add your game's detail in this page to create a game preview.
-      <br>Don't worry, you can change the details anytime before requesting a release.
+      If you intend to publish a game in boly, this is the place! Add your game's detail in this
+      page to create a game preview.
+      <br />Don't worry, you can change the details anytime before requesting a release.
     </p>
     <div class="mform">
       <div>
@@ -67,10 +67,10 @@ async function createPreview(){
           Title
           <template #child>
             <input
+              v-model="name"
               class="poppins text"
               type="text"
               placeholder="Enter a game title"
-              v-model="name"
             />
           </template>
         </TagAbove>
@@ -78,10 +78,10 @@ async function createPreview(){
           Description
           <template #child>
             <textarea
+              v-model="description"
               class="poppins text"
               type="text"
               placeholder="Add a description"
-              v-model="description"
             ></textarea>
           </template>
         </TagAbove>
@@ -89,11 +89,7 @@ async function createPreview(){
           <TagAbove>
             Price
             <template #child>
-              <input 
-              class="poppins text" 
-              type="integer" 
-              placeholder="0"
-              v-model="price" />
+              <input v-model="price" class="poppins text" type="integer" placeholder="0" />
             </template>
           </TagAbove>
         </div>
@@ -137,7 +133,6 @@ textarea {
   border: 2px solid var(--bgGreen);
   margin-top: 5px;
 }
-
 
 .row {
   width: 100%;

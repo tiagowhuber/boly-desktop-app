@@ -15,14 +15,10 @@ const props = defineProps(['show'])
         </div>
 
         <div class="confirm-modal-footer">
-          <button
-              class="confirm-modal-close-button"
-              @click="$emit('close')"
-            >{{$t('close')}}
-          </button><button
-              class="confirm-modal-confirm-button"
-              @click="$emit('confirm')"
-            >{{$t('confirm')}}
+          <button class="confirm-modal-close-button" @click="$emit('close')">
+            {{ $t('close') }}</button
+          ><button class="confirm-modal-confirm-button" @click="$emit('confirm')">
+            {{ $t('confirm') }}
           </button>
         </div>
       </div>
@@ -77,8 +73,8 @@ const props = defineProps(['show'])
   border-radius: 2px;
 }
 
-.confirm-modal-confirm-button:hover{
-  transition: .2s;
+.confirm-modal-confirm-button:hover {
+  transition: 0.2s;
   background-color: var(--lightCyan);
 }
 
@@ -93,7 +89,7 @@ const props = defineProps(['show'])
   border-radius: 2px;
 }
 
-.confirm-modal-close-button:hover{
+.confirm-modal-close-button:hover {
   color: var(--lightCyan);
   border: var(--lightCyan) solid 1px;
 }

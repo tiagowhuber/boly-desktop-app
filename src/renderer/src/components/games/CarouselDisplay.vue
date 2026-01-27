@@ -9,8 +9,8 @@ provide('selected_image', selected_image)
 
 <template>
   <div class="carousel_display">
-    <img :src="props.images[selected_image].url" v-if="!props.images[selected_image].is_video" />
-    <video id="video_player" controls v-else>
+    <img v-if="!props.images[selected_image].is_video" :src="props.images[selected_image].url" />
+    <video v-else id="video_player" controls>
       <source :src="props.images[selected_image].url" type="video/mp4" />
       Your browser does not support the video tag.
     </video>

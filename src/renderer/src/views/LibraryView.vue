@@ -20,13 +20,13 @@ if (!auth.isLoggedIn) {
 
 async function fetchOwnedGames() {
   if (!user.userId) return
-  
+
   try {
     const response = await axios.get(`/v1/games/user/${user.userId}`)
     if (response.status === 200 && response.data) {
       const gamesList = response.data[0]?.game || []
       console.log('Extracted games list:', gamesList)
-      
+
       ownedGames.value = gamesList.map((game: Game) => {
         if (!game.banner_url) {
           game.banner_url = 'banner.jpg'
@@ -61,10 +61,10 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="loading_container" v-if="isLoading">
+  <div v-if="isLoading" class="loading_container">
     <Loading />
   </div>
-  <div class="section" v-else>
+  <div v-else class="section">
     <div class="main-container">
       <div>
         <div class="title-container">
@@ -79,7 +79,9 @@ onMounted(async () => {
       </div>
       <div v-else class="empty-library">
         <p>{{ $t('no_owned_games') }}</p>
-        <button class="browse-button" @click="router.push('/games')">{{ $t('browse_games') }}</button>
+        <button class="browse-button" @click="router.push('/games')">
+          {{ $t('browse_games') }}
+        </button>
       </div>
     </div>
   </div>

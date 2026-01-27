@@ -2,14 +2,14 @@
 import { useAuth, useUser } from '@/stores'
 import { useRouter } from 'vue-router'
 import Loading from '@/components/LoadingIcon.vue'
-import { onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue'
 import AlertModal from '@/components/AlertModal.vue'
 
 const router = useRouter()
 const auth = useAuth()
 const user = useUser()
 
-if(!auth.isLoggedIn && !auth.verifying){
+if (!auth.isLoggedIn && !auth.verifying) {
   router.back()
 }
 
@@ -19,36 +19,37 @@ const modalWarning = ref('')
 const pass = ref('--------')
 const loading = ref(false)
 
-onMounted( ()=>{
-})
+onMounted(() => {})
 
-async function RequestNewPass(){
-
-  if(!auth.isLoggedIn || !auth.token){
-    console.log("Error: Not logged in.");
-    return;
+async function RequestNewPass() {
+  if (!auth.isLoggedIn || !auth.token) {
+    console.log('Error: Not logged in.')
+    return
   }
 
-  loading.value = true;
+  loading.value = true
 
-  const response = await fetch(import.meta.env.VITE_APP_API_URL+'/api/v1/achievements/requestPass', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${auth.token}`
-          }
-        });
+  const response = await fetch(
+    import.meta.env.VITE_APP_API_URL + '/api/v1/achievements/requestPass',
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${auth.token}`
+      }
+    }
+  )
 
-  if(!response || response.status != 200){
-    loading.value = false;
-    return;
+  if (!response || response.status != 200) {
+    loading.value = false
+    return
   }
 
-  const result = await response.json();
+  const result = await response.json()
 
-  if(result){
-    pass.value = result.pass;
+  if (result) {
+    pass.value = result.pass
   }
-  loading.value = false;
+  loading.value = false
 }
 </script>
 
@@ -56,20 +57,19 @@ async function RequestNewPass(){
   <div class="section">
     <div class="main-container">
       <div class="left-container">
-        <h1>{{ $t('ach_pass_title')}}</h1>
+        <h1>{{ $t('ach_pass_title') }}</h1>
         <div class="center">
-          <h3>{{ $t('ach_pass_1')}}
-            <br>{{ $t('ach_pass_2')}}
-            <br><br>{{ $t('ach_pass_3')}}
+          <h3>
+            {{ $t('ach_pass_1') }} <br />{{ $t('ach_pass_2') }} <br /><br />{{ $t('ach_pass_3') }}
           </h3>
         </div>
       </div>
       <div class="pass-container">
         <div class="pass">
-          <h1> {{ pass }} </h1>
+          <h1>{{ pass }}</h1>
         </div>
-        <button class="generate-button" @click="RequestNewPass()">{{ $t('generate_pass')}}</button>
-        <div class="loading_container" v-if="loading">
+        <button class="generate-button" @click="RequestNewPass()">{{ $t('generate_pass') }}</button>
+        <div v-if="loading" class="loading_container">
           <Loading />
         </div>
       </div>
@@ -86,20 +86,19 @@ async function RequestNewPass(){
 </template>
 
 <style scoped>
-
-.main-container{
+.main-container {
   height: 300px;
   display: flex;
   flex-direction: row;
   gap: 1rem;
 }
 
-.left-container{
+.left-container {
   width: 50%;
   text-align: start;
 }
 
-.left-container h1{
+.left-container h1 {
   font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-style: italic;
 }
@@ -109,7 +108,7 @@ h2 {
   width: 100%;
 }
 
-.pass-container{
+.pass-container {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
@@ -118,7 +117,7 @@ h2 {
   gap: 1rem;
 }
 
-.pass{
+.pass {
   width: 300px;
   height: 60px;
   background-color: var(--boly-bg-dark-transparent);
@@ -126,7 +125,7 @@ h2 {
   align-content: center;
 }
 
-.generate-button{
+.generate-button {
   width: 250px;
   height: 60px;
   background-color: var(--lightGreen);
@@ -138,7 +137,7 @@ h2 {
   font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
 }
 
-.generate-button:hover{
+.generate-button:hover {
   background-color: var(--lightCyan);
 }
 </style>

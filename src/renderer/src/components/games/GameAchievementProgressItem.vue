@@ -1,19 +1,19 @@
 <script setup>
-import { computed } from 'vue';
-import { useI18n } from 'vue-i18n';
-const i18n = useI18n();
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+const i18n = useI18n()
 
 const props = defineProps({
-  item: Object,
-});
+  item: Object
+})
 
 // Compute progress as a percentage for the progress bar
 const progressPercentage = computed(() => {
-  return Math.min((props.item.userProgress.progress / props.item.unlock_requirement) * 100, 100);
-});
+  return Math.min((props.item.userProgress.progress / props.item.unlock_requirement) * 100, 100)
+})
 
-const isUnlocked = computed(()=> {
-  return props.item.userProgress.progress >= props.item.unlock_requirement;
+const isUnlocked = computed(() => {
+  return props.item.userProgress.progress >= props.item.unlock_requirement
 })
 </script>
 
@@ -27,19 +27,22 @@ const isUnlocked = computed(()=> {
       <h3>{{ $t('ach_secret_title') }}</h3>
       <p>{{ $t('ach_secret_subtitle') }}</p>
     </div>
-    
+
     <div v-if="!props.item.secret || isUnlocked" class="progress-bar-container">
       <div class="progress-bar" :style="{ width: progressPercentage + '%' }"></div>
     </div>
     <div class="progress-text">
-      <p v-if="props.item.type == 'PROGRESS'">{{ props.item.userProgress.progress }} / {{ !props.item.secret? props.item.unlock_requirement : '?' }}</p>
-      <p v-if="isUnlocked">{{ $t('ach_achievement_unlocked')}}</p>
+      <p v-if="props.item.type == 'PROGRESS'">
+        {{ props.item.userProgress.progress }} /
+        {{ !props.item.secret ? props.item.unlock_requirement : '?' }}
+      </p>
+      <p v-if="isUnlocked">{{ $t('ach_achievement_unlocked') }}</p>
     </div>
   </div>
 </template>
 
 <style scoped>
-h3{
+h3 {
   font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-style: italic;
 }
@@ -64,11 +67,10 @@ h3{
   transition: width 0.3s;
 }
 
-.progress-text{
+.progress-text {
   display: flex;
   flex-direction: row;
   gap: 2rem;
   color: #4caf50;
 }
-
 </style>

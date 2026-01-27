@@ -44,7 +44,7 @@ export const useDeveloper = defineStore('developer', {
 
         const response = await axios.post('/v1/developers', developerData, {
           headers: {
-            'Authorization': `Bearer ${auth.token}`
+            Authorization: `Bearer ${auth.token}`
           }
         })
 
@@ -65,14 +65,18 @@ export const useDeveloper = defineStore('developer', {
           throw new Error('Authentication required')
         }
 
-        const response = await axios.patch(`/v1/developers/pass`, {
-          id: developerId,
-          ...developerData
-        }, {
-          headers: {
-            'Authorization': `Bearer ${auth.token}`
+        const response = await axios.patch(
+          `/v1/developers/pass`,
+          {
+            id: developerId,
+            ...developerData
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${auth.token}`
+            }
           }
-        })
+        )
 
         if (response.status === 200) {
           await this.fetchDeveloperById(developerId)
@@ -93,7 +97,7 @@ export const useDeveloper = defineStore('developer', {
 
         const response = await axios.delete(`/v1/developers/${developerId}`, {
           headers: {
-            'Authorization': `Bearer ${auth.token}`
+            Authorization: `Bearer ${auth.token}`
           }
         })
 

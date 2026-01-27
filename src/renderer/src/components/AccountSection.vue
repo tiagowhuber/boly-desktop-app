@@ -1,7 +1,7 @@
 <script setup>
 import { useAuth, useUser } from '@/stores'
-import { useRouter } from 'vue-router';
-import { onMounted, watch } from 'vue';
+import { useRouter } from 'vue-router'
+import { onMounted, watch } from 'vue'
 import EditIcon from '@/components/icons/EditIcon.vue'
 import axios from 'axios'
 
@@ -16,11 +16,14 @@ onMounted(async () => {
 })
 
 // Also refresh when returning to a view that uses this component
-watch(() => router.currentRoute.value.path, async () => {
-  if (auth.isLoggedIn && user.userId) {
-    await refreshUserData()
+watch(
+  () => router.currentRoute.value.path,
+  async () => {
+    if (auth.isLoggedIn && user.userId) {
+      await refreshUserData()
+    }
   }
-})
+)
 
 async function refreshUserData() {
   try {
@@ -34,22 +37,26 @@ async function refreshUserData() {
 }
 
 function EditProfile() {
-  router.push("/edit")
+  router.push('/edit')
 }
-
 </script>
 <template>
   <div class="main-container">
-    <img class="profile-pic"
-      :src="user.profilePictureUrl || 'https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg'"
-      alt="Profile picture">
+    <img
+      class="profile-pic"
+      :src="
+        user.profilePictureUrl ||
+        'https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg'
+      "
+      alt="Profile picture"
+    />
     <div class="details">
       <div class="name">
         <h1>{{ user.username }}</h1>
         <EditIcon class="icon" @click="EditProfile" />
       </div>
       <p>{{ user.email }}</p>
-      <br>
+      <br />
       <p class="info">{{ $t('profile_info', { username: user.username }) }}</p>
       <p>{{ $t('role') }}: {{ $t('role_' + user.roleId) }}</p>
       <p>{{ $t('birthday') }}: {{ user.birthday || $t('not_set') }}</p>
@@ -128,7 +135,7 @@ function EditProfile() {
   font-size: 200%;
 }
 
-.account-details>p {
+.account-details > p {
   font-size: large;
 }
 
@@ -142,18 +149,18 @@ function EditProfile() {
   gap: 0.2rem;
 }
 
-.details>a,
-.details>p {
+.details > a,
+.details > p {
   color: rgba(179, 184, 212, 0.75);
   font-size: large;
 }
 
-.details>a {
+.details > a {
   cursor: pointer;
   text-decoration: underline;
 }
 
-.details>a:hover {
+.details > a:hover {
   color: var(--lightGreen);
 }
 
@@ -165,7 +172,7 @@ function EditProfile() {
   gap: 1rem;
 }
 
-.name>.icon {
+.name > .icon {
   width: 25px;
   height: 25px;
 }
@@ -178,7 +185,7 @@ function EditProfile() {
 .name svg:hover {
   color: var(--lightGreen);
   fill: var(--lightGreen);
-  transition: .1s;
+  transition: 0.1s;
   cursor: pointer;
 }
 
@@ -186,7 +193,7 @@ button,
 .button {
   padding: 5px;
   width: 100%;
-  font-family: "Anton", serif;
+  font-family: 'Anton', serif;
   font-size: larger;
   flex-grow: 1;
   margin-top: 10px;
@@ -194,7 +201,7 @@ button,
   justify-content: center;
   border-radius: 5px;
   border: none;
-  transition: .2s;
+  transition: 0.2s;
   text-align: center;
 }
 

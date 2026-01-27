@@ -8,9 +8,6 @@ import Loading from '@/components/LoadingIcon.vue'
 const auth = useAuth()
 const router = useRouter()
 
-if (auth.isLoggedIn) {
-}
-
 onMounted(async () => {
   console.log(window.location)
   const valores = window.location.search
@@ -48,7 +45,6 @@ onMounted(async () => {
       <Loading />
     </div>
   </div>
-  
 </template>
 
 <style scoped>

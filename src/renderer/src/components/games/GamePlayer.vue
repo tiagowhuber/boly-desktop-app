@@ -1,4 +1,4 @@
-<template></template>
+<template><div></div></template>
 <!-- <script>
 import { onMounted,watch,ref } from 'vue';
 import UnityWebgl from 'unity-webgl';
@@ -26,7 +26,7 @@ setup(){
 watch(()=> gamesStore.webGameData,(newVal) =>{
   console.log("new val")
   console.log(newVal)
-  
+
 //   unityContext.value = new UnityWebgl({
 //   loaderUrl:
 //   newVal.loader,
@@ -53,7 +53,7 @@ watch(()=> gamesStore.unityPlayer,(newVal) =>{
   //           })
   console.log("unity updated")
   gamesStore.unityPlayer.on('device', () => alert('click device ...'));
-  
+
 })
 
 onMounted(async () => {
@@ -61,8 +61,8 @@ if(auth.user != null){
   const id = router.params.game
   if(!id || id == "") $router.back()
   gamesStore.getGameUrl(id,auth)
-  
-  
+
+
 }
 })
 
@@ -95,7 +95,7 @@ return{
   justify-content: center;
   margin: 16px 16px;
   border-radius: 10px;
-  
+
   gap: 0.5rem;
   width: 200px;
   height: 50px;

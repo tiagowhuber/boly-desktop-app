@@ -8,7 +8,7 @@ import type { Game } from '@/types'
 
 // Type guard to check if price object has the locale key
 function hasLocalePrice(price: Record<string, any> | null, locale: string): boolean {
-  return !!price && typeof price === 'object' && locale in price;
+  return !!price && typeof price === 'object' && locale in price
 }
 
 const i18n = useI18n()
@@ -41,32 +41,52 @@ function getImageUrl(): string {
   if (!props.game) {
     return '/assets/images/1.jpg'
   }
-  
+
   if (!props.game.banner_url) {
     return '/assets/images/1.jpg'
   }
-  
+
   return props.game.banner_url
 }
 
 // Safe user ID access
+function getFormattedPrice() {
+  const currentLocale = i18n.locale.value
+  const localeCurrency = currentLocale === 'en' ? 'USD' : 'CLP'
+  const formatter = new Intl.NumberFormat(currentLocale === 'en' ? 'en-US' : 'es-CL', {
+    style: 'currency',
+    currency: localeCurrency,
+    currencyDisplay: 'symbol'
+  })
+
+  // Case 1: Complex price object
+  if (typeof props.game.price === 'object' && props.game.price !== null) {
+    if (hasLocalePrice(props.game.price, currentLocale)) {
+      const priceVal = (props.game.price as Record<string, number>)[currentLocale]
+      return `${localeCurrency === 'USD' ? 'USD' : 'CLP'} ${formatter.format(priceVal)}`
+    }
+    return `${localeCurrency === 'USD' ? 'USD' : 'CLP'} ${formatter.format(0)}`
+  }
+
+  // Case 2: Simple price
+  if (props.game.price !== null) {
+    return `${currency.value} ${formatter.format(props.game.price as number)}`
+  }
+
+  return i18n.t('price_unavailable')
+}
 </script>
 
 <template>
   <div class="item">
-    <img :src="getImageUrl()" @click="GoToGame">
+    <img :src="getImageUrl()" @click="GoToGame" />
     <div class="details">
       <div>
         <p class="game-title">{{ props.game.name[i18n.locale.value] }}</p>
       </div>
     </div>
     <p class="price text_highlight">
-      <template v-if="typeof props.game.price === 'object' && props.game.price !== null">
-              {{ currency === 'USD' ? 'USD' : 'CLP' }} {{ Intl.NumberFormat(i18n.locale.value === 'en' ? 'en-US' : 'es-CL', { style: 'currency', currency: currency, currencyDisplay: 'symbol' }).format(hasLocalePrice(props.game.price, i18n.locale.value) ? (props.game.price as Record<string, number>)[i18n.locale.value] : 0) }}
-            </template>
-      <template v-else>
-        {{ props.game.price !== null ? `${currency} ${Intl.NumberFormat(i18n.locale.value === 'en' ? 'en-US' : 'es-CL', { style: 'currency', currency: currency, currencyDisplay: 'symbol' }).format(props.game.price)}` : $t('price_unavailable') }}
-      </template>
+      {{ getFormattedPrice() }}
     </p>
 
     <div class="remove_button_container">
@@ -81,7 +101,9 @@ function getImageUrl(): string {
       <template #header>
         <h3>{{ $t('cart') }}</h3>
       </template>
-      <template #body>{{ $t('modal_cart_remove_item', { item: props.game.name[i18n.locale.value as string] }) }}</template>
+      <template #body>{{
+        $t('modal_cart_remove_item', { item: props.game.name[i18n.locale.value as string] })
+      }}</template>
     </ConfirmModal>
   </Teleport>
 </template>
@@ -142,7 +164,6 @@ h3 {
 .price {
   padding: 0 2rem;
   font-weight: bold;
-  
 }
 
 .buy-button {
@@ -230,31 +251,31 @@ h3 {
     padding: 0.5rem 0;
     flex-wrap: wrap;
   }
-  
+
   .item img {
     height: 60px;
     min-width: 100px;
   }
-  
+
   .details {
     padding: 0.5rem;
   }
-  
+
   .game-title {
     font-size: 1rem;
     margin-bottom: 0.25rem;
   }
-  
+
   .price {
     padding: 0 0.75rem;
     font-size: 0.9rem;
   }
-  
+
   .remove_button {
     width: 40px;
     height: 40px;
   }
-  
+
   .remove_button > .icon {
     height: 20px;
   }

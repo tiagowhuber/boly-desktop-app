@@ -9,14 +9,13 @@ const router = useRouter()
 const props = defineProps(['item'])
 const gameDataBaseUrl = import.meta.env.VITE_S3_BASE_URL + '/' + props.item.id + '/'
 
-function goToManageAchievements(){
-  router.push("developer/" + props.item.id + "/achievements")
+function goToManageAchievements() {
+  router.push('developer/' + props.item.id + '/achievements')
 }
 
-function goToManageGameData(){
-  router.push("developer/" + props.item.id + "/edit")
+function goToManageGameData() {
+  router.push('developer/' + props.item.id + '/edit')
 }
-
 </script>
 
 <template>
@@ -26,8 +25,12 @@ function goToManageGameData(){
       <h3 class="text">{{ props.item.name[i18n.locale.value] }}</h3>
     </div>
     <div class="buttons">
-      <Button class="btn-purple" @click="goToManageGameData">{{ $t('developer_manage_game_data') }}</Button>
-      <Button class="btn-blue" @click="goToManageAchievements">{{ $t('developer_manage_achievements') }}</Button>
+      <Button class="btn-purple" @click="goToManageGameData">{{
+        $t('developer_manage_game_data')
+      }}</Button>
+      <Button class="btn-blue" @click="goToManageAchievements">{{
+        $t('developer_manage_achievements')
+      }}</Button>
     </div>
   </div>
 </template>
@@ -48,7 +51,6 @@ h3 {
   flex-direction: row;
   align-items: center;
   background-color: var(--boly-bg-dark);
-  
 }
 
 .item img {
@@ -76,7 +78,7 @@ h3 {
   align-items: center;
 }
 
-.details h3{
+.details h3 {
   padding-left: 30px;
   font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-style: italic;
@@ -84,7 +86,7 @@ h3 {
   font-weight: 100;
 }
 
-.buttons{
+.buttons {
   padding: 20px;
   display: flex;
   flex-direction: row;
@@ -100,10 +102,10 @@ button {
   height: 50px;
   border: none;
   border-radius: 10px;
-  transition: .1s;
+  transition: 0.1s;
 }
 
 button:hover {
-  transition: .1s;
+  transition: 0.1s;
 }
 </style>

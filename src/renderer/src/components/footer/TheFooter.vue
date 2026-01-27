@@ -1,11 +1,11 @@
 <script setup>
 import { useAuth } from '@/stores'
-import BoliLogo from '../icons/BoliLogoFooter.vue';
-import { RouterLink, useRoute } from 'vue-router';
-import { computed } from 'vue';
+import BoliLogo from '../icons/BoliLogoFooter.vue'
+import { RouterLink, useRoute } from 'vue-router'
+import { computed } from 'vue'
 
 // const props = defineProps(['small']);
-const route = useRoute();
+const route = useRoute()
 const auth = useAuth()
 
 const props = defineProps({
@@ -14,35 +14,47 @@ const props = defineProps({
 })
 
 // Check if current route is login page or Register page
-const isRegisterPage = computed(() => route.path === '/register');
-const isLoginPage = computed(() => route.path === '/login');
-const isForgotPasswordPage = computed(() => route.path === '/forgot-password');
-const isConfirmPasswordResetPage = computed(() => route.path === '/confirm-password-reset');
-const isSessionInvalidatedPage = computed(() => route.path === '/session-invalidated');
-
+const isRegisterPage = computed(() => route.path === '/register')
+const isLoginPage = computed(() => route.path === '/login')
+const isForgotPasswordPage = computed(() => route.path === '/forgot-password')
+const isConfirmPasswordResetPage = computed(() => route.path === '/confirm-password-reset')
+const isSessionInvalidatedPage = computed(() => route.path === '/session-invalidated')
 </script>
 
 <template>
-  <footer :style="'height: ' + (props.small ? 200 : 450) + 'px;'" :class="[props.color,{ 'login-register-footer': isLoginPage || isRegisterPage || isForgotPasswordPage || isConfirmPasswordResetPage || isSessionInvalidatedPage }]" >
+  <footer
+    :style="'height: ' + (props.small ? 200 : 450) + 'px;'"
+    :class="[
+      props.color,
+      {
+        'login-register-footer':
+          isLoginPage ||
+          isRegisterPage ||
+          isForgotPasswordPage ||
+          isConfirmPasswordResetPage ||
+          isSessionInvalidatedPage
+      }
+    ]"
+  >
     <div class="footer-container">
       <RouterLink to="/">
         <BoliLogo class="icon-logo" :style="'height: ' + (props.small ? 75 : 110) + 'px;'" />
       </RouterLink>
-      <div class="disclaimer" v-if="!props.small">
-        <br>
-        <p>{{ $t('copyright_disclaimer') }}
-          <br>{{ $t('vat_disclaimer') }}
-        </p>
+      <div v-if="!props.small" class="disclaimer">
+        <br />
+        <p>{{ $t('copyright_disclaimer') }} <br />{{ $t('vat_disclaimer') }}</p>
       </div>
-      <br><br><br>
+      <br /><br /><br />
       <div class="navigation">
         <span v-if="props.small">
-          <RouterLink to="/"> {{ $t('home') }}</RouterLink>|
+          <RouterLink to="/"> {{ $t('home') }}</RouterLink
+          >|
         </span>
-        <RouterLink to="/privacy">{{ $t('privacy_policy') }}</RouterLink>|
-        <RouterLink to="/legal">{{ $t('legal_info') }}</RouterLink>|
-        <RouterLink to="/subscriber-agreement">{{ $t('subscriber_agreement') }}</RouterLink>|
-        <RouterLink to="/refund">{{ $t('refunds') }}</RouterLink>|
+        <RouterLink to="/privacy">{{ $t('privacy_policy') }}</RouterLink
+        >| <RouterLink to="/legal">{{ $t('legal_info') }}</RouterLink
+        >| <RouterLink to="/subscriber-agreement">{{ $t('subscriber_agreement') }}</RouterLink
+        >| <RouterLink to="/refund">{{ $t('refunds') }}</RouterLink
+        >|
         <RouterLink to="/cookies">{{ $t('cookies') }}</RouterLink>
       </div>
     </div>
@@ -100,16 +112,16 @@ footer {
   background-color: #3b337b;
 }
 
-.blue{
-    background-color: #48ace4;
+.blue {
+  background-color: #48ace4;
 }
 
-.pink{
+.pink {
   background-color: var(--boly-button-pink);
 }
 
-.dark-purple{
-  background: rgb(59,51,123);
+.dark-purple {
+  background: rgb(59, 51, 123);
 }
 
 a {

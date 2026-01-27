@@ -34,10 +34,10 @@ function GoToGame() {
   <div class="item">
     <img class="image" :src="props.item.img" @click="GoToGame" />
     <button
+      v-if="!shoppingCart.cart.includes(props.item._id)"
       class="buy-button"
       type="button"
       @click="showModal = true"
-      v-if="!shoppingCart.cart.includes(props.item._id)"
     >
       <span class="button-text">
         <p class="text_highlight poppins">
@@ -46,7 +46,7 @@ function GoToGame() {
       </span>
       <span class="button-icon"><BuyIcon></BuyIcon></span>
     </button>
-    <button class="buy-button-inCart" type="button" @click="GoToGame" v-else>
+    <button v-else class="buy-button-inCart" type="button" @click="GoToGame">
       <span class="button-text">
         <p class="text_highlight poppins">Already in cart!</p>
       </span>
@@ -65,7 +65,9 @@ function GoToGame() {
       <template #header>
         <h3>Add game to cart</h3>
       </template>
-      <template #body> Do you want to add {{ props.item.name[i18n.locale.value] }} to the shopping cart? </template>
+      <template #body>
+        Do you want to add {{ props.item.name[i18n.locale.value] }} to the shopping cart?
+      </template>
     </ConfirmModal>
   </Teleport>
 </template>

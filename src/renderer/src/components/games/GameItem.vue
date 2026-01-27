@@ -2,7 +2,7 @@
 //import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuth, useUser, useGames, useCart, useDeveloper, usePayment } from '@/stores' 
+import { useAuth, useUser, useGames, useCart, useDeveloper, usePayment } from '@/stores'
 import CartIcon from '../icons/CartIcon.vue'
 import CheckIcon from '../icons/CheckIcon.vue'
 import XMarkIcon from '../icons/XMarkIcon.vue'
@@ -17,22 +17,22 @@ const user = useUser()
 const games = useGames()
 const paymentStore = usePayment()
 
-const props = defineProps<{ 
-  item: { 
-    game_id: number;
-    banner_url: string;
-    name: Record<string, string>; 
-    price: Record<string, number>;
-    developer_id: number; 
-  } 
+const props = defineProps<{
+  item: {
+    game_id: number
+    banner_url: string
+    name: Record<string, string>
+    price: Record<string, number>
+    developer_id: number
+  }
 }>()
 
 const buttonHovered = ref(false)
 //const gameDataBaseUrl = import.meta.env.VITE_S3_BASE_URL + '/' + props.item.game_id + '/'
 const loading = ref(false)
 const shoppingCart = useCart()
-const developerStore = useDeveloper() 
-const developerName = ref('') 
+const developerStore = useDeveloper()
+const developerName = ref('')
 const isMobile = ref(window.innerWidth <= 768)
 
 const ownsCurrentGame = ref(false)
@@ -49,21 +49,21 @@ const handleResize = () => {
 
 onMounted(async () => {
   if (user.userId && props.item.game_id) {
-    const userId = Number(user.userId);
-    const gameId = Number(props.item.game_id);
+    const userId = Number(user.userId)
+    const gameId = Number(props.item.game_id)
     if (!isNaN(userId) && !isNaN(gameId)) {
-      const accessInfo = await games.ownsGame(gameId, userId);
-      ownsCurrentGame.value = accessInfo.owned;
-      hasSubscriptionAccess.value = accessInfo.subscriptionAccess;
+      const accessInfo = await games.ownsGame(gameId, userId)
+      ownsCurrentGame.value = accessInfo.owned
+      hasSubscriptionAccess.value = accessInfo.subscriptionAccess
     }
   }
   if (props.item.developer_id) {
-    const developerData = await developerStore.fetchDeveloperById(props.item.developer_id);
+    const developerData = await developerStore.fetchDeveloperById(props.item.developer_id)
     if (developerData && developerData.name) {
-      developerName.value = developerData.name;
+      developerName.value = developerData.name
     }
   }
-  
+
   // Add resize event listener
   window.addEventListener('resize', handleResize)
 })
@@ -85,9 +85,9 @@ async function ClaimFree() {
 
   loading.value = true
   try {
-    const result = await paymentStore.claimFreeGame(props.item.game_id, Number(user.userId), auth);
+    const result = await paymentStore.claimFreeGame(props.item.game_id, Number(user.userId), auth)
     if (result) {
-      ownsCurrentGame.value = true;
+      ownsCurrentGame.value = true
       router.go(0)
     }
   } catch (error) {
@@ -107,42 +107,73 @@ function GoToGame() {
 
 <template>
   <div class="item" :class="{ 'mobile-item': isMobile }">
-    <div class="main" :class="{ 'mobile-main': isMobile }">      <img class="image" :src="props.item.banner_url"
-      @click="GoToGame"/>
-      
-      <p v-if="ownsCurrentGame" :class="{ 'mobile-text': isMobile }">{{ $t('already_owned')}}</p>
-      <p v-else-if="hasSubscriptionAccess" :class="{ 'mobile-text': isMobile }">{{ $t('subscription_access')}}</p>
-      <p class="game-name" :class="{ 'mobile-game-name': isMobile }">{{ props.item.name[i18n.locale.value].toUpperCase() }}</p>
-      <p class="game-dev" :class="{ 'mobile-text': isMobile }">{{ developerName }}</p>      
+    <div class="main" :class="{ 'mobile-main': isMobile }">
+      <img class="image" :src="props.item.banner_url" @click="GoToGame" />
+
+      <p v-if="ownsCurrentGame" :class="{ 'mobile-text': isMobile }">{{ $t('already_owned') }}</p>
+      <p v-else-if="hasSubscriptionAccess" :class="{ 'mobile-text': isMobile }">
+        {{ $t('subscription_access') }}
+      </p>
+      <p class="game-name" :class="{ 'mobile-game-name': isMobile }">
+        {{ props.item.name[i18n.locale.value].toUpperCase() }}
+      </p>
+      <p class="game-dev" :class="{ 'mobile-text': isMobile }">{{ developerName }}</p>
       <div class="price" :class="{ 'mobile-price': isMobile }">
-        <p v-if="ownsCurrentGame" :class="{ 'mobile-price-text': isMobile }">{{ $t('already_owned')}}</p>
-        <p v-else-if="hasSubscriptionAccess" :class="{ 'mobile-price-text': isMobile }">{{ $t('subscription_access')}}</p>
+        <p v-if="ownsCurrentGame" :class="{ 'mobile-price-text': isMobile }">
+          {{ $t('already_owned') }}
+        </p>
+        <p v-else-if="hasSubscriptionAccess" :class="{ 'mobile-price-text': isMobile }">
+          {{ $t('subscription_access') }}
+        </p>
         <!--
         <p v-else-if="props.item.price[i18n.locale.value] > 0" :class="{ 'mobile-price-text': isMobile }">
           {{ currency === 'USD' ? 'USD' : 'CLP' }} {{ Intl.NumberFormat(i18n.locale.value === 'en' ? 'en-US' : 'es-CL', { style: 'currency', currency: currency, currencyDisplay: 'symbol' }).format(props.item.price[i18n.locale.value]) }}
         </p>
         <p v-else :class="{ 'mobile-price-text': isMobile }">{{$t('claim_for_free')}}</p>
         -->
-        <p v-else :class="{ 'mobile-price-text': isMobile }">{{$t('coming_soon')}}</p>
+        <p v-else :class="{ 'mobile-price-text': isMobile }">{{ $t('coming_soon') }}</p>
 
-        <div :class="[ownsCurrentGame ? '':'buttons', isMobile ? 'mobile-buttons' : '']" @mouseenter="buttonHovered = true" @mouseleave="buttonHovered = false">
-          <button class="add-button" v-if="ownsCurrentGame"> <CheckIcon class="icon" /> </button>
-  
-          <button class="in-cart-button" :class="{ 'mobile-in-cart-button': isMobile }" v-else-if="shoppingCart.cart.includes(props.item.game_id)" @click="shoppingCart.removeGameFromCart({ game_id: props.item.game_id })"> 
-            <p v-if="!buttonHovered" :class="{ 'mobile-button-text': isMobile }">{{ $t('already_in_cart')}}</p>
-            <p v-else :class="{ 'mobile-button-text': isMobile }">{{ $t('remove_from_cart')}}</p>
+        <div
+          :class="[ownsCurrentGame ? '' : 'buttons', isMobile ? 'mobile-buttons' : '']"
+          @mouseenter="buttonHovered = true"
+          @mouseleave="buttonHovered = false"
+        >
+          <button v-if="ownsCurrentGame" class="add-button"><CheckIcon class="icon" /></button>
 
-            <CheckIcon class="icon" v-if="!buttonHovered"/> 
-            <XMarkIcon class="icon" v-else/> 
+          <button
+            v-else-if="shoppingCart.cart.includes(props.item.game_id)"
+            class="in-cart-button"
+            :class="{ 'mobile-in-cart-button': isMobile }"
+            @click="shoppingCart.removeGameFromCart({ game_id: props.item.game_id })"
+          >
+            <p v-if="!buttonHovered" :class="{ 'mobile-button-text': isMobile }">
+              {{ $t('already_in_cart') }}
+            </p>
+            <p v-else :class="{ 'mobile-button-text': isMobile }">{{ $t('remove_from_cart') }}</p>
+
+            <CheckIcon v-if="!buttonHovered" class="icon" />
+            <XMarkIcon v-else class="icon" />
           </button>
 
-          <button class="add-button" :class="{ 'mobile-add-button': isMobile }" v-else-if="props.item.price[i18n.locale.value] > 0" @click="AddToCart">
+          <button
+            v-else-if="props.item.price[i18n.locale.value] > 0"
+            class="add-button"
+            :class="{ 'mobile-add-button': isMobile }"
+            @click="AddToCart"
+          >
             <!-- price[i18n.locale.value] > 0" @click="AddToCart"> -->
-            <CartIcon class="icon" v-if="!buttonHovered"/>
-            <PlusIcon class="icon" v-else/>
+            <CartIcon v-if="!buttonHovered" class="icon" />
+            <PlusIcon v-else class="icon" />
           </button>
-          
-          <button class="add-button" :class="{ 'mobile-add-button': isMobile }" v-else @click="ClaimFree"> <PlusIcon class="icon" /> </button>
+
+          <button
+            v-else
+            class="add-button"
+            :class="{ 'mobile-add-button': isMobile }"
+            @click="ClaimFree"
+          >
+            <PlusIcon class="icon" />
+          </button>
         </div>
       </div>
     </div>
@@ -223,7 +254,7 @@ h3 {
   font-size: 0.9rem;
 }
 
-.game-dev{
+.game-dev {
   font-family: 'Poppins', sans-serif;
   color: rgb(128, 128, 128);
   font-size: large;
@@ -234,7 +265,7 @@ h3 {
   font-size: 0.85rem;
 }
 
-.price{
+.price {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -252,27 +283,27 @@ h3 {
   font-size: 0.8rem;
 }
 
-.price p{
+.price p {
   flex-grow: 1;
 }
 
-.buttons{
+.buttons {
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: .2s;
+  transition: 0.2s;
 }
 
 .mobile-buttons {
   margin-top: 2px;
 }
 
-.buttons:hover{
+.buttons:hover {
   scale: 1.1;
-  transition: .2s;
+  transition: 0.2s;
 }
 
-.add-button{
+.add-button {
   display: flex;
   height: 45px;
   width: 45px;
@@ -287,12 +318,12 @@ h3 {
   width: 35px;
 }
 
-.add-button svg{
+.add-button svg {
   margin: auto;
   fill: black;
 }
 
-.in-cart-button{
+.in-cart-button {
   background-color: var(--boly-bg-dark);
   display: flex;
   height: 45px;
@@ -307,7 +338,7 @@ h3 {
   border-radius: 17.5px;
 }
 
-.in-cart-button p{
+.in-cart-button p {
   font-family: 'Poppins', sans-serif;
   font-size: medium;
   color: white;
@@ -319,7 +350,7 @@ h3 {
   padding: 0px 3px !important;
 }
 
-.in-cart-button svg{
+.in-cart-button svg {
   margin-right: 10px;
   fill: white;
 }
@@ -332,7 +363,7 @@ h3 {
   background-color: white;
   border-radius: 13px;
   padding: 10px;
-  gap: .5rem;
+  gap: 0.5rem;
 }
 
 .mobile-main {
@@ -362,24 +393,24 @@ h3 {
     height: 30px;
     width: 30px;
   }
-  
+
   .mobile-in-cart-button {
     height: 30px;
     border-radius: 15px;
   }
-  
+
   .mobile-game-name {
     font-size: 0.8rem;
   }
-  
+
   .mobile-text {
     font-size: 0.7rem;
   }
-  
+
   .mobile-price-text {
     font-size: 0.7rem;
   }
-  
+
   .mobile-main > img {
     height: 100px;
   }

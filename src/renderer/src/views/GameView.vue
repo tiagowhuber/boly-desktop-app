@@ -7,7 +7,6 @@ import Loading from '../components/LoadingIcon.vue'
 import axios from 'axios'
 import type { Game } from '@/types'
 
-
 const route = useRoute()
 
 const game = ref<Game | null>(null)
@@ -19,7 +18,7 @@ const router = useRouter()
 watch(
   () => route.params.id,
   async (newId) => {
-    console.log('GameView: Route param changed to:', newId);
+    console.log('GameView: Route param changed to:', newId)
     if (!newId) {
       error.value = 'No game ID provided'
       router.push('/games')
@@ -52,7 +51,7 @@ async function UpdateData(gameId: string): Promise<void> {
       developer_id: gameData.developer_id,
       game_type_id: gameData.game_type_id,
       game_type: gameData.game_type,
-      game_Path: gameData.game_Path,
+      game_Path: gameData.game_Path
     }
   } catch (err: unknown) {
     error.value = err instanceof Error ? err.message : 'An error occurred'
@@ -64,7 +63,7 @@ async function UpdateData(gameId: string): Promise<void> {
 </script>
 
 <template>
-  <div class="loading_container" v-if="loading">
+  <div v-if="loading" class="loading_container">
     <Loading />
   </div>
   <div v-else-if="error" class="error-container">
@@ -77,7 +76,7 @@ async function UpdateData(gameId: string): Promise<void> {
 </template>
 
 <style scoped>
-.loading_container{
+.loading_container {
   height: 800px;
 }
 .error-container {
