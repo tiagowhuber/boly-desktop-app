@@ -172,7 +172,7 @@ async function signGoogle() {
               :show="showTerms"
               @close="showTerms = false"
               @confirm="
-                showTerms = false
+                showTerms = false;
                 submit()
               "
             >
