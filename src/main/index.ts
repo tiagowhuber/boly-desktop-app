@@ -48,6 +48,35 @@ const config = {
 
 let mainWindow
 
+/**
+ * Helper to get the base Games directory.
+ * safely in LocalAppData to avoid OneDrive.
+ */
+function getLibraryPath() {
+  // Use LocalAppData on Windows to avoid Roaming profile quotas and OneDrive syncing
+  const appName = 'Boly'
+  let libraryRoot = ''
+
+  if (process.platform === 'win32') {
+     // Use environment variable for LocalAppData, fallback to constructing path manually
+     libraryRoot = process.env.LOCALAPPDATA || path.join(app.getPath('home'), 'AppData', 'Local');
+  } else {
+     // On Mac/Linux, use the standard application support directory
+     libraryRoot = app.getPath('appData');
+  }
+
+  const libPath = path.join(libraryRoot, appName, 'Games')
+
+  if (!fs.existsSync(libPath)) {
+    try {
+      fs.mkdirSync(libPath, { recursive: true })
+    } catch (e) {
+      console.error('Failed to create library path:', e)
+    }
+  }
+  return libPath
+}
+
 async function requestLoginGoogle() {
   const queryString = new URLSearchParams(config).toString()
   mainWindow.loadURL(`https://accounts.google.com/o/oauth2/v2/auth?${queryString}`)
@@ -128,7 +157,7 @@ async function downloadTempFile(token: string, game_id: number, gameName: string
     return new Promise((resolve, reject) => {
       response.data.pipe(writer)
       writer.on('finish', () => {
-        const gamePath = path.join(app.getPath('documents'), `My Games\\${gameNameNoSymbols}`)
+        const gamePath = path.join(getLibraryPath(), `${gameNameNoSymbols}`)
         mainWindow.webContents.send('download-complete', {
           gameId: game_id,
           installPath: gamePath
@@ -619,14 +648,43 @@ async function createWindow(): Promise<void> {
 
   ipcMain.handle('search-exe-files', async (_event, baseDir) => {
     try {
-      const searchDir = baseDir || path.join(app.getPath('documents'), 'My Games')
-
-      if (!fs.existsSync(searchDir)) {
-        return { error: `Directory does not exist: ${searchDir}` }
+      // If user provides a specific directory (e.g. from file picker), search only that one
+      if (baseDir) {
+        if (!fs.existsSync(baseDir)) {
+          return { error: `Directory does not exist: ${baseDir}` }
+        }
+        const exeFiles = searchForExecutablesRecursive(baseDir)
+        return { files: exeFiles }
       }
 
-      const exeFiles = searchForExecutablesRecursive(searchDir)
-      return { files: exeFiles }
+      // Default behavior: Search both the new Library path and the old Documents/My Games path
+      // to ensure backward compatibility for users who already installed games.
+      const legacyPath = path.join(app.getPath('documents'), 'My Games')
+      const newLibraryPath = getLibraryPath()
+
+      const pathsToSearch = [newLibraryPath]
+
+      // Only add legacy path if it's different (just in case) and exists
+      if (legacyPath !== newLibraryPath && fs.existsSync(legacyPath)) {
+        pathsToSearch.push(legacyPath)
+      }
+
+      const allExeFiles: string[] = []
+
+      for (const searchDir of pathsToSearch) {
+        if (fs.existsSync(searchDir)) {
+          console.log(`Searching for games in: ${searchDir}`)
+          const files = searchForExecutablesRecursive(searchDir)
+          // Add unique files only
+          files.forEach(file => {
+             if (!allExeFiles.includes(file)) {
+               allExeFiles.push(file)
+             }
+          })
+        }
+      }
+
+      return { files: allExeFiles }
     } catch (error) {
       console.error('Error searching for executable files:', error)
       return { error: (error as Error).message }
