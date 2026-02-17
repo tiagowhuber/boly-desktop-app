@@ -52,7 +52,7 @@ const checked = ref(false)
             class="confirm-modal-close-button"
             @click="
               $emit('close');
-              checked = false
+              checked = false;
             "
           >
             {{ $t('close') }}</button

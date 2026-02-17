@@ -268,9 +268,9 @@ function getGameName() {
           </div>
         </div>
       </div>
-      <p class="desc">
+      <div class="desc">
         {{ (props.item.description as Record<string, string>)?.[i18n.locale.value] || (props.item.description as Record<string, string>)?.['en'] || '' }}
-      </p>
+      </div>
     </div>
   </div>
 </template>

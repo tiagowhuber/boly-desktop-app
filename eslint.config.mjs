@@ -25,5 +25,14 @@ export default tseslint.config(
       '@typescript-eslint/ban-ts-comment': 'off'
     }
   },
+  {
+    files: ['src/renderer/**/*.{ts,mts,tsx,vue}'],
+    rules: {
+      'vue/require-prop-types': 'off',
+      'vue/prop-name-casing': 'off',
+      'vue/require-explicit-emits': 'off',
+      '@typescript-eslint/no-unused-vars': 'off'
+    }
+  },
   eslintConfigPrettier
 )
