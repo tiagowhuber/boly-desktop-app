@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
-import { app, ipcMain, dialog } from 'electron'
+import { app, ipcMain, dialog, session } from 'electron'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { WindowManager } from './services/WindowManager'
 import { AuthService } from './services/AuthService'
@@ -134,7 +134,7 @@ function registerIpcHandlers() {
     return result.filePaths[0]
   })
 
-  ipcMain.handle('instalar-desde-zip', async (event, rutaExe, rutaDestino) => {
+  ipcMain.handle('instalar-desde-zip', async (rutaExe, rutaDestino) => {
     // Logic was effectively exec command in original file
     require('child_process').exec(
       `"${rutaExe}" /DIR="${rutaDestino}" /SILENT`,
@@ -181,6 +181,37 @@ app.whenReady().then(() => {
 
   // Create Window
   windowManager.createWindow()
+
+  // Intercept requests to YouTube to fix playback errors (152, 153 etc)
+  session.defaultSession.webRequest.onBeforeSendHeaders(
+    { urls: ['*://*.youtube.com/*', '*://*.youtube-nocookie.com/*'] },
+    (details, callback) => {
+      // Set Referer to allow restricted videos
+      // detailed explanation: 'https://www.youtube.com/' can cause "embedder.identity.denied"
+      // because the player detects it's an embed but the referer claims it's the main site.
+      // Using a generic trusted domain like google.com or a valid localhost often works better.
+      details.requestHeaders['Referer'] = 'https://www.google.com/'
+
+      // Spoof User-Agent to remove "Electron/" which is often blocked or restricted
+      details.requestHeaders['User-Agent'] =
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+
+      // Error 152 Fix: Do NOT spoof Origin as youtube.com.
+      // The mismatch between the header and the actual window location triggers the error.
+      // Removing the Origin header entirely is often the most compatible approach for Electron.
+      if (details.requestHeaders['Origin']) {
+        delete details.requestHeaders['Origin']
+      }
+
+      // Add Sec-Fetch headers to simulate a legitimate embedded request
+      // These help the server validate the "identity" of the requester
+      details.requestHeaders['Sec-Fetch-Dest'] = 'iframe'
+      details.requestHeaders['Sec-Fetch-Mode'] = 'navigate'
+      details.requestHeaders['Sec-Fetch-Site'] = 'cross-site'
+
+      callback({ cancel: false, requestHeaders: details.requestHeaders })
+    }
+  )
 
   // Initial version check
   try {

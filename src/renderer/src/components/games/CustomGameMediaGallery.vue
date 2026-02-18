@@ -77,7 +77,9 @@ function getYouTubeEmbedUrl(url: string): string {
 
   if (!videoId) return ''
 
-  return `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0`
+  // Use no-cookie domain for better privacy and fewer potential restrictions
+  // Removed origin parameter to avoid Error 152/153 and let the player detect environment naturally
+  return `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=0&rel=0`
 }
 
 function getYouTubeThumbnailUrl(url: string): string {
