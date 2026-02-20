@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted, computed } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, computed, nextTick } from 'vue'
 import useAuth from '@/stores/auth'
 import { useRouter } from 'vue-router'
 
@@ -11,7 +11,7 @@ const currentBoard = ref<number[][]>([])
 const solutionBoard = ref<number[][]>([])
 const initialBoard = ref<number[][]>([])
 const difficultyLevel = ref(1)
-const timerInterval = ref<number | ReturnType<typeof setTimeout> | null>(null)
+const timerInterval = ref<ReturnType<typeof setInterval> | null>(null)
 const timeLeft = ref(0)
 const originalTimeLimit = ref(0)
 const selectedCell = ref<{ row: number; col: number } | null>(null)
@@ -39,6 +39,17 @@ const solutionError = ref('')
 // Highlighting state
 const highlightedCells = reactive(new Set<string>())
 const selectedCellKey = ref('')
+
+// Flat list of all 81 cells for direct grid rendering
+const flatCells = computed(() => {
+  const cells: { row: number; col: number }[] = []
+  for (let i = 0; i < 9; i++) {
+    for (let j = 0; j < 9; j++) {
+      cells.push({ row: i, col: j })
+    }
+  }
+  return cells
+})
 
 // Computed properties
 const timerDisplay = computed(() => {
@@ -93,7 +104,9 @@ function solveSudoku(board: number[][]): boolean {
   for (let i = 0; i < 9; i++) {
     for (let j = 0; j < 9; j++) {
       if (board[i][j] === 0) {
-        for (let num = 1; num <= 9; num++) {
+        // Shuffle numbers 1-9 for randomization
+        const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9].sort(() => Math.random() - 0.5)
+        for (const num of nums) {
           if (isValid(board, i, j, num)) {
             board[i][j] = num
             if (solveSudoku(board)) return true
@@ -169,12 +182,12 @@ function getCellClass(row: number, col: number): string {
   const currentValue = currentBoard.value[row][col]
   if (currentValue !== 0 && selectedCell.value) {
     const selectedValue = currentBoard.value[selectedCell.value.row][selectedCell.value.col]
-    if (currentValue === selectedValue) {
+    if (currentValue === selectedValue && selectedValue !== 0) {
       classes.push('highlight-same-number')
     }
   }
 
-  // Check for errors
+  // Check for errors (only for user-entered values)
   if (currentValue !== 0 && initialBoard.value[row][col] === 0) {
     const tempBoard = JSON.parse(JSON.stringify(currentBoard.value))
     tempBoard[row][col] = 0
@@ -215,8 +228,18 @@ function applyHighlights(row: number, col: number) {
 }
 
 function handleCellClick(row: number, col: number) {
+  if (isGameConcluded.value) return
+  // Allow clicking any cell for highlighting; only editable cells get selected for input
+  selectedCell.value = { row, col }
+  applyHighlights(row, col)
+  // Focus the input if it's an editable cell
   if (initialBoard.value[row][col] === 0) {
-    handleCellSelect(row, col)
+    nextTick(() => {
+      const input = document.querySelector(
+        `[data-row="${row}"][data-col="${col}"] .cell-input`
+      ) as HTMLInputElement
+      if (input) input.focus()
+    })
   }
 }
 
@@ -234,7 +257,12 @@ function handleInput(event: Event, row: number, col: number) {
     return
   }
 
-  const value = /^[1-9]$/.test(target.value) ? parseInt(target.value) : 0
+  // Get only the last character typed (handles replacement of existing value)
+  const rawValue = target.value
+  const lastChar = rawValue.slice(-1)
+  const value = /^[1-9]$/.test(lastChar) ? parseInt(lastChar) : 0
+
+  // Update the input display
   target.value = value === 0 ? '' : value.toString()
 
   currentBoard.value[row][col] = value
@@ -245,13 +273,44 @@ function handleInput(event: Event, row: number, col: number) {
   }
 }
 
-function handleKeydown(event: KeyboardEvent) {
-  if (
-    event.key.length === 1 &&
-    !/[1-9]/.test(event.key) &&
-    event.key !== 'Backspace' &&
-    event.key !== 'Delete'
-  ) {
+function handleKeydown(event: KeyboardEvent, row: number, col: number) {
+  // Allow: 1-9, Backspace, Delete, Tab, Arrow keys
+  const allowedKeys = [
+    'Backspace',
+    'Delete',
+    'Tab',
+    'ArrowUp',
+    'ArrowDown',
+    'ArrowLeft',
+    'ArrowRight'
+  ]
+
+  if (allowedKeys.includes(event.key)) {
+    if ((event.key === 'Backspace' || event.key === 'Delete') && !isGameConcluded.value) {
+      event.preventDefault()
+      currentBoard.value[row][col] = 0
+      const target = event.target as HTMLInputElement
+      target.value = ''
+      applyHighlights(row, col)
+    }
+    // Handle arrow key navigation
+    if (event.key === 'ArrowUp' && row > 0) {
+      event.preventDefault()
+      handleCellClick(row - 1, col)
+    } else if (event.key === 'ArrowDown' && row < 8) {
+      event.preventDefault()
+      handleCellClick(row + 1, col)
+    } else if (event.key === 'ArrowLeft' && col > 0) {
+      event.preventDefault()
+      handleCellClick(row, col - 1)
+    } else if (event.key === 'ArrowRight' && col < 8) {
+      event.preventDefault()
+      handleCellClick(row, col + 1)
+    }
+    return
+  }
+
+  if (!/^[1-9]$/.test(event.key)) {
     event.preventDefault()
   }
 }
@@ -292,8 +351,17 @@ function selectNumber(num: number) {
   const { row, col } = selectedCell.value
   if (initialBoard.value[row][col] === 0) {
     currentBoard.value[row][col] = num
+    // Force update the input element
+    nextTick(() => {
+      const input = document.querySelector(
+        `[data-row="${row}"][data-col="${col}"] .cell-input`
+      ) as HTMLInputElement
+      if (input) {
+        input.value = num === 0 ? '' : num.toString()
+      }
+    })
     applyHighlights(row, col)
-    if (checkWin()) {
+    if (num !== 0 && checkWin()) {
       handleWin()
     }
   }
@@ -430,7 +498,18 @@ function resetPuzzle() {
   if (isGameConcluded.value) return
   currentBoard.value = JSON.parse(JSON.stringify(initialBoard.value))
   clearHighlights()
+  selectedCell.value = null
   messageText.value = 'Tablero reiniciado.'
+  // Force all inputs to update
+  nextTick(() => {
+    const inputs = document.querySelectorAll<HTMLInputElement>('.cell-input')
+    inputs.forEach((input) => {
+      const row = parseInt(input.closest('[data-row]')?.getAttribute('data-row') || '0')
+      const col = parseInt(input.closest('[data-col]')?.getAttribute('data-col') || '0')
+      input.value =
+        currentBoard.value[row][col] === 0 ? '' : currentBoard.value[row][col].toString()
+    })
+  })
 }
 
 function validateSolution() {
@@ -518,7 +597,7 @@ onMounted(() => {
   }
 })
 
-onUnmounted(() => {
+onUnmounted(async () => {
   if (timerInterval.value) {
     clearInterval(timerInterval.value)
   }
@@ -587,33 +666,32 @@ onUnmounted(() => {
       </div>
 
       <div id="sudoku-board" class="sudoku-grid">
-        <div v-for="(row, i) in currentBoard" :key="`row-${i}`" class="contents">
-          <div
-            v-for="(_cell, j) in row"
-            :key="`cell-${i}-${j}`"
-            :class="getCellClass(i, j)"
-            :data-row="i"
-            :data-col="j"
-            @click="handleCellClick(i, j)"
-            @dragover="handleDragOver"
-            @drop="(e) => handleDrop(e, i, j)"
-          >
-            <span v-if="initialBoard[i][j] !== 0" class="cell-content">
-              {{ initialBoard[i][j] }}
-            </span>
-            <input
-              v-else
-              type="text"
-              maxlength="1"
-              pattern="[1-9]"
-              inputmode="numeric"
-              :value="currentBoard[i][j] === 0 ? '' : currentBoard[i][j]"
-              class="cell-input"
-              @input="(e) => handleInput(e, i, j)"
-              @focus="handleCellSelect(i, j)"
-              @keydown="handleKeydown"
-            />
-          </div>
+        <div
+          v-for="{ row: i, col: j } in flatCells"
+          :key="`cell-${i}-${j}`"
+          :class="getCellClass(i, j)"
+          :data-row="i"
+          :data-col="j"
+          @click="handleCellClick(i, j)"
+          @dragover="handleDragOver"
+          @drop="(e) => handleDrop(e, i, j)"
+        >
+          <span v-if="currentBoard.length && initialBoard[i][j] !== 0" class="cell-content">
+            {{ initialBoard[i][j] }}
+          </span>
+          <input
+            v-else-if="currentBoard.length"
+            type="text"
+            maxlength="1"
+            pattern="[1-9]"
+            inputmode="numeric"
+            class="cell-input"
+            autocomplete="off"
+            :value="currentBoard[i][j] === 0 ? '' : currentBoard[i][j]"
+            @input="(e) => handleInput(e, i, j)"
+            @focus="handleCellSelect(i, j)"
+            @keydown="(e) => handleKeydown(e, i, j)"
+          />
         </div>
       </div>
 
@@ -621,8 +699,8 @@ onUnmounted(() => {
         <button
           v-for="num in 9"
           :key="num"
-          :draggable="!isGameConcluded"
           class="btn btn-normal palette-btn"
+          :draggable="!isGameConcluded"
           @dragstart="(e) => handleDragStart(e, num)"
           @dragend="handleDragEnd"
           @click="selectNumber(num)"
@@ -723,11 +801,10 @@ onUnmounted(() => {
 
 .sudoku-grid {
   display: grid;
-  grid-template-columns: repeat(9, minmax(0, 1fr));
-  width: 90vw;
-  max-width: 500px;
-  height: 90vw;
-  max-height: 500px;
+  grid-template-columns: repeat(9, 1fr);
+  grid-template-rows: repeat(9, 1fr);
+  width: min(90vw, 500px);
+  height: min(90vw, 500px);
   border: 3px solid #cbd5e0;
   border-radius: 8px;
   gap: 0;
@@ -735,6 +812,8 @@ onUnmounted(() => {
   box-shadow:
     0 10px 15px -3px rgba(0, 0, 0, 0.1),
     0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .sudoku-cell {
@@ -743,21 +822,36 @@ onUnmounted(() => {
   justify-content: center;
   background-color: #2d3748;
   border: 1px solid #4a5568;
-  font-size: clamp(1rem, 4vw, 1.75rem);
+  font-size: clamp(0.6rem, 3.5vw, 1.5rem);
   font-weight: 600;
   color: #e2e8f0;
   transition: background-color 0.15s ease-in-out;
   cursor: pointer;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
 }
 
+/* 3x3 box borders via inset box-shadow so cell size stays identical */
 .sudoku-cell[data-col='2'],
 .sudoku-cell[data-col='5'] {
-  border-right: 2px solid #a0aec0;
+  box-shadow: inset -2px 0 0 #a0aec0;
 }
 
 .sudoku-cell[data-row='2'],
 .sudoku-cell[data-row='5'] {
-  border-bottom: 2px solid #a0aec0;
+  box-shadow: inset 0 -2px 0 #a0aec0;
+}
+
+/* Corner cells need both shadows */
+.sudoku-cell[data-col='2'][data-row='2'],
+.sudoku-cell[data-col='2'][data-row='5'],
+.sudoku-cell[data-col='5'][data-row='2'],
+.sudoku-cell[data-col='5'][data-row='5'] {
+  box-shadow:
+    inset -2px 0 0 #a0aec0,
+    inset 0 -2px 0 #a0aec0;
 }
 
 .cell-input {
@@ -771,12 +865,19 @@ onUnmounted(() => {
   font-weight: inherit;
   outline: none;
   padding: 0;
+  margin: 0;
   caret-color: #63b3ed;
   cursor: pointer;
+  font-family: inherit;
+  min-width: 0;
+  box-sizing: border-box;
+  display: block;
 }
 
 .cell-content {
   color: #a0aec0;
+  pointer-events: none;
+  user-select: none;
 }
 
 .sudoku-cell.prefilled {
@@ -787,6 +888,10 @@ onUnmounted(() => {
 .sudoku-cell.error {
   background-color: #c5303066;
   color: #fed7d7;
+}
+
+.sudoku-cell.error .cell-input {
+  color: #fc8181;
 }
 
 .sudoku-cell.highlight {
@@ -801,6 +906,10 @@ onUnmounted(() => {
   background-color: #4299e1;
   outline: 2px solid #fff;
   z-index: 10;
+}
+
+.sudoku-cell.selected .cell-input {
+  color: #fff;
 }
 
 .number-palette {
@@ -818,6 +927,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0;
 }
 
 .palette-btn.dragging {
@@ -911,5 +1021,13 @@ onUnmounted(() => {
     0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 10px 10px -5px rgba(0, 0, 0, 0.04);
   max-width: 90vw;
+}
+
+.difficulty-buttons,
+.time-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
 }
 </style>
