@@ -137,3 +137,29 @@ input[type="submit"]:disabled,
 .cart-disabled {
   cursor: not-allowed;
 }
+
+/* Custom Scrollbar
+-------------------------------------------- */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0e0820;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #40A8E2 0%, #40A8E2 100%);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #40A8E2 0%, #40A8E2 100%);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
