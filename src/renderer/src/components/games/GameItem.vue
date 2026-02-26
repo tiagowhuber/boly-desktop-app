@@ -1,6 +1,5 @@
 <script setup lang="ts">
-//import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth, useUser, useGames, useCart, useDeveloper, usePayment } from '@/stores'
 import CartIcon from '../icons/CartIcon.vue'
@@ -39,9 +38,9 @@ const isMobile = ref(window.innerWidth <= 768)
 const ownsCurrentGame = ref(false)
 const hasSubscriptionAccess = ref(false)
 
-// const currency = computed(() => {
-//   return i18n.locale.value === 'en' ? 'USD' : 'CLP'
-// })
+const currency = computed(() => {
+  return i18n.locale.value === 'en' ? 'USD' : 'CLP'
+})
 
 // Handle window resize
 const handleResize = () => {
@@ -137,13 +136,10 @@ function GoToGame() {
         <p v-else-if="hasSubscriptionAccess" :class="{ 'mobile-price-text': isMobile }">
           {{ $t('subscription_access') }}
         </p>
-        <!--
         <p v-else-if="props.item.price[i18n.locale.value] > 0" :class="{ 'mobile-price-text': isMobile }">
           {{ currency === 'USD' ? 'USD' : 'CLP' }} {{ Intl.NumberFormat(i18n.locale.value === 'en' ? 'en-US' : 'es-CL', { style: 'currency', currency: currency, currencyDisplay: 'symbol' }).format(props.item.price[i18n.locale.value]) }}
         </p>
         <p v-else :class="{ 'mobile-price-text': isMobile }">{{$t('claim_for_free')}}</p>
-        -->
-        <p v-else :class="{ 'mobile-price-text': isMobile }">{{ $t('coming_soon') }}</p>
 
         <div
           :class="[ownsCurrentGame ? '' : 'buttons', isMobile ? 'mobile-buttons' : '']"
