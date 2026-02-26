@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import WindowsIcon from '@/components/icons/WindowsIcon.vue'
 import AppleIcon from '@/components/icons/AppleIcon.vue'
@@ -38,9 +38,9 @@ const wishlist = useWishlist();
 const developer = ref<any>(null);
 const developerStore = useDeveloper();
 
-// const currency = computed(() => {
-//   return i18n.locale.value === 'en' ? 'USD' : 'CLP'
-// });
+const currency = computed(() => {
+  return i18n.locale.value === 'en' ? 'USD' : 'CLP';
+});
 
 const game_images = ref<GameMedia[]>([]);
 
@@ -229,7 +229,10 @@ function getGameName() {
               <p>{{ $t('subscription_access') }}</p>
             </template>
             <template v-else>
-              <p>{{ $t('coming_soon') }}</p>
+              <p v-if="(props.item.price as Record<string, number>)[i18n.locale.value] > 0">
+                {{ currency }} {{ Intl.NumberFormat(i18n.locale.value === 'en' ? 'en-US' : 'es-CL', { style: 'currency', currency: currency, currencyDisplay: 'symbol' }).format((props.item.price as Record<string, number>)[i18n.locale.value]) }}
+              </p>
+              <p v-else>{{ $t('claim_for_free') }}</p>
             </template>
           </div>
 

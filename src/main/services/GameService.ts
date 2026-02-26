@@ -151,31 +151,46 @@ export default class GameService {
     const { appPath, game_id, token } = appData
 
     if (this.activeGameSession) {
-      console.warn('Another game session is already active. Please stop it first.')
+      console.warn('[GameService] Another game session is already active. Please stop it first.')
       return { error: 'Another game session is active.' }
     }
 
     if (this.gameSessionLaunching) {
-      console.warn('A game is already being launched. Please wait.')
+      console.warn('[GameService] A game is already being launched. Please wait.')
       return { error: 'A game is already being launched. Please wait.' }
     }
 
     this.gameSessionLaunching = true
 
     try {
-      console.log('Game path: ' + appPath)
-      console.log('Game ID: ' + game_id)
+      console.log(`[GameService] ── Launching game ──────────────────────────────`)
+      console.log(`[GameService]   game_id  : ${game_id}`)
+      console.log(`[GameService]   appPath  : ${appPath}`)
 
       const reqValidate = { game_id, token }
 
       // @ts-ignore
       const apiBaseUrl = import.meta.env.VITE_APP_API_URL
-      const validationResponse = await axios.post(`${apiBaseUrl}/v1/validate/`, reqValidate, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      console.log(`[GameService] Requesting access token from ${apiBaseUrl}/v1/validate/`)
+
+      let validationResponse: any
+      try {
+        validationResponse = await axios.post(`${apiBaseUrl}/v1/validate/`, reqValidate, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+      } catch (axiosError: any) {
+        const status = axiosError.response?.status ?? 'no response'
+        const data = axiosError.response?.data ?? axiosError.message
+        console.error(`[GameService] ✗ Validation request failed`)
+        console.error(`[GameService]   HTTP status : ${status}`)
+        console.error(`[GameService]   Server says : ${JSON.stringify(data)}`)
+        this.gameSessionLaunching = false
+        return { error: `Access denied: ${data?.message ?? axiosError.message}` }
+      }
 
       if (validationResponse.data && validationResponse.data.tempKey) {
-        console.log('Validation successful:', validationResponse.data)
+        console.log(`[GameService] ✓ Access granted for game ${game_id}`)
+        console.log(`[GameService]   tempKey received — launching process`)
 
         const lastRecordedPlayTimeMinutes = await this.fetchInitialPlayTime(token, game_id)
 
@@ -186,12 +201,20 @@ export default class GameService {
         })
 
         if (!appProcess.pid) {
-          console.error('Failed to launch application or get PID.')
+          console.error('[GameService] ✗ Failed to launch application or get PID.')
           this.gameSessionLaunching = false
           return { error: 'Failed to launch game process.' }
         }
 
-        console.log(`Game started with PID: ${appProcess.pid}`)
+        console.log(`[GameService] ✓ Game process started — PID: ${appProcess.pid}`)
+
+        appProcess.stdout?.on('data', (data: Buffer) => {
+          console.log(`[Game stdout] ${data.toString().trim()}`)
+        })
+        appProcess.stderr?.on('data', (data: Buffer) => {
+          console.error(`[Game stderr] ${data.toString().trim()}`)
+        })
+
         this.activeGameSession = {
           pid: appProcess.pid,
           game_id: game_id,
@@ -215,7 +238,7 @@ export default class GameService {
               // Check if user is still authenticated using AuthService singleton
               const isAuthenticated = await AuthService.getInstance().checkUserAuthentication()
               if (!isAuthenticated) {
-                console.log('User is no longer authenticated. Terminating game...')
+                console.warn(`[GameService] ✗ User is no longer authenticated — terminating game (PID: ${this.activeGameSession.pid})`)
                 await this.cleanupActiveGameSession()
                 return
               }
@@ -233,31 +256,42 @@ export default class GameService {
               )
 
               if (!updateSuccess) {
+                console.warn(`[GameService] ✗ Playtime update failed (auth rejected) — terminating game (PID: ${this.activeGameSession.pid})`)
                 await this.cleanupActiveGameSession()
                 return
               }
             } catch {
-              // Process died
+              // Process died on its own
+              console.log(`[GameService] Game process (PID: ${this.activeGameSession?.pid}) is no longer running — cleaning up session`)
               this.cleanupActiveGameSession()
             }
           }
         }, this.PLAYTIME_UPDATE_INTERVAL_MS)
 
-        appProcess.on('exit', async () => {
+        appProcess.on('exit', async (code) => {
+          const sessionSecs = (Date.now() - (this.activeGameSession?.sessionStartTime ?? Date.now())) / 1000
+          console.log(`[GameService] Game process exited (PID: ${appProcess.pid}, exit code: ${code}, ran for ~${sessionSecs.toFixed(1)}s)`)
+          if (sessionSecs < 15) {
+            console.warn(`[GameService] ⚠ Game exited within 15 seconds — this usually means the game rejected its license key.`)
+            console.warn(`[GameService]   Check the backend logs for validateToken errors for game_id=${game_id}`)
+          }
           this.cleanupActiveGameSession()
         })
 
-        appProcess.on('error', async () => {
+        appProcess.on('error', async (err) => {
+          console.error(`[GameService] ✗ Game process error (PID: ${appProcess.pid}): ${err.message}`)
           this.cleanupActiveGameSession()
         })
 
         return { success: true, pid: appProcess.pid }
       } else {
+        console.error(`[GameService] ✗ Validation response did not contain a tempKey`)
+        console.error(`[GameService]   Response data: ${JSON.stringify(validationResponse.data)}`)
         this.gameSessionLaunching = false
         return { error: 'Game validation failed.' }
       }
     } catch (error: any) {
-      console.error('Error in play-game handler:', error.message)
+      console.error(`[GameService] ✗ Unexpected error in playGame:`, error.message)
       this.gameSessionLaunching = false
       await this.cleanupActiveGameSession()
       return { error: 'Failed to play game: ' + error.message }
