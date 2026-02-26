@@ -14,6 +14,7 @@ import router from '@/router'
 import { resolveImageUrl } from '@/utils/imageUrl'
 
 const props = defineProps<{
+  loading?: boolean
   item: Game
 }>()
 
@@ -143,6 +144,7 @@ async function uninstallGame(event: Event) {
 }
 
 onMounted(() => {
+  if (props.loading) return
   fetchGameAchievements()
   fetchPlayTime()
 
@@ -285,8 +287,28 @@ async function Download() {
 </script>
 
 <template>
+  <div v-if="props.loading" class="library-item">
+    <div class="sk sk-banner"></div>
+    <div class="game-info sk-body">
+      <div class="sk-padded">
+        <div class="sk sk-title"></div>
+      </div>
+      <div class="sk-divider"></div>
+      <div class="sk-section">
+        <div class="sk sk-label"></div>
+        <div class="sk sk-block"></div>
+      </div>
+      <div class="sk-section">
+        <div class="sk sk-label"></div>
+        <div class="sk sk-block sk-small"></div>
+      </div>
+      <div class="sk-actions">
+        <div class="sk sk-action-btn"></div>
+      </div>
+    </div>
+  </div>
   <!-- <div class="library-item" @click="navigateToGameDetails"> -->
-  <div class="library-item" @click="Play">
+  <div v-else class="library-item" @click="Play">
     <img :src="resolveImageUrl(props.item.banner_url)" class="game-banner" />
     <div class="game-info">
       <div class="title-section">
@@ -418,6 +440,30 @@ async function Download() {
 </template>
 
 <style scoped>
+@keyframes skeleton-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.sk {
+  background: linear-gradient(90deg, #e0e0e0 25%, #efefef 50%, #e0e0e0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.6s infinite;
+  border-radius: 6px;
+}
+
+.sk-banner { width: 100%; height: 160px; border-radius: 0; }
+.sk-body { display: flex; flex-direction: column; background: white; }
+.sk-padded { padding: 0.8rem 1rem 0.5rem; }
+.sk-divider { height: 1px; background: rgba(0,0,0,0.06); margin: 0 1rem; }
+.sk-title { width: 60%; height: 20px; }
+.sk-section { padding: 0.3rem 1rem 0.6rem; display: flex; flex-direction: column; gap: 0.4rem; }
+.sk-label { width: 35%; height: 11px; }
+.sk-block { width: 100%; height: 50px; border-radius: 8px; }
+.sk-small { height: 36px; }
+.sk-actions { padding: 0.8rem 1rem 1.2rem; display: flex; justify-content: center; gap: 0.5rem; }
+.sk-action-btn { width: 150px; height: 42px; border-radius: 8px; }
+
 .library-item {
   width: 290px;
   border-radius: 20px;

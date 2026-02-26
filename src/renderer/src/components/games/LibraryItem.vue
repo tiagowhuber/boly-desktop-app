@@ -8,6 +8,7 @@ import PlayIcon from '@/components/icons/PlayIcon.vue'
 import DownloadIcon from '@/components/icons/DownloadIcon.vue'
 
 const props = defineProps<{
+  loading?: boolean
   item: Game
 }>()
 
@@ -86,7 +87,22 @@ function navigateToGameDetails() {
 </script>
 
 <template>
-  <div class="library-item" @click="navigateToGameDetails">
+  <div v-if="props.loading" class="library-item">
+    <div class="sk sk-banner"></div>
+    <div class="game-info sk-body">
+      <div class="sk-padded">
+        <div class="sk sk-title"></div>
+      </div>
+      <div class="sk-section">
+        <div class="sk sk-label"></div>
+        <div class="sk sk-block"></div>
+      </div>
+      <div class="sk-actions">
+        <div class="sk sk-action-btn"></div>
+      </div>
+    </div>
+  </div>
+  <div v-else class="library-item" @click="navigateToGameDetails">
     <img :src="props.item.banner_url" class="game-banner" />
     <div class="game-info">
       <div class="title-section">
@@ -173,6 +189,28 @@ function navigateToGameDetails() {
 </template>
 
 <style scoped>
+@keyframes skeleton-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.sk {
+  background: linear-gradient(90deg, rgba(255,255,255,0.12) 25%, rgba(255,255,255,0.28) 50%, rgba(255,255,255,0.12) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.6s infinite;
+  border-radius: 6px;
+}
+
+.sk-banner { width: 100%; height: 160px; border-radius: 0; }
+.sk-body { display: flex; flex-direction: column; }
+.sk-padded { padding: 1rem 1.2rem 0.5rem; }
+.sk-title { width: 55%; height: 20px; }
+.sk-section { padding: 0.4rem 1rem 0.8rem; display: flex; flex-direction: column; gap: 0.4rem; }
+.sk-label { width: 35%; height: 12px; }
+.sk-block { width: 100%; height: 50px; border-radius: 8px; }
+.sk-actions { padding: 0.8rem 1rem 1.2rem; display: flex; justify-content: center; }
+.sk-action-btn { width: 150px; height: 42px; border-radius: 8px; }
+
 .library-item {
   width: 290px;
   border-radius: 20px;

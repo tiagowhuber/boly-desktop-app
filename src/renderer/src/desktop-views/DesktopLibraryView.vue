@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 //import { useI18n } from 'vue-i18n'
 import DesktopLibraryItem from '@/desktop-components/DesktopLibraryItem.vue'
-import Loading from '@/components/LoadingIcon.vue'
 import { onMounted, ref, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth, useUser, useSubscription, useGames } from '../stores'
@@ -233,8 +232,12 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div v-if="isLoading" class="loading_container">
-    <Loading />
+  <div v-if="isLoading" class="section">
+    <div class="main-container">
+      <div class="list skeleton-loading">
+        <DesktopLibraryItem v-for="n in 4" :key="n" :loading="true" :item="{} as any" />
+      </div>
+    </div>
   </div>
   <div v-else class="section">
     <div class="main-container">

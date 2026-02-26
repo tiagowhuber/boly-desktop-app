@@ -81,6 +81,10 @@ const fetchPaymentMethods = async () => {
   }
 }
 
+const redirectToSubscription = () => {
+  window.open('https://boly.cl/subscription', '_blank')
+}
+
 // async function handleSubscription(planType: string) {
 //   if (isCurrentPlan(planType)) return
 //   window.open('https://boly.cl/subscription', '_blank')
@@ -150,20 +154,6 @@ async function handleRedeemCode() {
     <!-- Desktop layout (mobile layout removed) -->
     <div class="plan-container">
       <div class="plan">
-        <h2>{{ t('free_plan').toUpperCase() }}</h2>
-        <div class="credits">200 {{ t('credits') }}</div>
-        <div class="details">
-          <li>{{ t('free_feature_1') }}</li>
-          <li>{{ t('free_feature_2') }}</li>
-          <li>{{ t('free_feature_3') }}</li>
-        </div>
-        <h3 class="price">{{ t('free').toUpperCase() }}</h3>
-        <button :class="buttonClass('free')">
-          <!-- handleSubscription('free') -->
-          {{ buttonText('free') }}
-        </button>
-      </div>
-      <div class="plan">
         <h2>{{ t('monthly_plan').toUpperCase() }}</h2>
         <div class="credits">1000 {{ t('credits') }}</div>
         <div class="details">
@@ -174,7 +164,7 @@ async function handleRedeemCode() {
         </div>
         <!-- <h3 class="price">{{ `$8 USD / ${t('month').toUpperCase()}` }}</h3> -->
         <h3 class="price">{{ $t('coming_soon') }}</h3>
-        <button :class="buttonClass('monthly')">
+        <button :class="buttonClass('monthly')" @click="redirectToSubscription">
           <!-- handleSubscription('monthly') -->
           {{ buttonText('monthly') }}
         </button>
@@ -189,7 +179,7 @@ async function handleRedeemCode() {
         </div>
         <!-- <h3 class="price">{{ `$90 USD / ${t('year').toUpperCase()}` }}</h3> -->
         <h3 class="price">{{ $t('coming_soon') }}</h3>
-        <button :class="buttonClass('yearly')">
+        <button :class="buttonClass('yearly')" @click="redirectToSubscription">
           <!-- handleSubscription('yearly') -->
           {{ buttonText('yearly') }}
         </button>

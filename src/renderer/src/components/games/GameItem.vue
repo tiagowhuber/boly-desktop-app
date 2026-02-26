@@ -19,6 +19,7 @@ const games = useGames()
 const paymentStore = usePayment()
 
 const props = defineProps<{
+  loading?: boolean
   item: {
     game_id: number
     banner_url: string
@@ -106,7 +107,18 @@ function GoToGame() {
 </script>
 
 <template>
-  <div class="item" :class="{ 'mobile-item': isMobile }">
+  <div v-if="props.loading" class="item">
+    <div class="main">
+      <div class="sk sk-img"></div>
+      <div class="sk sk-title"></div>
+      <div class="sk sk-dev"></div>
+      <div class="sk-footer">
+        <div class="sk sk-price"></div>
+        <div class="sk sk-btn"></div>
+      </div>
+    </div>
+  </div>
+  <div v-else class="item" :class="{ 'mobile-item': isMobile }">
     <div class="main" :class="{ 'mobile-main': isMobile }">
       <img class="image" :src="resolveImageUrl(props.item.banner_url)" @click="GoToGame" />
 
@@ -181,6 +193,30 @@ function GoToGame() {
 </template>
 
 <style scoped>
+@keyframes skeleton-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.sk {
+  background: linear-gradient(90deg, #e0e0e0 25%, #efefef 50%, #e0e0e0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.6s infinite;
+  border-radius: 6px;
+}
+
+.sk-img { width: 100%; height: 200px; border-radius: 10px; }
+.sk-title { width: 70%; height: 18px; }
+.sk-dev { width: 45%; height: 14px; }
+.sk-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 5px;
+}
+.sk-price { width: 60px; height: 14px; }
+.sk-btn { width: 45px; height: 45px; border-radius: 50%; }
+
 h3 {
   color: var(--light);
 }

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import GameItem from '@/components/games/GameItem.vue'
-import Loading from '@/components/LoadingIcon.vue'
 import { useGames } from '@/stores'
 import { onMounted, ref, computed, watch, onBeforeUnmount, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
@@ -181,8 +180,10 @@ watch(
 </script>
 
 <template>
-  <div v-if="loading" class="loading_container">
-    <Loading />
+  <div v-if="loading" class="section" :class="{ 'mobile-section': isMobile }">
+    <div class="list">
+      <GameItem v-for="n in 6" :key="n" :loading="true" :item="{} as any" />
+    </div>
   </div>
   <div v-else class="section" :class="{ 'mobile-section': isMobile }">
     <!-- Desktop tabs layout -->
@@ -309,13 +310,6 @@ watch(
 </template>
 
 <style scoped>
-.loading_container {
-  height: 400px;
-  width: 1200px;
-  border-top: 2px solid white;
-  margin: auto;
-}
-
 .list {
   width: 90%;
   display: grid;

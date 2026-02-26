@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import LibraryItem from '@/components/games/LibraryItem.vue'
-import Loading from '@/components/LoadingIcon.vue'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth, useUser } from '../stores'
@@ -61,8 +60,12 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div v-if="isLoading" class="loading_container">
-    <Loading />
+  <div v-if="isLoading" class="section">
+    <div class="main-container">
+      <div class="list skeleton-loading">
+        <LibraryItem v-for="n in 4" :key="n" :loading="true" :item="{} as any" />
+      </div>
+    </div>
   </div>
   <div v-else class="section">
     <div class="main-container">
@@ -126,13 +129,6 @@ h2 {
   gap: 55px;
   flex-wrap: wrap;
   padding: 40px;
-}
-
-.loading_container {
-  height: 800px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .empty-library {
