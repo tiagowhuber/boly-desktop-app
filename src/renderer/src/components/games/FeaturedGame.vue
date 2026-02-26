@@ -7,6 +7,7 @@ import { useI18n } from 'vue-i18n'
 import 'vue3-carousel/dist/carousel.css'
 import { Carousel, Slide, Navigation } from 'vue3-carousel'
 import { useRouter } from 'vue-router'
+import { resolveImageUrl } from '@/utils/imageUrl'
 
 const router = useRouter()
 const i18n = useI18n()
@@ -88,7 +89,7 @@ function GoToGame(id: number) {
         <slide v-for="item in featuredGames" :key="item.game_id">
           <div v-if="item != null" class="main" :class="{ 'mobile-main': isMobile }">
             <div class="image-wrapper" :class="{ 'mobile-image': isMobile }">
-              <img :src="item.banner_url" loading="lazy" @click="GoToGame(item.game_id)" />
+              <img :src="resolveImageUrl(item.banner_url)" loading="lazy" @click="GoToGame(item.game_id)" />
             </div>
             <div class="details" :class="{ 'mobile-details': isMobile }">
               <h3>{{ $t('featured').toUpperCase() }}</h3>
