@@ -8,6 +8,7 @@ import CheckIcon from '../icons/CheckIcon.vue'
 import XMarkIcon from '../icons/XMarkIcon.vue'
 import PlusIcon from '../icons/PlusIcon.vue'
 import { useI18n } from 'vue-i18n'
+import { resolveImageUrl } from '@/utils/imageUrl'
 
 const i18n = useI18n()
 
@@ -28,7 +29,6 @@ const props = defineProps<{
 }>()
 
 const buttonHovered = ref(false)
-//const gameDataBaseUrl = import.meta.env.VITE_S3_BASE_URL + '/' + props.item.game_id + '/'
 const loading = ref(false)
 const shoppingCart = useCart()
 const developerStore = useDeveloper()
@@ -108,7 +108,7 @@ function GoToGame() {
 <template>
   <div class="item" :class="{ 'mobile-item': isMobile }">
     <div class="main" :class="{ 'mobile-main': isMobile }">
-      <img class="image" :src="props.item.banner_url" @click="GoToGame" />
+      <img class="image" :src="resolveImageUrl(props.item.banner_url)" @click="GoToGame" />
 
       <p v-if="ownsCurrentGame" :class="{ 'mobile-text': isMobile }">{{ $t('already_owned') }}</p>
       <p v-else-if="hasSubscriptionAccess" :class="{ 'mobile-text': isMobile }">

@@ -1,13 +1,13 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { resolveImageUrl } from '@/utils/imageUrl'
 
 const i18n = useI18n()
 
 const router = useRouter()
 
 const props = defineProps(['item'])
-const gameDataBaseUrl = import.meta.env.VITE_S3_BASE_URL + '/' + props.item.id + '/'
 
 function goToManageAchievements() {
   router.push('developer/' + props.item.id + '/achievements')
@@ -20,7 +20,7 @@ function goToManageGameData() {
 
 <template>
   <div class="item">
-    <img class="image" :src="gameDataBaseUrl + props.item.banner_uri" />
+    <img class="image" :src="resolveImageUrl(props.item.banner_uri)" />
     <div class="details">
       <h3 class="text">{{ props.item.name[i18n.locale.value] }}</h3>
     </div>

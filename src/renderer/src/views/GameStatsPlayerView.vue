@@ -7,6 +7,7 @@ import type { Game } from '@/types'
 import ClockhistoryIcon from '@/components/icons/ClockhistoryIcon.vue'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import axios from 'axios'
+import { resolveImageUrl } from '@/utils/imageUrl'
 
 const router = useRouter()
 const { locale } = useI18n()
@@ -51,9 +52,6 @@ async function fetchUserGames() {
       console.log('Extracted games list for stats:', gamesList)
 
       userGames.value = gamesList.map((game: Game) => {
-        if (!game.banner_url) {
-          game.banner_url = 'banner.jpg'
-        }
         return game
       })
 
@@ -73,9 +71,6 @@ async function fetchSubscriptionGames() {
   try {
     const response = await gamesStore.getSubscriptionGames(user.userId)
     subscriptionGames.value = response.map((game: Game) => {
-      if (!game.banner_url) {
-        game.banner_url = 'banner.jpg'
-      }
       return game
     })
 
@@ -228,7 +223,7 @@ onMounted(async () => {
       <div v-if="sortedGames.length > 0" class="games-stats-list">
         <div v-for="game in sortedGames" :key="game.game_id" class="game-stat-card">
           <div class="game-image" @click="viewGameDetails(game.game_id)">
-            <img :src="game.banner_url" :alt="gameTitle(game)" />
+            <img :src="resolveImageUrl(game.banner_url)" :alt="gameTitle(game)" />
             <div class="game-overlay">
               <span class="view-details">{{ $t('see_more') }}</span>
             </div>

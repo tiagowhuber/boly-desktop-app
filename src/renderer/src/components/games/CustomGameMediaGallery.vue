@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import LoadingIcon from '../LoadingIcon.vue'
 import { useGames } from '@/stores'
+import { resolveImageUrl } from '@/utils/imageUrl'
 
 const props = defineProps({
   gameId: {
@@ -137,7 +138,7 @@ watch(
       <div class="main-media-display">
         <img
           v-if="selectedMedia?.media_type === 'image'"
-          :src="selectedMedia?.media_url"
+          :src="resolveImageUrl(selectedMedia?.media_url)"
           :alt="getAltText(selectedMedia)"
           class="main-media"
         />
@@ -151,7 +152,7 @@ watch(
             allowfullscreen
             class="youtube-embed"
           ></iframe>
-          <video v-else controls :src="selectedMedia?.media_url" class="main-media"></video>
+          <video v-else controls :src="resolveImageUrl(selectedMedia?.media_url)" class="main-media"></video>
         </div>
       </div>
 
@@ -165,7 +166,7 @@ watch(
         >
           <img
             v-if="media.media_type === 'image'"
-            :src="media.media_url"
+            :src="resolveImageUrl(media.media_url)"
             :alt="getAltText(media)"
             loading="lazy"
           />
@@ -177,7 +178,7 @@ watch(
               :alt="getAltText(media)"
               loading="lazy"
             />
-            <video v-else :src="media.media_url" preload="metadata"></video>
+            <video v-else :src="resolveImageUrl(media.media_url)" preload="metadata"></video>
             <div class="play-icon">
               <svg
                 xmlns="http://www.w3.org/2000/svg"

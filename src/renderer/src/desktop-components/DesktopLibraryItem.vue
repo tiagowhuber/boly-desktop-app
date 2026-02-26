@@ -11,6 +11,7 @@ import DownloadIcon from '@/components/icons/DownloadIcon.vue'
 import ClockhistoryIcon from '@/components/icons/ClockhistoryIcon.vue'
 import VerticalDotsIcon from '@/components/icons/VerticalDotsIcon.vue'
 import router from '@/router'
+import { resolveImageUrl } from '@/utils/imageUrl'
 
 const props = defineProps<{
   item: Game
@@ -41,7 +42,7 @@ const isWebGame = computed(() => {
   )
 })
 
-//const gameDataBaseUrl = import.meta.env.VITE_S3_BASE_URL + '/' + props.item.game_id + '/'
+//const gameDataBaseUrl = ...
 
 const displayedAchievements = computed(() => {
   return gameAchievements.value.slice(0, 4)
@@ -286,7 +287,7 @@ async function Download() {
 <template>
   <!-- <div class="library-item" @click="navigateToGameDetails"> -->
   <div class="library-item" @click="Play">
-    <img :src="props.item.banner_url" class="game-banner" />
+    <img :src="resolveImageUrl(props.item.banner_url)" class="game-banner" />
     <div class="game-info">
       <div class="title-section">
         <h3>{{ props.item.name[i18n.locale.value].toUpperCase() }}</h3>

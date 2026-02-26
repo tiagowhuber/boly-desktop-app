@@ -10,6 +10,7 @@ import { useAuth, useUser, useGames, useCart, useDeveloper } from '@/stores'
 import useWishlist from '@/stores/wishlist'
 import { useI18n } from 'vue-i18n'
 import type { Game } from '@/types'
+import { resolveImageUrl } from '@/utils/imageUrl'
 
 // Declare vue-star-rating in types/globals.d.ts instead
 declare global {
@@ -58,7 +59,6 @@ function goToGames(): void {
 function updateGameImages(): void {
   console.log('GameDetails: Starting to update game images');
   let count = 0;
-  const gameDataBaseUrl = import.meta.env.VITE_S3_BASE_URL + '/' + props.item.game_id + '/';
   game_images.value = [];
 
   if (Array.isArray(props.item.banner_url)) {
@@ -66,7 +66,7 @@ function updateGameImages(): void {
     props.item.banner_url.forEach((media_uri: string) => {
       game_images.value.push({
         id: count.toString(),
-        url: gameDataBaseUrl + media_uri,
+        url: resolveImageUrl(media_uri),
         is_video: media_uri.endsWith(".mp4")
       });
       count++;

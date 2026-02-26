@@ -55,8 +55,6 @@ const { loading, games } = storeToRefs(gamesStore)
 
 const i18n = useI18n()
 
-const s3BaseUrl = computed<string>(() => import.meta.env.VITE_S3_BASE_URL)
-
 const currency = computed(() => {
   return i18n.locale.value === 'en' ? 'USD' : 'CLP'
 })
@@ -412,7 +410,6 @@ watch(
           v-for="game in cartGames"
           :key="game.game_id"
           :game="game"
-          :s3-base-url="s3BaseUrl"
           @remove="cartStore.removeGameFromCart(game)"
         />
       </div>

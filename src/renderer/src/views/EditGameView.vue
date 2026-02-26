@@ -8,6 +8,7 @@ import TagAbove from '@/components/forms/TagAbove.vue'
 import Loading from '@/components/LoadingIcon.vue'
 import { onMounted, ref } from 'vue'
 import AlertModal from '@/components/AlertModal.vue'
+import { resolveImageUrl } from '@/utils/imageUrl'
 
 const route = useRoute()
 const router = useRouter()
@@ -162,7 +163,7 @@ onMounted(async () => {
     console.log(data)
 
     game.value = data
-    gameDataBaseUrl.value = import.meta.env.VITE_S3_BASE_URL + '/' + game.value.id + '/'
+    gameDataBaseUrl.value = import.meta.env.VITE_IMAGES_BASE_URL + '/'
 
     loading.value = false
   } catch (error) {
@@ -274,7 +275,7 @@ const handleMediaUpload = (event) => {
                 :style="deleteMediaFiles.includes(item) ? 'border: 2px red solid;' : ''"
               >
                 <img
-                  :src="gameDataBaseUrl + item"
+                  :src="resolveImageUrl(item)"
                   :style="
                     deleteMediaFiles.includes(item)
                       ? 'filter: grayscale(100%) sepia(100%) hue-rotate(-50deg) saturate(400%) brightness(60%);'
