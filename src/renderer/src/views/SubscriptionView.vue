@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Loading from '@/components/LoadingIcon.vue'
 import AlertModal from '@/components/AlertModal.vue'
+import ToastNotification from '@/components/ToastNotification.vue'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import { ref, onMounted, computed, onBeforeUnmount } from 'vue'
@@ -27,7 +28,7 @@ const showEnrollmentRedirectModal = ref(false)
 // Discount code state
 const discountCode = ref('')
 const redeemingCode = ref(false)
-const redeemSuccess = ref(false)
+const showRedeemToast = ref(false)
 
 // Mobile detection removed for desktop-only app
 
@@ -118,8 +119,7 @@ async function handleRedeemCode() {
       )
 
       if (success) {
-        redeemSuccess.value = true
-        showModal.value = true
+        showRedeemToast.value = true
 
         await subscriptionStore.getUserSubscriptions(user.userId, { token: auth.token })
 
@@ -213,25 +213,14 @@ async function handleRedeemCode() {
     <!-- Mobile layout removed for desktop-only app -->
   </div>
 
-  <Teleport to="body">
-    <AlertModal :show="showModal" @close="showModal = false; redeemSuccess = false">
-      <template #header>
-        <h3>{{ redeemSuccess ? t('code_redemption_success') : t('subscription_success') }}</h3>
-      </template>
-      <template #body>
-        <p>
-          {{
-            redeemSuccess ? t('code_redemption_success_message') : t('subscription_success_message')
-          }}
-        </p>
-      </template>
-      <template v-if="redeemSuccess" #footer>
-        <button class="alert-modal-action-button" @click="router.push('/games'); showModal = false">
-          {{ t('go_to_games') }}
-        </button>
-      </template>
-    </AlertModal>
-  </Teleport>
+  <ToastNotification
+    :show="showRedeemToast"
+    :message="t('code_redemption_success')"
+    :action-label="t('go_to_games')"
+    @close="showRedeemToast = false"
+    @action="router.push('/games'); showRedeemToast = false"
+  />
+
   <!-- Enrollment Redirect Modal -->
   <Teleport to="body">
     <AlertModal :show="showEnrollmentRedirectModal" @close="showEnrollmentRedirectModal = false">
@@ -559,22 +548,6 @@ button {
 .button-loader {
   height: 20px;
   width: 20px;
-}
-
-.alert-modal-action-button {
-  height: 30px;
-  padding: 0 15px;
-  margin: 0 5px;
-  float: right;
-  background-color: var(--boly-button-purple);
-  color: white;
-  border: none;
-  border-radius: 2px;
-  cursor: pointer;
-}
-
-.alert-modal-action-button:hover {
-  background-color: var(--boly-button-purple-hover);
 }
 
 .mobile-redeem-section {
