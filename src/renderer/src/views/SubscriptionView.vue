@@ -13,7 +13,6 @@ const auth = useAuth()
 const user = useUser()
 const paymentStore = usePayment()
 const router = useRouter()
-const showModal = ref(false)
 const userPlan = ref('none') // 'free', 'monthly', 'yearly', or 'none'
 const i18n = useI18n()
 const { t } = i18n
