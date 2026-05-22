@@ -160,9 +160,36 @@ export class InstallerService {
           })
         } else {
           console.log('Resultado:', stdout)
-          this.deleteFile(installerRoute)
           const exeFiles = this.searchForExecutablesRecursive(destinationRoute)
           console.log('Found executable files:', exeFiles)
+
+          if (exeFiles.length === 0) {
+            // Downloaded file is a standalone exe, not an Inno Setup installer — copy it directly
+            console.log('No files installed — treating download as standalone exe, copying to destination')
+            if (!fs.existsSync(destinationRoute)) {
+              fs.mkdirSync(destinationRoute, { recursive: true })
+            }
+            const gameFolderName = path.basename(destinationRoute)
+            const destExePath = path.join(destinationRoute, `${gameFolderName}.exe`)
+            try {
+              fs.copyFileSync(installerRoute, destExePath)
+              this.deleteFile(installerRoute)
+              WindowManager.getInstance().send('install-complete', {
+                gameId: game_id,
+                installPath: destExePath
+              })
+            } catch (copyErr) {
+              console.error('Failed to copy standalone exe:', copyErr)
+              WindowManager.getInstance().send('install-error', {
+                gameId: game_id,
+                error: String(copyErr),
+                installPath: destinationRoute
+              })
+            }
+            return
+          }
+
+          this.deleteFile(installerRoute)
 
           const gameExeFiles = exeFiles.filter((filePath) => {
             const fileName = path.basename(filePath).toLowerCase()
@@ -179,9 +206,7 @@ export class InstallerService {
           const exePath =
             gameExeFiles.length > 0
               ? gameExeFiles[0]
-              : exeFiles.length > 0
-                ? exeFiles[0]
-                : destinationRoute
+              : exeFiles[0]
 
           WindowManager.getInstance().send('install-complete', {
             gameId: game_id,
@@ -224,11 +249,14 @@ export class InstallerService {
       console.log('Uninstalling game:', game_id, 'using uninstaller:', uninstallerPath)
 
       if (!fs.existsSync(uninstallerPath)) {
-        console.error('Uninstaller not found:', uninstallerPath)
-        return {
-          success: false,
-          error: 'Uninstaller not found at: ' + uninstallerPath
+        // No Inno Setup uninstaller — standalone exe, delete the game folder directly
+        const gameDir = path.dirname(uninstallerPath)
+        console.log('No uninstaller found, deleting game folder:', gameDir)
+        if (!fs.existsSync(gameDir)) {
+          return { success: false, error: 'Game folder not found at: ' + gameDir }
         }
+        fs.rmSync(gameDir, { recursive: true, force: true })
+        return { success: true, message: 'Game uninstalled successfully' }
       }
 
       const command = `"${uninstallerPath}" /SILENT`

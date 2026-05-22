@@ -31,7 +31,7 @@ export class WindowManager {
         sandbox: false,
         nodeIntegration: true,
         contextIsolation: true,
-        devTools: false
+        devTools: is.dev
       }
     })
 
