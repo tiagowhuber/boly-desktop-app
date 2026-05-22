@@ -214,7 +214,7 @@ async function handleRedeemCode() {
   </div>
 
   <Teleport to="body">
-    <AlertModal :show="showModal" @close="showModal = false">
+    <AlertModal :show="showModal" @close="showModal = false; redeemSuccess = false">
       <template #header>
         <h3>{{ redeemSuccess ? t('code_redemption_success') : t('subscription_success') }}</h3>
       </template>
@@ -225,20 +225,10 @@ async function handleRedeemCode() {
           }}
         </p>
       </template>
-    </AlertModal>
-  </Teleport>
-  <!-- Enrollment Redirect Modal -->
-  <Teleport to="body">
-    <AlertModal :show="showModal" @close="showModal = false">
-      <template #header>
-        <h3>{{ redeemSuccess ? t('code_redemption_success') : t('subscription_success') }}</h3>
-      </template>
-      <template #body>
-        <p>
-          {{
-            redeemSuccess ? t('code_redemption_success_message') : t('subscription_success_message')
-          }}
-        </p>
+      <template v-if="redeemSuccess" #footer>
+        <button class="alert-modal-action-button" @click="router.push('/games'); showModal = false">
+          {{ t('go_to_games') }}
+        </button>
       </template>
     </AlertModal>
   </Teleport>
@@ -569,6 +559,22 @@ button {
 .button-loader {
   height: 20px;
   width: 20px;
+}
+
+.alert-modal-action-button {
+  height: 30px;
+  padding: 0 15px;
+  margin: 0 5px;
+  float: right;
+  background-color: var(--boly-button-purple);
+  color: white;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.alert-modal-action-button:hover {
+  background-color: var(--boly-button-purple-hover);
 }
 
 .mobile-redeem-section {

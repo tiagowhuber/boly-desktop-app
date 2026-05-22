@@ -15,6 +15,7 @@ const props = defineProps(['show'])
         </div>
 
         <div class="alert-modal-footer">
+          <slot name="footer"></slot>
           <button class="alert-modal-close-button" @click="$emit('close')">
             {{ $t('close') }}
           </button>
