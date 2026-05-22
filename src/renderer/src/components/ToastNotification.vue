@@ -4,6 +4,7 @@ import { watch, onUnmounted } from 'vue'
 const props = defineProps<{
   show: boolean
   message: string
+  type?: 'success' | 'error'
   actionLabel?: string
 }>()
 
@@ -32,7 +33,7 @@ onUnmounted(() => {
 <template>
   <Teleport to="body">
     <Transition name="toast">
-      <div v-if="show" class="toast">
+      <div v-if="show" class="toast" :class="type === 'error' ? 'toast-error' : 'toast-success'">
         <span class="toast-message">{{ message }}</span>
         <div class="toast-actions">
           <button v-if="actionLabel" class="toast-action-btn" @click="emit('action')">
@@ -54,9 +55,6 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 16px;
-  background-color: #1e3a2f;
-  border: 1px solid #2ecc71;
-  border-left: 4px solid #2ecc71;
   border-radius: 8px;
   padding: 14px 16px;
   min-width: 280px;
@@ -64,10 +62,29 @@ onUnmounted(() => {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
+.toast-success {
+  background-color: #1e3a2f;
+  border: 1px solid #2ecc71;
+  border-left: 4px solid #2ecc71;
+}
+
+.toast-error {
+  background-color: #3a1e1e;
+  border: 1px solid #e74c3c;
+  border-left: 4px solid #e74c3c;
+}
+
 .toast-message {
   flex: 1;
-  color: #e8f8ee;
   font-size: 0.95rem;
+}
+
+.toast-success .toast-message {
+  color: #e8f8ee;
+}
+
+.toast-error .toast-message {
+  color: #f8e8e8;
 }
 
 .toast-actions {
@@ -98,15 +115,26 @@ onUnmounted(() => {
 .toast-close-btn {
   background: transparent;
   border: none;
-  color: #7ecfa0;
   font-size: 0.9rem;
   cursor: pointer;
   padding: 2px 4px;
   line-height: 1;
 }
 
-.toast-close-btn:hover {
+.toast-success .toast-close-btn {
+  color: #7ecfa0;
+}
+
+.toast-success .toast-close-btn:hover {
   color: #e8f8ee;
+}
+
+.toast-error .toast-close-btn {
+  color: #cf7e7e;
+}
+
+.toast-error .toast-close-btn:hover {
+  color: #f8e8e8;
 }
 
 .toast-enter-active,

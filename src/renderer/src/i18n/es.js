@@ -456,6 +456,7 @@ export const es = {
   card_registration_success_description: 'Tu tarjeta ha sido registrada correctamente.',
   go_to_subscriptions: 'Ir a Suscripciones',
   go_to_games: 'Ir a Juegos',
+  error_redeeming_code: 'No se pudo canjear el código. Por favor intenta de nuevo.',
   card_registration_error: 'Falló el Registro de la Tarjeta',
   card_registration_canceled: 'Registro de Tarjeta Cancelado',
   missing_token_payment: 'Falta el token de registro',

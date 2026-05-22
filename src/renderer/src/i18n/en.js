@@ -453,6 +453,7 @@ export const en = {
   card_registration_success_description: 'Your card has been successfully registered.',
   go_to_subscriptions: 'Go to Subscriptions',
   go_to_games: 'Go to Games',
+  error_redeeming_code: 'Failed to redeem code. Please try again.',
   card_registration_error: 'Card Registration Failed',
   card_registration_canceled: 'Card Registration Canceled',
   missing_token_payment: 'Missing registration token',

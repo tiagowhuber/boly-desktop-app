@@ -28,6 +28,8 @@ const showEnrollmentRedirectModal = ref(false)
 const discountCode = ref('')
 const redeemingCode = ref(false)
 const showRedeemToast = ref(false)
+const showErrorToast = ref(false)
+const errorToastMessage = ref('')
 
 // Mobile detection removed for desktop-only app
 
@@ -58,7 +60,7 @@ onBeforeUnmount(() => {
 })
 
 const subscriptionStore = useSubscription()
-const { subscriptions, error, loading } = storeToRefs(subscriptionStore)
+const { subscriptions, loading } = storeToRefs(subscriptionStore)
 
 const PLAN_TYPES = {
   1: 'free',
@@ -122,7 +124,6 @@ async function handleRedeemCode() {
 
         await subscriptionStore.getUserSubscriptions(user.userId, { token: auth.token })
 
-        // Update user current plan
         if (subscriptions.value.length > 0) {
           const activeSubscription = subscriptions.value.find((sub) => sub.is_active === 1)
           if (activeSubscription) {
@@ -131,6 +132,9 @@ async function handleRedeemCode() {
         }
 
         discountCode.value = ''
+      } else {
+        errorToastMessage.value = subscriptionStore.error || t('error_redeeming_code')
+        showErrorToast.value = true
       }
     } catch (err) {
       console.error('Error redeeming code:', err)
@@ -220,6 +224,13 @@ async function handleRedeemCode() {
     @action="router.push('/games'); showRedeemToast = false"
   />
 
+  <ToastNotification
+    type="error"
+    :show="showErrorToast"
+    :message="errorToastMessage"
+    @close="showErrorToast = false"
+  />
+
   <!-- Enrollment Redirect Modal -->
   <Teleport to="body">
     <AlertModal :show="showEnrollmentRedirectModal" @close="showEnrollmentRedirectModal = false">
@@ -238,10 +249,6 @@ async function handleRedeemCode() {
     <input type="hidden" name="TBK_TOKEN" :value="webpayToken" />
   </form>
 
-  <!-- Display error if any -->
-  <div v-if="error" class="error-message">
-    {{ error }}
-  </div>
 </template>
 
 <style scoped>
