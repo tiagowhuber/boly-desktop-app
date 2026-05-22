@@ -37,6 +37,10 @@ if (process.contextIsolated) {
       updateMessage: (callback) => {
         ipcRenderer.on('update-message', (_event, ...args) => callback(...args))
       },
+      onUpdateProgress: (callback) => {
+        ipcRenderer.on('update-progress', (_event, ...args) => callback(...args))
+      },
+      applyUpdate: () => ipcRenderer.invoke('apply-update'),
       onDownloadStarted: (callback) => {
         ipcRenderer.on('download-started', (_event, ...args) => callback(...args))
       },
@@ -112,6 +116,10 @@ if (process.contextIsolated) {
     updateMessage: (callback) => {
       ipcRenderer.on('update-message', (_event, ...args) => callback(...args))
     },
+    onUpdateProgress: (callback) => {
+      ipcRenderer.on('update-progress', (_event, ...args) => callback(...args))
+    },
+    applyUpdate: () => ipcRenderer.invoke('apply-update'),
     onDownloadStarted: (callback) => {
       ipcRenderer.on('download-started', (_event, ...args) => callback(...args))
     },

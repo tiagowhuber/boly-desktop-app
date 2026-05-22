@@ -22,7 +22,15 @@ interface ElectronAPIExtended {
   }) => Promise<any>
   onDeepLinkUrl: (callback: (url: string) => void) => void
   updateMessage: (callback: (message: string) => void) => void
-  // this was added recently...
+  onUpdateProgress: (
+    callback: (data: {
+      bytesPerSecond: number
+      percent: number
+      transferred: number
+      total: number
+    }) => void
+  ) => void
+  applyUpdate: () => Promise<void>
   checkUpdates: () => Promise<string>
   getVersion: () => Promise<string>
   onDownloadStarted: (callback: (data: any) => void) => void

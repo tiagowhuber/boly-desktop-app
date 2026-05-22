@@ -23,6 +23,10 @@ const isMobile = ref(window.innerWidth <= 768)
 const currentVersion = ref('')
 const showUpdateStatus = ref(false)
 const updateStatus = ref('')
+const isDownloadingUpdate = ref(false)
+const isUpdateReady = ref(false)
+const downloadPercent = ref(0)
+const downloadSpeedFormatted = ref('')
 
 // Boly images data
 const bolyImages = ref([
@@ -158,8 +162,29 @@ onMounted(() => {
     console.log('Setting up updateMessage listener')
     window.electronAPI.updateMessage((message: string) => {
       console.log('Update message received:', message)
-      updateStatus.value = message
+      if (message === 'update-ready') {
+        isDownloadingUpdate.value = false
+        isUpdateReady.value = true
+        updateStatus.value = 'Update ready to install'
+      } else if (message === 'Update available') {
+        isDownloadingUpdate.value = true
+        isUpdateReady.value = false
+        updateStatus.value = message
+      } else {
+        isDownloadingUpdate.value = false
+        updateStatus.value = message
+      }
     })
+
+    if (window.electronAPI.onUpdateProgress) {
+      window.electronAPI.onUpdateProgress((data) => {
+        isDownloadingUpdate.value = true
+        downloadPercent.value = Math.round(data.percent)
+        const speedMB = data.bytesPerSecond / (1024 * 1024)
+        downloadSpeedFormatted.value =
+          speedMB >= 1 ? `${speedMB.toFixed(1)} MB/s` : `${Math.round(data.bytesPerSecond / 1024)} KB/s`
+      })
+    }
 
     // Get current version using the proper method
     if (window.electronAPI.getVersion) {
@@ -199,6 +224,12 @@ async function checkForUpdates() {
   }
 }
 
+function applyUpdate() {
+  if (window.electronAPI && window.electronAPI.applyUpdate) {
+    window.electronAPI.applyUpdate()
+  }
+}
+
 onBeforeUnmount(() => {
   // Clean up event listener
   window.removeEventListener('resize', handleResize)
@@ -210,13 +241,35 @@ onBeforeUnmount(() => {
     <div v-if="showUpdateStatus" class="update-backdrop" @click="showUpdateStatus = false">
       <div class="update-status-container" @click.stop>
         <div class="update-status-header">
-          <h3>{{ $t('update_info') || 'Update Info' }}</h3>
+          <h3>{{ isUpdateReady ? 'Update Ready' : isDownloadingUpdate ? 'Downloading Update' : 'App Info' }}</h3>
           <button class="close-button" @click="showUpdateStatus = false">×</button>
         </div>
-        <p class="update-status">{{ updateStatus }}</p>
-        <button class="update-button" @click="checkForUpdates">
-          {{ $t('check_for_updates') || 'Check for updates' }}
-        </button>
+
+        <template v-if="isDownloadingUpdate">
+          <p class="update-label">Downloading update...</p>
+          <div class="progress-track">
+            <div class="progress-fill" :style="{ width: downloadPercent + '%' }"></div>
+          </div>
+          <div class="progress-meta">
+            <span class="progress-percent">{{ downloadPercent }}%</span>
+            <span class="progress-speed">{{ downloadSpeedFormatted }}</span>
+          </div>
+        </template>
+
+        <template v-else-if="isUpdateReady">
+          <p class="update-label ready-label">Update downloaded and ready to install.</p>
+          <button class="apply-button" @click="applyUpdate">
+            Click to Apply Update
+          </button>
+        </template>
+
+        <template v-else>
+          <p class="update-status">{{ updateStatus }}</p>
+          <button class="update-button" @click="checkForUpdates">
+            {{ $t('check_for_updates') || 'Check for updates' }}
+          </button>
+        </template>
+
         <p class="version">{{ currentVersion }}</p>
       </div>
     </div>
@@ -1749,17 +1802,17 @@ h1 {
   position: fixed;
   bottom: 80px;
   right: 20px;
-  background-color: rgba(0, 0, 0, 0.8);
+  background: #1a1a2e;
   color: white;
-  padding: 15px;
-  border-radius: 8px;
+  padding: 18px;
+  border-radius: 12px;
   z-index: 1000;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  width: 250px;
-  max-height: 200px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  width: 270px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(181, 51, 199, 0.3);
 }
 
 .update-status-header {
@@ -1767,15 +1820,19 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  padding-bottom: 8px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(181, 51, 199, 0.3);
+  padding-bottom: 10px;
 }
 
 .update-status-header h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: 14px;
+  font-weight: 600;
   font-family: 'Poppins', sans-serif;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .close-button {
@@ -1788,35 +1845,112 @@ h1 {
 }
 
 .update-status {
-  margin: 0 0 8px 0;
-  font-size: 14px;
+  margin: 0 0 12px 0;
+  font-size: 13px;
   font-family: 'Poppins', sans-serif;
   width: 100%;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.update-label {
+  margin: 0 0 10px 0;
+  font-size: 13px;
+  font-family: 'Poppins', sans-serif;
+  width: 100%;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.ready-label {
+  color: #a8e6a3;
+}
+
+.progress-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #b533c7, #e040fb);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.progress-meta {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+.progress-percent {
+  font-size: 12px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  color: #e040fb;
+}
+
+.progress-speed {
+  font-size: 12px;
+  font-family: 'Poppins', sans-serif;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.apply-button {
+  margin-top: 4px;
+  background: linear-gradient(135deg, #b533c7, #e040fb);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  align-self: stretch;
+  transition: opacity 0.2s ease, transform 0.1s ease;
+  letter-spacing: 0.3px;
+}
+
+.apply-button:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.apply-button:active {
+  transform: translateY(0);
 }
 
 .version {
-  margin: 8px 0 0 0;
-  font-size: 12px;
+  margin: 12px 0 0 0;
+  font-size: 11px;
   font-family: 'Poppins', sans-serif;
-  opacity: 0.8;
+  color: rgba(255, 255, 255, 0.35);
   width: 100%;
   text-align: right;
 }
 
 .update-button {
-  margin-top: 8px;
-  background-color: #b533c7;
-  color: white;
-  border: none;
-  border-radius: 3px;
-  padding: 5px 10px;
+  margin-top: 4px;
+  background-color: rgba(181, 51, 199, 0.2);
+  color: #e040fb;
+  border: 1px solid rgba(181, 51, 199, 0.4);
+  border-radius: 8px;
+  padding: 8px 12px;
   cursor: pointer;
   font-size: 12px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
   align-self: stretch;
+  transition: background-color 0.2s ease;
 }
 
 .update-button:hover {
-  background-color: #9d2fad;
+  background-color: rgba(181, 51, 199, 0.35);
 }
 
 .info-button {

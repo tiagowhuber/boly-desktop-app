@@ -70,6 +70,10 @@ function registerIpcHandlers() {
     return 'Checking for updates...'
   })
 
+  ipcMain.handle('apply-update', () => {
+    updaterService.applyUpdate()
+  })
+
   // API Proxy
   ipcMain.handle('api-request', async (_event, options) => {
     try {

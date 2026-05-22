@@ -41,6 +41,18 @@ export class UpdaterService {
     }
   }
 
+  private sendProgress(data: {
+    bytesPerSecond: number
+    percent: number
+    transferred: number
+    total: number
+  }): void {
+    const win = WindowManager.getInstance().getMainWindow()
+    if (win && !win.isDestroyed()) {
+      win.webContents.send('update-progress', data)
+    }
+  }
+
   private setupListeners(): void {
     autoUpdater.on('checking-for-update', () => {
       this.showMessage('Checking for updates...')
@@ -74,20 +86,30 @@ export class UpdaterService {
     })
 
     autoUpdater.on('download-progress', (progressObj) => {
-      const message = `Download speed: ${progressObj.bytesPerSecond} - Downloaded ${progressObj.percent}% (${progressObj.transferred}/${progressObj.total})`
-      console.log(message)
-      this.showMessage(message)
+      console.log(
+        `Download speed: ${progressObj.bytesPerSecond} - Downloaded ${progressObj.percent}% (${progressObj.transferred}/${progressObj.total})`
+      )
+      this.sendProgress({
+        bytesPerSecond: progressObj.bytesPerSecond,
+        percent: progressObj.percent,
+        transferred: progressObj.transferred,
+        total: progressObj.total
+      })
     })
 
     autoUpdater.on('update-downloaded', () => {
       console.log('Update downloaded. Ready to quit and install.')
-      this.showMessage('Update downloaded - The application is ready to quit and install.')
+      this.showMessage('update-ready')
     })
   }
 
   public checkForUpdates(): void {
     console.log('Manually checking for updates...')
     autoUpdater.checkForUpdates()
+  }
+
+  public applyUpdate(): void {
+    autoUpdater.quitAndInstall()
   }
 
   public getVersion(): string {

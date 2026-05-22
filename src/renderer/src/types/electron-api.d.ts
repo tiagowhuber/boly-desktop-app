@@ -21,6 +21,15 @@ interface ElectronAPIExtended {
   loginWithGoogle: () => Promise<void>
   resolveGoogleLogin: () => Promise<void>
   updateMessage: (callback: (message: string) => void) => void
+  onUpdateProgress: (
+    callback: (data: {
+      bytesPerSecond: number
+      percent: number
+      transferred: number
+      total: number
+    }) => void
+  ) => void
+  applyUpdate: () => Promise<void>
   checkUpdates: () => Promise<string>
   getVersion: () => Promise<string>
 
