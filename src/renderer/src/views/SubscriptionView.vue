@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Loading from '@/components/LoadingIcon.vue'
+import LoadingSpinnerIcon from '@/components/icons/LoadingSpinnerIcon.vue'
 import AlertModal from '@/components/AlertModal.vue'
 import ToastNotification from '@/components/ToastNotification.vue'
 import { storeToRefs } from 'pinia'
@@ -208,7 +209,7 @@ async function handleRedeemCode() {
           @click="handleRedeemCode"
         >
           <span v-if="!redeemingCode">{{ t('redeem').toUpperCase() }}</span>
-          <Loading v-else class="button-loader" />
+          <LoadingSpinnerIcon v-else class="button-loader" />
         </button>
       </div>
     </div>
