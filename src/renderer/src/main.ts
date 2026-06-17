@@ -54,6 +54,13 @@ if (window.electron && window.electron.ipcRenderer) {
     }
   })
 
+  // Refresh a near-expiry token when the main-process monitor asks for it, so
+  // an active user is never logged out at the hard token expiry.
+  window.electron.ipcRenderer.on('refresh-token', async () => {
+    console.log('Token near expiry - refreshing')
+    await auth.refreshToken()
+  })
+
   // Handle session invalidation from main process
   window.electron.ipcRenderer.on('session-invalidated', async () => {
     console.log('Session invalidated by another desktop login')

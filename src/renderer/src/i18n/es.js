@@ -12,6 +12,20 @@ export const es = {
   home_svg1_description: 'Cómo mejorar el aprendizaje en tu aula',
   home_svg2_title: 'Soy Desarrollador/a',
   home_svg2_description: 'Publica, recibe métricas y monetiza',
+
+  // home quick actions
+  home_quick_title: 'Acceso rápido',
+  home_quick_library_title: 'Mi Biblioteca',
+  home_quick_library_desc: 'Entra directo a tus juegos',
+  home_quick_subscription_title: 'Suscripción',
+  home_quick_subscription_desc: 'Desbloquea el acceso a todos los juegos',
+  home_quick_code_title: 'Activar un código',
+  home_quick_code_desc: '¿Tienes un código? Canjéalo al instante',
+  home_quick_code_placeholder: 'Ingresa tu código',
+  home_quick_code_button: 'Activar',
+  home_quick_code_login: 'Inicia sesión para activar un código',
+  home_quick_code_empty: 'Por favor ingresa un código',
+  home_quick_go: 'Abrir',
   home_title2: 'NUESTRO PROYECTO',
   home_body2: 'EN BOLY, ENTENDEMOS A LOS JUGADORES, DESARROLLADORES Y EDUCADORES',
   home_text3:

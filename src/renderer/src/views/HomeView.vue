@@ -1,6 +1,19 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { useAuth, useUser, useCodes } from '@/stores'
 import AlertModal from '@/components/AlertModal.vue'
+import GamepadIcon from '@/components/icons/GamepadIcon.vue'
+import KingIcon from '@/components/icons/KingIcon.vue'
+import PercentageIcon from '@/components/icons/PercentageIcon.vue'
+import RightArrowIcon from '@/components/icons/RightArrowIcon.vue'
+
+const router = useRouter()
+const { t } = useI18n()
+const auth = useAuth()
+const userStore = useUser()
+const codesStore = useCodes()
 
 const currentVersion = ref('')
 const showUpdateStatus = ref(false)
@@ -13,6 +26,49 @@ const downloadSpeedFormatted = ref('')
 // Modal reactive variables
 const showModal = ref(false)
 const modalText = ref('')
+
+// Quick actions
+const activationCode = ref('')
+const isActivating = ref(false)
+
+function goToLibrary() {
+  router.push('/library')
+}
+
+function goToSubscription() {
+  router.push('/subscription')
+}
+
+async function activateCode() {
+  const code = activationCode.value.trim()
+  if (!code) {
+    modalText.value = t('home_quick_code_empty')
+    showModal.value = true
+    return
+  }
+
+  if (!auth.isLoggedIn || !userStore.userId) {
+    modalText.value = t('home_quick_code_login')
+    showModal.value = true
+    return
+  }
+
+  isActivating.value = true
+  try {
+    const result = await codesStore.assignDiscountCodeToUserByLink(code, userStore.userId)
+    modalText.value = result.message
+    showModal.value = true
+    if (result.success) {
+      activationCode.value = ''
+    }
+  } catch (error) {
+    console.error('Error activating code:', error)
+    modalText.value = t('unexpected_error_redeem')
+    showModal.value = true
+  } finally {
+    isActivating.value = false
+  }
+}
 
 // Lifecycle hooks
 onMounted(() => {
@@ -151,10 +207,63 @@ function applyUpdate() {
 
   <div class="logo">
     <img src="@/assets/images/elements/1.png" />
-    <div class="romboid">
-      <h2>{{ $t('home_body1').toUpperCase() }}</h2>
-    </div>
   </div>
+
+  <section class="quick-actions">
+    <h3 class="quick-actions-title">{{ $t('home_quick_title').toUpperCase() }}</h3>
+    <div class="quick-actions-grid">
+      <!-- Library -->
+      <button class="quick-card" @click="goToLibrary">
+        <span class="quick-card-icon">
+          <GamepadIcon />
+        </span>
+        <span class="quick-card-text">
+          <span class="quick-card-title">{{ $t('home_quick_library_title') }}</span>
+          <span class="quick-card-desc">{{ $t('home_quick_library_desc') }}</span>
+        </span>
+        <span class="quick-card-arrow">
+          <RightArrowIcon />
+        </span>
+      </button>
+
+      <!-- Subscription -->
+      <button class="quick-card" @click="goToSubscription">
+        <span class="quick-card-icon">
+          <KingIcon />
+        </span>
+        <span class="quick-card-text">
+          <span class="quick-card-title">{{ $t('home_quick_subscription_title') }}</span>
+          <span class="quick-card-desc">{{ $t('home_quick_subscription_desc') }}</span>
+        </span>
+        <span class="quick-card-arrow">
+          <RightArrowIcon />
+        </span>
+      </button>
+
+      <!-- Activate a code -->
+      <div class="quick-card quick-card-code">
+        <span class="quick-card-icon">
+          <PercentageIcon />
+        </span>
+        <span class="quick-card-text">
+          <span class="quick-card-title">{{ $t('home_quick_code_title') }}</span>
+          <span class="quick-card-desc">{{ $t('home_quick_code_desc') }}</span>
+          <form class="quick-code-form" @submit.prevent="activateCode">
+            <input
+              v-model="activationCode"
+              class="quick-code-input"
+              type="text"
+              :placeholder="$t('home_quick_code_placeholder')"
+              :disabled="isActivating"
+            />
+            <button class="quick-code-button" type="submit" :disabled="isActivating">
+              {{ isActivating ? '...' : $t('home_quick_code_button') }}
+            </button>
+          </form>
+        </span>
+      </div>
+    </div>
+  </section>
 
   <Teleport to="body">
     <AlertModal :show="showModal" @close="showModal = false">
@@ -277,6 +386,185 @@ body {
   color: white;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   width: 80%;
+}
+
+/* Quick actions section
+-------------------------------------------- */
+.quick-actions {
+  position: relative;
+  z-index: 2;
+  background: var(--lightGreen);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  padding: 3rem 2rem 5rem;
+}
+
+.quick-actions-title {
+  font-family: 'Anton', serif;
+  font-style: italic;
+  font-size: 2.2rem;
+  letter-spacing: 2px;
+  color: white;
+  margin: 0;
+  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.25);
+}
+
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 1100px;
+}
+
+.quick-card {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.14);
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: 22px;
+  padding: 1.6rem 1.4rem;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(4px);
+}
+
+button.quick-card {
+  font: inherit;
+  width: 100%;
+}
+
+.quick-card:hover {
+  transform: translateY(-6px);
+  background: rgba(255, 255, 255, 0.22);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+}
+
+.quick-card-code {
+  cursor: default;
+  align-items: flex-start;
+}
+
+.quick-card-code:hover {
+  transform: none;
+}
+
+.quick-card-icon {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--boly-bg-orange, #f08a3c);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quick-card-icon :deep(svg) {
+  width: 30px;
+  height: 30px;
+}
+
+.quick-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.quick-card-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.quick-card-desc {
+  font-size: 0.95rem;
+  opacity: 0.9;
+  line-height: 1.3;
+}
+
+.quick-card-arrow {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  transition: transform 0.25s ease;
+}
+
+.quick-card-arrow :deep(svg) {
+  width: 22px;
+  height: 22px;
+}
+
+.quick-card:hover .quick-card-arrow {
+  transform: translateX(5px);
+}
+
+.quick-code-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+  width: 100%;
+}
+
+.quick-code-input {
+  flex-grow: 1;
+  min-width: 0;
+  border: none;
+  border-radius: 12px;
+  padding: 0.7rem 0.9rem;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.95rem;
+  background: rgba(255, 255, 255, 0.95);
+  color: #333;
+}
+
+.quick-code-input:focus {
+  outline: 3px solid rgba(255, 255, 255, 0.6);
+}
+
+.quick-code-button {
+  flex-shrink: 0;
+  border: none;
+  border-radius: 12px;
+  padding: 0.7rem 1.2rem;
+  font-family: 'Anton', serif;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  color: white;
+  background: var(--boly-button-pink, #f746ab);
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    filter 0.15s ease;
+}
+
+.quick-code-button:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+}
+
+.quick-code-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+  .quick-actions-grid {
+    grid-template-columns: 1fr;
+    max-width: 500px;
+  }
 }
 
 .title-section {

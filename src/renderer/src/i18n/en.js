@@ -13,6 +13,20 @@ export const en = {
   home_svg1_description: 'How to improve learning in your classroom',
   home_svg2_title: "I'm a developer",
   home_svg2_description: 'Publish, receive metrics and monetize',
+
+  // home quick actions
+  home_quick_title: 'Quick access',
+  home_quick_library_title: 'My Library',
+  home_quick_library_desc: 'Jump straight into your games',
+  home_quick_subscription_title: 'Subscription',
+  home_quick_subscription_desc: 'Unlock access to every game',
+  home_quick_code_title: 'Activate a code',
+  home_quick_code_desc: 'Got a code? Redeem it instantly',
+  home_quick_code_placeholder: 'Enter your code',
+  home_quick_code_button: 'Activate',
+  home_quick_code_login: 'Please log in to activate a code',
+  home_quick_code_empty: 'Please enter a code',
+  home_quick_go: 'Open',
   home_title2: 'OUR PROJECT',
   home_body2: 'AT BOLY, WE UNDERSTAND GAMERS, DEVELOPERS AND EDUCATORS',
   home_text3:

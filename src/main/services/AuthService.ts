@@ -110,13 +110,28 @@ export class AuthService extends EventEmitter {
           if (sessionResponse.status !== 200) {
             console.log('Session invalidated by server - logging out user')
             await this.handleSessionInvalidation()
+          } else {
+            // Session is valid: refresh the token if it is about to expire so an
+            // active user (e.g. mid-game) is never kicked out at the hard expiry.
+            this.refreshIfNearExpiry(currentToken)
           }
         } catch (sessionError) {
-          console.error(
-            'Session validation failed - another session may have been started:',
-            sessionError
-          )
-          await this.handleSessionInvalidation()
+          // Only log the user out on a genuine 401 (token/session rejected by
+          // the server). Network errors, timeouts and 5xx responses are
+          // transient and must NOT invalidate an otherwise valid session.
+          const status = axios.isAxiosError(sessionError)
+            ? sessionError.response?.status
+            : undefined
+
+          if (status === 401) {
+            console.log('Session rejected by server (401) - logging out user')
+            await this.handleSessionInvalidation()
+          } else {
+            console.warn(
+              'Session validation request failed (transient, not logging out):',
+              status ?? (sessionError as Error)?.message
+            )
+          }
         }
       } catch (error) {
         console.error('Error during session monitoring:', error)
@@ -128,6 +143,44 @@ export class AuthService extends EventEmitter {
     if (this.sessionMonitoringInterval) {
       clearInterval(this.sessionMonitoringInterval)
       this.sessionMonitoringInterval = null
+    }
+  }
+
+  // If the token expires within REFRESH_THRESHOLD_SECONDS, ask the renderer to
+  // refresh it. The renderer owns the auth store (in-memory token + axios
+  // header + localStorage), so it performs the actual refresh; the main process
+  // only detects the near-expiry condition from its periodic poll.
+  private static readonly REFRESH_THRESHOLD_SECONDS = 15 * 60 // 15 minutes
+
+  private refreshIfNearExpiry(token: string): void {
+    try {
+      const base64Url = token.split('.')[1]
+      if (!base64Url) {
+        return
+      }
+
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      )
+
+      const tokenData = JSON.parse(jsonPayload)
+      if (!tokenData.exp) {
+        return
+      }
+
+      const secondsUntilExpiry = tokenData.exp - Date.now() / 1000
+      if (secondsUntilExpiry <= AuthService.REFRESH_THRESHOLD_SECONDS) {
+        console.log(
+          `Token expires in ${Math.round(secondsUntilExpiry)}s - requesting refresh`
+        )
+        WindowManager.getInstance().send('refresh-token')
+      }
+    } catch (error) {
+      console.error('Error checking token expiry for refresh:', error)
     }
   }
 

@@ -187,9 +187,13 @@ const useAuth = defineStore('auth', {
       }
     },
     async refreshToken() {
+      const currentToken = this.token || localStorage.getItem('token') || ''
+      if (!currentToken) {
+        return
+      }
       try {
         const response = await axios.post('/v1/auth/refresh', {
-          token: this.token
+          token: currentToken
         })
         if (response.status == 200) {
           const user = useUser()
@@ -200,8 +204,11 @@ const useAuth = defineStore('auth', {
           localStorage.setItem('token', response.data.token)
           axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`
         }
-      } catch (error) {
-        console.log(error)
+      } catch (error: any) {
+        // A 401 means the token/session is no longer valid (e.g. logged in from
+        // another computer). Let the session monitor's invalidation flow handle
+        // logout; just don't keep a broken token around silently.
+        console.error('Token refresh failed:', error.response?.status || error.message)
       }
     },
     async register(email: string, username: string, password: string) {
