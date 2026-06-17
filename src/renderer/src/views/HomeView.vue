@@ -1,25 +1,7 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
-import axios from 'axios'
-import 'vue3-carousel/dist/carousel.css'
-import { Carousel, Slide, Navigation } from 'vue3-carousel'
+import { ref, onMounted } from 'vue'
 import AlertModal from '@/components/AlertModal.vue'
 
-// Import Boly action images
-import bolyAction1 from '@/assets/images/boly/bolyaction/1action.jpg'
-import bolyAction2 from '@/assets/images/boly/bolyaction/2action.jpg'
-import bolyAction3 from '@/assets/images/boly/bolyaction/3action.jpg'
-import bolyAction4 from '@/assets/images/boly/bolyaction/4action.jpg'
-
-const i18n = useI18n()
-const router = useRouter()
-
-// Carousel setup
-const carouselRef = ref<any>()
-const currentSlide = ref<number>(0)
-const isMobile = ref(window.innerWidth <= 768)
 const currentVersion = ref('')
 const showUpdateStatus = ref(false)
 const updateStatus = ref('')
@@ -28,132 +10,12 @@ const isUpdateReady = ref(false)
 const downloadPercent = ref(0)
 const downloadSpeedFormatted = ref('')
 
-// Boly images data
-const bolyImages = ref([
-  {
-    id: 1,
-    src: bolyAction1,
-    title: 'Boly in Action 1',
-    description: 'Dynamic gameplay moments'
-  },
-  {
-    id: 2,
-    src: bolyAction2,
-    title: 'Boly in Action 2',
-    description: 'Adventure and exploration'
-  },
-  {
-    id: 3,
-    src: bolyAction3,
-    title: 'Boly in Action 3',
-    description: 'Interactive learning experiences'
-  },
-  {
-    id: 4,
-    src: bolyAction4,
-    title: 'Boly in Action 4',
-    description: 'Educational gaming at its best'
-  }
-])
-
-// Carousel settings
-const settings = computed(() => ({
-  itemsToShow: isMobile.value ? 1 : 2,
-  snapAlign: 'center',
-  wrapAround: true,
-  autoplay: isMobile.value ? undefined : 5000,
-  pauseAutoplayOnHover: true,
-  transition: 300,
-  mouseDrag: isMobile.value,
-  touchDrag: true
-}))
-
-// Calculate number of navigation dots needed
-const totalSlides = computed(() => {
-  const itemsPerSlide = isMobile.value ? 1 : 2
-  return Math.ceil(bolyImages.value.length / itemsPerSlide)
-})
-
-function moveToSlide(i: number) {
-  carouselRef.value.slideTo(i)
-  carouselRef.value.updateSlidesData()
-}
-
-// Handle window resize
-const handleResize = () => {
-  isMobile.value = window.innerWidth <= 768
-}
-
-// Contact form reactive variables
-const form = ref(null)
+// Modal reactive variables
 const showModal = ref(false)
 const modalText = ref('')
-const canSend = ref(true)
-const name = ref('')
-const company = ref('')
-const email = ref('')
-const phone = ref('')
-const message = ref('')
-const reason = ref('')
-
-async function SendEmail() {
-  if (
-    email.value.length === 0 ||
-    name.value.length === 0 ||
-    company.value.length === 0 ||
-    phone.value.length === 0 ||
-    message.value.length === 0
-  ) {
-    modalText.value = i18n.t('modal_all_fields')
-    showModal.value = true
-    return
-  }
-
-  canSend.value = false
-
-  try {
-    // Send contact form through your backend API
-    const contactData = {
-      name: name.value,
-      company: company.value,
-      email: email.value,
-      phone: `+56${phone.value}`,
-      message: message.value,
-      reason: reason.value,
-      timestamp: new Date().toISOString()
-    }
-
-    const response = await axios.post('/v1/support/contact', contactData)
-
-    if (response.data && response.data.success) {
-      // Reset form
-      name.value = ''
-      company.value = ''
-      email.value = ''
-      phone.value = ''
-      message.value = ''
-      reason.value = ''
-      canSend.value = true
-
-      // Redirect to success page
-      router.push('/email-success')
-    } else {
-      throw new Error('API response indicates failure')
-    }
-  } catch (error) {
-    console.error('Failed to send contact form:', error)
-    modalText.value =
-      i18n.t('send_query_error') || 'Failed to send message. Please try again later.'
-    showModal.value = true
-    canSend.value = true
-  }
-}
 
 // Lifecycle hooks
 onMounted(() => {
-  // Add resize event listener
-  window.addEventListener('resize', handleResize)
-
   console.log('Checking electronAPI availability:', window.electronAPI)
   console.log('Checking updateMessage availability:', window.electronAPI?.updateMessage)
 
@@ -229,11 +91,6 @@ function applyUpdate() {
     window.electronAPI.applyUpdate()
   }
 }
-
-onBeforeUnmount(() => {
-  // Clean up event listener
-  window.removeEventListener('resize', handleResize)
-})
 </script>
 
 <template>
@@ -296,333 +153,8 @@ onBeforeUnmount(() => {
     <img src="@/assets/images/elements/1.png" />
     <div class="romboid">
       <h2>{{ $t('home_body1').toUpperCase() }}</h2>
-      <p class="home-body1-description">{{ $t('home_body1_description') }}</p>
     </div>
   </div>
-
-  <div class="section color-pink main"></div>
-
-  <div class="section color-pink home-section">
-    <div class="svg-container">
-      <a
-        href="https://boly.cl/educators"
-        class="svg-link"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <div class="svg-left">
-          <img src="@/assets/svgs/HomeViewSvgs/teacherwithbook.svg" alt="Teacher with book" />
-          <h3>{{ $t('home_svg1_title').toLocaleUpperCase() }}</h3>
-          <p>{{ $t('home_svg1_description') }}</p>
-        </div>
-      </a>
-      <a
-        href="https://boly.cl/developer-contact"
-        class="svg-link"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <div class="svg-right">
-          <img src="@/assets/svgs/HomeViewSvgs/womanwithlaptop.svg" alt="Woman with laptop" />
-          <h3>{{ $t('home_svg2_title').toLocaleUpperCase() }}</h3>
-          <p>{{ $t('home_svg2_description') }}</p>
-        </div>
-      </a>
-    </div>
-  </div>
-
-  <div class="divider color-blue"></div>
-
-  <div id="our-project-section" class="section color-blue view-container" style="--h: 100rem">
-    <div class="our-project-content">
-      <h1 class="our-project-title">{{ $t('home_title2').toUpperCase() }}</h1>
-
-      <div class="project-description">
-        <p class="main-description">
-          {{ $t('project_main_text') }}
-        </p>
-        <p class="secondary-description">
-          {{ $t('project_secondary_text') }}
-        </p>
-      </div>
-
-      <div class="process-flow">
-        <div class="flow-item">
-          <div class="flow-icon">
-            <img src="@/assets/svgs/HomeViewSvgs/book.svg" alt="Book" />
-          </div>
-        </div>
-
-        <div class="flow-arrow">→</div>
-
-        <div class="flow-item">
-          <div class="flow-icon affinity-icon">
-            <img src="@/assets/svgs/HomeViewSvgs/affinity.svg" alt="Affinity" />
-          </div>
-        </div>
-
-        <div class="flow-arrow">→</div>
-
-        <div class="flow-item">
-          <div class="flow-icon">
-            <img src="@/assets/svgs/HomeViewSvgs/gamepad.svg" alt="Game Controller" />
-          </div>
-        </div>
-
-        <div class="flow-arrow">→</div>
-
-        <div class="flow-item">
-          <div class="flow-icon">
-            <img src="@/assets/svgs/HomeViewSvgs/innovation.svg" alt="Innovation" />
-          </div>
-        </div>
-      </div>
-
-      <div class="connection-text">
-        <p>
-          {{ $t('connection_text') }}
-        </p>
-      </div>
-
-      <div class="target-audience">
-        <h2>{{ $t('revolution_question') }}</h2>
-
-        <div class="audience-grid">
-          <div class="audience-column">
-            <h3>{{ $t('educators') }}</h3>
-            <ul>
-              <li>{{ $t('personalization') }}</li>
-              <li>{{ $t('automatic_reports') }}</li>
-              <li>{{ $t('tracking') }}</li>
-            </ul>
-            <a href="https://boly.cl/educators" target="_blank" rel="noopener noreferrer">
-              <button class="cta-button educators-btn">{{ $t('want_know_more') }}</button>
-            </a>
-          </div>
-
-          <div class="audience-column">
-            <h3>{{ $t('developers') }}</h3>
-            <ul>
-              <li>{{ $t('monetization') }}</li>
-              <li>{{ $t('visibility') }}</li>
-              <li>{{ $t('direct_integration') }}</li>
-            </ul>
-            <a href="https://boly.cl/developer-contact" target="_blank" rel="noopener noreferrer">
-              <button class="cta-button developers-btn">{{ $t('want_know_more') }}</button>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="divider color-orange"></div>
-
-  <div id="technology-section" class="section color-orange view-container" style="--h: 50rem">
-    <div class="technology-content">
-      <h1 class="our-project-title">{{ $t('home_title3').toUpperCase() }}</h1>
-
-      <div class="technology-cards">
-        <div class="tech-card">
-          <div class="card-visual">
-            <img
-              src="@/assets/svgs/HomeViewSvgs/down88.svg"
-              alt="88% Statistics"
-              class="card-svg"
-            />
-          </div>
-          <div class="card-text">
-            <p>
-              {{ $t('home_graph1_data_text1') }}<strong>{{ $t('home_graph1_data_text2') }}</strong>
-            </p>
-          </div>
-        </div>
-
-        <div class="tech-card solution-card">
-          <div class="card-visual">
-            <img
-              src="@/assets/svgs/HomeViewSvgs/lampandgear.svg"
-              alt="Solution"
-              class="card-svg solution-svg"
-            />
-          </div>
-          <div class="card-text">
-            <p>
-              <strong>{{ $t('technology_solution_text1') }}</strong>
-            </p>
-            <p>
-              <strong>{{ $t('technology_solution_text2') }}</strong>
-            </p>
-          </div>
-        </div>
-
-        <div class="tech-card">
-          <div class="card-visual">
-            <img src="@/assets/svgs/HomeViewSvgs/up92.svg" alt="92% Statistics" class="card-svg" />
-          </div>
-          <div class="card-text">
-            <p>{{ $t('technology_mobile_learning_text1') }}</p>
-            <p>
-              <strong>{{ $t('technology_mobile_learning_text2') }}</strong>
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div
-    id="games-section"
-    class="color-pink section view-container games-section-bg"
-    style="--h: 60rem"
-  >
-    <div class="our-games-content">
-      <h2 class="our-games-title">{{ $t('our_games_title') }}</h2>
-
-      <div class="project-description">
-        <p class="secondary-description">
-          {{ $t('our_games_secondary_text') }}
-        </p>
-        <router-link to="/games">
-          <button class="cta-button developers-btn games-btn">
-            {{ $t('lets_go') }}
-          </button>
-        </router-link>
-      </div>
-    </div>
-  </div>
-
-  <div class="divider color-pink"></div>
-
-  <!-- Boly Images Carousel Section -->
-  <div class="section color-pink view-container" style="--h: 50rem">
-    <div class="boly-carousel-content">
-      <h1 class="our-project-title">{{ $t('boly_gallery_title').toUpperCase() || 'MEET BOLY' }}</h1>
-
-      <div class="carousel-container" :class="{ 'mobile-carousel': isMobile }">
-        <carousel v-bind="settings" ref="carouselRef" v-model="currentSlide">
-          <slide v-for="item in bolyImages" :key="item.id">
-            <div class="boly-slide-image-only" :class="{ 'mobile-slide': isMobile }">
-              <div class="boly-image-wrapper" :class="{ 'mobile-image': isMobile }">
-                <img :src="item.src" :alt="item.title" loading="lazy" />
-              </div>
-            </div>
-          </slide>
-
-          <template #addons>
-            <navigation v-if="!isMobile" />
-          </template>
-        </carousel>
-      </div>
-
-      <div class="boly-nav-counter" :class="{ 'mobile-nav-counter': isMobile }">
-        <span
-          v-for="i in totalSlides"
-          :key="i"
-          class="boly-nav-dot"
-          :class="{ active: currentSlide === i - 1 }"
-          @click="moveToSlide(i - 1)"
-        >
-          {{ currentSlide === i - 1 ? '●' : '○' }}
-        </span>
-      </div>
-    </div>
-  </div>
-
-  <div class="divider color-blue"></div>
-
-  <div class="color-blue">
-    <h1 class="our-project-title">{{ $t('home_title5').toUpperCase() }}</h1>
-  </div>
-
-  <div class="view-container-grid form-grid color-blue">
-    <div class="item-form-grid" style="--column-s: 1">
-      <h1 class="form-subtitle">{{ $t('home_form_title').toUpperCase() }}</h1>
-    </div>
-    <div class="item-form-grid" style="--column-s: 1; --row-s: 2">
-      <p style="font-family: 'Poppins', sans-serif; font-size: 1.9rem">
-        {{ $t('home_form_text') }}
-      </p>
-    </div>
-    <form ref="form" @submit.prevent="SendEmail">
-      <div class="item-form-grid" style="--column-s: 2; --row-s: 1; --row-e: 2">
-        <input
-          v-model="name"
-          class="form-element"
-          type="text"
-          name="name"
-          :placeholder="$t('name')"
-        />
-        <input
-          v-model="company"
-          class="form-element"
-          type="text"
-          name="company"
-          :placeholder="$t('company')"
-        />
-        <input
-          v-model="email"
-          class="form-element"
-          type="email"
-          name="email"
-          :placeholder="$t('email')"
-        />
-        <input
-          v-model="phone"
-          class="form-element"
-          type="tel"
-          pattern="((\+\d{1,3}(-|.| )?\(?\d\)?(-| |.)?\d{1,5})|(\(?\d{2,6}\)?))(-|.| )?(\d{3,4})(-|.| )?(\d{4})(( x| ext)\d{1,5}){0,1}$"
-          name="phone"
-          :placeholder="$t('phone')"
-          @input="phone = phone.replace(/\D/g, '').slice(0, 9)"
-        />
-        <select v-model="reason" class="form-element" name="reason">
-          <option value="" disabled>{{ $t('select_reason') || 'Select reason (optional)' }}</option>
-          <option value="demo_request">{{ $t('demo_request') || 'Demo Request' }}</option>
-          <option value="query">{{ $t('query_dropdown') || 'Query' }}</option>
-          <option value="other">{{ $t('other') || 'Other' }}</option>
-        </select>
-        <textarea
-          v-model="message"
-          class="form-element"
-          style="--h: 10rem"
-          type="text"
-          name="message"
-          :placeholder="$t('query_home')"
-        ></textarea>
-        <button class="form-button" type="submit" :disabled="!canSend">
-          {{ $t('send_query') }}
-        </button>
-      </div>
-    </form>
-  </div>
-
-  <div class="divider color-purple"></div>
-
-  <div class="color-purple RRSS-container-section">
-    <div class="RRSS-container-grid">
-      <a href="https://www.instagram.com/boly_games/">
-        <div class="RRSS-item">
-          <img src="@/assets/images/RRSS/instagram.png" />
-          <p>Instagram</p>
-        </div>
-      </a>
-      <a href="https://www.linkedin.com/company/bolygames/">
-        <div class="RRSS-item">
-          <img src="@/assets/images/RRSS/linkedin.png" />
-          <p>Linkedin</p>
-        </div>
-      </a>
-      <a href="https://wa.me/+56979966798">
-        <div class="RRSS-item">
-          <img src="@/assets/images/RRSS/whatsapp.png" />
-          <p>Whatsapp</p>
-        </div>
-      </a>
-    </div>
-  </div>
-
-  <div class="pre-footer color-purple"></div>
 
   <Teleport to="body">
     <AlertModal :show="showModal" @close="showModal = false">
@@ -684,9 +216,11 @@ body {
 .logo {
   padding-top: 0rem;
   position: relative;
-  z-index: 6 !important;
+  z-index: 101 !important;
   margin: auto;
-  top: -28vw;
+  /* Cancel the header's 25vw padding so the offset stays consistent across
+     window widths, then nudge up by a fixed amount to sit below the navbar */
+  top: calc(-25vw - 8rem);
   display: flex;
   flex-direction: column;
   height: 0px;
@@ -704,11 +238,11 @@ body {
   align-items: center;
   justify-content: center;
   text-align: center;
-  margin: 0 auto;
+  margin: -3.5vw auto 0;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  padding: 2rem;
+  padding: 0 2rem;
 }
 
 .romboid p {

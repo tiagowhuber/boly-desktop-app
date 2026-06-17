@@ -29,7 +29,7 @@ const props = defineProps<{
 }>()
 
 const buttonHovered = ref(false)
-const loading = ref(false)
+const isLoading = ref(false)
 const shoppingCart = useCart()
 const developerStore = useDeveloper()
 const developerName = ref('')
@@ -83,7 +83,7 @@ async function ClaimFree() {
     return
   }
 
-  loading.value = true
+  isLoading.value = true
   try {
     const result = await paymentStore.claimFreeGame(props.item.game_id, Number(user.userId), auth)
     if (result) {
@@ -93,7 +93,7 @@ async function ClaimFree() {
   } catch (error) {
     console.error('Error claiming free game:', error)
   } finally {
-    loading.value = false
+    isLoading.value = false
   }
 }
 

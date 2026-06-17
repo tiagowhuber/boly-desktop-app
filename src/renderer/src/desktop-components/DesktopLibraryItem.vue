@@ -23,7 +23,7 @@ const auth = useAuth()
 const achievementsStore = useAchievements()
 const gamesStore = useGames()
 const gameRoutesStore = useGameRoutes()
-const loading = ref(false)
+const isLoading = ref(false)
 const isDownloading = ref(false)
 const isInstalling = ref(false)
 const isRunning = ref(false)
@@ -170,7 +170,7 @@ onMounted(() => {
   //todo: use the download store
   window.electronAPI.onDownloadComplete((data) => {
     if (data.gameId === props.item.game_id) {
-      loading.value = false
+      isLoading.value = false
       isDownloading.value = false
       props.item.isInstalled = false
       props.item.game_Path = data.installPath
@@ -180,7 +180,7 @@ onMounted(() => {
 
   window.electronAPI.onDownloadError((data) => {
     if (data.gameId === props.item.game_id) {
-      loading.value = false
+      isLoading.value = false
       isDownloading.value = false
       isInstalling.value = false
     }
@@ -188,14 +188,14 @@ onMounted(() => {
 
   window.electronAPI.onInstallStarted((data) => {
     if (data.gameId === props.item.game_id) {
-      loading.value = true
+      isLoading.value = true
       isInstalling.value = true
     }
   })
 
   window.electronAPI.onInstallComplete((data) => {
     if (data.gameId === props.item.game_id) {
-      loading.value = false
+      isLoading.value = false
       isInstalling.value = false
       isDownloading.value = false
       props.item.isInstalled = true
@@ -206,7 +206,7 @@ onMounted(() => {
 
   window.electronAPI.onInstallError((data) => {
     if (data.gameId === props.item.game_id) {
-      loading.value = false
+      isLoading.value = false
       isInstalling.value = false
     }
   })
@@ -214,7 +214,7 @@ onMounted(() => {
   window.electronAPI.onGameStarted((data) => {
     if (data.gameId === props.item.game_id) {
       isRunning.value = true
-      loading.value = false
+      isLoading.value = false
     }
   })
 
@@ -235,7 +235,7 @@ async function Play() {
     router.push(props.item.file_name.desktop)
   } else if (props.item.game_id) {
     console.log('clicked')
-    loading.value = true // Set loading while game is starting
+    isLoading.value = true // Set loading while game is starting
 
     try {
       const result = await window.electronAPI.playGame({
@@ -247,19 +247,19 @@ async function Play() {
       // If there was an error starting the game, reset loading state
       if (result && result.error) {
         console.error('Failed to start game:', result.error)
-        loading.value = false
+        isLoading.value = false
       }
       // If successful, loading state will be cleared when game-started event is received
     } catch (error) {
       console.error('Error starting game:', error)
-      loading.value = false
+      isLoading.value = false
     }
   }
 }
 
 async function Download() {
-  if (loading.value || isDownloading.value) return
-  loading.value = true
+  if (isLoading.value || isDownloading.value) return
+  isLoading.value = true
   isDownloading.value = true
 
   try {
@@ -274,7 +274,7 @@ async function Download() {
     }
   } catch (error) {
     console.error('Error initiating download:', error)
-    loading.value = false
+    isLoading.value = false
     isDownloading.value = false
   }
 }
@@ -397,7 +397,7 @@ async function Download() {
                   ? 'installing-button'
                   : 'download-button'
           ]"
-          :disabled="loading || isDownloading || isInstalling || isRunning"
+          :disabled="isLoading || isDownloading || isInstalling || isRunning"
           @click.stop="(props.item.isInstalled || isWebGame) && !isRunning ? Play() : Download()"
         >
           <span class="button-text">{{

@@ -1,5 +1,4 @@
 import tseslint from '@electron-toolkit/eslint-config-ts'
-import eslintConfigPrettier from '@electron-toolkit/eslint-config-prettier'
 import eslintPluginVue from 'eslint-plugin-vue'
 
 export default tseslint.config(
@@ -34,5 +33,17 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': 'off'
     }
   },
-  eslintConfigPrettier
+  {
+    files: ['**/*.vue'],
+    rules: {
+      'vue/max-attributes-per-line': 'off',
+      'vue/singleline-html-element-content-newline': 'off',
+      'vue/multiline-html-element-content-newline': 'off',
+      'vue/html-self-closing': 'off',
+      'vue/html-closing-bracket-newline': 'off',
+      'vue/html-closing-bracket-spacing': 'off',
+      'vue/html-indent': 'off',
+      'vue/mustache-interpolation-spacing': 'off'
+    }
+  }
 )

@@ -16,7 +16,7 @@ const i18n = useI18n()
 const router = useRouter()
 const auth = useAuth()
 const achievementsStore = useAchievements()
-const loading = ref(false)
+const isLoading = ref(false)
 const gameAchievements = ref<Achievement[]>([])
 const achievementsLoading = ref(true)
 
@@ -66,8 +66,8 @@ async function Play() {
 }
 
 async function Download() {
-  if (loading.value) return
-  loading.value = true
+  if (isLoading.value) return
+  isLoading.value = true
   try {
     if (props.item.game_id && auth.token) {
       //await games.downloadGame(props.item.game_id, { token: auth.token })
@@ -75,7 +75,7 @@ async function Download() {
   } catch (error) {
     console.error('Error downloading game:', error)
   } finally {
-    loading.value = false
+    isLoading.value = false
   }
 }
 
@@ -177,10 +177,10 @@ function navigateToGameDetails() {
         <button
           v-else
           class="action-button download-button"
-          :disabled="loading"
+          :disabled="isLoading"
           @click.stop="Download"
         >
-          <span class="button-text">{{ loading ? $t('downloading') : $t('download') }}</span>
+          <span class="button-text">{{ isLoading ? $t('downloading') : $t('download') }}</span>
           <DownloadIcon class="icon" />
         </button>
       </div>
