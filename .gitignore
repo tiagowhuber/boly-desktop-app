@@ -4,6 +4,7 @@ dist_new
 out
 .DS_Store
 .eslintcache
+*.tsbuildinfo
 *.log*
 db.json
 .env
