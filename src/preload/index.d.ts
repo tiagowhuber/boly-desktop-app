@@ -12,8 +12,6 @@ interface ElectronAPIExtended {
   }) => Promise<{ success: boolean; message?: string; error?: string }>
   isGameRunning: (gameId: number) => Promise<boolean>
   searchExeFiles: (baseDir?: string) => Promise<{ files?: string[]; error?: string }>
-  loginWithGoogle: () => Promise<void>
-  resolveGoogleLogin: () => Promise<void>
   apiRequest: (options: {
     method: string
     path: string

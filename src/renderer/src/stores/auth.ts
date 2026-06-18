@@ -55,29 +55,6 @@ const useAuth = defineStore('auth', {
         console.error(this.error)
       }
     },
-    async googleLogin(credential: string, router: Router) {
-      try {
-        const response = await axios.post('/v1/auth/google', {
-          credential: credential
-        })
-        if (response.status == 200) {
-          localStorage.setItem('token', response.data.token)
-
-          const user = useUser()
-
-          const decodedData = jwtDecode<User>(response.data.token)
-          user.setUser(decodedData)
-
-          this.token = response.data.token
-          this.isLoggedIn = true
-
-          router.push('/')
-        }
-      } catch (error) {
-        console.log(error)
-        console.error(error)
-      }
-    },
 
     async checkToken(forceLoad = false) {
       if (!forceLoad) {

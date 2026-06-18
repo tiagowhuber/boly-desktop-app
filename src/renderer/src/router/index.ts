@@ -197,11 +197,6 @@ export const router = createRouter({
       }
     },
     {
-      path: '/post-google-login',
-      name: '/post-google-login',
-      component: () => import('../desktop-views/PostGoogleAuth.vue')
-    },
-    {
       path: '/verify-email',
       name: 'verify-email',
       component: () => import('../views/VerifyEmailView.vue'),

@@ -18,8 +18,6 @@ interface ElectronAPIExtended {
   isGameRunning: (gameId: number) => Promise<boolean>
   downloadGame: (appData: { game_id: number; token: string; gameName: string }) => Promise<void>
   searchExeFiles: (baseDir?: string) => Promise<{ files?: string[]; error?: string }>
-  loginWithGoogle: () => Promise<void>
-  resolveGoogleLogin: () => Promise<void>
   updateMessage: (callback: (message: string) => void) => void
   onUpdateProgress: (
     callback: (data: {
