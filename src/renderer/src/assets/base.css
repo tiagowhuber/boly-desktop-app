@@ -140,24 +140,38 @@ input[type="submit"]:disabled,
 
 /* Custom Scrollbar
 -------------------------------------------- */
+/* Scrollbar thumb tints, lightened from the active navbar color.
+   The theme is toggled on <html data-nav-theme="..."> per route in App.vue. */
+:root,
+:root[data-nav-theme='orange'] {
+  --scrollbar-thumb: #ffbb8c; /* lightened --boly-bg-orange (#fe8e4b) */
+  --scrollbar-thumb-hover: #ffd0ad;
+}
+
+:root[data-nav-theme='pink'] {
+  --scrollbar-thumb: #ff66c4; /* lightened --boly-button-pink (#ff0099) */
+  --scrollbar-thumb-hover: #ff99d6;
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0e0820;
+  background: var(--boly-bg-darker);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #40A8E2 0%, #40A8E2 100%);
+  /* Lightened tint of the current navbar color; see [data-nav-theme] below */
+  background: var(--scrollbar-thumb, #ffbb8c);
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #40A8E2 0%, #40A8E2 100%);
+  background: var(--scrollbar-thumb-hover, #ffd0ad);
 }
 
 ::-webkit-scrollbar-corner {

@@ -25,6 +25,14 @@ if (process.contextIsolated) {
       downloadGame: (appData) => ipcRenderer.invoke('download-game', appData),
       uninstallGame: (appData) => ipcRenderer.invoke('uninstall-game', appData),
       isGameRunning: (gameId) => ipcRenderer.invoke('is-game-running', gameId),
+      windowMinimize: () => ipcRenderer.invoke('window-minimize'),
+      windowMaximizeToggle: () => ipcRenderer.invoke('window-maximize-toggle'),
+      windowClose: () => ipcRenderer.invoke('window-close'),
+      windowIsMaximized: () => ipcRenderer.invoke('window-is-maximized'),
+      onWindowMaximized: (callback) => {
+        ipcRenderer.on('window-maximized', () => callback(true))
+        ipcRenderer.on('window-unmaximized', () => callback(false))
+      },
       searchExeFiles: (baseDir) => ipcRenderer.invoke('search-exe-files', baseDir),
       apiRequest: (options) => ipcRenderer.invoke('api-request', options),
       checkUpdates: () => ipcRenderer.invoke('check-updates'),
@@ -102,6 +110,14 @@ if (process.contextIsolated) {
     downloadGame: (appData) => ipcRenderer.invoke('download-game', appData),
     uninstallGame: (appData) => ipcRenderer.invoke('uninstall-game', appData),
     isGameRunning: (gameId) => ipcRenderer.invoke('is-game-running', gameId),
+    windowMinimize: () => ipcRenderer.invoke('window-minimize'),
+    windowMaximizeToggle: () => ipcRenderer.invoke('window-maximize-toggle'),
+    windowClose: () => ipcRenderer.invoke('window-close'),
+    windowIsMaximized: () => ipcRenderer.invoke('window-is-maximized'),
+    onWindowMaximized: (callback) => {
+      ipcRenderer.on('window-maximized', () => callback(true))
+      ipcRenderer.on('window-unmaximized', () => callback(false))
+    },
     searchExeFiles: (baseDir) => ipcRenderer.invoke('search-exe-files', baseDir),
     apiRequest: (options) => ipcRenderer.invoke('api-request', options),
     checkUpdates: () => ipcRenderer.invoke('check-updates'),

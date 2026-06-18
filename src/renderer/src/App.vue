@@ -1,21 +1,32 @@
 <script setup lang="ts">
-import { RouterView, useRouter } from 'vue-router'
+import { RouterView, useRouter, useRoute } from 'vue-router'
 import { useCart } from '@/stores'
 import TheNavbar from './components/navbar/TheNavbar.vue'
 import TheFooter from './components/footer/TheFooter.vue'
 import Loading from '@/components/LoadingIcon.vue'
 import DownloadProgressBar from '@/components/DownloadProgressBar.vue'
 import ExclamationTriangle from '@/components/icons/ExclamationTriangle.vue'
-import { provide } from 'vue'
+import { provide, watch } from 'vue'
 import { useAuth } from '@/stores'
 import useDownloadStore from '@/desktop-stores/download'
 import ModalComponent from '@/components/ModalComponent.vue'
+import WindowControls from '@/desktop-components/WindowControls.vue'
 
 const auth = useAuth()
 const downloadStore = useDownloadStore()
 const router = useRouter()
+const route = useRoute()
 
 auth.checkToken()
+
+// Match the scrollbar tint to the navbar color: orange on home, pink elsewhere
+watch(
+  () => route.path,
+  (path) => {
+    document.documentElement.dataset.navTheme = path === '/' ? 'orange' : 'pink'
+  },
+  { immediate: true }
+)
 
 const shoppingCart = useCart()
 
@@ -27,6 +38,8 @@ const goToReportProblem = () => {
 </script>
 
 <template>
+  <!-- Custom frameless-window title bar (drag region + min/max/close), always visible -->
+  <WindowControls />
   <div
     v-if="auth.verifying && $route.path !== '/login' && $route.path !== '/register'"
     class="view-container"

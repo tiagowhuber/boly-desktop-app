@@ -63,6 +63,21 @@ function registerIpcHandlers() {
 
   ipcMain.handle('close-app', () => app.quit())
 
+  // Custom title-bar window controls
+  ipcMain.handle('window-minimize', () => windowManager.getMainWindow()?.minimize())
+  ipcMain.handle('window-maximize-toggle', () => {
+    const win = windowManager.getMainWindow()
+    if (!win) return false
+    if (win.isMaximized()) {
+      win.unmaximize()
+      return false
+    }
+    win.maximize()
+    return true
+  })
+  ipcMain.handle('window-close', () => windowManager.getMainWindow()?.close())
+  ipcMain.handle('window-is-maximized', () => windowManager.getMainWindow()?.isMaximized() ?? false)
+
   ipcMain.handle('is-game-running', (_event, gameId) => gameService.isActive(gameId))
 
   ipcMain.handle('check-updates', () => {

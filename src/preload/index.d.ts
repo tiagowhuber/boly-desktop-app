@@ -12,6 +12,11 @@ interface ElectronAPIExtended {
   }) => Promise<{ success: boolean; message?: string; error?: string }>
   isGameRunning: (gameId: number) => Promise<boolean>
   searchExeFiles: (baseDir?: string) => Promise<{ files?: string[]; error?: string }>
+  windowMinimize: () => Promise<void>
+  windowMaximizeToggle: () => Promise<boolean>
+  windowClose: () => Promise<void>
+  windowIsMaximized: () => Promise<boolean>
+  onWindowMaximized: (callback: (isMaximized: boolean) => void) => void
   apiRequest: (options: {
     method: string
     path: string

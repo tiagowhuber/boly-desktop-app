@@ -24,7 +24,9 @@ export class WindowManager {
       width: 1920,
       height: 1080,
       show: false,
+      frame: false,
       autoHideMenuBar: true,
+      backgroundColor: '#FF8A3D',
       ...(process.platform === 'linux' ? { icon } : {}),
       webPreferences: {
         preload: join(__dirname, '../preload/index.js'),
@@ -39,6 +41,10 @@ export class WindowManager {
       this.mainWindow?.webContents.openDevTools()
       this.mainWindow?.show()
     })
+
+    // Notify the renderer so the custom title-bar can swap its maximize/restore icon
+    this.mainWindow.on('maximize', () => this.send('window-maximized'))
+    this.mainWindow.on('unmaximize', () => this.send('window-unmaximized'))
 
     this.mainWindow.webContents.setWindowOpenHandler((details) => {
       shell.openExternal(details.url)
