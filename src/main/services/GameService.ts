@@ -194,6 +194,12 @@ export default class GameService {
 
         const lastRecordedPlayTimeMinutes = await this.fetchInitialPlayTime(token, game_id)
 
+        // NOTE (legacy compatibility — Option A): we still pass -token so that
+        // games built with the OLD ParamsCatcher (which require -token or quit)
+        // keep working. New games ignore it and authenticate the heartbeat with
+        // -key alone. Once every game is rebuilt with the new ParamsCatcher,
+        // drop -token here to close the argv JWT-leak (see
+        // Game_integration_readme.md → "Completing the migration").
         const args = `-game_id ${reqValidate.game_id} -key ${validationResponse.data.tempKey} -token ${token}`
         const appProcess = spawn('"' + appPath + '"', args.split(' '), {
           shell: true,
