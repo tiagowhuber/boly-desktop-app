@@ -1,39 +1,42 @@
+// Guarda este archivo como ValidationSubsystem.h
+//
+// Antes era un AActor colocado en la escena, pero un actor (y su timer del
+// World) se DESTRUYE al hacer OpenLevel, deteniendo el heartbeat. Un
+// UGameInstanceSubsystem vive en el GameInstance, que PERSISTE entre niveles,
+// y el heartbeat usa FTSTicker (ticker global, no atado a un UWorld), por lo
+// que sigue corriendo siempre. El subsystem se auto-crea: no hay que colocar
+// nada en la escena ni configurar un GameInstance custom.
+
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "Http.h"
-#include "ValidationManager.generated.h"
+#include "Subsystems/GameInstanceSubsystem.h"
+#include "Containers/Ticker.h"
+#include "Interfaces/IHttpRequest.h"
+#include "ValidationSubsystem.generated.h"
 
 UCLASS()
-class YOURPROJECT_API AValidationManager : public AActor
+class YOURPROJECT_API UValidationSubsystem : public UGameInstanceSubsystem
 {
     GENERATED_BODY()
 
 public:
-    AValidationManager();
-
-protected:
-    virtual void BeginPlay() override;
+    virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+    virtual void Deinitialize() override;
 
 private:
-
-    // ID del juego (configurar manualmente; el launcher tambien lo envia por -game_id)
-    int32 GameId = 5;
-
-    // Clave de sesion recibida por -key. Es la UNICA credencial.
-    // El JWT del usuario ya NO se recibe ni se usa (-token fue eliminado).
+    int32 GameId = 5;               // <-- set to THIS game's platform id
     FString Key = "";
-
-    // Heartbeat: debe ser menor al TTL del servidor (~3 min).
     float HeartbeatSeconds = 60.0f;
-    FTimerHandle HeartbeatTimer;
-
+    float TimeSinceLastBeat = 0.0f;
     bool bFirstValidation = true;
     int32 ConsecutiveFailures = 0;
 
+    FTSTicker::FDelegateHandle TickerHandle;
+
     void ParseCommandLine();
+    bool Tick(float DeltaTime);
     void SendValidationRequest();
     void OnResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+    void QuitGame();
 };
-

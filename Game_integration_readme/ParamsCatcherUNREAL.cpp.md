@@ -1,58 +1,72 @@
-#include "ValidationManager.h"
+// Guarda este archivo como ValidationSubsystem.cpp
+
+#include "ValidationSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"
+#include "HttpModule.h"
+#include "Interfaces/IHttpResponse.h"
 
-AValidationManager::AValidationManager()
+void UValidationSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
-    PrimaryActorTick.bCanEverTick = false;
-}
-
-void AValidationManager::BeginPlay()
-{
-    Super::BeginPlay();
+    Super::Initialize(Collection);
 
     ParseCommandLine();
 
     // La key es obligatoria; sin ella no hay sesion.
-    if (!Key.IsEmpty() && GameId >= 0)
-    {
-        // Validacion inicial
-        SendValidationRequest();
-
-        // Heartbeat periodico mientras el juego corre
-        GetWorldTimerManager().SetTimer(
-            HeartbeatTimer, this, &AValidationManager::SendValidationRequest,
-            HeartbeatSeconds, true);
-    }
-    else
+    if (Key.IsEmpty() || GameId < 0)
     {
         UE_LOG(LogTemp, Error, TEXT("Validation error: missing -key"));
-        UKismetSystemLibrary::QuitGame(GetWorld(), nullptr, EQuitPreference::Quit, false);
+        QuitGame();
+        return;
     }
+
+    // Validacion inicial
+    SendValidationRequest();
+
+    // Heartbeat con FTSTicker: ticker GLOBAL, no atado a un UWorld. Sobrevive a
+    // OpenLevel (a diferencia de un timer del World o de un AActor), por lo que
+    // el heartbeat sigue corriendo durante toda la sesion.
+    TickerHandle = FTSTicker::GetCoreTicker().AddTicker(
+        FTickerDelegate::CreateUObject(this, &UValidationSubsystem::Tick), 0.0f);
 }
 
-void AValidationManager::ParseCommandLine()
+void UValidationSubsystem::Deinitialize()
+{
+    if (TickerHandle.IsValid())
+    {
+        FTSTicker::GetCoreTicker().RemoveTicker(TickerHandle);
+        TickerHandle.Reset();
+    }
+    Super::Deinitialize();
+}
+
+bool UValidationSubsystem::Tick(float DeltaTime)
+{
+    TimeSinceLastBeat += DeltaTime;
+    if (TimeSinceLastBeat >= HeartbeatSeconds)
+    {
+        TimeSinceLastBeat = 0.0f;
+        SendValidationRequest();
+    }
+    return true; // seguir tickeando
+}
+
+void UValidationSubsystem::ParseCommandLine()
 {
     FString CmdLine = FCommandLine::Get();
-
-    // Nota: FParse::Value espera el formato -key=valor. El launcher de Boly
-    // envia -key <valor> (separado por espacio); ajusta el parseo segun como
+    // NOTA: FParse::Value espera el formato -key=valor. El launcher de Boly envia
+    // "-key <valor>" (separado por espacio); ajusta el parseo segun como
     // empaquetes el ejecutable. El JWT (-token) ya no se envia.
     FParse::Value(*CmdLine, TEXT("-key="), Key);
     FParse::Value(*CmdLine, TEXT("-game_id="), GameId);
-
-    UE_LOG(LogTemp, Warning, TEXT("GameId: %d"), GameId);
 }
 
-void AValidationManager::SendValidationRequest()
+void UValidationSubsystem::SendValidationRequest()
 {
-    FString Url = TEXT("https://ffstudios-shop-api.vercel.app/v1/validate/validate");
-
     TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = FHttpModule::Get().CreateRequest();
-
-    Request->SetURL(Url);
+    Request->SetURL(TEXT("https://ffstudios-shop-api.vercel.app/v1/validate/validate"));
     Request->SetVerb("POST");
     Request->SetHeader("Content-Type", "application/json");
     // Sin header Authorization: la key es la credencial.
@@ -65,11 +79,11 @@ void AValidationManager::SendValidationRequest()
     );
 
     Request->SetContentAsString(JsonBody);
-    Request->OnProcessRequestComplete().BindUObject(this, &AValidationManager::OnResponseReceived);
+    Request->OnProcessRequestComplete().BindUObject(this, &UValidationSubsystem::OnResponseReceived);
     Request->ProcessRequest();
 }
 
-void AValidationManager::OnResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+void UValidationSubsystem::OnResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
     const int32 Code = (bWasSuccessful && Response.IsValid()) ? Response->GetResponseCode() : 0;
 
@@ -79,7 +93,7 @@ void AValidationManager::OnResponseReceived(FHttpRequestPtr Request, FHttpRespon
         if (bFirstValidation)
         {
             bFirstValidation = false;
-            UGameplayStatics::OpenLevel(GetWorld(), TEXT("MainLevel"));
+            UGameplayStatics::OpenLevel(GetGameInstance(), TEXT("MainLevel"));
         }
         return;
     }
@@ -89,7 +103,7 @@ void AValidationManager::OnResponseReceived(FHttpRequestPtr Request, FHttpRespon
     if (Code == 403 || bFirstValidation)
     {
         UE_LOG(LogTemp, Error, TEXT("Validation failed: %d"), Code);
-        UKismetSystemLibrary::QuitGame(GetWorld(), nullptr, EQuitPreference::Quit, false);
+        QuitGame();
         return;
     }
 
@@ -97,7 +111,14 @@ void AValidationManager::OnResponseReceived(FHttpRequestPtr Request, FHttpRespon
     if (++ConsecutiveFailures >= 2)
     {
         UE_LOG(LogTemp, Error, TEXT("Validation failed (network): %d"), Code);
-        UKismetSystemLibrary::QuitGame(GetWorld(), nullptr, EQuitPreference::Quit, false);
+        QuitGame();
     }
 }
 
+void UValidationSubsystem::QuitGame()
+{
+    if (UGameInstance* GI = GetGameInstance())
+    {
+        UKismetSystemLibrary::QuitGame(GI->GetWorld(), nullptr, EQuitPreference::Quit, false);
+    }
+}

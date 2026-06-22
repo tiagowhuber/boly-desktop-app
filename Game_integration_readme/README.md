@@ -1,21 +1,3 @@
-# Boly — Game integration & license heartbeat
-
-How a game executable validates its license against the Boly platform, how to
-migrate **old games** to the new heartbeat, and how to integrate the heartbeat in
-a **new game**.
-
-The ready-to-use scripts live next to this file:
-
-| Engine | File |
-|---|---|
-| Unity (C#) | [`ParamsCatcherUNITY.md`](./ParamsCatcherUNITY.md) |
-| Godot (GDScript) | [`ParamsCatcherGODOT.md`](./ParamsCatcherGODOT.md) |
-| Unreal (C++) | [`ParamsCatcherUNREAL.cpp.md`](./ParamsCatcherUNREAL.cpp.md) + [`ParamsCatcherUNREAL.h.md`](./ParamsCatcherUNREAL.h.md) |
-
-Per-engine **scene/build setup** is in [`GUIA_PARAMS_CATCHER.md`](./GUIA_PARAMS_CATCHER.md).
-
----
-
 ## How licensing works
 
 When a user launches a game from the Boly desktop app:
@@ -56,10 +38,6 @@ The server key TTL is **3 minutes**. The game must heartbeat well inside that �
 A `403 / state:false` is the normal signal that the user started the game on
 **another computer** (only one active session is allowed) or that their access
 lapsed. The game **must exit** in that case.
-
-> ⚠️ The old ParamsCatcher validated **once** at startup and then stopped — no
-> single-session enforcement. Single-session only works while the game keeps
-> heartbeating, so every game must be migrated to the scripts in this folder.
 
 ---
 
@@ -131,7 +109,7 @@ alone, remove the token:
 1. Copy the script for your engine from this folder into the game project:
    - Unity → [`ParamsCatcherUNITY.md`](./ParamsCatcherUNITY.md) (save as `ParamsCatcher.cs`)
    - Godot → [`ParamsCatcherGODOT.md`](./ParamsCatcherGODOT.md) (save as `ParamsCatcher.gd`)
-   - Unreal → [`ParamsCatcherUNREAL.h.md`](./ParamsCatcherUNREAL.h.md) + [`ParamsCatcherUNREAL.cpp.md`](./ParamsCatcherUNREAL.cpp.md) (`ValidationManager.h` / `.cpp`)
+   - Unreal → [`ParamsCatcherUNREAL.h.md`](./ParamsCatcherUNREAL.h.md) + [`ParamsCatcherUNREAL.cpp.md`](./ParamsCatcherUNREAL.cpp.md) (save as `ValidationSubsystem.h` / `.cpp`)
 2. Set `gameId` to this game's platform id.
 3. Wire up the scene/build setup per [`GUIA_PARAMS_CATCHER.md`](./GUIA_PARAMS_CATCHER.md)
    so the validator runs in the first scene and persists across scene loads.

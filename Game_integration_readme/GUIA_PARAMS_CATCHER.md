@@ -1,14 +1,13 @@
 # Guía de integración del ParamsCatcher (setup de escenas)
 
-> Esta guía cubre **dónde** colocar el validador en cada motor. El **contrato**
-> (endpoint, heartbeat cada ~60 s, sin `-token`, cerrar el juego ante `403`) y los
-> pasos de migración están en [`README.md`](./README.md). Los scripts listos para
-> usar son `ParamsCatcherUNITY.md`, `ParamsCatcherGODOT.md` y
-> `ParamsCatcherUNREAL.cpp.md` / `.h.md` en esta carpeta.
->
 > Importante: el validador debe **persistir entre escenas** para poder hacer
-> heartbeat (Unity: `DontDestroyOnLoad`; Godot: autoload / nodo persistente;
-> Unreal: un actor que no se destruya al cambiar de mapa).
+> heartbeat. Los scripts de esta carpeta ya resuelven la persistencia **en
+> codigo**
+> - **Unity** → `DontDestroyOnLoad` (adjuntar a un GameObject raiz).
+> - **Godot** → el nodo se reparenta solo a `/root` (adjuntar a un nodo HIJO de
+>   la primera escena, no al nodo raiz de la escena).
+> - **Unreal** → es un `UGameInstanceSubsystem` con `FTSTicker` (se auto-crea;
+>   no hay que colocar nada en la escena).
 
 # 🧩 Cómo integrarlo en Unity
 
@@ -33,8 +32,9 @@ Build Index:
 **1. Crear escena de arranque**
 
 * Crear una escena (ej: AuthScene.tscn)
-* Nodo raíz tipo Node
-* Adjuntar este script
+* Agregar un **nodo hijo** tipo `Node` (NO el nodo raíz de la escena) y
+  adjuntarle este script — el script se reparenta solo a `/root` para sobrevivir
+  al cambio de escena. (Alternativa: registrarlo como Autoload; también funciona.)
 
 **2. Configurar escena principal**
 
@@ -60,17 +60,18 @@ PublicDependencyModuleNames.AddRange(new string[] {
  "JsonUtilities"
 });
 
-**2. Crear el actor en el proyecto**
+**2. Agregar el subsystem**
 
-* Compilar el proyecto
-* En el editor de Unreal:
-  + Crear un Blueprint basado en ValidationManager
-  + Arrastrarlo a la escena inicial
+* Añade `ValidationSubsystem.h` / `.cpp` al proyecto y compila.
+* **No hay que colocar nada en la escena**: un `UGameInstanceSubsystem` se
+  auto-crea junto con el GameInstance y persiste entre niveles, así que el
+  heartbeat corre solo durante toda la sesión.
 
 **3. Configurar mapa de arranque**
 
 * Edit → Project Settings → Maps & Modes
-* Startup Map → AuthMap (tu escena de validación)
+* Startup Map → AuthMap (tu mapa inicial; el subsystem valida y luego hace
+  `OpenLevel("MainLevel")`)
 
 **4. Crear flujo de escenas**
 

@@ -15,13 +15,28 @@ var http_request: HTTPRequest
 var first_validation: bool = true
 var consecutive_failures: int = 0
 
+# IMPORTANTE: adjunta este script a un nodo HIJO de tu primera escena (no al
+# nodo raiz de la escena). En _ready se reparenta solo a la raiz del SceneTree
+# para SOBREVIVIR a change_scene_to_file() y seguir haciendo heartbeat entre
+# escenas, sin depender de configurar un Autoload. (Si prefieres registrarlo
+# como Autoload, tambien funciona: en ese caso ya cuelga de la raiz y el
+# reparentado se omite.)
 func _ready():
-    # Crear nodo HTTPRequest dinamicamente
+    call_deferred("_persist_and_start")
+
+func _persist_and_start():
+    # Reparentarse a /root para no ser liberado al cambiar de escena.
+    var parent := get_parent()
+    if parent != null and parent != get_tree().root:
+        parent.remove_child(self)
+        get_tree().root.add_child(self)
+
+    # Nodo HTTPRequest (hijo de este nodo, asi que tambien persiste)
     http_request = HTTPRequest.new()
     add_child(http_request)
     http_request.request_completed.connect(_on_request_completed)
 
-    # Obtener argumentos de linea de comandos
+    # Argumentos de linea de comandos
     var args = OS.get_cmdline_args()
     for i in range(args.size()):
         if args[i] == "-key" and i + 1 < args.size():
@@ -38,7 +53,7 @@ func _ready():
     # Validacion inicial
     _send_validation_request()
 
-    # Heartbeat periodico
+    # Heartbeat periodico (el Timer es hijo de este nodo, asi que tambien persiste)
     var timer = Timer.new()
     timer.wait_time = HEARTBEAT_SECONDS
     timer.autostart = true
@@ -70,6 +85,7 @@ func _on_request_completed(result, response_code, headers, body):
         consecutive_failures = 0
         if first_validation:
             first_validation = false
+            # Seguimos vivos bajo /root, asi que el heartbeat continua tras esto.
             get_tree().change_scene_to_file("res://MainGame.tscn")
         return
 
@@ -85,4 +101,3 @@ func _on_request_completed(result, response_code, headers, body):
     if consecutive_failures >= 2:
         push_error("Validation failed (network): " + str(response_code))
         get_tree().quit()
-
