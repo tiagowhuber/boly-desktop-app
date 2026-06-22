@@ -84,7 +84,7 @@ public class ParamsCatcher : MonoBehaviour
         yield return request.SendWebRequest();
 
         bool success = request.result == UnityWebRequest.Result.Success; // HTTP 2xx
-        bool httpError = request.result == UnityWebRequest.Result.ProtocolError; // 4xx/5xx (ej. 403)
+        long code = request.responseCode; // codigo HTTP (403, 429, 500, ...)
 
         if (success)
         {
@@ -98,19 +98,20 @@ public class ParamsCatcher : MonoBehaviour
         }
 
         // 403 = sesion invalida / superada / expirada / acceso perdido -> cerrar.
-        // Tambien cerramos si falla la validacion inicial.
-        if (httpError || firstValidation)
+        // Tambien cerramos si falla la validacion inicial (no hay sesion que iniciar).
+        if (code == 403 || firstValidation)
         {
             Debug.LogError("Validation failed: " + request.error);
             Application.Quit();
             yield break;
         }
 
-        // Error de red transitorio en un heartbeat: tolerar un par de fallos.
+        // Resto de fallos transitorios en un heartbeat (429, 5xx, error de red):
+        // tolerar un par de fallos antes de cerrar.
         consecutiveFailures++;
         if (consecutiveFailures >= 2)
         {
-            Debug.LogError("Validation failed (network): " + request.error);
+            Debug.LogError("Validation failed (transient): " + request.error);
             Application.Quit();
         }
     }

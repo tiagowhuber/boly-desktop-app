@@ -55,12 +55,25 @@ bool UValidationSubsystem::Tick(float DeltaTime)
 
 void UValidationSubsystem::ParseCommandLine()
 {
+    // El launcher de Boly envia los argumentos separados por ESPACIO
+    // ("-game_id <int> -key <hex>"), no en formato "-key=valor". FParse::Value
+    // solo entiende el formato con "=", asi que tokenizamos a mano. El JWT
+    // (-token) ya no se envia.
+    TArray<FString> Tokens;
     FString CmdLine = FCommandLine::Get();
-    // NOTA: FParse::Value espera el formato -key=valor. El launcher de Boly envia
-    // "-key <valor>" (separado por espacio); ajusta el parseo segun como
-    // empaquetes el ejecutable. El JWT (-token) ya no se envia.
-    FParse::Value(*CmdLine, TEXT("-key="), Key);
-    FParse::Value(*CmdLine, TEXT("-game_id="), GameId);
+    CmdLine.ParseIntoArray(Tokens, TEXT(" "), /*CullEmpty=*/true);
+
+    for (int32 i = 0; i < Tokens.Num() - 1; ++i)
+    {
+        if (Tokens[i].Equals(TEXT("-key"), ESearchCase::IgnoreCase))
+        {
+            Key = Tokens[i + 1];
+        }
+        else if (Tokens[i].Equals(TEXT("-game_id"), ESearchCase::IgnoreCase))
+        {
+            GameId = FCString::Atoi(*Tokens[i + 1]);
+        }
+    }
 }
 
 void UValidationSubsystem::SendValidationRequest()
