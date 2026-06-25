@@ -15,9 +15,16 @@ public class ParamsCatcher : MonoBehaviour
     string key = "";
 
     // Intervalo del heartbeat. Debe ser menor al TTL del servidor (~3 min).
-    const float HEARTBEAT_SECONDS = 60f;
+    // El launcher de PRODUCCION nunca envia -heartbeat_seconds; solo lo usa la
+    // herramienta de verificacion (verifier/) para correr las pruebas en segundos.
+    float heartbeatSeconds = 60f;
 
-    const string VALIDATE_URL = "https://ffstudios-shop-api.vercel.app/v1/validate/validate";
+    // Origen del API. En produccion es el valor por defecto; el verifier lo
+    // sobreescribe con -api_base http://127.0.0.1:<port> para apuntar al mock local.
+    string apiBase = "https://ffstudios-shop-api.vercel.app";
+
+    // URL completa del heartbeat (se construye a partir de apiBase).
+    string ValidateUrl => apiBase + "/v1/validate/validate";
 
     bool firstValidation = true;
     int consecutiveFailures = 0;
@@ -39,6 +46,15 @@ public class ParamsCatcher : MonoBehaviour
 
                 case "-game_id":
                     if (i + 1 < args.Length) int.TryParse(args[i + 1], out gameId);
+                    break;
+
+                // Opcionales SOLO para pruebas (los envia el verifier, no el launcher).
+                case "-api_base":
+                    if (i + 1 < args.Length) apiBase = args[i + 1].TrimEnd('/');
+                    break;
+
+                case "-heartbeat_seconds":
+                    if (i + 1 < args.Length) float.TryParse(args[i + 1], out heartbeatSeconds);
                     break;
             }
         }
@@ -64,7 +80,7 @@ public class ParamsCatcher : MonoBehaviour
         // responde 403 y cerramos el juego.
         while (true)
         {
-            yield return new WaitForSeconds(HEARTBEAT_SECONDS);
+            yield return new WaitForSeconds(heartbeatSeconds);
             yield return SendValidationRequest();
         }
     }
@@ -74,7 +90,7 @@ public class ParamsCatcher : MonoBehaviour
         // Body en JSON: solo game_id + key (sin token).
         string jsonBody = JsonUtility.ToJson(new ValidationData(gameId, key));
 
-        UnityWebRequest request = new UnityWebRequest(VALIDATE_URL, "POST");
+        UnityWebRequest request = new UnityWebRequest(ValidateUrl, "POST");
         byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonBody);
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = new DownloadHandlerBuffer();

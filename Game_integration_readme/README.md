@@ -126,6 +126,32 @@ alone, remove the token:
 
 ## Testing a build
 
+**Fastest — the local verifier (no upload, no platform account needed):** use the
+CLI in [`verifier/`](./verifier/). It runs a local fake of the validate endpoint,
+launches your build pointed at it, and checks the whole heartbeat contract
+(request shape, no `Authorization` header, steady cadence, quit-on-`403`,
+transient tolerance) in seconds — so you can confirm the integration **before**
+sending the build to FFStudios.
+
+```bash
+cd verifier
+# Game devs (Windows, no Node needed): just run the prebuilt binary
+verifier\dist\boly-verify-win.exe --game "C:\path\to\YourGame.exe" --game-id <id>
+# (Boly maintainers with Node can also run: node verify.js --game ... --game-id <id>)
+```
+
+It relies on two **test-only** command-line overrides the scripts in this folder
+now accept (the production launcher never sends them, so production behavior is
+unchanged):
+
+| Override | Default | Purpose |
+|---|---|---|
+| `-api_base <origin>` | `https://ffstudios-shop-api.vercel.app` | Point the heartbeat at a different host (the verifier's local mock). The script still appends `/v1/validate/validate`. |
+| `-heartbeat_seconds <n>` | `60` | Shorten the heartbeat interval so the verifier finishes in seconds. |
+
+See [`verifier/README.md`](./verifier/README.md) for all options and how to read
+the report. Test an actual **build** (not the editor — see the note below).
+
 **Easiest — through the Boly desktop app:** install the game on an account that
 owns it (or has an active subscription) and launch it. Watch the game's log:
 

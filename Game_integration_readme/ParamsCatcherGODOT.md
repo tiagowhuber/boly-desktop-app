@@ -8,8 +8,13 @@ var game_id: int = 5
 var key: String = ""
 
 # Intervalo del heartbeat. Debe ser menor al TTL del servidor (~3 min).
-const HEARTBEAT_SECONDS := 60.0
-const VALIDATE_URL := "https://ffstudios-shop-api.vercel.app/v1/validate/validate"
+# El launcher de PRODUCCION nunca envia -heartbeat_seconds; solo lo usa la
+# herramienta de verificacion (verifier/) para correr las pruebas en segundos.
+var heartbeat_seconds := 60.0
+
+# Origen del API. En produccion es el valor por defecto; el verifier lo
+# sobreescribe con -api_base http://127.0.0.1:<port> para apuntar al mock local.
+var api_base := "https://ffstudios-shop-api.vercel.app"
 
 var http_request: HTTPRequest
 var first_validation: bool = true
@@ -43,6 +48,11 @@ func _persist_and_start():
             key = args[i + 1]
         if args[i] == "-game_id" and i + 1 < args.size():
             game_id = int(args[i + 1])
+        # Opcionales SOLO para pruebas (los envia el verifier, no el launcher).
+        if args[i] == "-api_base" and i + 1 < args.size():
+            api_base = args[i + 1].trim_suffix("/")
+        if args[i] == "-heartbeat_seconds" and i + 1 < args.size():
+            heartbeat_seconds = float(args[i + 1])
 
     # La key es obligatoria; sin ella no hay sesion.
     if key == "" or game_id < 0:
@@ -55,7 +65,7 @@ func _persist_and_start():
 
     # Heartbeat periodico (el Timer es hijo de este nodo, asi que tambien persiste)
     var timer = Timer.new()
-    timer.wait_time = HEARTBEAT_SECONDS
+    timer.wait_time = heartbeat_seconds
     timer.autostart = true
     timer.timeout.connect(_send_validation_request)
     add_child(timer)
@@ -69,7 +79,7 @@ func _send_validation_request():
     var headers = ["Content-Type: application/json"] # sin Authorization
 
     var error = http_request.request(
-        VALIDATE_URL,
+        api_base + "/v1/validate/validate",
         headers,
         HTTPClient.METHOD_POST,
         JSON.stringify(body)

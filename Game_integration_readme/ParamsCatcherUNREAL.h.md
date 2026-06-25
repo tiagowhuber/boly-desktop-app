@@ -27,6 +27,11 @@ public:
 private:
     int32 GameId = 5;               // <-- set to THIS game's platform id
     FString Key = "";
+    // Origen del API. En produccion es el valor por defecto; el verifier lo
+    // sobreescribe con -api_base http://127.0.0.1:<port> para apuntar al mock local.
+    FString ApiBase = "https://ffstudios-shop-api.vercel.app";
+    // El launcher de PRODUCCION nunca envia -heartbeat_seconds; solo lo usa el
+    // verifier para correr las pruebas en segundos.
     float HeartbeatSeconds = 60.0f;
     float TimeSinceLastBeat = 0.0f;
     bool bFirstValidation = true;

@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Boly · Game Integration Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg-blue:#341a95; --bg-dark-blue:#2a1a63; --bg-dark:#221742;
+    --bg-darker:#130a25; --bg-darkest:#0d0719;
+    --orange:#fc9904; --orange-soft:#fe8e4b; --orange-hi:#ffb648;
+    --btn-blue:#2557c8; --btn-blue-h:#3682e7; --light-blue:#48ace4;
+    --purple:#bc3de4; --pink:#ff0099; --green:#7dcb27; --green-soft:#70bc64;
+    --red:#ff4136;
+    --text:#f3f0ff; --text-dim:#b9b1e0; --text-faint:#897fb8;
+    --card:#2a1a63cc; --card-border:#5a47a855; --card-border-hi:#fc990466;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    color:var(--text); line-height:1.6; min-height:100vh;
+    background:
+      radial-gradient(1200px 700px at 85% -5%, #4a2bb8 0%, transparent 55%),
+      radial-gradient(900px 600px at 10% 10%, #3a1f8f 0%, transparent 50%),
+      linear-gradient(180deg, var(--bg-dark-blue) 0%, var(--bg-darker) 60%, var(--bg-darkest) 100%);
+    background-attachment:fixed;
+  }
+  a{color:var(--light-blue);text-decoration:none}
+  a:hover{color:var(--orange-hi)}
+
+  /* ---------- i18n ---------- */
+  body.lang-en [data-lang="es"]{display:none !important}
+  body.lang-es [data-lang="en"]{display:none !important}
+
+  /* ---------- Sticky header / progress ---------- */
+  header{
+    position:sticky;top:0;z-index:50;
+    backdrop-filter:blur(12px);
+    background:linear-gradient(180deg,#1a1040ee,#1a104099);
+    border-bottom:1px solid var(--card-border);
+  }
+  .bar{max-width:920px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:18px}
+  .brand{display:flex;align-items:center;gap:2px}
+  .brand a{display:flex;align-items:center;transition:transform .15s}
+  .brand a:hover{transform:scale(1.05)}
+  .brand-logo{height:78px;width:auto;display:block;margin:-16px 0;
+    filter:drop-shadow(0 3px 6px #0008)}
+  .brand small{font-family:'Inter';font-weight:600;font-size:12px;
+    color:var(--text-faint);margin-left:12px;letter-spacing:.18em;text-transform:uppercase}
+  .progress-wrap{flex:1;display:flex;align-items:center;gap:12px;min-width:0}
+  .track{flex:1;height:10px;border-radius:99px;background:#160d33;overflow:hidden;
+    border:1px solid #ffffff14}
+  .fill{height:100%;width:0;border-radius:99px;
+    background:linear-gradient(90deg,var(--orange),var(--orange-hi));
+    transition:width .45s cubic-bezier(.2,.8,.2,1)}
+  .pct{font-weight:800;font-size:14px;min-width:42px;text-align:right;color:var(--orange-hi)}
+  .hbtn{background:none;border:1px solid var(--card-border);color:var(--text-dim);
+    font:inherit;font-size:12px;font-weight:600;padding:6px 12px;border-radius:8px;cursor:pointer;
+    white-space:nowrap}
+  .hbtn:hover{border-color:var(--orange);color:var(--orange-hi)}
+  .hbtn.lang{display:flex;align-items:center;gap:6px}
+
+  /* ---------- Layout ---------- */
+  main{max-width:920px;margin:0 auto;padding:40px 24px 100px}
+  .hero{text-align:center;padding:30px 0 38px}
+  .hero h1{font-family:'Anton',Impact,sans-serif;font-style:italic;
+    font-size:clamp(38px,7vw,68px);line-height:.98;letter-spacing:.5px;
+    background:linear-gradient(180deg,#fff 35%,#d7c9ff);-webkit-background-clip:text;
+    background-clip:text;color:transparent;text-transform:uppercase}
+  .hero p{max-width:640px;margin:16px auto 0;color:var(--text-dim);font-size:18px}
+  .hero .tag{display:inline-block;margin-bottom:18px;padding:6px 14px;border-radius:99px;
+    font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--orange-hi);background:#fc99041a;border:1px solid #fc990440}
+
+  .panel{background:var(--card);border:1px solid var(--card-border);border-radius:18px;
+    padding:22px 24px;margin:18px 0;backdrop-filter:blur(4px)}
+  .panel h2{font-size:14px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--text-faint);font-weight:700;margin-bottom:14px}
+
+  /* ---------- Setup row (game id + engine) ---------- */
+  .setup{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  @media(max-width:640px){.setup{grid-template-columns:1fr}.bar{flex-wrap:wrap}}
+  label.fld{display:block;font-size:13px;color:var(--text-dim);font-weight:600;margin-bottom:8px}
+  #gameId{width:100%;font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:600;
+    color:#fff;background:#160d33;border:1px solid var(--card-border);border-radius:12px;
+    padding:12px 14px;outline:none}
+  #gameId:focus{border-color:var(--orange);box-shadow:0 0 0 3px #fc99042e}
+  .hint{font-size:12.5px;color:var(--text-faint);margin-top:8px}
+  .tabs{display:flex;gap:8px;background:#160d33;padding:6px;border-radius:12px;
+    border:1px solid var(--card-border)}
+  .tabs button{flex:1;font:inherit;font-weight:700;font-size:14px;color:var(--text-dim);
+    background:none;border:none;padding:10px 6px;border-radius:8px;cursor:pointer;transition:.15s}
+  .tabs button.active{background:linear-gradient(180deg,var(--btn-blue),#1f47a8);color:#fff;
+    box-shadow:0 4px 14px #2557c855}
+
+  /* ---------- Steps ---------- */
+  .step{position:relative;background:var(--card);border:1px solid var(--card-border);
+    border-radius:18px;margin:16px 0;overflow:hidden;transition:.25s}
+  .step.done{border-color:#7dcb2755;background:#1f3a1d4d}
+  .step-head{display:flex;align-items:flex-start;gap:16px;padding:20px 22px;cursor:pointer;
+    user-select:none}
+  .num{flex:none;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
+    font-family:'Anton',sans-serif;font-style:italic;font-size:20px;color:#fff;
+    background:linear-gradient(180deg,#4a2bb8,#311c84);border:1px solid #6a52c8}
+  .step.done .num{background:linear-gradient(180deg,var(--green),var(--green-soft));border-color:#9ae84a}
+  .step.done .num::after{content:"✓";font-size:20px}
+  .step.done .num span{display:none}
+  .step-title{flex:1;min-width:0}
+  .step-title h3{font-size:19px;font-weight:700;color:#fff;line-height:1.3}
+  .step.done .step-title h3{color:var(--text-dim)}
+  .step-title .sub{font-size:14px;color:var(--text-faint);margin-top:2px}
+  .check{flex:none;width:30px;height:30px;border-radius:9px;border:2px solid var(--card-border-hi);
+    background:#160d33;display:grid;place-items:center;transition:.2s;margin-top:3px}
+  .check svg{width:18px;height:18px;opacity:0;transform:scale(.5);transition:.2s}
+  .step.done .check{background:var(--green);border-color:var(--green)}
+  .step.done .check svg{opacity:1;transform:scale(1)}
+  .step-body{padding:0 22px 22px 76px}
+  @media(max-width:640px){.step-body{padding:0 20px 20px 20px}}
+  .step-body p{color:var(--text-dim);margin:10px 0}
+  .step-body ul,.step-body ol{margin:10px 0 10px 20px;color:var(--text-dim)}
+  .step-body li{margin:7px 0}
+  .step-body b,.step-body strong{color:var(--text)}
+  .gid{font-family:'JetBrains Mono',monospace;color:var(--orange-hi);font-weight:600}
+
+  /* ---------- Code blocks ---------- */
+  .code{position:relative;background:#0e0722;border:1px solid #ffffff12;border-radius:12px;
+    padding:16px 18px;margin:14px 0;font-family:'JetBrains Mono',monospace;font-size:14px;
+    color:#e7ddff;overflow-x:auto;white-space:pre}
+  .code .cmt{color:#7a6fae}
+  .code .kw{color:var(--light-blue)}
+  .code .str{color:var(--green)}
+  .code .flag{color:var(--orange-hi)}
+  .copy{position:absolute;top:10px;right:10px;font:inherit;font-size:12px;font-weight:600;
+    color:var(--text-dim);background:#241646;border:1px solid var(--card-border);
+    border-radius:8px;padding:6px 10px;cursor:pointer}
+  .copy:hover{border-color:var(--orange);color:var(--orange-hi)}
+  .copy.ok{color:var(--green);border-color:var(--green)}
+
+  .engine-only{display:none}
+  .engine-only.show{display:block}
+
+  /* ---------- Verifier scenario table ---------- */
+  .scn{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px}
+  .scn th,.scn td{text-align:left;padding:10px 12px;border-bottom:1px solid #ffffff10;
+    vertical-align:top}
+  .scn th{color:var(--text-faint);font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+  .scn td:first-child{font-family:'Anton',sans-serif;font-style:italic;color:var(--orange-hi);
+    width:34px;font-size:18px}
+  .scn td b{color:#fff}
+
+  .callout{display:flex;gap:12px;padding:14px 16px;border-radius:12px;margin:14px 0;
+    border:1px solid;font-size:14.5px}
+  .callout.tip{background:#48ace418;border-color:#48ace455;color:#cdeaff}
+  .callout.warn{background:#fc99041a;border-color:#fc990455;color:#ffe6c2}
+  .callout .ico{font-size:18px;flex:none}
+
+  details.ts{background:#160d33;border:1px solid var(--card-border);border-radius:12px;
+    padding:4px 16px;margin:8px 0}
+  details.ts summary{cursor:pointer;font-weight:600;padding:12px 0;color:var(--text)}
+  details.ts[open] summary{color:var(--orange-hi)}
+  details.ts p{padding-bottom:12px;font-size:14px}
+  .badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:12px;
+    font-weight:600;padding:2px 8px;border-radius:6px;margin-right:6px}
+  .badge.fail{background:#ff41361f;color:#ff8a82;border:1px solid #ff413655}
+  .badge.pass{background:#7dcb271f;color:#aef061;border:1px solid #7dcb2755}
+
+  /* ---------- Finish banner ---------- */
+  .finish{display:none;text-align:center;padding:34px 24px;border-radius:20px;margin-top:26px;
+    background:linear-gradient(180deg,#2a5a1d,#1c3d15);border:1px solid #7dcb2766}
+  .finish.show{display:block;animation:pop .5s cubic-bezier(.2,1.3,.4,1)}
+  @keyframes pop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+  .finish h2{font-family:'Anton',sans-serif;font-style:italic;font-size:34px;color:#fff;
+    text-transform:uppercase;letter-spacing:.5px}
+  .finish p{color:#d7f0c4;margin-top:8px}
+
+  footer{text-align:center;color:var(--text-faint);font-size:13px;padding:30px 24px 50px}
+</style>
+</head>
+<body class="lang-en">
+
+<header>
+  <div class="bar">
+    <div class="brand"><a href="https://boly.cl" target="_blank" rel="noopener"><img src="boly-logo.png" alt="Boly" class="brand-logo" /></a><small><span data-lang="en">Integration Guide</span><span data-lang="es">Guía de Integración</span></small></div>
+    <div class="progress-wrap">
+      <div class="track"><div class="fill" id="fill"></div></div>
+      <div class="pct" id="pct">0%</div>
+    </div>
+    <button class="hbtn lang" id="langToggle">🌐 <span id="langLabel">Español</span></button>
+    <button class="hbtn" id="reset"><span data-lang="en">Reset</span><span data-lang="es">Reiniciar</span></button>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <span class="tag"><span data-lang="en">Developer Onboarding</span><span data-lang="es">Onboarding para Desarrolladores</span></span>
+    <h1><span data-lang="en">Integrate your game<br>with Boly</span><span data-lang="es">Integra tu juego<br>con Boly</span></h1>
+    <p data-lang="en">Add the license heartbeat, then prove it works on your own machine — before
+       you ever send us a build. Tick each step as you go; your progress is saved
+       in this browser.</p>
+    <p data-lang="es">Agrega el heartbeat de licencia y comprueba que funciona en tu propia máquina,
+       antes de enviarnos un build. Marca cada paso a medida que avanzas; tu progreso
+       se guarda en este navegador.</p>
+  </section>
+
+  <!-- Setup -->
+  <div class="panel">
+    <h2><span data-lang="en">Before you start</span><span data-lang="es">Antes de empezar</span></h2>
+    <div class="setup">
+      <div>
+        <label class="fld" for="gameId">
+          <span data-lang="en">Your game id <span style="color:var(--orange-hi)">(indicated by Boly)</span></span>
+          <span data-lang="es">El id de tu juego <span style="color:var(--orange-hi)">(indicado por Boly)</span></span>
+        </label>
+        <input id="gameId" value="12" inputmode="numeric" />
+        <div class="hint" data-lang="en">We assign this when we accept your game. Every command and snippet below updates to show it.</div>
+        <div class="hint" data-lang="es">Te lo asignamos cuando aceptamos tu juego. Cada comando y fragmento de abajo lo muestra automáticamente.</div>
+      </div>
+      <div>
+        <label class="fld"><span data-lang="en">Your engine</span><span data-lang="es">Tu motor</span></label>
+        <div class="tabs" id="tabs">
+          <button data-engine="unity" class="active">Unity</button>
+          <button data-engine="godot">Godot</button>
+          <button data-engine="unreal">Unreal</button>
+        </div>
+        <div class="hint" data-lang="en">Switches the engine-specific steps. The rest is identical for everyone.</div>
+        <div class="hint" data-lang="es">Cambia los pasos específicos del motor. El resto es igual para todos.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2><span data-lang="en">What we sent you</span><span data-lang="es">Lo que te enviamos</span></h2>
+    <ul style="margin-left:18px;color:var(--text-dim)">
+      <li data-lang="en"><b>This guide</b> (the folder you received).</li>
+      <li data-lang="es"><b>Esta guía</b> (la carpeta que recibiste).</li>
+      <li data-lang="en">The <b>ParamsCatcher</b> script for your engine — the heartbeat code you'll add.</li>
+      <li data-lang="es">El script <b>ParamsCatcher</b> para tu motor: el código de heartbeat que vas a agregar.</li>
+      <li data-lang="en"><b>boly-verify-win.exe</b> — the verifier that tests your build (in <span class="gid">verifier/dist/</span>).</li>
+      <li data-lang="es"><b>boly-verify-win.exe</b>: el verificador que prueba tu build (en <span class="gid">verifier/dist/</span>).</li>
+      <li data-lang="en">Your <b>game id</b>: <span class="gid gid-val">12</span></li>
+      <li data-lang="es">El <b>id de tu juego</b>: <span class="gid gid-val">12</span></li>
+    </ul>
+  </div>
+
+  <!-- ============ STEPS ============ -->
+  <div id="steps">
+
+    <!-- Step 1 -->
+    <div class="step" data-step="1">
+      <div class="step-head">
+        <div class="num"><span>1</span></div>
+        <div class="step-title">
+          <h3><span data-lang="en">Add the ParamsCatcher script</span><span data-lang="es">Agrega el script ParamsCatcher</span></h3>
+          <div class="sub"><span data-lang="en">Drop the heartbeat code into your project</span><span data-lang="es">Coloca el código de heartbeat en tu proyecto</span></div>
+        </div>
+        <div class="check"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#0d0719" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+      <div class="step-body">
+        <div class="engine-only show" data-engine="unity">
+          <p data-lang="en">Create a new C# script <b>ParamsCatcher.cs</b> and paste in the contents of
+             <b>ParamsCatcherUNITY.md</b>. It reads the launch arguments, beats the Boly API
+             every ~60&nbsp;s to keep the session alive, and quits if the session is revoked.</p>
+          <p data-lang="es">Crea un nuevo script C# <b>ParamsCatcher.cs</b> y pega el contenido de
+             <b>ParamsCatcherUNITY.md</b>. Lee los argumentos de inicio, hace heartbeat a la API de
+             Boly cada ~60&nbsp;s para mantener la sesión viva, y cierra el juego si la sesión es revocada.</p>
+        </div>
+        <div class="engine-only" data-engine="godot">
+          <p data-lang="en">Create a new script <b>ParamsCatcher.gd</b> and paste in the contents of
+             <b>ParamsCatcherGODOT.md</b>. It reparents itself to <span class="gid">/root</span> so
+             it survives scene changes and keeps heartbeating.</p>
+          <p data-lang="es">Crea un nuevo script <b>ParamsCatcher.gd</b> y pega el contenido de
+             <b>ParamsCatcherGODOT.md</b>. Se reparenta solo a <span class="gid">/root</span> para
+             sobrevivir a los cambios de escena y seguir haciendo heartbeat.</p>
+        </div>
+        <div class="engine-only" data-engine="unreal">
+          <p data-lang="en">Add <b>ValidationSubsystem.h</b> and <b>ValidationSubsystem.cpp</b> from
+             <b>ParamsCatcherUNREAL.h.md</b> / <b>.cpp.md</b>, and enable the
+             <span class="gid">HTTP</span>, <span class="gid">Json</span> modules in your
+             <span class="gid">.Build.cs</span>. It's a GameInstance subsystem that auto-creates — nothing to place in a level.</p>
+          <p data-lang="es">Agrega <b>ValidationSubsystem.h</b> y <b>ValidationSubsystem.cpp</b> desde
+             <b>ParamsCatcherUNREAL.h.md</b> / <b>.cpp.md</b>, y habilita los módulos
+             <span class="gid">HTTP</span> y <span class="gid">Json</span> en tu
+             <span class="gid">.Build.cs</span>. Es un subsystem de GameInstance que se auto-crea: no hay que colocar nada en un nivel.</p>
+        </div>
+        <div class="callout tip"><span class="ico">💡</span>
+          <div>
+            <span data-lang="en">You're pasting the file <b>as-is</b> — it already implements the full contract
+            (correct request, no token leak, quit-on-revoke, network tolerance). Don't rewrite it.</span>
+            <span data-lang="es">Estás pegando el archivo <b>tal cual</b>: ya implementa todo el contrato
+            (request correcto, sin filtrar el token, cierre al revocar, tolerancia a fallos de red). No lo reescribas.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step" data-step="2">
+      <div class="step-head">
+        <div class="num"><span>2</span></div>
+        <div class="step-title">
+          <h3><span data-lang="en">Set your game id</span><span data-lang="es">Configura el id de tu juego</span></h3>
+          <div class="sub"><span data-lang="en">So the build knows which game it is</span><span data-lang="es">Para que el build sepa qué juego es</span></div>
+        </div>
+        <div class="check"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#0d0719" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+      <div class="step-body">
+        <p data-lang="en">Near the top of the script, set the game id to <span class="gid gid-val">12</span>:</p>
+        <p data-lang="es">Cerca del inicio del script, configura el id del juego en <span class="gid gid-val">12</span>:</p>
+        <div class="engine-only show" data-engine="unity">
+          <div class="code"><span class="kw">int</span> gameId = <span class="flag gid-val">12</span>;</div>
+        </div>
+        <div class="engine-only" data-engine="godot">
+          <div class="code"><span class="kw">var</span> game_id: <span class="kw">int</span> = <span class="flag gid-val">12</span></div>
+        </div>
+        <div class="engine-only" data-engine="unreal">
+          <div class="code"><span class="kw">int32</span> GameId = <span class="flag gid-val">12</span>;</div>
+        </div>
+        <p class="hint" data-lang="en">The Boly launcher also passes <span class="gid">-game_id</span> at runtime, but
+           setting it here keeps your build self-contained.</p>
+        <p class="hint" data-lang="es">El launcher de Boly también envía <span class="gid">-game_id</span> en tiempo de
+           ejecución, pero configurarlo aquí mantiene tu build autónomo.</p>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step" data-step="3">
+      <div class="step-head">
+        <div class="num"><span>3</span></div>
+        <div class="step-title">
+          <h3><span data-lang="en">Wire it into your startup &amp; make it persist</span><span data-lang="es">Conéctalo a tu arranque y haz que persista</span></h3>
+          <div class="sub"><span data-lang="en">The validator must run first and survive scene changes</span><span data-lang="es">El validador debe ejecutarse primero y sobrevivir a los cambios de escena</span></div>
+        </div>
+        <div class="check"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#0d0719" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+      <div class="step-body">
+        <div class="engine-only show" data-engine="unity">
+          <ol data-lang="en">
+            <li>Make a small <b>bootstrap scene</b> (e.g. <i>AuthScene</i>) with one empty
+                GameObject, and attach <b>ParamsCatcher</b> to it.</li>
+            <li>In <b>File ▸ Build Settings</b>, set scene order:
+                <b>index 0 = AuthScene</b>, <b>index 1 = your main game scene</b>.</li>
+          </ol>
+          <ol data-lang="es">
+            <li>Crea una pequeña <b>escena de arranque</b> (ej. <i>AuthScene</i>) con un GameObject
+                vacío y adjúntale <b>ParamsCatcher</b>.</li>
+            <li>En <b>File ▸ Build Settings</b>, ordena las escenas:
+                <b>índice 0 = AuthScene</b>, <b>índice 1 = tu escena principal del juego</b>.</li>
+          </ol>
+          <p data-lang="en">On the first successful validation the script calls
+             <span class="gid">SceneManager.LoadScene(1)</span> and keeps itself alive with
+             <span class="gid">DontDestroyOnLoad</span>.</p>
+          <p data-lang="es">En la primera validación exitosa el script llama a
+             <span class="gid">SceneManager.LoadScene(1)</span> y se mantiene vivo con
+             <span class="gid">DontDestroyOnLoad</span>.</p>
+        </div>
+        <div class="engine-only" data-engine="godot">
+          <ol data-lang="en">
+            <li>Make a bootstrap scene (e.g. <i>AuthScene.tscn</i>) and attach the script to a
+                <b>child node</b> (not the scene root) — it reparents itself to
+                <span class="gid">/root</span> to survive scene changes.</li>
+            <li>Set this scene as your project's run/startup scene, and update the
+                <span class="gid">change_scene_to_file(...)</span> path to your real main scene.</li>
+          </ol>
+          <ol data-lang="es">
+            <li>Crea una escena de arranque (ej. <i>AuthScene.tscn</i>) y adjunta el script a un
+                <b>nodo hijo</b> (no al nodo raíz de la escena): se reparenta solo a
+                <span class="gid">/root</span> para sobrevivir a los cambios de escena.</li>
+            <li>Configura esta escena como la escena de inicio del proyecto, y actualiza la ruta de
+                <span class="gid">change_scene_to_file(...)</span> a tu escena principal real.</li>
+          </ol>
+        </div>
+        <div class="engine-only" data-engine="unreal">
+          <ol data-lang="en">
+            <li>In <b>Project Settings ▸ Maps &amp; Modes</b>, set your <b>Startup Map</b> to a small
+                auth map.</li>
+            <li>The subsystem validates, then calls <span class="gid">OpenLevel("MainLevel")</span> —
+                rename that to your real level. It uses a global ticker, so the heartbeat keeps
+                running across level loads.</li>
+          </ol>
+          <ol data-lang="es">
+            <li>En <b>Project Settings ▸ Maps &amp; Modes</b>, configura tu <b>Startup Map</b> a un
+                pequeño mapa de autenticación.</li>
+            <li>El subsystem valida y luego llama a <span class="gid">OpenLevel("MainLevel")</span>:
+                cámbialo por tu nivel real. Usa un ticker global, así que el heartbeat sigue corriendo
+                entre niveles.</li>
+          </ol>
+        </div>
+        <div class="callout warn"><span class="ico">⚠️</span>
+          <div>
+            <span data-lang="en">The whole point is that the heartbeat <b>keeps running after the game starts</b>.
+            If the validator only lives in the first scene and dies on load, the verifier's
+            cadence check (and real single-session enforcement) will fail.</span>
+            <span data-lang="es">El punto clave es que el heartbeat <b>siga corriendo después de que el juego arranca</b>.
+            Si el validador solo vive en la primera escena y muere al cargar, la prueba de cadencia del
+            verificador (y la sesión única real) fallarán.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step" data-step="4">
+      <div class="step-head">
+        <div class="num"><span>4</span></div>
+        <div class="step-title">
+          <h3><span data-lang="en">Build your game to an executable</span><span data-lang="es">Compila tu juego a un ejecutable</span></h3>
+          <div class="sub"><span data-lang="en">A real build — not the editor</span><span data-lang="es">Un build real, no el editor</span></div>
+        </div>
+        <div class="check"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#0d0719" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+      <div class="step-body">
+        <p data-lang="en">Build a Windows <span class="gid">.exe</span> as you normally would.</p>
+        <p data-lang="es">Compila un <span class="gid">.exe</span> de Windows como lo haces normalmente.</p>
+        <div class="callout warn"><span class="ico">⚠️</span>
+          <div>
+            <span data-lang="en">Test the actual <b>build</b>, never Play mode in the editor —
+            the "quit on revoke" behavior can't work inside the editor
+            (e.g. Unity's <span class="gid">Application.Quit()</span> does nothing there).</span>
+            <span data-lang="es">Prueba el <b>build</b> real, nunca el modo Play del editor:
+            el comportamiento de "cerrar al revocar" no funciona dentro del editor
+            (ej. <span class="gid">Application.Quit()</span> de Unity no hace nada ahí).</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="step" data-step="5">
+      <div class="step-head">
+        <div class="num"><span>5</span></div>
+        <div class="step-title">
+          <h3><span data-lang="en">Test it with the Verifier</span><span data-lang="es">Pruébalo con el Verificador</span></h3>
+          <div class="sub"><span data-lang="en">Prove the integration works — locally, in ~30 seconds</span><span data-lang="es">Comprueba que la integración funciona: localmente, en ~30 segundos</span></div>
+        </div>
+        <div class="check"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#0d0719" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+      <div class="step-body">
+        <p data-lang="en">Open <b>PowerShell</b> in the folder containing <b>boly-verify-win.exe</b> and run
+           (replace the path with your build):</p>
+        <p data-lang="es">Abre <b>PowerShell</b> en la carpeta que contiene <b>boly-verify-win.exe</b> y ejecuta
+           (reemplaza la ruta por tu build):</p>
+        <div class="code" id="cmd-block"><span class="cmd-line">.\boly-verify-win.exe <span class="flag">--game</span> <span class="str">"C:\path\to\YourGame.exe"</span> <span class="flag">--game-id</span> <span class="flag gid-val">12</span></span><button class="copy" id="copyCmd">Copy</button></div>
+        <p data-lang="en">Your game will <b>open and close a few times</b> — that's the verifier launching it,
+           pretending to be the Boly server, and watching how it behaves. It runs five checks:</p>
+        <p data-lang="es">Tu juego se <b>abrirá y cerrará varias veces</b>: es el verificador lanzándolo,
+           haciéndose pasar por el servidor de Boly y observando cómo se comporta. Ejecuta cinco pruebas:</p>
+        <table class="scn">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th><span data-lang="en">Scenario</span><span data-lang="es">Escenario</span></th>
+              <th><span data-lang="en">It confirms your game…</span><span data-lang="es">Confirma que tu juego…</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td>
+              <td><b><span data-lang="en">Valid session</span><span data-lang="es">Sesión válida</span></b></td>
+              <td><span data-lang="en">sends a correctly-shaped heartbeat (no leaked login token) and keeps beating at a steady rate</span><span data-lang="es">envía un heartbeat con el formato correcto (sin filtrar el token de login) y sigue latiendo a un ritmo constante</span></td></tr>
+            <tr><td>2</td>
+              <td><b><span data-lang="en">Session revoked</span><span data-lang="es">Sesión revocada</span></b></td>
+              <td><span data-lang="en"><b>quits</b> when the server says the session is no longer valid (e.g. opened on another PC)</span><span data-lang="es"><b>cierra</b> cuando el servidor indica que la sesión ya no es válida (ej. se abrió en otro PC)</span></td></tr>
+            <tr><td>3</td>
+              <td><b><span data-lang="en">Network blip</span><span data-lang="es">Fallo de red</span></b></td>
+              <td><span data-lang="en">does <b>not</b> quit over a single failed request</span><span data-lang="es"><b>no</b> cierra por una sola solicitud fallida</span></td></tr>
+            <tr><td>4</td>
+              <td><b><span data-lang="en">Repeated failures</span><span data-lang="es">Fallos repetidos</span></b></td>
+              <td><span data-lang="en">quits after a couple of failures in a row</span><span data-lang="es">cierra tras un par de fallos seguidos</span></td></tr>
+            <tr><td>5</td>
+              <td><b><span data-lang="en">No key</span><span data-lang="es">Sin clave</span></b></td>
+              <td><span data-lang="en">refuses to start with no session at all</span><span data-lang="es">se niega a iniciar sin ninguna sesión</span></td></tr>
+          </tbody>
+        </table>
+        <div class="callout tip"><span class="ico">✅</span>
+          <div>
+            <span data-lang="en"><b>All green?</b> Your integration is correct — move to the final step.
+            Re-run as often as you like; nothing is uploaded and no account is needed.</span>
+            <span data-lang="es"><b>¿Todo en verde?</b> Tu integración es correcta: pasa al último paso.
+            Vuelve a ejecutarlo las veces que quieras; no se sube nada y no se necesita cuenta.</span>
+          </div>
+        </div>
+
+        <p style="margin-top:18px;font-weight:600;color:#fff" data-lang="en">If something is red:</p>
+        <p style="margin-top:18px;font-weight:600;color:#fff" data-lang="es">Si algo está en rojo:</p>
+        <details class="ts"><summary><span class="badge fail">FAIL</span><span data-lang="en">Game sent a heartbeat</span><span data-lang="es">El juego envió un heartbeat</span></summary>
+          <p data-lang="en">The validator isn't running at startup. Re-check <b>Step 3</b> — the script must be in
+          your <b>first</b> scene/level so it runs the moment the game launches.</p>
+          <p data-lang="es">El validador no se está ejecutando al inicio. Revisa el <b>Paso 3</b>: el script debe estar
+          en tu <b>primera</b> escena/nivel para que se ejecute apenas arranca el juego.</p></details>
+        <details class="ts"><summary><span class="badge fail">FAIL</span><span data-lang="en">No Authorization header</span><span data-lang="es">Sin header Authorization</span></summary>
+          <p data-lang="en">Your script is attaching a login token to the heartbeat. Use the provided script as-is —
+          it sends only the session key, never an Authorization header.</p>
+          <p data-lang="es">Tu script está adjuntando un token de login al heartbeat. Usa el script provisto tal cual:
+          envía solo la clave de sesión, nunca un header Authorization.</p></details>
+        <details class="ts"><summary><span class="badge fail">FAIL</span><span data-lang="en">Game quit on 403</span><span data-lang="es">El juego cerró con 403</span></summary>
+          <p data-lang="en">Your game keeps running after the session is revoked. The provided script quits on a
+          <span class="gid">403</span> response — make sure you didn't remove that branch.</p>
+          <p data-lang="es">Tu juego sigue corriendo después de que la sesión es revocada. El script provisto cierra
+          ante una respuesta <span class="gid">403</span>: asegúrate de no haber eliminado esa parte.</p></details>
+        <details class="ts"><summary><span class="badge fail">FAIL</span><span data-lang="en">Cadence is steady</span><span data-lang="es">La cadencia es constante</span></summary>
+          <p data-lang="en">The heartbeat stopped (or fires far too often) after the game loaded. The validator
+          isn't surviving the scene change — revisit <b>Step 3</b>'s persistence note.</p>
+          <p data-lang="es">El heartbeat se detuvo (o se dispara demasiado seguido) después de cargar el juego.
+          El validador no está sobreviviendo al cambio de escena: revisa la nota de persistencia del <b>Paso 3</b>.</p></details>
+        <p class="hint" style="margin-top:14px" data-lang="en">Want to see the real 60-second timing instead of the fast
+           test cadence? Add <span class="gid">--real-cadence</span> (it just takes a few minutes).</p>
+        <p class="hint" style="margin-top:14px" data-lang="es">¿Quieres ver el tiempo real de 60 segundos en vez de la cadencia
+           rápida de prueba? Agrega <span class="gid">--real-cadence</span> (solo toma unos minutos).</p>
+      </div>
+    </div>
+
+    <!-- Step 6 -->
+    <div class="step" data-step="6">
+      <div class="step-head">
+        <div class="num"><span>6</span></div>
+        <div class="step-title">
+          <h3><span data-lang="en">Send your build to Boly</span><span data-lang="es">Envía tu build a Boly</span></h3>
+          <div class="sub"><span data-lang="en">We publish it to the platform</span><span data-lang="es">Lo publicamos en la plataforma</span></div>
+        </div>
+        <div class="check"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#0d0719" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+      <div class="step-body">
+        <p data-lang="en">Once every verifier check passes, send us your build/installer. We'll upload it and
+           publish it as your game's version under id <span class="gid gid-val">12</span>.
+           Because the heartbeat is already verified, it launches correctly from the Boly app the
+           first time — no more blind back-and-forth. 🎉</p>
+        <p data-lang="es">Una vez que todas las pruebas del verificador pasen, envíanos tu build/instalador.
+           Lo subiremos y publicaremos como la versión de tu juego con id <span class="gid gid-val">12</span>.
+           Como el heartbeat ya está verificado, se abre correctamente desde la app de Boly la primera vez:
+           sin más idas y vueltas a ciegas. 🎉</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="finish" id="finish">
+    <h2><span data-lang="en">You're ready to ship 🚀</span><span data-lang="es">¡Listo para publicar! 🚀</span></h2>
+    <p data-lang="en">Every step is checked off. Send your verified build to Boly and we'll take it from here.</p>
+    <p data-lang="es">Todos los pasos están marcados. Envía tu build verificado a Boly y nosotros nos encargamos del resto.</p>
+  </div>
+</main>
+
+<footer>
+  <span data-lang="en">Boly · Game Integration Guide — questions? Reach your Boly contact.</span>
+  <span data-lang="es">Boly · Guía de Integración — ¿dudas? Contacta a tu referente en Boly.</span>
+</footer>
+
+<script>
+(function(){
+  const KEY='boly-guide-v1';
+  const steps=[...document.querySelectorAll('.step')];
+  const fill=document.getElementById('fill');
+  const pct=document.getElementById('pct');
+  const finish=document.getElementById('finish');
+  const gameInput=document.getElementById('gameId');
+  const copyBtn=document.getElementById('copyCmd');
+  const langToggle=document.getElementById('langToggle');
+  const langLabel=document.getElementById('langLabel');
+
+  const T={
+    en:{copy:'Copy',copied:'Copied!',other:'Español',confirm:'Clear your progress on this guide?'},
+    es:{copy:'Copiar',copied:'¡Copiado!',other:'English',confirm:'¿Borrar tu progreso en esta guía?'}
+  };
+
+  let state=load();
+  function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return {}}}
+  function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+  function lang(){return state.lang==='es'?'es':'en'}
+
+  // ---- language ----
+  function applyLang(){
+    const l=lang();
+    document.body.classList.toggle('lang-es',l==='es');
+    document.body.classList.toggle('lang-en',l==='en');
+    document.documentElement.setAttribute('lang',l);
+    langLabel.textContent=T[l].other;
+    copyBtn.textContent=T[l].copy;copyBtn.classList.remove('ok');
+  }
+  langToggle.addEventListener('click',()=>{
+    state.lang=lang()==='es'?'en':'es';save();applyLang();
+  });
+
+  // ---- game id ----
+  function sanitizeId(v){return (v||'').replace(/[^0-9]/g,'')}
+  function applyId(){
+    const v=state.gameId&&state.gameId!==''?state.gameId:'12';
+    document.querySelectorAll('.gid-val').forEach(el=>el.textContent=v);
+  }
+  if(state.gameId){gameInput.value=state.gameId}
+  gameInput.addEventListener('input',()=>{
+    const v=sanitizeId(gameInput.value);gameInput.value=v;state.gameId=v;save();applyId();
+  });
+
+  // ---- engine tabs ----
+  const tabs=document.getElementById('tabs');
+  function applyEngine(){
+    const e=state.engine||'unity';
+    tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.engine===e));
+    document.querySelectorAll('.engine-only').forEach(el=>
+      el.classList.toggle('show',el.dataset.engine===e));
+  }
+  tabs.addEventListener('click',ev=>{
+    const b=ev.target.closest('button');if(!b)return;
+    state.engine=b.dataset.engine;save();applyEngine();
+  });
+
+  // ---- steps ----
+  function refresh(){
+    const total=steps.length;
+    const done=steps.filter(s=>state[s.dataset.step]).length;
+    const p=Math.round(done/total*100);
+    fill.style.width=p+'%';pct.textContent=p+'%';
+    finish.classList.toggle('show',done===total);
+  }
+  steps.forEach(el=>{
+    const id=el.dataset.step;
+    if(state[id])el.classList.add('done');
+    el.querySelector('.step-head').addEventListener('click',()=>{
+      const done=!el.classList.contains('done');
+      el.classList.toggle('done',done);state[id]=done;save();refresh();
+    });
+  });
+
+  // ---- copy command ----
+  copyBtn.addEventListener('click',ev=>{
+    ev.stopPropagation();
+    const v=state.gameId&&state.gameId!==''?state.gameId:'12';
+    const text='.\\boly-verify-win.exe --game "C:\\path\\to\\YourGame.exe" --game-id '+v;
+    navigator.clipboard.writeText(text).then(()=>{
+      copyBtn.textContent=T[lang()].copied;copyBtn.classList.add('ok');
+      setTimeout(()=>{copyBtn.textContent=T[lang()].copy;copyBtn.classList.remove('ok')},1600);
+    });
+  });
+
+  // ---- reset ----
+  document.getElementById('reset').addEventListener('click',()=>{
+    if(!confirm(T[lang()].confirm))return;
+    const keepLang=state.lang;
+    state={lang:keepLang};save();
+    steps.forEach(s=>s.classList.remove('done'));
+    gameInput.value='12';applyId();applyEngine();refresh();
+  });
+
+  applyLang();applyId();applyEngine();refresh();
+})();
+</script>
+</body>
+</html>

@@ -73,13 +73,23 @@ void UValidationSubsystem::ParseCommandLine()
         {
             GameId = FCString::Atoi(*Tokens[i + 1]);
         }
+        // Opcionales SOLO para pruebas (los envia el verifier, no el launcher).
+        else if (Tokens[i].Equals(TEXT("-api_base"), ESearchCase::IgnoreCase))
+        {
+            ApiBase = Tokens[i + 1];
+            ApiBase.RemoveFromEnd(TEXT("/"));
+        }
+        else if (Tokens[i].Equals(TEXT("-heartbeat_seconds"), ESearchCase::IgnoreCase))
+        {
+            HeartbeatSeconds = FCString::Atof(*Tokens[i + 1]);
+        }
     }
 }
 
 void UValidationSubsystem::SendValidationRequest()
 {
     TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = FHttpModule::Get().CreateRequest();
-    Request->SetURL(TEXT("https://ffstudios-shop-api.vercel.app/v1/validate/validate"));
+    Request->SetURL(ApiBase + TEXT("/v1/validate/validate"));
     Request->SetVerb("POST");
     Request->SetHeader("Content-Type", "application/json");
     // Sin header Authorization: la key es la credencial.
