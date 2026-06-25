@@ -164,6 +164,22 @@ async function main() {
       report.printChecks(res.checks)
       if (res.sampleBeat) report.printSampleBeat(res.sampleBeat)
     }
+
+    // If scenario 1 saw NO heartbeat at all, the game doesn't implement the
+    // heartbeat — scenarios 2–5 only make sense once it does (otherwise the
+    // game just exits on its own and produces misleading results). Skip them.
+    if (res.id === 1 && res.noHeartbeat && i < selected.length - 1) {
+      for (let j = i + 1; j < selected.length; j++) {
+        results.push({ id: selected[j].id, title: selected[j].title, skipped: true, failed: false, checks: [] })
+      }
+      if (!opts.json) {
+        console.log('')
+        console.log(report.yellow('No heartbeat detected — this build does not implement the Boly heartbeat'))
+        console.log(report.dim('(or the validator is not in the first scene). Skipping the remaining scenarios;'))
+        console.log(report.dim('they only apply once the game heartbeats. Fix scenario 1 first, then re-run.'))
+      }
+      break
+    }
   }
 
   if (opts.json) {
@@ -176,6 +192,7 @@ async function main() {
             id: r.id,
             title: r.title,
             failed: r.failed,
+            skipped: !!r.skipped,
             checks: r.checks,
           })),
           passed: results.every((r) => !r.failed),

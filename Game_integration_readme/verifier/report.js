@@ -45,7 +45,7 @@ function printSummary(scenarios) {
   console.log('')
   console.log(bold('────────────────────────────────────────'))
   for (const s of scenarios) {
-    const tag = s.failed ? red('FAIL') : green('PASS')
+    const tag = s.skipped ? yellow('SKIP') : s.failed ? red('FAIL') : green('PASS')
     console.log(`  ${tag}  ${s.title}`)
   }
   console.log(bold('────────────────────────────────────────'))

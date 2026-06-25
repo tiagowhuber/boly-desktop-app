@@ -82,7 +82,9 @@ async function scenarioValid(ctx) {
         'no request reached the mock — confirm ParamsCatcher runs in the FIRST scene, parses -key, and uses -api_base for the URL',
       ),
     )
-    return result(title, checks)
+    const r = result(title, checks)
+    r.noHeartbeat = true // signals verify.js to skip the heartbeat-dependent scenarios
+    return r
   }
   checks.push(check('Game sent a heartbeat (parses -key / -game_id / -api_base)', 'pass'))
 
@@ -359,11 +361,11 @@ async function scenarioMissingKey(ctx) {
 }
 
 const SCENARIOS = [
-  { id: 1, run: scenarioValid },
-  { id: 2, run: scenario403 },
-  { id: 3, run: scenarioTolerate },
-  { id: 4, run: scenarioEscalate },
-  { id: 5, run: scenarioMissingKey },
+  { id: 1, title: 'Valid session — heartbeat shape, headers & cadence', run: scenarioValid },
+  { id: 2, title: '403 → quit (single-session / access lost)', run: scenario403 },
+  { id: 3, title: 'Transient failure tolerated (one 5xx, then recovers)', run: scenarioTolerate },
+  { id: 4, title: 'Repeated failures → quit (after ~2 consecutive)', run: scenarioEscalate },
+  { id: 5, title: 'Missing -key → quit immediately, no heartbeat', run: scenarioMissingKey },
 ]
 
 module.exports = { SCENARIOS }
