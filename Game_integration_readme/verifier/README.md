@@ -64,9 +64,26 @@ node verify.js --game "/path/to/YourGame.exe" --game-id 5
 | `--heartbeat <sec>` | Test heartbeat interval (default `3`). Passed as `-heartbeat_seconds` so runs finish fast |
 | `--real-cadence` | Use the real 60s heartbeat (slow; validates true production timing) |
 | `--only <list>` | Run only some scenarios, e.g. `--only 1,2,5` |
+| `--launcher <cmd>` | Prefix command used to launch the game (e.g. `wine` to run a Windows `.exe` on Linux/macOS) |
 | `--port <int>` | Mock server port (default: auto-pick) |
 | `--json` | Machine-readable output (for CI) |
 | `--help, -h` | Show help |
+
+### Verifying a Windows build on Linux / macOS (Boly maintainers)
+
+A Windows `.exe` can't launch natively on Linux/macOS, so install
+[Wine](https://www.winehq.org/) and run the verifier from source with Node,
+pointing it at the game through Wine:
+
+```bash
+cd verifier
+node verify.js --game "/path/to/DevGame.exe" --game-id 13 --launcher wine
+```
+
+Everything else works the same — the game runs under Wine, its heartbeats reach
+the local mock, and the report prints as usual. (Quit detection relies on Wine
+exiting when the game closes; if a scenario looks flaky, re-run, or verify on a
+real Windows machine.)
 
 Exit code is `0` only if every selected scenario passes.
 

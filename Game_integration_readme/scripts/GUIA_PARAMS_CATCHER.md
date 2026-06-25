@@ -12,7 +12,7 @@
 > Overrides SOLO para pruebas: los scripts aceptan `-api_base <origin>` (apuntar el
 > heartbeat a otro host, p.ej. el mock local del `verifier/`) y `-heartbeat_seconds <n>`
 > (acortar el intervalo). El launcher de producción **nunca** los envía, así que el
-> comportamiento en producción no cambia. Ver [`verifier/`](./verifier/).
+> comportamiento en producción no cambia. Ver [`verifier/`](../verifier/).
 
 # 🧩 Cómo integrarlo en Unity
 

@@ -262,27 +262,27 @@
       <div class="step-body">
         <div class="engine-only show" data-engine="unity">
           <p data-lang="en">Create a new C# script <b>ParamsCatcher.cs</b> and paste in the contents of
-             <b>ParamsCatcherUNITY.md</b>. It reads the launch arguments, beats the Boly API
+             <b>scripts/ParamsCatcherUNITY.md</b>. It reads the launch arguments, beats the Boly API
              every ~60&nbsp;s to keep the session alive, and quits if the session is revoked.</p>
           <p data-lang="es">Crea un nuevo script C# <b>ParamsCatcher.cs</b> y pega el contenido de
-             <b>ParamsCatcherUNITY.md</b>. Lee los argumentos de inicio, hace heartbeat a la API de
+             <b>scripts/ParamsCatcherUNITY.md</b>. Lee los argumentos de inicio, hace heartbeat a la API de
              Boly cada ~60&nbsp;s para mantener la sesión viva, y cierra el juego si la sesión es revocada.</p>
         </div>
         <div class="engine-only" data-engine="godot">
           <p data-lang="en">Create a new script <b>ParamsCatcher.gd</b> and paste in the contents of
-             <b>ParamsCatcherGODOT.md</b>. It reparents itself to <span class="gid">/root</span> so
+             <b>scripts/ParamsCatcherGODOT.md</b>. It reparents itself to <span class="gid">/root</span> so
              it survives scene changes and keeps heartbeating.</p>
           <p data-lang="es">Crea un nuevo script <b>ParamsCatcher.gd</b> y pega el contenido de
-             <b>ParamsCatcherGODOT.md</b>. Se reparenta solo a <span class="gid">/root</span> para
+             <b>scripts/ParamsCatcherGODOT.md</b>. Se reparenta solo a <span class="gid">/root</span> para
              sobrevivir a los cambios de escena y seguir haciendo heartbeat.</p>
         </div>
         <div class="engine-only" data-engine="unreal">
           <p data-lang="en">Add <b>ValidationSubsystem.h</b> and <b>ValidationSubsystem.cpp</b> from
-             <b>ParamsCatcherUNREAL.h.md</b> / <b>.cpp.md</b>, and enable the
+             <b>scripts/ParamsCatcherUNREAL.h.md</b> / <b>.cpp.md</b>, and enable the
              <span class="gid">HTTP</span>, <span class="gid">Json</span> modules in your
              <span class="gid">.Build.cs</span>. It's a GameInstance subsystem that auto-creates — nothing to place in a level.</p>
           <p data-lang="es">Agrega <b>ValidationSubsystem.h</b> y <b>ValidationSubsystem.cpp</b> desde
-             <b>ParamsCatcherUNREAL.h.md</b> / <b>.cpp.md</b>, y habilita los módulos
+             <b>scripts/ParamsCatcherUNREAL.h.md</b> / <b>.cpp.md</b>, y habilita los módulos
              <span class="gid">HTTP</span> y <span class="gid">Json</span> en tu
              <span class="gid">.Build.cs</span>. Es un subsystem de GameInstance que se auto-crea: no hay que colocar nada en un nivel.</p>
         </div>

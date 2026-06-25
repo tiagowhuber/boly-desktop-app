@@ -57,7 +57,7 @@ it with the script in this folder.
 5. **Confirm the heartbeat object runs first and persists.** It must exist in the
    first loaded scene/level and survive scene loads (Unity: `DontDestroyOnLoad`;
    Godot: autoload / persistent node; Unreal: an actor not destroyed on level
-   change). See [`GUIA_PARAMS_CATCHER.md`](./GUIA_PARAMS_CATCHER.md).
+   change). See [`GUIA_PARAMS_CATCHER.md`](./scripts/GUIA_PARAMS_CATCHER.md).
 6. **Build the executable** for the target platform(s).
 7. **Test** (see [Testing](#testing-a-build)) — verify it launches, loads the
    game, heartbeats every ~60 s, and **quits** when a second machine launches the
@@ -106,12 +106,12 @@ alone, remove the token:
 
 ## Part 3 — Integrate the heartbeat in a NEW game
 
-1. Copy the script for your engine from this folder into the game project:
-   - Unity → [`ParamsCatcherUNITY.md`](./ParamsCatcherUNITY.md) (save as `ParamsCatcher.cs`)
-   - Godot → [`ParamsCatcherGODOT.md`](./ParamsCatcherGODOT.md) (save as `ParamsCatcher.gd`)
-   - Unreal → [`ParamsCatcherUNREAL.h.md`](./ParamsCatcherUNREAL.h.md) + [`ParamsCatcherUNREAL.cpp.md`](./ParamsCatcherUNREAL.cpp.md) (save as `ValidationSubsystem.h` / `.cpp`)
+1. Copy the script for your engine from the `scripts/` folder into the game project:
+   - Unity → [`ParamsCatcherUNITY.md`](./scripts/ParamsCatcherUNITY.md) (save as `ParamsCatcher.cs`)
+   - Godot → [`ParamsCatcherGODOT.md`](./scripts/ParamsCatcherGODOT.md) (save as `ParamsCatcher.gd`)
+   - Unreal → [`ParamsCatcherUNREAL.h.md`](./scripts/ParamsCatcherUNREAL.h.md) + [`ParamsCatcherUNREAL.cpp.md`](./scripts/ParamsCatcherUNREAL.cpp.md) (save as `ValidationSubsystem.h` / `.cpp`)
 2. Set `gameId` to this game's platform id.
-3. Wire up the scene/build setup per [`GUIA_PARAMS_CATCHER.md`](./GUIA_PARAMS_CATCHER.md)
+3. Wire up the scene/build setup per [`GUIA_PARAMS_CATCHER.md`](./scripts/GUIA_PARAMS_CATCHER.md)
    so the validator runs in the first scene and persists across scene loads.
 4. Build and test (see below).
 

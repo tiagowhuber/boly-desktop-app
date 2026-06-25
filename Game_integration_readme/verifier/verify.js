@@ -25,6 +25,7 @@ function parseArgs(argv) {
     only: null,
     realCadence: false,
     json: false,
+    launcher: null,
   }
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i]
@@ -51,6 +52,9 @@ function parseArgs(argv) {
         break
       case '--real-cadence':
         opts.realCadence = true
+        break
+      case '--launcher':
+        opts.launcher = next()
         break
       case '--json':
         opts.json = true
@@ -84,6 +88,8 @@ Options:
   --real-cadence        Use the real 60s heartbeat instead (slow; validates true
                         production timing). Omits -heartbeat_seconds.
   --only <list>         Run only these scenarios, e.g. --only 1,2,5
+  --launcher <cmd>      Prefix command to launch the game (e.g. "wine" to run a
+                        Windows .exe on Linux/macOS)
   --port <int>          Mock server port (default: auto-pick a free port)
   --json                Emit machine-readable JSON instead of the pretty report
   --help, -h            Show this help
@@ -124,6 +130,7 @@ async function main() {
     port: opts.port,
     heartbeat,
     intervalSec,
+    launcher: opts.launcher,
   }
 
   const selected = opts.only

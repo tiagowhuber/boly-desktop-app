@@ -56,6 +56,7 @@ async function scenarioValid(ctx) {
   const key = makeKey()
   const { child, state } = launchGame({
     gamePath: ctx.gamePath,
+    launcher: ctx.launcher,
     gameId: ctx.gameId,
     key,
     port,
@@ -179,6 +180,7 @@ async function scenario403(ctx) {
   const key = makeKey()
   const { child, state } = launchGame({
     gamePath: ctx.gamePath,
+    launcher: ctx.launcher,
     gameId: ctx.gameId,
     key,
     port,
@@ -224,6 +226,7 @@ async function scenarioTolerate(ctx) {
   const key = makeKey()
   const { child, state } = launchGame({
     gamePath: ctx.gamePath,
+    launcher: ctx.launcher,
     gameId: ctx.gameId,
     key,
     port,
@@ -269,6 +272,7 @@ async function scenarioEscalate(ctx) {
   const key = makeKey()
   const { child, state } = launchGame({
     gamePath: ctx.gamePath,
+    launcher: ctx.launcher,
     gameId: ctx.gameId,
     key,
     port,
@@ -321,6 +325,7 @@ async function scenarioMissingKey(ctx) {
   const port = await server.start(ctx.port)
   const { child, state } = launchGame({
     gamePath: ctx.gamePath,
+    launcher: ctx.launcher,
     gameId: ctx.gameId,
     key: '',
     port,
