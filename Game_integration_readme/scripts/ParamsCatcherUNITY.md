@@ -78,9 +78,13 @@ public class ParamsCatcher : MonoBehaviour
         // Heartbeat periodico mientras el juego corre. Si la sesion fue
         // superada por otra maquina, expiro, o se perdio el acceso, el servidor
         // responde 403 y cerramos el juego.
+        // WaitForSecondsRealtime (NO WaitForSeconds): el heartbeat debe correr en
+        // tiempo real aunque el juego pause con Time.timeScale = 0 (menu de pausa,
+        // pantalla de victoria) o el hilo principal se atasque cargando una escena;
+        // si no, la sesion expira en el servidor (TTL 3 min) y el juego se cierra.
         while (true)
         {
-            yield return new WaitForSeconds(heartbeatSeconds);
+            yield return new WaitForSecondsRealtime(heartbeatSeconds);
             yield return SendValidationRequest();
         }
     }
@@ -108,7 +112,12 @@ public class ParamsCatcher : MonoBehaviour
             if (firstValidation)
             {
                 firstValidation = false;
-                SceneManager.LoadScene(1); // cargar escena principal
+                // Carga ASINCRONA de la escena principal: LoadScene (sincrono)
+                // bloquea el hilo principal — con una escena pesada congela el
+                // coroutine varios segundos y se saltan heartbeats (falla la
+                // prueba de cadencia del verifier). Async deja el loop latiendo
+                // mientras carga.
+                SceneManager.LoadSceneAsync(1);
             }
             yield break;
         }

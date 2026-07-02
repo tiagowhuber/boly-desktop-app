@@ -36,6 +36,12 @@ func _persist_and_start():
         parent.remove_child(self)
         get_tree().root.add_child(self)
 
+    # Seguir procesando aunque el juego pause el SceneTree (get_tree().paused =
+    # true en un menu de pausa): si el heartbeat se congela, la sesion expira en
+    # el servidor (TTL 3 min) y el juego se cierra al despausar. Los hijos
+    # (HTTPRequest y Timer) heredan este modo.
+    process_mode = Node.PROCESS_MODE_ALWAYS
+
     # Nodo HTTPRequest (hijo de este nodo, asi que tambien persiste)
     http_request = HTTPRequest.new()
     add_child(http_request)
@@ -63,10 +69,15 @@ func _persist_and_start():
     # Validacion inicial
     _send_validation_request()
 
-    # Heartbeat periodico (el Timer es hijo de este nodo, asi que tambien persiste)
+    # Heartbeat periodico (el Timer es hijo de este nodo, asi que tambien persiste
+    # y hereda PROCESS_MODE_ALWAYS, o sea sigue corriendo con el juego pausado)
     var timer = Timer.new()
     timer.wait_time = heartbeat_seconds
     timer.autostart = true
+    # El heartbeat debe correr en tiempo real aunque el juego cambie
+    # Engine.time_scale (camara lenta, pausa). Propiedad disponible en Godot 4.2+.
+    if "ignore_time_scale" in timer:
+        timer.ignore_time_scale = true
     timer.timeout.connect(_send_validation_request)
     add_child(timer)
 
