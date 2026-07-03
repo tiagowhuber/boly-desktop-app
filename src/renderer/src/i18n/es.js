@@ -208,6 +208,7 @@ export const es = {
   subscribe: 'Suscribirse',
   current_plan: 'Plan Actual',
   month: 'Mes',
+  year: 'Año',
   free_feature_1: 'Ideal para empezar y explorar.',
   free_feature_2: 'Acceso limitado a una selección de nuestros juegos educativos más populares.',
   free_feature_3:

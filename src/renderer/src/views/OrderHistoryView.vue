@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Loading from '@/components/LoadingIcon.vue'
+import SkeletonList from '@/components/skeletons/SkeletonList.vue'
 import { useAuth, useUser, useOrder } from '@/stores'
 import { onMounted, ref, computed, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
@@ -125,9 +125,7 @@ const formatCurrency = (amount: number | { amount: number; currency: string }): 
 </script>
 
 <template>
-  <div v-if="loading" class="loading_container">
-    <Loading />
-  </div>
+  <SkeletonList v-if="loading" :rows="5" />
 
   <div :class="{ section: !isMobile, 'mobile-section': isMobile }">
     <div class="header">

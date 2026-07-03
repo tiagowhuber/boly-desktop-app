@@ -2,7 +2,7 @@
 import CartItem from '@/components/games/CartItem.vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
 import LoadingModal from '@/components/LoadingModal.vue'
-import Loading from '@/components/LoadingIcon.vue'
+import SkeletonList from '@/components/skeletons/SkeletonList.vue'
 import TrashCanXMarkIcon from '@/components/icons/TrashCanXMarkIcon.vue'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
@@ -398,9 +398,7 @@ watch(
 </script>
 
 <template>
-  <div v-if="loading || paymentLoading" class="loading_container">
-    <Loading />
-  </div>
+  <SkeletonList v-if="loading || paymentLoading" :rows="3" rowHeight="90px" />
   <div v-else class="cart-container">
     <h1 class="page-title">{{ $t('shopping_cart') }}</h1>
 
@@ -894,13 +892,6 @@ watch(
   color: var(--error);
   margin-top: 1rem;
   text-align: center;
-}
-
-.loading_container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 300px;
 }
 
 /* Responsive adjustments */

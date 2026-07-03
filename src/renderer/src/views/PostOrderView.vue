@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
 import { useAuth, useUser, useGames, useCart, usePayment, useOrder, useEmails } from '@/stores'
-import Loading from '@/components/LoadingIcon.vue'
+import SkeletonPage from '@/components/skeletons/SkeletonPage.vue'
 import LibraryItem from '@/components/games/LibraryItem.vue'
 import type { Game } from '@/types'
 
@@ -133,9 +133,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div v-if="isLoading" class="loading_container">
-    <Loading />
-  </div>
+  <SkeletonPage v-if="isLoading" />
   <div v-else-if="isRejected" class="section">
     <div class="main-container">
       <div class="title-container">
@@ -214,13 +212,6 @@ onMounted(async () => {
   gap: 55px;
   flex-wrap: wrap;
   padding: 40px;
-}
-
-.loading_container {
-  height: 800px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .actions {

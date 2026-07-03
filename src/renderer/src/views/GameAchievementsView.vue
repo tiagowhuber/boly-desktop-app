@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuth, useAchievements, useGames, useUser } from '@/stores'
 import type { Achievement, Game } from '@/types'
+import SkeletonList from '@/components/skeletons/SkeletonList.vue'
 
 const route = useRoute()
 const { locale } = useI18n()
@@ -113,10 +114,7 @@ watch(
   <div class="achievements-container">
     <h1 class="title-bold">{{ gameTitle.toUpperCase() }} {{ $t('achievements').toUpperCase() }}</h1>
 
-    <div v-if="loading" class="loading">
-      <div class="spinner"></div>
-      {{ $t('loading_achievements') }}
-    </div>
+    <SkeletonList v-if="loading" :rows="5" rowHeight="64px" />
 
     <div v-else-if="error" class="error-message">
       <p>{{ error }}</p>
@@ -168,30 +166,6 @@ watch(
   margin: 0 auto;
   padding: 1rem;
   position: relative;
-}
-
-.loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(0, 0, 0, 0.1);
-  border-left-color: #3498db;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 1rem;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 .error-message {

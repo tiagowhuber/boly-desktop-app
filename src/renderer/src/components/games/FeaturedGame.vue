@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Loading from '@/components/LoadingIcon.vue'
+import SkeletonBase from '@/components/skeletons/SkeletonBase.vue'
 import { useGames, useUser } from '@/stores'
 import { computed, inject, onMounted, ref, onBeforeUnmount } from 'vue'
 import { storeToRefs } from 'pinia'
@@ -80,8 +80,12 @@ function GoToGame(id: number) {
 </script>
 
 <template>
-  <div v-if="loading" class="loading_container">
-    <Loading />
+  <div v-if="loading" class="skeleton-hero">
+    <SkeletonBase height="380px" radius="15px" />
+    <div class="skeleton-hero-text">
+      <SkeletonBase width="35%" height="1.8rem" />
+      <SkeletonBase width="55%" height="1rem" />
+    </div>
   </div>
   <div v-else class="section">
     <div class="carousel-container" :class="{ 'mobile-carousel': isMobile }">
@@ -146,6 +150,21 @@ function GoToGame(id: number) {
 </template>
 
 <style scoped>
+.skeleton-hero {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 50px 0 20px;
+}
+
+.skeleton-hero-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
 .carousel-container {
   flex-direction: column;
   background-color: var(--boly-bg-dark-transparent);

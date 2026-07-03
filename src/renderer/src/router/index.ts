@@ -91,14 +91,6 @@ export const router = createRouter({
       component: () => import('../views/PostSubscriptionView.vue')
     },
     {
-      path: '/developer',
-      name: 'developer',
-      meta: {
-        requiresAuth: true
-      },
-      component: () => import('../views/DeveloperView.vue')
-    },
-    {
       path: '/upload',
       name: 'upload',
       component: () => import('../views/UploadView.vue')
@@ -276,8 +268,15 @@ export const router = createRouter({
   }
 })
 
+const DEV_SKIP_AUTH = import.meta.env.DEV && import.meta.env.VITE_DEV_SKIP_AUTH === 'true'
+
 //@ts-ignore
 router.beforeEach(async (to, from, next) => {
+  if (DEV_SKIP_AUTH) {
+    next()
+    return
+  }
+
   const auth = useAuth()
 
   try {

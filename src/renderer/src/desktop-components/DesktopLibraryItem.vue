@@ -269,7 +269,7 @@ async function Download() {
 </script>
 
 <template>
-  <div v-if="props.loading" class="library-item">
+  <div v-if="props.loading" class="library-item sk-item">
     <div class="sk sk-banner"></div>
     <div class="game-info sk-body">
       <div class="sk-padded">
@@ -427,16 +427,22 @@ async function Download() {
 }
 
 .sk {
-  background: linear-gradient(90deg, #e0e0e0 25%, #efefef 50%, #e0e0e0 75%);
+  background: linear-gradient(90deg, rgba(255,255,255,0.12) 25%, rgba(255,255,255,0.28) 50%, rgba(255,255,255,0.12) 75%);
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.6s infinite;
   border-radius: 6px;
 }
 
+.library-item.sk-item {
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: none;
+  cursor: default;
+}
+
 .sk-banner { width: 100%; height: 160px; border-radius: 0; }
-.sk-body { display: flex; flex-direction: column; background: white; }
+.sk-body { display: flex; flex-direction: column; }
 .sk-padded { padding: 0.8rem 1rem 0.5rem; }
-.sk-divider { height: 1px; background: rgba(0,0,0,0.06); margin: 0 1rem; }
+.sk-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 0 1rem; }
 .sk-title { width: 60%; height: 20px; }
 .sk-section { padding: 0.3rem 1rem 0.6rem; display: flex; flex-direction: column; gap: 0.4rem; }
 .sk-label { width: 35%; height: 11px; }

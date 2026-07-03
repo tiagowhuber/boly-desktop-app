@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Loading from '@/components/LoadingIcon.vue'
+import SkeletonList from '@/components/skeletons/SkeletonList.vue'
 import { useAuth, useUser } from '@/stores'
 import { RouterLink, useRouter } from 'vue-router'
 import DiagonalPencilIcon from '@/components/icons/DiagonalPencilIcon.vue'
@@ -240,9 +240,7 @@ const sendVerification = async () => {
     </div>
   </div>
   <div v-else>
-    <div v-if="!auth.isLoggedIn && auth.token" class="loading_container">
-      <Loading />
-    </div>
+    <SkeletonList v-if="!auth.isLoggedIn && auth.token" :rows="4" />
     <div v-if="auth.isLoggedIn" class="section">
       <div class="main-container">
         <div class="left-container">

@@ -42,7 +42,7 @@ async function createPreview() {
 
     if (response.ok) {
       await auth.checkToken()
-      router.push('/developer')
+      router.push('/')
     } else {
       console.log(await response.json())
     }

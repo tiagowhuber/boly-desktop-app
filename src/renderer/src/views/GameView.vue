@@ -3,7 +3,7 @@ import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import GameList from '@/components/games/GameList.vue'
 import GameDetails from '@/components/games/GameDetails.vue'
-import Loading from '../components/LoadingIcon.vue'
+import SkeletonDetail from '@/components/skeletons/SkeletonDetail.vue'
 import axios from 'axios'
 import type { Game } from '@/types'
 
@@ -63,9 +63,7 @@ async function UpdateData(gameId: string): Promise<void> {
 </script>
 
 <template>
-  <div v-if="loading" class="loading_container">
-    <Loading />
-  </div>
+  <SkeletonDetail v-if="loading" />
   <div v-else-if="error" class="error-container">
     {{ error }}
   </div>
@@ -76,9 +74,6 @@ async function UpdateData(gameId: string): Promise<void> {
 </template>
 
 <style scoped>
-.loading_container {
-  height: 800px;
-}
 .error-container {
   text-align: center;
   padding: 2rem;

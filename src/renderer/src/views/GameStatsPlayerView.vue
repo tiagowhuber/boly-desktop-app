@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { useAuth, useUser, useGames } from '@/stores'
 import type { Game } from '@/types'
 import ClockhistoryIcon from '@/components/icons/ClockhistoryIcon.vue'
-import LoadingIcon from '@/components/LoadingIcon.vue'
+import SkeletonDetail from '@/components/skeletons/SkeletonDetail.vue'
 import axios from 'axios'
 import { resolveImageUrl } from '@/utils/imageUrl'
 
@@ -158,9 +158,7 @@ onMounted(async () => {
 
 <template>
   <div class="stats-container">
-    <div v-if="isLoading" class="loading-container">
-      <LoadingIcon />
-    </div>
+    <SkeletonDetail v-if="isLoading" />
 
     <div v-else class="main-content">
       <div class="header-section">
@@ -268,13 +266,6 @@ onMounted(async () => {
   margin: 0 auto;
   padding: 1rem;
   min-height: 70vh;
-}
-
-.loading-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 400px;
 }
 
 .main-content {

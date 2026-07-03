@@ -118,14 +118,6 @@ function isActive(path: string) {
 
         <!-- Authenticated User Links -->
         <RouterLink
-          v-if="auth.isLoggedIn && user.roleId === 1"
-          :class="{ active: isActive('/developer') }"
-          to="/developer"
-          @click="closeMenu"
-        >
-          <p>{{ $t('developer') }}</p>
-        </RouterLink>
-        <RouterLink
           v-if="auth.isLoggedIn"
           :class="{ active: isActive('/library') }"
           to="/library"

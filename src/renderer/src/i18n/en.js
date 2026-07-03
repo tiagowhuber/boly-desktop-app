@@ -209,6 +209,7 @@ export const en = {
   subscribe: 'Subscribe',
   current_plan: 'Current Plan',
   month: 'Month',
+  year: 'Year',
   free_feature_1: 'Ideal for beginners and explorers.',
   free_feature_2: 'Limited access to a selection of our most popular educational games.',
   free_feature_3:

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import GameItem from '@/components/games/GameItem.vue'
-import Loading from '@/components/LoadingIcon.vue'
+import SkeletonPage from '@/components/skeletons/SkeletonPage.vue'
 import { useGames, useAuth, useUser } from '@/stores'
 import useWishlist from '@/stores/wishlist'
 import { onMounted, ref, watch, onUnmounted } from 'vue'
@@ -87,9 +87,7 @@ watch([wishlistItems, games], async () => {
 </script>
 
 <template>
-  <div v-if="loading" class="loading_container">
-    <Loading />
-  </div>
+  <SkeletonPage v-if="loading" />
   <div v-else class="section">
     <div class="wishlist-header">
       <h1 v-if="i18n.locale.value === 'es'">
@@ -114,16 +112,6 @@ watch([wishlistItems, games], async () => {
 </template>
 
 <style scoped>
-.loading_container {
-  height: 400px;
-  width: 1200px;
-  margin: auto;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-}
-
 .section {
   max-width: 1200px;
   margin: auto;

@@ -107,7 +107,7 @@ function GoToGame() {
 
 <template>
   <div v-if="props.loading" class="item">
-    <div class="main">
+    <div class="main sk-main">
       <div class="sk sk-img"></div>
       <div class="sk sk-title"></div>
       <div class="sk sk-dev"></div>
@@ -195,10 +195,14 @@ function GoToGame() {
 }
 
 .sk {
-  background: linear-gradient(90deg, #e0e0e0 25%, #efefef 50%, #e0e0e0 75%);
+  background: linear-gradient(90deg, rgba(255,255,255,0.12) 25%, rgba(255,255,255,0.28) 50%, rgba(255,255,255,0.12) 75%);
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.6s infinite;
   border-radius: 6px;
+}
+
+.main.sk-main {
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
 .sk-img { width: 100%; height: 200px; border-radius: 10px; }

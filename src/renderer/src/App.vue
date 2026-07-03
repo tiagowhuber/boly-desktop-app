@@ -3,7 +3,7 @@ import { RouterView, useRouter, useRoute } from 'vue-router'
 import { useCart } from '@/stores'
 import TheNavbar from './components/navbar/TheNavbar.vue'
 import TheFooter from './components/footer/TheFooter.vue'
-import Loading from '@/components/LoadingIcon.vue'
+import SkeletonPage from '@/components/skeletons/SkeletonPage.vue'
 import DownloadProgressBar from '@/components/DownloadProgressBar.vue'
 import ExclamationTriangle from '@/components/icons/ExclamationTriangle.vue'
 import { provide, watch } from 'vue'
@@ -40,14 +40,11 @@ const goToReportProblem = () => {
 <template>
   <!-- Custom frameless-window title bar (drag region + min/max/close), always visible -->
   <WindowControls />
-  <div
-    v-if="auth.verifying && $route.path !== '/login' && $route.path !== '/register'"
-    class="view-container"
-  >
-    <div class="app-loading">
-      <Loading />
-    </div>
-  </div>
+  <template v-if="auth.verifying && $route.path !== '/login' && $route.path !== '/register'">
+    <TheNavbar :color="'pink'" style="z-index: 100 !important" />
+    <SkeletonPage class="view-container" />
+    <TheFooter :small="false" :color="'blue'" />
+  </template>
   <template v-else>
     <template
       v-if="
@@ -146,13 +143,6 @@ const goToReportProblem = () => {
   background-color: lightgray;
   transform: scale(1.05);
   transition: 0.1s;
-}
-
-.app-loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
 }
 
 .view-container {
