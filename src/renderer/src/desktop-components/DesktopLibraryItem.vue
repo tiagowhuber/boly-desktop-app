@@ -43,8 +43,6 @@ const isWebGame = computed(() => {
   )
 })
 
-//const gameDataBaseUrl = ...
-
 const displayedAchievements = computed(() => {
   return gameAchievements.value.slice(0, 4)
 })
@@ -52,17 +50,6 @@ const displayedAchievements = computed(() => {
 const hasAchievements = computed(() => {
   return gameAchievements.value.length > 0
 })
-
-// const gameCompletionPercentage = computed(() => {
-//   if (!gameAchievements.value.length) return 0;
-
-//   const totalAchievements = gameAchievements.value.length;
-//   const completedAchievements = gameAchievements.value.filter(a =>
-//     a.progress === 100 || a.progress === undefined
-//   ).length;
-
-//   return Math.floor((completedAchievements / totalAchievements) * 100);
-// });
 
 async function fetchGameAchievements() {
   if (!props.item.game_id || !auth.token) return
@@ -279,11 +266,6 @@ async function Download() {
   }
 }
 
-// function navigateToGameDetails() {
-//   if (props.item.game_id) {
-//     router.push(`/games/${props.item.game_id}`)
-//   }
-// }
 </script>
 
 <template>
@@ -307,7 +289,6 @@ async function Download() {
       </div>
     </div>
   </div>
-  <!-- <div class="library-item" @click="navigateToGameDetails"> -->
   <div v-else class="library-item" @click="Play">
     <img :src="resolveImageUrl(props.item.banner_url)" class="game-banner" />
     <div class="game-info">
