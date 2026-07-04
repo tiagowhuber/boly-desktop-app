@@ -37,6 +37,8 @@ const isMobile = ref(window.innerWidth <= 768)
 
 const ownsCurrentGame = ref(false)
 const hasSubscriptionAccess = ref(false)
+// true until the per-card ownership + developer lookups settle; gates the inline skeletons
+const metaLoading = ref(true)
 
 const currency = computed(() => {
   return i18n.locale.value === 'en' ? 'USD' : 'CLP'
@@ -48,24 +50,38 @@ const handleResize = () => {
 }
 
 onMounted(async () => {
-  if (user.userId && props.item.game_id) {
-    const userId = Number(user.userId)
-    const gameId = Number(props.item.game_id)
-    if (!isNaN(userId) && !isNaN(gameId)) {
-      const accessInfo = await games.ownsGame(gameId, userId)
-      ownsCurrentGame.value = accessInfo.owned
-      hasSubscriptionAccess.value = accessInfo.subscriptionAccess
-    }
-  }
-  if (props.item.developer_id) {
-    const developerData = await developerStore.fetchDeveloperById(props.item.developer_id)
-    if (developerData && developerData.name) {
-      developerName.value = developerData.name
-    }
-  }
-
   // Add resize event listener
   window.addEventListener('resize', handleResize)
+
+  try {
+    const tasks: Promise<void>[] = []
+    if (user.userId && props.item.game_id) {
+      const userId = Number(user.userId)
+      const gameId = Number(props.item.game_id)
+      if (!isNaN(userId) && !isNaN(gameId)) {
+        tasks.push(
+          games.ownsGame(gameId, userId).then((accessInfo) => {
+            ownsCurrentGame.value = accessInfo.owned
+            hasSubscriptionAccess.value = accessInfo.subscriptionAccess
+          })
+        )
+      }
+    }
+    if (props.item.developer_id) {
+      tasks.push(
+        developerStore.fetchDeveloperById(props.item.developer_id).then((developerData) => {
+          if (developerData && developerData.name) {
+            developerName.value = developerData.name
+          }
+        })
+      )
+    }
+    await Promise.all(tasks)
+  } catch (error) {
+    console.error('Error loading game card info:', error)
+  } finally {
+    metaLoading.value = false
+  }
 })
 
 onBeforeUnmount(() => {
@@ -121,15 +137,16 @@ function GoToGame() {
     <div class="main" :class="{ 'mobile-main': isMobile }">
       <img class="image" :src="resolveImageUrl(props.item.banner_url)" @click="GoToGame" />
 
-      <p v-if="ownsCurrentGame" :class="{ 'mobile-text': isMobile }">{{ $t('already_owned') }}</p>
-      <p v-else-if="hasSubscriptionAccess" :class="{ 'mobile-text': isMobile }">
-        {{ $t('subscription_access') }}
-      </p>
       <p class="game-name" :class="{ 'mobile-game-name': isMobile }">
         {{ props.item.name[i18n.locale.value].toUpperCase() }}
       </p>
-      <p class="game-dev" :class="{ 'mobile-text': isMobile }">{{ developerName }}</p>
-      <div class="price" :class="{ 'mobile-price': isMobile }">
+      <div v-if="metaLoading" class="sk sk-on-light sk-dev-line"></div>
+      <p v-else class="game-dev" :class="{ 'mobile-text': isMobile }">{{ developerName }}</p>
+      <div v-if="metaLoading" class="price" :class="{ 'mobile-price': isMobile }">
+        <div class="sk sk-on-light sk-price-line"></div>
+        <div class="sk sk-on-light sk-btn"></div>
+      </div>
+      <div v-else class="price" :class="{ 'mobile-price': isMobile }">
         <p v-if="ownsCurrentGame" :class="{ 'mobile-price-text': isMobile }">
           {{ $t('already_owned') }}
         </p>
@@ -216,6 +233,17 @@ function GoToGame() {
 }
 .sk-price { width: 60px; height: 14px; }
 .sk-btn { width: 45px; height: 45px; border-radius: 50%; }
+
+/* inline placeholders for the lazily fetched dev name / ownership state; heights match
+   the text lines they replace. They sit inside the white loaded card, so they need a
+   gray shimmer instead of the white-alpha one used on the dark card-level skeleton */
+.sk-on-light {
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.08) 25%, rgba(0, 0, 0, 0.04) 50%, rgba(0, 0, 0, 0.08) 75%);
+  background-size: 200% 100%;
+}
+
+.sk-dev-line { width: 45%; height: 1.35rem; align-self: center; }
+.sk-price-line { width: 90px; height: 1.2rem; margin-bottom: 8px; }
 
 h3 {
   color: var(--light);
