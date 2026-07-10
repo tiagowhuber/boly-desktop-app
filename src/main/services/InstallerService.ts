@@ -3,6 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import axios from 'axios'
 import { exec } from 'child_process'
+import extract from 'extract-zip'
 import { WindowManager } from './WindowManager'
 
 export class InstallerService {
@@ -64,7 +65,21 @@ export class InstallerService {
         return
       }
 
-      const tempPath = path.join(app.getPath('temp'), `descarga_${Date.now()}.exe`)
+      // Legacy games are Inno Setup installers (exe); dev-uploaded builds are
+      // plain zips. The API reports which via file_type; the URL-path check
+      // covers older API deployments that don't send it yet.
+      let fileType: 'zip' | 'exe' = responseUrl.data.file_type === 'zip' ? 'zip' : 'exe'
+      if (!responseUrl.data.file_type) {
+        try {
+          if (new URL(responseUrl.data.url).pathname.toLowerCase().endsWith('.zip')) {
+            fileType = 'zip'
+          }
+        } catch {
+          // keep exe default
+        }
+      }
+
+      const tempPath = path.join(app.getPath('temp'), `descarga_${Date.now()}.${fileType}`)
       const writer = fs.createWriteStream(tempPath)
       console.log('temp path: ' + tempPath)
 
@@ -106,7 +121,11 @@ export class InstallerService {
             installPath: gamePath
           })
 
-          this.installGame(tempPath, gamePath, file_game_id)
+          if (fileType === 'zip') {
+            this.installGameFromZip(tempPath, gamePath, file_game_id)
+          } else {
+            this.installGame(tempPath, gamePath, file_game_id)
+          }
           resolve(tempPath)
         })
         writer.on('error', (err) => {
@@ -218,6 +237,69 @@ export class InstallerService {
     } catch (error) {
       const err = error as Error
       return [`Error: ${err.message}`]
+    }
+  }
+
+  // Dev-uploaded builds: a plain zip of the game folder. Extract it into the
+  // games library and locate the game exe. Emits the same install-started /
+  // install-complete events as installGame, so the renderer needs no changes;
+  // uninstall already falls back to deleting the folder when no Inno Setup
+  // uninstaller exists.
+  public async installGameFromZip(
+    zipPath: string,
+    destinationRoute: string,
+    game_id: number
+  ): Promise<any> {
+    try {
+      WindowManager.getInstance().send('install-started', {
+        gameId: game_id,
+        installPath: destinationRoute
+      })
+
+      if (!fs.existsSync(destinationRoute)) {
+        fs.mkdirSync(destinationRoute, { recursive: true })
+      }
+      await extract(zipPath, { dir: destinationRoute })
+      this.deleteFile(zipPath)
+
+      const exeFiles = this.searchForExecutablesRecursive(destinationRoute)
+      console.log('Found executable files:', exeFiles)
+
+      const gameExeFiles = exeFiles.filter((filePath) => {
+        const fileName = path.basename(filePath).toLowerCase()
+        return (
+          !fileName.startsWith('unins') &&
+          !fileName.includes('crash') &&
+          !fileName.includes('setup') &&
+          !fileName.includes('install') &&
+          !fileName.includes('update')
+        )
+      })
+
+      if (gameExeFiles.length === 0 && exeFiles.length === 0) {
+        WindowManager.getInstance().send('install-error', {
+          gameId: game_id,
+          error: 'No executable found in the extracted build',
+          installPath: destinationRoute
+        })
+        return false
+      }
+
+      const exePath = gameExeFiles.length > 0 ? gameExeFiles[0] : exeFiles[0]
+      WindowManager.getInstance().send('install-complete', {
+        gameId: game_id,
+        installPath: exePath
+      })
+      return true
+    } catch (error) {
+      const err = error as Error
+      console.error('Zip install error:', err.message)
+      WindowManager.getInstance().send('install-error', {
+        gameId: game_id,
+        error: err.message,
+        installPath: destinationRoute
+      })
+      return false
     }
   }
 
