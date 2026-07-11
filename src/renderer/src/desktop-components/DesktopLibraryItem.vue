@@ -33,14 +33,33 @@ const playTime = ref<number | null>(null)
 const playTimeLoading = ref(true)
 const showOptionsMenu = ref(false)
 
-console.log('LibraryItem received game:', props.item)
+// Legacy heuristic: web/HTML games store a route (e.g. "/sudoku-game") in
+// file_name.desktop instead of a binary key. Anything pointing at a real
+// binary (.exe installers or dev-uploaded .zip builds) is a desktop game.
+const isDesktopBinary = (key: unknown): boolean =>
+  typeof key === 'string' && (key.toLowerCase().endsWith('.exe') || key.toLowerCase().endsWith('.zip'))
 
 const isWebGame = computed(() => {
   return (
     props.item.file_name?.desktop &&
     typeof props.item.file_name.desktop === 'string' &&
-    !props.item.file_name.desktop.endsWith('.exe')
+    !isDesktopBinary(props.item.file_name.desktop)
   )
+})
+
+console.log('[boly-debug] DesktopLibraryItem:', {
+  game_id: props.item.game_id,
+  name: props.item.name?.en,
+  game_type_id: props.item.game_type_id,
+  file_name: props.item.file_name,
+  isWebGame: !!(
+    props.item.file_name?.desktop &&
+    typeof props.item.file_name.desktop === 'string' &&
+    !isDesktopBinary(props.item.file_name.desktop)
+  ),
+  button: props.item.file_name?.desktop && !isDesktopBinary(props.item.file_name.desktop)
+    ? 'PLAY (treated as web/HTML game)'
+    : 'INSTALL/PLAY (desktop game)'
 })
 
 const displayedAchievements = computed(() => {
@@ -216,9 +235,10 @@ async function Play() {
   if (
     props.item.file_name?.desktop &&
     typeof props.item.file_name.desktop === 'string' &&
-    !props.item.file_name.desktop.endsWith('.exe')
+    !isDesktopBinary(props.item.file_name.desktop)
   ) {
     // This is an HTML game, navigate to the route
+    console.log('[boly-debug] Play(): HTML-route game, navigating to', props.item.file_name.desktop)
     router.push(props.item.file_name.desktop)
   } else if (props.item.game_id) {
     console.log('clicked')

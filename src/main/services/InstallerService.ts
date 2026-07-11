@@ -81,7 +81,12 @@ export class InstallerService {
 
       const tempPath = path.join(app.getPath('temp'), `descarga_${Date.now()}.${fileType}`)
       const writer = fs.createWriteStream(tempPath)
-      console.log('temp path: ' + tempPath)
+      console.log('[boly-debug] download:', {
+        game_id: file_game_id,
+        file_type_from_api: responseUrl.data.file_type ?? '(absent — used URL fallback)',
+        resolved_file_type: fileType,
+        tempPath
+      })
 
       const response = await axios({
         method: 'get',
@@ -259,11 +264,13 @@ export class InstallerService {
       if (!fs.existsSync(destinationRoute)) {
         fs.mkdirSync(destinationRoute, { recursive: true })
       }
+      console.log('[boly-debug] zip install: extracting', zipPath, '->', destinationRoute)
       await extract(zipPath, { dir: destinationRoute })
+      console.log('[boly-debug] zip install: extraction complete')
       this.deleteFile(zipPath)
 
       const exeFiles = this.searchForExecutablesRecursive(destinationRoute)
-      console.log('Found executable files:', exeFiles)
+      console.log('[boly-debug] zip install: executables found:', exeFiles)
 
       const gameExeFiles = exeFiles.filter((filePath) => {
         const fileName = path.basename(filePath).toLowerCase()
@@ -286,6 +293,7 @@ export class InstallerService {
       }
 
       const exePath = gameExeFiles.length > 0 ? gameExeFiles[0] : exeFiles[0]
+      console.log('[boly-debug] zip install: chosen game exe:', exePath)
       WindowManager.getInstance().send('install-complete', {
         gameId: game_id,
         installPath: exePath
