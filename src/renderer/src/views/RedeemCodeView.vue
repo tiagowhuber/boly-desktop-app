@@ -151,7 +151,7 @@ const goToHome = () => {
 }
 
 .title {
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-style: italic;
   font-size: 2.5rem;
   color: white;
@@ -159,7 +159,7 @@ const goToHome = () => {
 }
 
 .code-display {
-  font-family: 'Poppins', serif;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 1.2rem;
   background-color: rgba(255, 255, 255, 0.1);
   padding: 0.5rem 1rem;
@@ -169,7 +169,7 @@ const goToHome = () => {
 }
 
 .status-section {
-  font-family: 'Poppins', serif;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
   display: flex;
   flex-direction: column;
   align-items: center;

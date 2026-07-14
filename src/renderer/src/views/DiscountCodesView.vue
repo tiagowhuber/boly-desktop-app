@@ -286,7 +286,7 @@ const getGameName = (gameId: number) => {
 }
 
 .dashboard-title {
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-style: italic;
   font-size: 2.5rem;
   text-align: center;
@@ -295,7 +295,7 @@ const getGameName = (gameId: number) => {
 }
 
 .section-title {
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-size: 1.8rem;
   border-bottom: 2px solid white;
   padding-bottom: 0.5rem;

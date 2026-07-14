@@ -609,7 +609,7 @@ button,
 .button {
   padding: 5px;
   width: 100%;
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-size: larger;
   flex-grow: 1;
   margin-top: 10px;
@@ -743,7 +743,7 @@ button,
 .mobile-container button,
 .mobile-container .button {
   padding: 8px;
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-size: 1rem;
   color: var(--light);
   text-align: center;

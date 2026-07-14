@@ -314,7 +314,7 @@ body {
   padding-top: 25vw;
   padding-bottom: 10rem;
   margin-top: -10rem;
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   clip-path: polygon(0% 10%, 100% 0%, 100% 100%, 0% 100%);
   transform-origin: top left;
   position: relative;
@@ -402,7 +402,7 @@ body {
 }
 
 .quick-actions-title {
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-style: italic;
   font-size: 2.2rem;
   letter-spacing: 2px;
@@ -539,7 +539,7 @@ button.quick-card {
   border: none;
   border-radius: 12px;
   padding: 0.7rem 1.2rem;
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-size: 1rem;
   letter-spacing: 1px;
   color: white;
@@ -575,7 +575,7 @@ button.quick-card {
   padding-top: 30rem;
   margin-bottom: 0rem;
   margin-top: -20rem;
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   clip-path: polygon(0% 20%, 100% 0%, 100% 100%, 0% 100%);
   transform-origin: top left;
   z-index: 2;
@@ -586,7 +586,7 @@ button.quick-card {
 .home-section {
   padding: 12rem 4rem;
   margin-top: -1rem;
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   transform-origin: top left;
   z-index: 2;
   position: relative;
@@ -788,7 +788,7 @@ button.quick-card {
   margin-left: -6rem;
   text-align: end;
   font-size: 4rem;
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   color: rgb(78, 69, 153);
   width: 22rem;
 }
@@ -882,14 +882,14 @@ p {
 
 h2 {
   text-align: center;
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-size: 3.75rem;
   width: 100%;
 }
 
 h1 {
   text-align: center;
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-size: 500%;
   width: 100%;
 }
@@ -901,7 +901,7 @@ h1 {
 
 .section-title {
   text-align: left;
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-style: italic;
   font-size: 300%;
 }
@@ -976,7 +976,7 @@ h1 {
 
 .svg-left h3,
 .svg-right h3 {
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-size: 2rem;
   color: white;
   text-align: center;
@@ -1096,7 +1096,7 @@ h1 {
 
 .target-audience h2 {
   text-align: center;
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-size: 2.5rem;
   color: white;
   margin: 0 auto 3rem auto;
@@ -1136,7 +1136,7 @@ h1 {
 }
 
 .audience-column h3 {
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-size: 2rem;
   color: white;
   margin-bottom: 1.5rem;
@@ -1369,7 +1369,7 @@ h1 {
 }
 
 .card-percentage {
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-size: 3rem;
   color: white;
   font-weight: 900;
@@ -1533,7 +1533,7 @@ h1 {
 }
 
 .boly-details h3 {
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-style: italic;
   font-size: 2rem;
   color: white;

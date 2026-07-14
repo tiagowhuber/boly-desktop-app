@@ -422,7 +422,7 @@ watch(
 
 .tab-button {
   flex-grow: 0.35;
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-size: medium;
   background-color: var(--boly-button-pink);
   padding: 10px;

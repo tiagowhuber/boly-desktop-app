@@ -372,12 +372,12 @@ async function UpdatePassword(request: PasswordUpdateRequest): Promise<void> {
 }
 
 .section-title {
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-size: 150%;
 }
 
 .change-pass-section-title {
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-size: 120%;
 }
 
@@ -406,7 +406,7 @@ h2 {
 }
 
 .change-password {
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-size: 100%;
 }
 

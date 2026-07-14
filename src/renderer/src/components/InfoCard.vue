@@ -43,14 +43,14 @@ const props = defineProps({
 
 .info-card-title h2 {
   text-align: left;
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-style: italic;
   font-size: 300%;
 }
 
 .info-card-title h3 {
   text-align: left;
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-style: italic;
   font-size: 200%;
   color: var(--boly-highlight);

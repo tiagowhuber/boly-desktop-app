@@ -202,14 +202,14 @@ async function SendEmail() {
 }
 
 .contact-form-title h2 {
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-style: italic;
   font-size: 300%;
 }
 
 .contact-form-title h3 {
   text-align: left;
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-style: italic;
   font-size: 200%;
   color: var(--boly-highlight);

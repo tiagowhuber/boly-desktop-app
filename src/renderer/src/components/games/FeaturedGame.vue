@@ -267,7 +267,7 @@ function GoToGame(id: number) {
 }
 
 .details h2 {
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-style: italic;
 }
 
@@ -279,7 +279,7 @@ function GoToGame(id: number) {
 .details h3 {
   text-align: start;
   color: var(--boly-featured-green);
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-style: italic;
 }
 
@@ -312,7 +312,7 @@ function GoToGame(id: number) {
 button {
   height: 30px;
   margin-top: 10px;
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-size: large;
   color: var(--light);
   border: none;

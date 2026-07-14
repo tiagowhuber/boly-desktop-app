@@ -311,13 +311,13 @@ function getGameName() {
 }
 
 .details h1{
-  font-family: "Anton", serif;
+  font-family: "Anton", Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-style: italic;
 }
 
 .details h3{
   color: var(--boly-featured-green);
-  font-family: "Anton", serif;
+  font-family: "Anton", Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-style: italic;
 }
 
@@ -433,7 +433,7 @@ function getGameName() {
 
 button {
   width: 100%;
-  font-family: "Anton", serif;
+  font-family: "Anton", Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-size: larger;
   flex-grow: 1;
   margin-top: 10px;

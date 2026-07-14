@@ -32,6 +32,9 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
     "@electron-toolkit/utils": "^4.0.0",
+    "@fontsource/anton": "^5.2.7",
+    "@fontsource/inter": "^5.2.8",
+    "@fontsource/poppins": "^5.2.7",
     "@tailwindcss/vite": "^4.0.1",
     "axios": "^1.7.2",
     "dotenv": "^16.5.0",

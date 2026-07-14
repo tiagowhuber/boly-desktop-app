@@ -128,7 +128,7 @@ function isActive(path: string) {
 <style scoped>
 header {
   padding: 2rem 4rem;
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   transform: skewY(-3.5deg);
   transform-origin: top left;
   position: relative;

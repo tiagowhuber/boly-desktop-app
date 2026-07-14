@@ -171,7 +171,7 @@ function isActive(path: string) {
 -------------------------------------------- */
 header {
   padding: 1rem 1.5rem;
-  font-family: 'Anton', serif;
+  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   transform: skewY(-3.5deg);
   transform-origin: top left;
   position: relative;
