@@ -62,8 +62,11 @@ it with the script in this folder.
 7. **Test** (see [Testing](#testing-a-build)) — verify it launches, loads the
    game, heartbeats every ~60 s, and **quits** when a second machine launches the
    same account.
-8. **Hand the new build/installer to FFStudios** to re-upload to S3 and publish
-   as the game's new version. Users get it on their next install/update.
+8. **Upload the new build yourself on the dev dashboard** — log in at
+   [boly.cl](https://boly.cl) with your developer account, open your game's page,
+   **Manage builds**, and upload the zip there. An admin reviews and approves it;
+   once approved it becomes the game's live version automatically. Users get it on
+   their next install/update.
 9. **Mark the game as migrated** in your tracking list (needed for Part 2).
 
 When **every** game on the platform has completed steps 1–9, do Part 2.
@@ -106,14 +109,29 @@ alone, remove the token:
 
 ## Part 3 — Integrate the heartbeat in a NEW game
 
+0. **Register your Boly developer account.** Sign up at
+   [boly.cl](https://boly.cl) using the **email Boly pre-approved for you** — this
+   automatically creates you as a Developer account linked to your studio (no
+   separate "developer request" step needed). If you don't have a game id yet
+   (you create the game in step 5), use any placeholder (e.g. `0`) for steps 1–4;
+   the desktop app always sends the real id at runtime, so the hardcoded value in
+   your script only matters for local testing.
 1. Copy the script for your engine from the `scripts/` folder into the game project:
    - Unity → [`ParamsCatcherUNITY.md`](./scripts/ParamsCatcherUNITY.md) (save as `ParamsCatcher.cs`)
    - Godot → [`ParamsCatcherGODOT.md`](./scripts/ParamsCatcherGODOT.md) (save as `ParamsCatcher.gd`)
    - Unreal → [`ParamsCatcherUNREAL.h.md`](./scripts/ParamsCatcherUNREAL.h.md) + [`ParamsCatcherUNREAL.cpp.md`](./scripts/ParamsCatcherUNREAL.cpp.md) (save as `ValidationSubsystem.h` / `.cpp`)
-2. Set `gameId` to this game's platform id.
+2. Set `gameId` to this game's platform id (or the placeholder from step 0).
 3. Wire up the scene/build setup per [`GUIA_PARAMS_CATCHER.md`](./scripts/GUIA_PARAMS_CATCHER.md)
    so the validator runs in the first scene and persists across scene loads.
 4. Build and test (see below).
+5. **Publish the game and upload your build on the dev dashboard.** Log in at
+   boly.cl, go to your **Developer Dashboard → Publish a new game**, fill in the
+   game's name/description/price, and attach your zipped Windows build (the
+   desktop app extracts it itself — no installer needed). This creates the game
+   as a **private draft** and starts the upload; nothing is visible on the store
+   yet. An admin reviews and approves the build — once approved, the game
+   publishes automatically and is playable from the platform. For later updates,
+   use **Manage builds** on the game's dashboard page instead (same review flow).
 
 ### Contract the script must follow (already implemented in the provided files)
 - Read `-game_id` and `-key`; **do not** read or require `-token`.
@@ -131,7 +149,7 @@ CLI in [`verifier/`](./verifier/). It runs a local fake of the validate endpoint
 launches your build pointed at it, and checks the whole heartbeat contract
 (request shape, no `Authorization` header, steady cadence, quit-on-`403`,
 transient tolerance) in seconds — so you can confirm the integration **before**
-sending the build to FFStudios.
+uploading the build on the dev dashboard.
 
 ```bash
 cd verifier

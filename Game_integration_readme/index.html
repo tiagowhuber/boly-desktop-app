@@ -212,12 +212,12 @@
     <div class="setup">
       <div>
         <label class="fld" for="gameId">
-          <span data-lang="en">Your game id <span style="color:var(--orange-hi)">(indicated by Boly)</span></span>
-          <span data-lang="es">El id de tu juego <span style="color:var(--orange-hi)">(indicado por Boly)</span></span>
+          <span data-lang="en">Your game id <span style="color:var(--orange-hi)">(from the dev dashboard, or a placeholder)</span></span>
+          <span data-lang="es">El id de tu juego <span style="color:var(--orange-hi)">(del panel de desarrollador, o un valor de prueba)</span></span>
         </label>
         <input id="gameId" value="12" inputmode="numeric" />
-        <div class="hint" data-lang="en">We assign this when we accept your game. Every command and snippet below updates to show it.</div>
-        <div class="hint" data-lang="es">Te lo asignamos cuando aceptamos tu juego. Cada comando y fragmento de abajo lo muestra automáticamente.</div>
+        <div class="hint" data-lang="en">Don't have one yet? Use any placeholder (e.g. <span class="gid">0</span>) for now — you get your real id when you create the game on your Developer Dashboard in the last step, and the desktop app always sends the real id at runtime anyway. Every command and snippet below updates to show whatever you type here.</div>
+        <div class="hint" data-lang="es">¿Todavía no tienes uno? Usa cualquier valor de prueba (ej. <span class="gid">0</span>) por ahora: obtienes tu id real al crear el juego en tu Panel de Desarrollador en el último paso, y de todos modos la app de escritorio siempre envía el id real en tiempo de ejecución. Cada comando y fragmento de abajo se actualiza para mostrar lo que escribas aquí.</div>
       </div>
       <div>
         <label class="fld"><span data-lang="en">Your engine</span><span data-lang="es">Tu motor</span></label>
@@ -241,9 +241,23 @@
       <li data-lang="es">El script <b>ParamsCatcher</b> para tu motor: el código de heartbeat que vas a agregar.</li>
       <li data-lang="en"><b>boly-verify-win.exe</b> — the verifier that tests your build (in <span class="gid">verifier/dist/</span>).</li>
       <li data-lang="es"><b>boly-verify-win.exe</b>: el verificador que prueba tu build (en <span class="gid">verifier/dist/</span>).</li>
-      <li data-lang="en">Your <b>game id</b>: <span class="gid gid-val">12</span></li>
-      <li data-lang="es">El <b>id de tu juego</b>: <span class="gid gid-val">12</span></li>
+      <li data-lang="en">Your <b>game id</b>: <span class="gid gid-val">12</span> (or a placeholder — see above)</li>
+      <li data-lang="es">El <b>id de tu juego</b>: <span class="gid gid-val">12</span> (o un valor de prueba, ver arriba)</li>
     </ul>
+    <div class="callout tip" style="margin-top:14px"><span class="ico">🔑</span>
+      <div>
+        <span data-lang="en"><b>You'll also need a Boly account.</b> Register at
+        <a href="https://boly.cl" target="_blank" rel="noopener">boly.cl</a> using the
+        <b>email Boly pre-approved for you</b> — that automatically makes it a Developer
+        account linked to your studio, no separate request needed. You'll use it in the
+        last step to publish your game and upload your build.</span>
+        <span data-lang="es"><b>También vas a necesitar una cuenta de Boly.</b> Regístrate en
+        <a href="https://boly.cl" target="_blank" rel="noopener">boly.cl</a> usando el
+        <b>email que Boly preaprobó para ti</b>: eso la convierte automáticamente en una
+        cuenta de Desarrollador vinculada a tu estudio, sin pedirlo aparte. La usarás en el
+        último paso para publicar tu juego y subir tu build.</span>
+      </div>
+    </div>
   </div>
 
   <!-- ============ STEPS ============ -->
@@ -517,20 +531,46 @@
       <div class="step-head">
         <div class="num"><span>6</span></div>
         <div class="step-title">
-          <h3><span data-lang="en">Send your build to Boly</span><span data-lang="es">Envía tu build a Boly</span></h3>
-          <div class="sub"><span data-lang="en">We publish it to the platform</span><span data-lang="es">Lo publicamos en la plataforma</span></div>
+          <h3><span data-lang="en">Register on Boly and upload your build</span><span data-lang="es">Regístrate en Boly y sube tu build</span></h3>
+          <div class="sub"><span data-lang="en">Self-serve — publish and upload from your dev dashboard</span><span data-lang="es">Autoservicio: publica y sube desde tu panel de desarrollador</span></div>
         </div>
         <div class="check"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#0d0719" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       </div>
       <div class="step-body">
-        <p data-lang="en">Once every verifier check passes, send us your build/installer. We'll upload it and
-           publish it as your game's version under id <span class="gid gid-val">12</span>.
-           Because the heartbeat is already verified, it launches correctly from the Boly app the
-           first time — no more blind back-and-forth. 🎉</p>
-        <p data-lang="es">Una vez que todas las pruebas del verificador pasen, envíanos tu build/instalador.
-           Lo subiremos y publicaremos como la versión de tu juego con id <span class="gid gid-val">12</span>.
-           Como el heartbeat ya está verificado, se abre correctamente desde la app de Boly la primera vez:
-           sin más idas y vueltas a ciegas. 🎉</p>
+        <p data-lang="en">Once every verifier check passes:</p>
+        <p data-lang="es">Una vez que todas las pruebas del verificador pasen:</p>
+        <ol data-lang="en">
+          <li>Register a Boly account at <a href="https://boly.cl" target="_blank" rel="noopener">boly.cl</a>
+              using the <b>email Boly pre-approved for you</b>. This automatically creates a
+              Developer account linked to your studio — no separate request needed.</li>
+          <li>Log in and open your <b>Developer Dashboard</b> → <b>Publish a new game</b>.</li>
+          <li>Fill in the game's name, description and price, and attach your zipped Windows
+              build (the desktop app extracts it itself — no installer required).</li>
+          <li>This creates the game as a <b>private draft</b> and starts the upload — nothing is
+              visible on the store yet. An admin reviews your build and approves it; once
+              approved, the game <b>publishes automatically</b> and becomes playable from the
+              platform, now with the real game id assigned.</li>
+        </ol>
+        <ol data-lang="es">
+          <li>Regístrate en <a href="https://boly.cl" target="_blank" rel="noopener">boly.cl</a>
+              usando el <b>email que Boly preaprobó para ti</b>. Esto crea automáticamente una
+              cuenta de Desarrollador vinculada a tu estudio, sin pedirlo aparte.</li>
+          <li>Inicia sesión y abre tu <b>Panel de Desarrollador</b> → <b>Publicar un nuevo juego</b>.</li>
+          <li>Completa el nombre, descripción y precio del juego, y adjunta tu build de Windows
+              en zip (la app de escritorio lo extrae sola: no necesitas instalador).</li>
+          <li>Esto crea el juego como un <b>borrador privado</b> y comienza la subida: nada es
+              visible en la tienda todavía. Un admin revisa tu build y lo aprueba; una vez
+              aprobado, el juego se <b>publica automáticamente</b> y queda jugable desde la
+              plataforma, ya con el id real asignado.</li>
+        </ol>
+        <p data-lang="en">Because the heartbeat is already verified, it launches correctly from the Boly app the
+           first time — no more blind back-and-forth. 🎉 For later versions of this game, use
+           <b>Manage builds</b> on the game's dashboard page instead of the "new game" form —
+           same admin review, no re-registration.</p>
+        <p data-lang="es">Como el heartbeat ya está verificado, se abre correctamente desde la app de Boly la
+           primera vez: sin más idas y vueltas a ciegas. 🎉 Para versiones futuras de este juego,
+           usa <b>Gestionar builds</b> en la página del juego en el panel en vez del formulario de
+           "nuevo juego": misma revisión de admin, sin volver a registrarte.</p>
       </div>
     </div>
 
@@ -538,8 +578,8 @@
 
   <div class="finish" id="finish">
     <h2><span data-lang="en">You're ready to ship 🚀</span><span data-lang="es">¡Listo para publicar! 🚀</span></h2>
-    <p data-lang="en">Every step is checked off. Send your verified build to Boly and we'll take it from here.</p>
-    <p data-lang="es">Todos los pasos están marcados. Envía tu build verificado a Boly y nosotros nos encargamos del resto.</p>
+    <p data-lang="en">Every step is checked off. Register on boly.cl with your pre-approved email and publish your verified build from your Developer Dashboard.</p>
+    <p data-lang="es">Todos los pasos están marcados. Regístrate en boly.cl con tu email preaprobado y publica tu build verificado desde tu Panel de Desarrollador.</p>
   </div>
 </main>
 
