@@ -6,9 +6,8 @@ using UnityEngine.SceneManagement;
 
 public class ParamsCatcher : MonoBehaviour
 {
-    // ID del juego (configurar manualmente por build; el launcher tambien lo
-    // envia por -game_id).
-    int gameId = 5;
+    // ID del juego. El launcher lo envia por -game_id en tiempo de ejecucion.
+    int gameId = 0;
 
     // Clave de sesion recibida por argumentos (-key). Es la UNICA credencial.
     // El JWT del usuario ya NO se recibe ni se usa (-token fue eliminado).

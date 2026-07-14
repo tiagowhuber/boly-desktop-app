@@ -1,7 +1,7 @@
 extends Node
 
-# ID del juego (configurar manualmente; el launcher tambien lo envia por -game_id)
-var game_id: int = 5
+# ID del juego. El launcher lo envia por -game_id en tiempo de ejecucion.
+var game_id: int = 0
 
 # Clave de sesion recibida por -key. Es la UNICA credencial.
 # El JWT del usuario ya NO se recibe ni se usa (-token fue eliminado).

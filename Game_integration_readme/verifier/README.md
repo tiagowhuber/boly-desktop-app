@@ -32,11 +32,11 @@ talking to the real API in production.
 
 You don't need Node or any setup. Build your game to a `.exe` first, then open
 **PowerShell** (or Command Prompt) in the folder containing `boly-verify-win.exe`
-and run **one command**, pointing at your build and passing the game's platform id
-(Boly gives you this id):
+and run **one command**, pointing at your build (`--game-id` can be any integer,
+e.g. `0`):
 
 ```powershell
-.\boly-verify-win.exe --game "C:\path\to\YourGame.exe" --game-id 5
+.\boly-verify-win.exe --game "C:\path\to\YourGame.exe" --game-id 0
 ```
 
 Your game will open and close a few times — that's the tool running its checks.
@@ -52,7 +52,7 @@ times as you like; nothing is uploaded and no account is needed.
 Same flags whether you run the binary or, with Node ≥18 installed, `node verify.js`:
 
 ```bash
-node verify.js --game "/path/to/YourGame.exe" --game-id 5
+node verify.js --game "/path/to/YourGame.exe" --game-id 0
 ```
 
 ### Options
@@ -60,7 +60,7 @@ node verify.js --game "/path/to/YourGame.exe" --game-id 5
 | Flag | Meaning |
 |------|---------|
 | `--game, -g <path>` | Path to the built game executable (required) |
-| `--game-id <int>` | The game's platform id (required) |
+| `--game-id <int>` | Any non-negative integer (required by the flag; the mock ignores its value) |
 | `--heartbeat <sec>` | Test heartbeat interval (default `3`). Passed as `-heartbeat_seconds` so runs finish fast |
 | `--real-cadence` | Use the real 60s heartbeat (slow; validates true production timing) |
 | `--only <list>` | Run only some scenarios, e.g. `--only 1,2,5` |
@@ -77,7 +77,7 @@ pointing it at the game through Wine:
 
 ```bash
 cd verifier
-node verify.js --game "/path/to/DevGame.exe" --game-id 13 --launcher wine
+node verify.js --game "/path/to/DevGame.exe" --game-id 0 --launcher wine
 ```
 
 Everything else works the same — the game runs under Wine, its heartbeats reach

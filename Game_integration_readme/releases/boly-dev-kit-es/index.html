@@ -156,7 +156,12 @@
     border:1px solid;font-size:14.5px}
   .callout.tip{background:#48ace418;border-color:#48ace455;color:#cdeaff}
   .callout.warn{background:#fc99041a;border-color:#fc990455;color:#ffe6c2}
+  .callout.ai{background:#7c5cff16;border-color:#7c5cff55;color:#e3dcff}
   .callout .ico{font-size:18px;flex:none}
+  .callout .body{min-width:0;flex:1}
+  .callout .ai-head{font-weight:700;margin-bottom:6px}
+  .code.prompt{white-space:pre-wrap;word-break:break-word;padding-right:78px}
+  .code .ptxt{color:#e7ddff;font-size:13px;line-height:1.55}
 
   details.ts{background:#160d33;border:1px solid var(--card-border);border-radius:12px;
     padding:4px 16px;margin:8px 0}
@@ -211,15 +216,6 @@
     <h2><span data-lang="en">Before you start</span><span data-lang="es">Antes de empezar</span></h2>
     <div class="setup">
       <div>
-        <label class="fld" for="gameId">
-          <span data-lang="en">Your game id <span style="color:var(--orange-hi)">(indicated by Boly)</span></span>
-          <span data-lang="es">El id de tu juego <span style="color:var(--orange-hi)">(indicado por Boly)</span></span>
-        </label>
-        <input id="gameId" value="12" inputmode="numeric" />
-        <div class="hint" data-lang="en">We assign this when we accept your game. Every command and snippet below updates to show it.</div>
-        <div class="hint" data-lang="es">Te lo asignamos cuando aceptamos tu juego. Cada comando y fragmento de abajo lo muestra automáticamente.</div>
-      </div>
-      <div>
         <label class="fld"><span data-lang="en">Your engine</span><span data-lang="es">Tu motor</span></label>
         <div class="tabs" id="tabs">
           <button data-engine="unity" class="active">Unity</button>
@@ -241,8 +237,6 @@
       <li data-lang="es">El script <b>ParamsCatcher</b> para tu motor: el código de heartbeat que vas a agregar.</li>
       <li data-lang="en"><b>boly-verify-win.exe</b> — the verifier that tests your build (run it from this folder).</li>
       <li data-lang="es"><b>boly-verify-win.exe</b>: el verificador que prueba tu build (ejecútalo desde esta carpeta).</li>
-      <li data-lang="en">Your <b>game id</b>: <span class="gid gid-val">12</span></li>
-      <li data-lang="es">El <b>id de tu juego</b>: <span class="gid gid-val">12</span></li>
     </ul>
   </div>
 
@@ -294,6 +288,48 @@
             (request correcto, sin filtrar el token, cierre al revocar, tolerancia a fallos de red). No lo reescribas.</span>
           </div>
         </div>
+        <div class="callout ai"><span class="ico">🤖</span>
+          <div class="body">
+            <div class="ai-head"><span data-lang="en">Or let an AI assistant do steps 1–2</span><span data-lang="es">O deja que un asistente de IA haga los pasos 1–2</span></div>
+            <div class="hint" style="margin:0 0 4px">
+              <span data-lang="en">Open Claude Code (or Cursor, etc.) in your game project and paste the prompt below. Make sure the AI can read the ParamsCatcher script for your engine — drag the kit's <b>scripts/</b> file into your project, or point the AI at it.</span>
+              <span data-lang="es">Abre Claude Code (o Cursor, etc.) en tu proyecto de juego y pega el prompt de abajo. Asegúrate de que la IA pueda leer el script ParamsCatcher de tu motor — arrastra el archivo de <b>scripts/</b> del kit a tu proyecto, o indícale la ruta.</span>
+            </div>
+            <div class="engine-only show" data-engine="unity"><div class="code prompt"><span class="ptxt" data-lang="en">I'm integrating the Boly license heartbeat into my Unity game. Do these two steps:
+
+1. Copy the EXACT contents of scripts/ParamsCatcherUNITY.md into a new file Assets/ParamsCatcher.cs. Paste it verbatim — do not change the heartbeat logic.
+2. Make a bootstrap scene (e.g. AuthScene) with one empty GameObject and attach ParamsCatcher to it. In File &gt; Build Settings, set AuthScene to index 0 and my main game scene to index 1.
+
+Leave the gameId field at 0 — the launcher injects the real id at runtime.</span><span class="ptxt" data-lang="es">Estoy integrando el heartbeat de licencia de Boly en mi juego de Unity. Haz estos dos pasos:
+
+1. Copia el contenido EXACTO de scripts/ParamsCatcherUNITY.md en un archivo nuevo Assets/ParamsCatcher.cs. Pégalo tal cual — no cambies la lógica del heartbeat.
+2. Crea una escena de arranque (ej. AuthScene) con un GameObject vacío y adjúntale ParamsCatcher. En File &gt; Build Settings, pon AuthScene en el índice 0 y mi escena principal en el índice 1.
+
+Deja el campo gameId en 0 — el launcher inyecta el id real en tiempo de ejecución.</span><button class="copy copy-prompt">Copy</button></div></div>
+            <div class="engine-only" data-engine="godot"><div class="code prompt"><span class="ptxt" data-lang="en">I'm integrating the Boly license heartbeat into my Godot game. Do these two steps:
+
+1. Copy the EXACT contents of scripts/ParamsCatcherGODOT.md into a new file ParamsCatcher.gd. Paste it verbatim — do not change the heartbeat logic.
+2. Add it to a bootstrap scene (e.g. AuthScene.tscn) on a CHILD node (not the scene root) so it can reparent itself to /root and survive scene changes. Set that scene as the project's run/startup scene, and update the change_scene_to_file(...) path to my real main scene.
+
+Leave the game_id field at 0 — the launcher injects the real id at runtime.</span><span class="ptxt" data-lang="es">Estoy integrando el heartbeat de licencia de Boly en mi juego de Godot. Haz estos dos pasos:
+
+1. Copia el contenido EXACTO de scripts/ParamsCatcherGODOT.md en un archivo nuevo ParamsCatcher.gd. Pégalo tal cual — no cambies la lógica del heartbeat.
+2. Agrégalo a una escena de arranque (ej. AuthScene.tscn) en un nodo HIJO (no el nodo raíz de la escena) para que pueda reparentarse a /root y sobrevivir a los cambios de escena. Configura esa escena como la escena de inicio del proyecto, y actualiza la ruta de change_scene_to_file(...) a mi escena principal real.
+
+Deja el campo game_id en 0 — el launcher inyecta el id real en tiempo de ejecución.</span><button class="copy copy-prompt">Copy</button></div></div>
+            <div class="engine-only" data-engine="unreal"><div class="code prompt"><span class="ptxt" data-lang="en">I'm integrating the Boly license heartbeat into my Unreal game. Do these two steps:
+
+1. Copy the EXACT contents of scripts/ParamsCatcherUNREAL.h.md and scripts/ParamsCatcherUNREAL.cpp.md into ValidationSubsystem.h and ValidationSubsystem.cpp. Paste them verbatim — do not change the heartbeat logic. Add HTTP and Json to the dependencies in my .Build.cs.
+2. It's a UGameInstanceSubsystem that auto-creates — nothing to place in a level. In Project Settings &gt; Maps &amp; Modes set a small Startup Map, and rename the OpenLevel("MainLevel") call to my real level.
+
+Leave the GameId field at 0 — the launcher injects the real id at runtime.</span><span class="ptxt" data-lang="es">Estoy integrando el heartbeat de licencia de Boly en mi juego de Unreal. Haz estos dos pasos:
+
+1. Copia el contenido EXACTO de scripts/ParamsCatcherUNREAL.h.md y scripts/ParamsCatcherUNREAL.cpp.md en ValidationSubsystem.h y ValidationSubsystem.cpp. Pégalos tal cual — no cambies la lógica del heartbeat. Agrega HTTP y Json a las dependencias en mi .Build.cs.
+2. Es un UGameInstanceSubsystem que se auto-crea — no hay que colocar nada en un nivel. En Project Settings &gt; Maps &amp; Modes configura un Startup Map pequeño, y renombra la llamada OpenLevel("MainLevel") a mi nivel real.
+
+Deja el campo GameId en 0 — el launcher inyecta el id real en tiempo de ejecución.</span><button class="copy copy-prompt">Copy</button></div></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -301,35 +337,6 @@
     <div class="step" data-step="2">
       <div class="step-head">
         <div class="num"><span>2</span></div>
-        <div class="step-title">
-          <h3><span data-lang="en">Set your game id</span><span data-lang="es">Configura el id de tu juego</span></h3>
-          <div class="sub"><span data-lang="en">So the build knows which game it is</span><span data-lang="es">Para que el build sepa qué juego es</span></div>
-        </div>
-        <div class="check"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#0d0719" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      </div>
-      <div class="step-body">
-        <p data-lang="en">Near the top of the script, set the game id to <span class="gid gid-val">12</span>:</p>
-        <p data-lang="es">Cerca del inicio del script, configura el id del juego en <span class="gid gid-val">12</span>:</p>
-        <div class="engine-only show" data-engine="unity">
-          <div class="code"><span class="kw">int</span> gameId = <span class="flag gid-val">12</span>;</div>
-        </div>
-        <div class="engine-only" data-engine="godot">
-          <div class="code"><span class="kw">var</span> game_id: <span class="kw">int</span> = <span class="flag gid-val">12</span></div>
-        </div>
-        <div class="engine-only" data-engine="unreal">
-          <div class="code"><span class="kw">int32</span> GameId = <span class="flag gid-val">12</span>;</div>
-        </div>
-        <p class="hint" data-lang="en">The Boly launcher also passes <span class="gid">-game_id</span> at runtime, but
-           setting it here keeps your build self-contained.</p>
-        <p class="hint" data-lang="es">El launcher de Boly también envía <span class="gid">-game_id</span> en tiempo de
-           ejecución, pero configurarlo aquí mantiene tu build autónomo.</p>
-      </div>
-    </div>
-
-    <!-- Step 3 -->
-    <div class="step" data-step="3">
-      <div class="step-head">
-        <div class="num"><span>3</span></div>
         <div class="step-title">
           <h3><span data-lang="en">Wire it into your startup &amp; make it persist</span><span data-lang="es">Conéctalo a tu arranque y haz que persista</span></h3>
           <div class="sub"><span data-lang="en">The validator must run first and survive scene changes</span><span data-lang="es">El validador debe ejecutarse primero y sobrevivir a los cambios de escena</span></div>
@@ -402,10 +409,10 @@
       </div>
     </div>
 
-    <!-- Step 4 -->
-    <div class="step" data-step="4">
+    <!-- Step 3 -->
+    <div class="step" data-step="3">
       <div class="step-head">
-        <div class="num"><span>4</span></div>
+        <div class="num"><span>3</span></div>
         <div class="step-title">
           <h3><span data-lang="en">Build your game to an executable</span><span data-lang="es">Compila tu juego a un ejecutable</span></h3>
           <div class="sub"><span data-lang="en">A real build — not the editor</span><span data-lang="es">Un build real, no el editor</span></div>
@@ -428,10 +435,10 @@
       </div>
     </div>
 
-    <!-- Step 5 -->
-    <div class="step" data-step="5">
+    <!-- Step 4 -->
+    <div class="step" data-step="4">
       <div class="step-head">
-        <div class="num"><span>5</span></div>
+        <div class="num"><span>4</span></div>
         <div class="step-title">
           <h3><span data-lang="en">Test it with the Verifier</span><span data-lang="es">Pruébalo con el Verificador</span></h3>
           <div class="sub"><span data-lang="en">Prove the integration works — locally, in ~30 seconds</span><span data-lang="es">Comprueba que la integración funciona: localmente, en ~30 segundos</span></div>
@@ -443,7 +450,7 @@
            (replace the path with your build):</p>
         <p data-lang="es">Abre <b>PowerShell</b> en la carpeta que contiene <b>boly-verify-win.exe</b> y ejecuta
            (reemplaza la ruta por tu build):</p>
-        <div class="code" id="cmd-block"><span class="cmd-line">.\boly-verify-win.exe <span class="flag">--game</span> <span class="str">"C:\path\to\YourGame.exe"</span> <span class="flag">--game-id</span> <span class="flag gid-val">12</span></span><button class="copy" id="copyCmd">Copy</button></div>
+        <div class="code" id="cmd-block"><span class="cmd-line">.\boly-verify-win.exe <span class="flag">--game</span> <span class="str">"C:\path\to\YourGame.exe"</span> <span class="flag">--game-id</span> <span class="flag">0</span></span><button class="copy" id="copyCmd">Copy</button></div>
         <p data-lang="en">Your game will <b>open and close a few times</b> — that's the verifier launching it,
            pretending to be the Boly server, and watching how it behaves. It runs five checks:</p>
         <p data-lang="es">Tu juego se <b>abrirá y cerrará varias veces</b>: es el verificador lanzándolo,
@@ -486,9 +493,9 @@
         <p style="margin-top:18px;font-weight:600;color:#fff" data-lang="en">If something is red:</p>
         <p style="margin-top:18px;font-weight:600;color:#fff" data-lang="es">Si algo está en rojo:</p>
         <details class="ts"><summary><span class="badge fail">FAIL</span><span data-lang="en">Game sent a heartbeat</span><span data-lang="es">El juego envió un heartbeat</span></summary>
-          <p data-lang="en">The validator isn't running at startup. Re-check <b>Step 3</b> — the script must be in
+          <p data-lang="en">The validator isn't running at startup. Re-check <b>Step 2</b> — the script must be in
           your <b>first</b> scene/level so it runs the moment the game launches.</p>
-          <p data-lang="es">El validador no se está ejecutando al inicio. Revisa el <b>Paso 3</b>: el script debe estar
+          <p data-lang="es">El validador no se está ejecutando al inicio. Revisa el <b>Paso 2</b>: el script debe estar
           en tu <b>primera</b> escena/nivel para que se ejecute apenas arranca el juego.</p></details>
         <details class="ts"><summary><span class="badge fail">FAIL</span><span data-lang="en">No Authorization header</span><span data-lang="es">Sin header Authorization</span></summary>
           <p data-lang="en">Your script is attaching a login token to the heartbeat. Use the provided script as-is —
@@ -502,9 +509,9 @@
           ante una respuesta <span class="gid">403</span>: asegúrate de no haber eliminado esa parte.</p></details>
         <details class="ts"><summary><span class="badge fail">FAIL</span><span data-lang="en">Cadence is steady</span><span data-lang="es">La cadencia es constante</span></summary>
           <p data-lang="en">The heartbeat stopped (or fires far too often) after the game loaded. The validator
-          isn't surviving the scene change — revisit <b>Step 3</b>'s persistence note.</p>
+          isn't surviving the scene change — revisit <b>Step 2</b>'s persistence note.</p>
           <p data-lang="es">El heartbeat se detuvo (o se dispara demasiado seguido) después de cargar el juego.
-          El validador no está sobreviviendo al cambio de escena: revisa la nota de persistencia del <b>Paso 3</b>.</p></details>
+          El validador no está sobreviviendo al cambio de escena: revisa la nota de persistencia del <b>Paso 2</b>.</p></details>
         <p class="hint" style="margin-top:14px" data-lang="en">Want to see the real 60-second timing instead of the fast
            test cadence? Add <span class="gid">--real-cadence</span> (it just takes a few minutes).</p>
         <p class="hint" style="margin-top:14px" data-lang="es">¿Quieres ver el tiempo real de 60 segundos en vez de la cadencia
@@ -512,10 +519,10 @@
       </div>
     </div>
 
-    <!-- Step 6 -->
-    <div class="step" data-step="6">
+    <!-- Step 5 -->
+    <div class="step" data-step="5">
       <div class="step-head">
-        <div class="num"><span>6</span></div>
+        <div class="num"><span>5</span></div>
         <div class="step-title">
           <h3><span data-lang="en">Send your build to Boly</span><span data-lang="es">Envía tu build a Boly</span></h3>
           <div class="sub"><span data-lang="en">We publish it to the platform</span><span data-lang="es">Lo publicamos en la plataforma</span></div>
@@ -524,11 +531,11 @@
       </div>
       <div class="step-body">
         <p data-lang="en">Once every verifier check passes, send us your build/installer. We'll upload it and
-           publish it as your game's version under id <span class="gid gid-val">12</span>.
+           publish it as your game's version.
            Because the heartbeat is already verified, it launches correctly from the Boly app the
            first time — no more blind back-and-forth. 🎉</p>
         <p data-lang="es">Una vez que todas las pruebas del verificador pasen, envíanos tu build/instalador.
-           Lo subiremos y publicaremos como la versión de tu juego con id <span class="gid gid-val">12</span>.
+           Lo subiremos y publicaremos como la versión de tu juego.
            Como el heartbeat ya está verificado, se abre correctamente desde la app de Boly la primera vez:
            sin más idas y vueltas a ciegas. 🎉</p>
       </div>
@@ -555,7 +562,6 @@
   const fill=document.getElementById('fill');
   const pct=document.getElementById('pct');
   const finish=document.getElementById('finish');
-  const gameInput=document.getElementById('gameId');
   const copyBtn=document.getElementById('copyCmd');
   const langToggle=document.getElementById('langToggle');
   const langLabel=document.getElementById('langLabel');
@@ -577,21 +583,10 @@
     document.body.classList.toggle('lang-en',l==='en');
     document.documentElement.setAttribute('lang',l);
     langLabel.textContent=T[l].other;
-    copyBtn.textContent=T[l].copy;copyBtn.classList.remove('ok');
+    document.querySelectorAll('.copy').forEach(b=>{b.textContent=T[l].copy;b.classList.remove('ok')});
   }
   langToggle.addEventListener('click',()=>{
     state.lang=lang()==='es'?'en':'es';save();applyLang();
-  });
-
-  // ---- game id ----
-  function sanitizeId(v){return (v||'').replace(/[^0-9]/g,'')}
-  function applyId(){
-    const v=state.gameId&&state.gameId!==''?state.gameId:'12';
-    document.querySelectorAll('.gid-val').forEach(el=>el.textContent=v);
-  }
-  if(state.gameId){gameInput.value=state.gameId}
-  gameInput.addEventListener('input',()=>{
-    const v=sanitizeId(gameInput.value);gameInput.value=v;state.gameId=v;save();applyId();
   });
 
   // ---- engine tabs ----
@@ -627,11 +622,22 @@
   // ---- copy command ----
   copyBtn.addEventListener('click',ev=>{
     ev.stopPropagation();
-    const v=state.gameId&&state.gameId!==''?state.gameId:'12';
-    const text='.\\boly-verify-win.exe --game "C:\\path\\to\\YourGame.exe" --game-id '+v;
+    const text='.\\boly-verify-win.exe --game "C:\\path\\to\\YourGame.exe" --game-id 0';
     navigator.clipboard.writeText(text).then(()=>{
       copyBtn.textContent=T[lang()].copied;copyBtn.classList.add('ok');
       setTimeout(()=>{copyBtn.textContent=T[lang()].copy;copyBtn.classList.remove('ok')},1600);
+    });
+  });
+
+  // ---- copy AI prompt (engine-specific, current language) ----
+  document.querySelectorAll('.copy-prompt').forEach(b=>{
+    b.addEventListener('click',ev=>{
+      ev.stopPropagation();
+      const el=b.parentElement.querySelector('.ptxt[data-lang="'+lang()+'"]');
+      navigator.clipboard.writeText(el.textContent).then(()=>{
+        b.textContent=T[lang()].copied;b.classList.add('ok');
+        setTimeout(()=>{b.textContent=T[lang()].copy;b.classList.remove('ok')},1600);
+      });
     });
   });
 
@@ -641,10 +647,10 @@
     const keepLang=state.lang;
     state={lang:keepLang};save();
     steps.forEach(s=>s.classList.remove('done'));
-    gameInput.value='12';applyId();applyEngine();refresh();
+    applyEngine();refresh();
   });
 
-  applyLang();applyId();applyEngine();refresh();
+  applyLang();applyEngine();refresh();
 })();
 </script>
 </body>

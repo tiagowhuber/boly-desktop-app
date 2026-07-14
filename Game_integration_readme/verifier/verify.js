@@ -80,7 +80,7 @@ Usage:
 
 Required:
   --game, -g <path>     Path to the built game executable to test
-  --game-id <int>       The game's platform id (matches -game_id)
+  --game-id <int>       Any non-negative integer (the mock ignores it; use 0)
 
 Options:
   --heartbeat <sec>     Test heartbeat interval (default 3). The verifier passes

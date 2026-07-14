@@ -25,7 +25,8 @@ public:
     virtual void Deinitialize() override;
 
 private:
-    int32 GameId = 5;               // <-- set to THIS game's platform id
+    // El launcher lo envia por -game_id en tiempo de ejecucion.
+    int32 GameId = 0;
     FString Key = "";
     // Origen del API. En produccion es el valor por defecto; el verifier lo
     // sobreescribe con -api_base http://127.0.0.1:<port> para apuntar al mock local.

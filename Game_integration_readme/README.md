@@ -50,8 +50,8 @@ it with the script in this folder.
 1. **Open the game project** in its engine.
 2. **Replace** the old `ParamsCatcher` script/actor with the matching file from
    this folder (see the table at the top).
-3. **Set `gameId`** in the script to this game's id on the Boly platform (the
-   same value the platform sends as `-game_id`).
+3. **Leave `gameId` at `0`.** The launcher sends the real id as `-game_id` at
+   runtime.
 4. **Remove any remaining dependency on `-token`.** The new script does not read
    it, send it, or set an `Authorization` header — confirm nothing else does.
 5. **Confirm the heartbeat object runs first and persists.** It must exist in the
@@ -112,15 +112,12 @@ alone, remove the token:
 0. **Register your Boly developer account.** Sign up at
    [boly.cl](https://boly.cl) using the **email Boly pre-approved for you** — this
    automatically creates you as a Developer account linked to your studio (no
-   separate "developer request" step needed). If you don't have a game id yet
-   (you create the game in step 5), use any placeholder (e.g. `0`) for steps 1–4;
-   the desktop app always sends the real id at runtime, so the hardcoded value in
-   your script only matters for local testing.
+   separate "developer request" step needed).
 1. Copy the script for your engine from the `scripts/` folder into the game project:
    - Unity → [`ParamsCatcherUNITY.md`](./scripts/ParamsCatcherUNITY.md) (save as `ParamsCatcher.cs`)
    - Godot → [`ParamsCatcherGODOT.md`](./scripts/ParamsCatcherGODOT.md) (save as `ParamsCatcher.gd`)
    - Unreal → [`ParamsCatcherUNREAL.h.md`](./scripts/ParamsCatcherUNREAL.h.md) + [`ParamsCatcherUNREAL.cpp.md`](./scripts/ParamsCatcherUNREAL.cpp.md) (save as `ValidationSubsystem.h` / `.cpp`)
-2. Set `gameId` to this game's platform id (or the placeholder from step 0).
+2. Leave `gameId` at `0` — the launcher sends it as `-game_id` at runtime.
 3. Wire up the scene/build setup per [`GUIA_PARAMS_CATCHER.md`](./scripts/GUIA_PARAMS_CATCHER.md)
    so the validator runs in the first scene and persists across scene loads.
 4. Build and test (see below).
@@ -154,8 +151,8 @@ uploading the build on the dev dashboard.
 ```bash
 cd verifier
 # Game devs (Windows, no Node needed): just run the prebuilt binary
-verifier\dist\boly-verify-win.exe --game "C:\path\to\YourGame.exe" --game-id <id>
-# (Boly maintainers with Node can also run: node verify.js --game ... --game-id <id>)
+verifier\dist\boly-verify-win.exe --game "C:\path\to\YourGame.exe" --game-id 0
+# (Boly maintainers with Node can also run: node verify.js --game ... --game-id 0)
 ```
 
 It relies on two **test-only** command-line overrides the scripts in this folder
@@ -178,7 +175,7 @@ owns it (or has an active subscription) and launch it. Watch the game's log:
   should quit within one heartbeat (single-session).
 - Sign out / let the subscription lapse; the game should quit within a heartbeat.
 
-**Advanced — manual key:** get a key yourself by calling `POST /v1/validate` with
+**Advanced — manual key:** get a key by calling `POST /v1/validate` with
 `Authorization: Bearer <a logged-in account's JWT>` and `{ "game_id": <id> }`; it
 returns `{ "tempKey": "..." }`. Then run the build with
 `-game_id <id> -key <tempKey>` and watch it heartbeat.
