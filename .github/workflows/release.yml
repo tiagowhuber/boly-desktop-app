@@ -58,16 +58,15 @@ jobs:
       - name: Build
         run: npx electron-vite build
 
-      # Build-check only. Real releases are built, SIGNED (Certum SimplySign),
-      # and published from a local Windows machine via `npm run release`.
-      # See RELEASING.md. CI never publishes because it has no signing cert,
-      # and shipping unsigned installers would break auto-update + SmartScreen.
-      - name: Package installer (no publish)
-        run: npx electron-builder --win --publish never
+      - name: Publish to GitHub Releases
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --win --publish always
 
-      - name: Upload installer artifact (for testing only)
-        uses: actions/upload-artifact@v4
-        with:
-          name: boly-${{ needs.check-version.outputs.version }}-unsigned
-          path: dist_new/boly-${{ needs.check-version.outputs.version }}-setup.exe
-          if-no-files-found: error
+      - name: Upload to S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          aws s3 cp "dist_new\boly-${{ needs.check-version.outputs.version }}-setup.exe" "s3://${{ secrets.AWS_S3_BUCKET }}/boly-Setup.exe"

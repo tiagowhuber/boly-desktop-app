@@ -16,8 +16,7 @@
     "build:unpack": "npm run typecheck && electron-vite build && electron-builder --dir",
     "build:win": "npm run typecheck && electron-vite build && electron-builder --win",
     "build:mac": "npm run typecheck && electron-vite build && electron-builder --mac",
-    "build:linux": "npm run typecheck && electron-vite build && electron-builder --linux",
-    "release": "node scripts/release.mjs"
+    "build:linux": "npm run typecheck && electron-vite build && electron-builder --linux"
   },
   "repository": {
     "type": "git",
