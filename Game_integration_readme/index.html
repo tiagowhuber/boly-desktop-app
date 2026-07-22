@@ -225,6 +225,7 @@
           <button data-engine="unity" class="active">Unity</button>
           <button data-engine="godot">Godot</button>
           <button data-engine="unreal">Unreal</button>
+          <button data-engine="gamemaker">GameMaker</button>
         </div>
         <div class="hint" data-lang="en">Switches the engine-specific steps. The rest is identical for everyone.</div>
         <div class="hint" data-lang="es">Cambia los pasos específicos del motor. El resto es igual para todos.</div>
@@ -300,6 +301,17 @@
              <span class="gid">HTTP</span> y <span class="gid">Json</span> en tu
              <span class="gid">.Build.cs</span>. Es un subsystem de GameInstance que se auto-crea: no hay que colocar nada en un nivel.</p>
         </div>
+        <div class="engine-only" data-engine="gamemaker">
+          <p data-lang="en">Create an object <b>obj_params_catcher</b> with <b>Persistent</b> checked, and paste the code
+             from <b>scripts/ParamsCatcherGAMEMAKER.md</b> into its two events: the <b>Create</b> block into
+             the Create event and the <b>Async&nbsp;HTTP</b> block into the <span class="gid">Async ▸ HTTP</span> event.
+             It reads the launch arguments, beats the Boly API every ~60&nbsp;s, and quits if the session is revoked.</p>
+          <p data-lang="es">Crea un objeto <b>obj_params_catcher</b> con <b>Persistent</b> activado y pega el código de
+             <b>scripts/ParamsCatcherGAMEMAKER.md</b> en sus dos eventos: el bloque <b>Create</b> en el evento
+             Create y el bloque <b>Async&nbsp;HTTP</b> en el evento <span class="gid">Async ▸ HTTP</span>.
+             Lee los argumentos de inicio, hace heartbeat a la API de Boly cada ~60&nbsp;s, y cierra el juego si
+             la sesión es revocada.</p>
+        </div>
         <div class="callout tip"><span class="ico">💡</span>
           <div>
             <span data-lang="en">You're pasting the file <b>as-is</b> — it already implements the full contract
@@ -332,6 +344,9 @@
         </div>
         <div class="engine-only" data-engine="unreal">
           <div class="code"><span class="kw">int32</span> GameId = <span class="flag gid-val">12</span>;</div>
+        </div>
+        <div class="engine-only" data-engine="gamemaker">
+          <div class="code">game_id = <span class="flag gid-val">12</span>;</div>
         </div>
         <p class="hint" data-lang="en">The Boly launcher also passes <span class="gid">-game_id</span> at runtime, but
            setting it here keeps your build self-contained.</p>
@@ -403,6 +418,22 @@
                 entre niveles.</li>
           </ol>
         </div>
+        <div class="engine-only" data-engine="gamemaker">
+          <ol data-lang="en">
+            <li>Make a small <b>bootstrap room</b> (e.g. <i>rm_auth</i>), place one
+                <b>obj_params_catcher</b> instance in it, and set it <b>first in the Room Manager</b>.</li>
+            <li>On the first successful validation the script calls <span class="gid">room_goto(rm_main)</span> —
+                rename that to your real main room. The object is <b>Persistent</b> and the heartbeat runs on a
+                global time source, so it keeps running across rooms.</li>
+          </ol>
+          <ol data-lang="es">
+            <li>Crea una pequeña <b>room de arranque</b> (ej. <i>rm_auth</i>), coloca una instancia de
+                <b>obj_params_catcher</b> y ponla <b>primera en el Room Manager</b>.</li>
+            <li>En la primera validación exitosa el script llama a <span class="gid">room_goto(rm_main)</span>:
+                cámbialo por tu room principal real. El objeto es <b>Persistent</b> y el heartbeat corre sobre un
+                time source global, así que sigue corriendo entre rooms.</li>
+          </ol>
+        </div>
         <div class="callout warn"><span class="ico">⚠️</span>
           <div>
             <span data-lang="en">The whole point is that the heartbeat <b>keeps running after the game starts</b>.
@@ -433,10 +464,10 @@
           <div>
             <span data-lang="en">Test the actual <b>build</b>, never Play mode in the editor —
             the "quit on revoke" behavior can't work inside the editor
-            (e.g. Unity's <span class="gid">Application.Quit()</span> does nothing there).</span>
+            (e.g. Unity's <span class="gid">Application.Quit()</span> / GameMaker's <span class="gid">game_end()</span> do nothing there).</span>
             <span data-lang="es">Prueba el <b>build</b> real, nunca el modo Play del editor:
             el comportamiento de "cerrar al revocar" no funciona dentro del editor
-            (ej. <span class="gid">Application.Quit()</span> de Unity no hace nada ahí).</span>
+            (ej. <span class="gid">Application.Quit()</span> de Unity o <span class="gid">game_end()</span> de GameMaker no hacen nada ahí).</span>
           </div>
         </div>
       </div>
