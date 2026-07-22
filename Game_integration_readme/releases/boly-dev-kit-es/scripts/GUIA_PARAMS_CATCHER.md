@@ -8,6 +8,8 @@
 >   la primera escena, no al nodo raiz de la escena).
 > - **Unreal** → es un `UGameInstanceSubsystem` con `FTSTicker` (se auto-crea;
 >   no hay que colocar nada en la escena).
+> - **GameMaker** → un objeto con la casilla **Persistent** activada + un time
+>   source **global**; sobrevive a `room_goto()` y sigue latiendo entre rooms.
 
 > Overrides SOLO para pruebas: los scripts aceptan `-api_base <origin>` (apuntar el
 > heartbeat a otro host, p.ej. el mock local del `verifier/`) y `-heartbeat_seconds <n>`
@@ -81,3 +83,31 @@ PublicDependencyModuleNames.AddRange(new string[] {
 **4. Crear flujo de escenas**
 
 AuthMap → (validación) → MainLevel
+
+**🧩 Cómo integrarlo en GameMaker**
+
+**1. Crear el objeto validador**
+
+* Crea un objeto (ej. `obj_params_catcher`) y **activa la casilla `Persistent`** en
+  sus propiedades (así sobrevive a los cambios de room).
+* Pega el código de `ParamsCatcherGAMEMAKER.md` en los eventos que indica el archivo:
+  el bloque **CREATE EVENT** en el evento `Create`, y el bloque **ASYNC - HTTP EVENT**
+  en el evento `Async > HTTP`.
+
+**2. Colocarlo en la primera room**
+
+* Crea una room de arranque (ej. `rm_auth`), coloca una instancia de
+  `obj_params_catcher`, y ponla **primera en el Room Manager** (arriba del todo).
+
+**3. Configurar la room principal**
+
+Cambia esta línea del evento Async:
+
+room\_goto(rm\_main)
+
+por la room real de tu juego. El objeto es Persistent y el heartbeat corre sobre un
+time source global, así que el heartbeat sigue latiendo después del `room_goto`.
+
+**4. Crear flujo de rooms**
+
+rm\_auth → (validación) → rm\_main
