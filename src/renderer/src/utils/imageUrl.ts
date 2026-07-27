@@ -1,3 +1,12 @@
+import bolyPlaceholder from '@/assets/svgs/bolyico.svg'
+
+/**
+ * Local fallback for game artwork that has no banner yet. Resolved through
+ * Vite so it works from the packaged asar — a missing banner must not depend
+ * on a network fetch.
+ */
+export const PLACEHOLDER_IMAGE = bolyPlaceholder
+
 /**
  * Resolves an image path to a full URL.
  * - If the path is already a full URL (http/https), returns it as-is.

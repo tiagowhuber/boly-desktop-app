@@ -79,10 +79,10 @@ function closeModal() {
 
 <template>
   <div class="confirm-password-reset-page-wrapper">
-    <img src="@/assets/images/elements/11.png" alt="Decorative element" class="left-side-image" />
+    <img src="@/assets/images/elements/11.webp" alt="Decorative element" class="left-side-image" />
     <div class="confirm-password-reset-container">
       <img
-        src="@/assets/images/elements/9.png"
+        src="@/assets/images/elements/9.webp"
         alt="Decorative element"
         class="confirm-password-reset-element-image top-image"
       />
@@ -121,12 +121,12 @@ function closeModal() {
         </form>
       </div>
       <img
-        src="@/assets/images/elements/8.png"
+        src="@/assets/images/elements/8.webp"
         alt="Decorative element"
         class="confirm-password-reset-element-image bottom-image"
       />
     </div>
-    <img src="@/assets/images/elements/10.png" alt="Decorative element" class="right-side-image" />
+    <img src="@/assets/images/elements/10.webp" alt="Decorative element" class="right-side-image" />
     <Teleport to="body">
       <AlertModal :show="showModal" @close="closeModal">
         <template #header>

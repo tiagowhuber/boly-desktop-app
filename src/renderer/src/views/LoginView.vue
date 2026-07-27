@@ -52,10 +52,10 @@ async function submit(): Promise<void> {
 
 <template>
   <div class="login-page-wrapper">
-    <img src="@/assets/images/elements/11.png" alt="Decorative element" class="left-side-image" />
+    <img src="@/assets/images/elements/11.webp" alt="Decorative element" class="left-side-image" />
     <div class="login-container">
       <img
-        src="@/assets/images/elements/9.png"
+        src="@/assets/images/elements/9.webp"
         alt="Decorative element"
         class="login-element-image top-image"
       />
@@ -116,12 +116,12 @@ async function submit(): Promise<void> {
         </div>
       </div>
       <img
-        src="@/assets/images/elements/8.png"
+        src="@/assets/images/elements/8.webp"
         alt="Decorative element"
         class="login-element-image bottom-image"
       />
     </div>
-    <img src="@/assets/images/elements/10.png" alt="Decorative element" class="right-side-image" />
+    <img src="@/assets/images/elements/10.webp" alt="Decorative element" class="right-side-image" />
   </div>
 </template>
 

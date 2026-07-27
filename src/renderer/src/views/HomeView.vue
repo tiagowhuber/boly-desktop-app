@@ -206,7 +206,7 @@ function applyUpdate() {
   <div class="section color-orange header"></div>
 
   <div class="logo">
-    <img src="@/assets/images/elements/1.png" />
+    <img src="@/assets/images/elements/1.webp" />
   </div>
 
   <section class="quick-actions">
@@ -774,7 +774,7 @@ button.quick-card {
 }
 
 .RRSS-item {
-  background-image: url('@/assets/images/elements/6.png');
+  background-image: url('@/assets/images/elements/6.webp');
   background-size: cover;
   width: 10rem;
   height: 35rem;
@@ -838,12 +838,6 @@ button.quick-card {
   width: 25rem;
   height: 25rem;
   margin: -2rem;
-}
-
-.contact-bg {
-  height: 800px;
-  background-image: url('src/assets/images/fondo-xd.png');
-  background-size: cover;
 }
 
 .button {
@@ -1243,7 +1237,7 @@ h1 {
 }
 
 .games-section-bg {
-  background-image: url('@/assets/images/boly/back-bd.png');
+  background-image: url('@/assets/images/boly/back-bd.webp');
   background-size: cover;
   background-repeat: no-repeat;
 }

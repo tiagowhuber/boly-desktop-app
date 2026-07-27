@@ -5,7 +5,7 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import type { Game } from '@/types'
-import { resolveImageUrl } from '@/utils/imageUrl'
+import { PLACEHOLDER_IMAGE, resolveImageUrl } from '@/utils/imageUrl'
 
 // Type guard to check if price object has the locale key
 function hasLocalePrice(price: Record<string, any> | null, locale: string): boolean {
@@ -40,11 +40,11 @@ function GoToGame(): void {
 
 function getImageUrl(): string {
   if (!props.game) {
-    return '/assets/images/1.jpg'
+    return PLACEHOLDER_IMAGE
   }
 
   if (!props.game.banner_url) {
-    return '/assets/images/1.jpg'
+    return PLACEHOLDER_IMAGE
   }
 
   return resolveImageUrl(props.game.banner_url)

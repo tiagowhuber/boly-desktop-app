@@ -46,7 +46,6 @@
     "lodash": "^4.17.21",
     "pinia": "^2.1.7",
     "tailwindcss": "^4.0.1",
-    "three": "^0.174.0",
     "unity-webgl": "^3.5.5",
     "vue": "^3.4.29",
     "vue-echarts": "^7.0.3",
