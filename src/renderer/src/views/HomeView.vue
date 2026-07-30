@@ -8,6 +8,7 @@ import GamepadIcon from '@/components/icons/GamepadIcon.vue'
 import KingIcon from '@/components/icons/KingIcon.vue'
 import PercentageIcon from '@/components/icons/PercentageIcon.vue'
 import RightArrowIcon from '@/components/icons/RightArrowIcon.vue'
+import FeaturedHeroCarousel from '@/components/games/FeaturedHeroCarousel.vue'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -203,11 +204,12 @@ function applyUpdate() {
     </svg>
   </button>
 
-  <div class="section color-orange header"></div>
-
-  <div class="logo">
-    <img src="@/assets/images/elements/1.webp" />
-  </div>
+  <section class="hero">
+    <div class="hero-bg color-orange"></div>
+    <div class="hero-content">
+      <FeaturedHeroCarousel />
+    </div>
+  </section>
 
   <section class="quick-actions">
     <h3 class="quick-actions-title">{{ $t('home_quick_title').toUpperCase() }}</h3>
@@ -310,35 +312,41 @@ body {
   border: 1px solid rgb(78, 69, 153);
 }
 
-.header {
-  padding-top: 25vw;
-  padding-bottom: 10rem;
+/* Hero
+   The orange band sits in its own absolutely-positioned layer so the slanted
+   clip-path (which continues the navbar's skew) never clips the carousel.
+-------------------------------------------- */
+.hero {
+  position: relative;
+  width: 100%;
+  /* Slide up behind the navbar so the two orange areas read as one band.
+     Deliberately no z-index here: it would create a stacking context and trap
+     .hero-content below the navbar, which then clips the carousel's corner. */
+  position: relative;
   margin-top: -10rem;
-  font-family: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  padding: 7rem 0 5rem;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
   clip-path: polygon(0% 10%, 100% 0%, 100% 100%, 0% 100%);
   transform-origin: top left;
-  position: relative;
-  z-index: 1;
-  width: 100%;
+  z-index: 0;
 }
 
-.logo {
-  padding-top: 0rem;
+/* Sits above the navbar (z-index 100) so the carousel can tuck up under the
+   navbar's skewed band without its top-left corner being covered by it. Both
+   are the same orange, so the overlap is invisible. */
+.hero-content {
   position: relative;
-  z-index: 101 !important;
-  margin: auto;
-  /* Cancel the header's 25vw padding so the offset stays consistent across
-     window widths, then nudge up by a fixed amount to sit below the navbar */
-  top: calc(-25vw - 8rem);
-  display: flex;
-  flex-direction: column;
-  height: 0px;
+  z-index: 101;
 }
 
-.logo img {
-  width: 27.5vw;
-  height: auto;
-  margin: auto;
+@media (max-width: 900px) {
+  .hero {
+    padding: 6rem 0 3.5rem;
+  }
 }
 
 .romboid {

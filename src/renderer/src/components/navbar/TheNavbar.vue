@@ -22,6 +22,10 @@ const props = defineProps({
   color: {
     type: String,
     default: 'pink'
+  },
+  logo: {
+    type: String,
+    default: 'pink'
   }
 })
 
@@ -44,6 +48,6 @@ onMounted(async () => {
 </script>
 
 <template>
-  <MobileNavbar v-if="isMobile" :color="props.color" />
-  <DesktopNavbar v-else :color="props.color" />
+  <MobileNavbar v-if="isMobile" :color="props.color" :logo="props.logo" />
+  <DesktopNavbar v-else :color="props.color" :logo="props.logo" />
 </template>

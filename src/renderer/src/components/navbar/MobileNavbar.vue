@@ -1,11 +1,18 @@
 <script setup lang="ts">
 import TheLogo from '../logo/TheLogo.vue'
+import TheMainLogo from '../logo/TheMainLogo.vue'
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuth, useUser, useCart } from '@/stores'
 
 const props = defineProps({
   color: {
+    type: String,
+    default: 'pink'
+  },
+  // 'pink' is the tinted wordmark used across the app; 'main' is the full-colour
+  // logo, currently only used on the home page.
+  logo: {
     type: String,
     default: 'pink'
   }
@@ -61,7 +68,12 @@ function isActive(path: string) {
   <header :class="props.color">
     <nav class="mobile-nav">
       <div class="mobile-left-section">
-        <TheLogo class="logo mobile-logo" @click="GoToHome()" />
+        <TheMainLogo
+          v-if="props.logo === 'main'"
+          class="logo mobile-logo"
+          @click="GoToHome()"
+        />
+        <TheLogo v-else class="logo mobile-logo" @click="GoToHome()" />
       </div>
 
       <!-- Mobile Menu Toggle -->

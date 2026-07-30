@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import TheLogo from '../logo/TheLogo.vue'
+import TheMainLogo from '../logo/TheMainLogo.vue'
 import CartIcon from '../icons/CartIcon.vue'
 import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
@@ -7,6 +8,12 @@ import { useAuth, useUser, useCart } from '@/stores'
 
 const props = defineProps({
   color: {
+    type: String,
+    default: 'pink'
+  },
+  // 'pink' is the tinted wordmark used across the app; 'main' is the full-colour
+  // logo, currently only used on the home page.
+  logo: {
     type: String,
     default: 'pink'
   }
@@ -39,7 +46,8 @@ function isActive(path: string) {
   <header :class="props.color">
     <nav>
       <div class="left-section">
-        <TheLogo class="logo" @click="GoToHome()" />
+        <TheMainLogo v-if="props.logo === 'main'" class="logo" @click="GoToHome()" />
+        <TheLogo v-else class="logo" @click="GoToHome()" />
       </div>
 
       <div class="navigation">
