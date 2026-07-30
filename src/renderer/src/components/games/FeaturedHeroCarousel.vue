@@ -241,7 +241,8 @@ onBeforeUnmount(() => {
   border: 3px solid rgba(255, 255, 255, 0.55);
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
   overflow: hidden;
-  background: var(--boly-bg-dark);
+  /* Shows through wherever the art does not fill the frame. */
+  background: var(--lightGreen);
 }
 
 .hero-slide {

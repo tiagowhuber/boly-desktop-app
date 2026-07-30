@@ -12,6 +12,7 @@ import ClockhistoryIcon from '@/components/icons/ClockhistoryIcon.vue'
 import VerticalDotsIcon from '@/components/icons/VerticalDotsIcon.vue'
 import router from '@/router'
 import { resolveImageUrl } from '@/utils/imageUrl'
+import { recordPlayed } from '@/utils/recentlyPlayed'
 
 const props = defineProps<{
   loading?: boolean
@@ -225,6 +226,7 @@ async function Play() {
     !isDesktopBinary(props.item.file_name.desktop)
   ) {
     // This is an HTML game, navigate to the route
+    recordPlayed(props.item.game_id)
     router.push(props.item.file_name.desktop)
   } else if (props.item.game_id) {
     console.log('clicked')
@@ -241,6 +243,8 @@ async function Play() {
       if (result && result.error) {
         console.error('Failed to start game:', result.error)
         isLoading.value = false
+      } else {
+        recordPlayed(props.item.game_id)
       }
       // If successful, loading state will be cleared when game-started event is received
     } catch (error) {

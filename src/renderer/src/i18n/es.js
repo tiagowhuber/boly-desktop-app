@@ -14,7 +14,6 @@ export const es = {
   home_svg2_description: 'Publica, recibe métricas y monetiza',
 
   // home quick actions
-  home_quick_title: 'Acceso rápido',
   home_quick_library_title: 'Mi Biblioteca',
   home_quick_library_desc: 'Entra directo a tus juegos',
   home_quick_subscription_title: 'Suscripción',
@@ -26,6 +25,20 @@ export const es = {
   home_quick_code_login: 'Inicia sesión para activar un código',
   home_quick_code_empty: 'Por favor ingresa un código',
   home_quick_go: 'Abrir',
+  home_quick_stat_games: 'juegos',
+  home_quick_stat_installed: 'instalados',
+  home_quick_resume: 'Continuar jugando',
+  home_quick_play: 'Jugar',
+  home_quick_launching: 'Iniciando…',
+  home_quick_launch_error: 'No se pudo iniciar el juego',
+  home_quick_downloading: 'Descargando',
+  home_quick_library_none: 'Aún no tienes juegos. Explora la tienda para empezar.',
+  home_quick_browse: 'Ver juegos',
+  home_quick_login_prompt: 'Inicia sesión para ver tu biblioteca y tus juegos instalados',
+  home_quick_sub_badge: 'Activa',
+  home_quick_sub_renews: 'Se renueva el {date}',
+  home_quick_sub_manage: 'Gestionar',
+  home_quick_sub_join: 'Suscribirme',
   home_title2: 'NUESTRO PROYECTO',
   home_body2: 'EN BOLY, ENTENDEMOS A LOS JUGADORES, DESARROLLADORES Y EDUCADORES',
   home_text3:

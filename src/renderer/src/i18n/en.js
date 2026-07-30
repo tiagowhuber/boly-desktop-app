@@ -15,7 +15,6 @@ export const en = {
   home_svg2_description: 'Publish, receive metrics and monetize',
 
   // home quick actions
-  home_quick_title: 'Quick access',
   home_quick_library_title: 'My Library',
   home_quick_library_desc: 'Jump straight into your games',
   home_quick_subscription_title: 'Subscription',
@@ -27,6 +26,20 @@ export const en = {
   home_quick_code_login: 'Please log in to activate a code',
   home_quick_code_empty: 'Please enter a code',
   home_quick_go: 'Open',
+  home_quick_stat_games: 'games',
+  home_quick_stat_installed: 'installed',
+  home_quick_resume: 'Continue playing',
+  home_quick_play: 'Play',
+  home_quick_launching: 'Starting…',
+  home_quick_launch_error: 'The game could not be started',
+  home_quick_downloading: 'Downloading',
+  home_quick_library_none: "You don't own any games yet. Browse the store to get started.",
+  home_quick_browse: 'Browse games',
+  home_quick_login_prompt: 'Log in to see your library and installed games',
+  home_quick_sub_badge: 'Active',
+  home_quick_sub_renews: 'Renews on {date}',
+  home_quick_sub_manage: 'Manage',
+  home_quick_sub_join: 'Subscribe',
   home_title2: 'OUR PROJECT',
   home_body2: 'AT BOLY, WE UNDERSTAND GAMERS, DEVELOPERS AND EDUCATORS',
   home_text3:
