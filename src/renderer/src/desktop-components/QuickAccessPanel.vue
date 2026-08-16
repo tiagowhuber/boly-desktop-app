@@ -158,6 +158,20 @@ async function playResumeGame() {
   const game = resumeGame.value
   if (!game || isLaunching.value) return
 
+  // Browser-playable games have no executable to spawn — they run in the
+  // in-app player, same as clicking Play in the library. (game_type 2 = Web.)
+  const legacyRoute = typeof game.file_name?.desktop === 'string' && game.file_name.desktop.startsWith('/')
+    ? game.file_name.desktop
+    : null
+  if (legacyRoute) {
+    router.push(legacyRoute)
+    return
+  }
+  if (game.game_type_id === 2) {
+    router.push(`/webgame/${game.game_id}`)
+    return
+  }
+
   isLaunching.value = true
   try {
     const route = gameRoutesStore.getRouteItems.find((item) => item.gameId === game.game_id)

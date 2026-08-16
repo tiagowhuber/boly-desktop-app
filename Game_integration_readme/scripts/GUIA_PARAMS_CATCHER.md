@@ -1,5 +1,11 @@
 # Guía de integración del ParamsCatcher (setup de escenas)
 
+> El `gameId` se deja en **0**. No lo edites: el launcher de Boly lo sobrescribe
+> con `-game_id` al arrancar el juego, así que un valor fijo se ignora igual. El id
+> real lo asigna la plataforma cuando se crea el juego (al subir el primer build
+> desde *Publicar un nuevo juego*) y queda visible en la URL del panel:
+> `boly.cl/developer/games/<game_id>/builds`.
+
 > Importante: el validador debe **persistir entre escenas** para poder hacer
 > heartbeat. Los scripts de esta carpeta ya resuelven la persistencia **en
 > codigo**

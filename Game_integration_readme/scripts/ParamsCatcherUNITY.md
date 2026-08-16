@@ -10,7 +10,9 @@ public class ParamsCatcher : MonoBehaviour
     int gameId = 0;
 
     // Clave de sesion recibida por argumentos (-key). Es la UNICA credencial.
-    // El JWT del usuario ya NO se recibe ni se usa (-token fue eliminado).
+    // El launcher todavia envia -token (JWT) por compatibilidad con juegos
+    // antiguos, pero este script lo IGNORA a proposito: no lo lee, no lo guarda
+    // y nunca lo reenvia. No agregues codigo que lo use.
     string key = "";
 
     // Intervalo del heartbeat. Debe ser menor al TTL del servidor (~3 min).

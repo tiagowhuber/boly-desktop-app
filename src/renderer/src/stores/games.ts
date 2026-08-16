@@ -376,6 +376,31 @@ export default defineStore('games', {
       }
     },
 
+    // Native games report their playtime from the main process (GameService).
+    // Browser-playable games run inside this renderer, so they report it here.
+    async updatePlayTime(gameId: number, playTime: number, auth: { token: string }) {
+      this.loading = true
+      this.error = undefined
+      try {
+        const response = await axios.post(
+          `/v1/games/updatePlayTime`,
+          {
+            game_id: gameId,
+            play_time: playTime
+          },
+          {
+            headers: { Authorization: `Bearer ${auth.token}` }
+          }
+        )
+        return response.data
+      } catch (error: any) {
+        this.error = error
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+
     async getGameIdByFileName(fileName: string): Promise<number | null> {
       if (this.games.length === 0) {
         await this.getAll()
@@ -416,7 +441,9 @@ export default defineStore('games', {
     setLoadingUnity(isLoading: boolean) {
       this.loadingUnity = isLoading
     },
-    async getGameUrl(gameId: number, play: boolean, config: any) {
+    // buildId targets a specific (possibly unapproved) web build instead of the
+    // game's live one — admins and the game's developer only, for review.
+    async getGameUrl(gameId: number, play: boolean, config: any, buildId?: number) {
       console.log(`Store: getGameUrl called for gameId: ${gameId}, play: ${play}`)
       // Make sure this returns the correct structure: { loader, data, framework, wasm }
       // Add logging here too if needed
@@ -425,7 +452,8 @@ export default defineStore('games', {
           '/v1/games/url',
           {
             game_id: gameId,
-            is_web: play
+            is_web: play,
+            ...(buildId != null ? { build_id: buildId } : {})
           },
           {
             headers: { Authorization: `Bearer ${config.token}` }

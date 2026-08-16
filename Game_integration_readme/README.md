@@ -1,3 +1,24 @@
+# Boly — game integration kit
+
+> **Game developers: open [`index.html`](./index.html) in a browser instead.** It's
+> the same content as an interactive, step-by-step checklist in Spanish/English,
+> with the code to paste and the verifier command ready to copy. This README is the
+> reference version, aimed at Boly maintainers.
+
+### The script for your engine
+
+| Engine | File | Save as |
+|---|---|---|
+| Unity | [`ParamsCatcherUNITY.md`](./scripts/ParamsCatcherUNITY.md) | `ParamsCatcher.cs` |
+| Godot | [`ParamsCatcherGODOT.md`](./scripts/ParamsCatcherGODOT.md) | `ParamsCatcher.gd` |
+| Unreal | [`ParamsCatcherUNREAL.h.md`](./scripts/ParamsCatcherUNREAL.h.md) + [`ParamsCatcherUNREAL.cpp.md`](./scripts/ParamsCatcherUNREAL.cpp.md) | `ValidationSubsystem.h` / `.cpp` |
+| GameMaker | [`ParamsCatcherGAMEMAKER.md`](./scripts/ParamsCatcherGAMEMAKER.md) | two event blocks in a `Persistent` `obj_params_catcher` |
+
+Scene/room setup for each engine is in
+[`GUIA_PARAMS_CATCHER.md`](./scripts/GUIA_PARAMS_CATCHER.md).
+
+---
+
 ## How licensing works
 
 When a user launches a game from the Boly desktop app:
@@ -15,6 +36,13 @@ When a user launches a game from the Boly desktop app:
 
 3. The game **heartbeats** the API to keep the session alive.
 
+> **Where does the game id come from?** You never hardcode it. Leave `gameId` at
+> `0` in the script — the launcher overwrites it via `-game_id` at runtime, so a
+> hardcoded value would be ignored anyway. The real id is the game's primary key,
+> assigned by the platform the moment the game record is created (that is, when
+> the first build is submitted under *Publish a new game*). From then on it's
+> visible in the dashboard URL: `boly.cl/developer/games/<game_id>/builds`.
+
 ### The heartbeat endpoint
 
 ```
@@ -28,8 +56,9 @@ Content-Type: application/json
 | Response | Meaning | Game must |
 |---|---|---|
 | `200 { "state": true, "subscriptionAccess": bool }` | Session valid, TTL renewed | Keep playing |
+| `400 { "state": false, "message": "Missing key or game_id" }` | Malformed request — the body is missing a field | Treat as a bug in the integration, not a revocation |
 | `403 { "state": false, ... }` | Key invalid, **superseded by another machine**, expired, or access lost | **Quit** |
-| `429` | Rate limited | Back off, retry next interval; quit only after repeated failures |
+| `429 { "state": false, ... }` | Rate limited | Back off, retry next interval; quit only after repeated failures |
 | network error | Offline / unreachable | Tolerate ~2 misses, then quit |
 
 The server key TTL is **3 minutes**. The game must heartbeat well inside that —
@@ -64,10 +93,12 @@ it with the script in this folder.
    game, heartbeats every ~60 s, and **quits** when a second machine launches the
    same account.
 8. **Upload the new build yourself on the dev dashboard** — log in at
-   [boly.cl](https://boly.cl) with your developer account, open your game's page,
-   **Manage builds**, and upload the zip there. An admin reviews and approves it;
-   once approved it becomes the game's live version automatically. Users get it on
-   their next install/update.
+   [boly.cl](https://boly.cl) with your developer account, open your **Developer
+   Dashboard**, pick the game, and hit **Manage builds** (*Gestionar builds*).
+   Upload a `.zip` of the Windows build **containing the game executable** — the
+   server rejects the upload automatically if the zip has no `.exe` in it. An admin
+   reviews and approves it; once approved it becomes the game's live version
+   automatically. Users get it on their next install/update.
 9. **Mark the game as migrated** in your tracking list (needed for Part 2).
 
 When **every** game on the platform has completed steps 1–9, do Part 2.
@@ -124,13 +155,21 @@ alone, remove the token:
    so the validator runs in the first scene and persists across scene loads.
 4. Build and test (see below).
 5. **Publish the game and upload your build on the dev dashboard.** Log in at
-   boly.cl, go to your **Developer Dashboard → Publish a new game**, fill in the
-   game's name/description/price, and attach your zipped Windows build (the
-   desktop app extracts it itself — no installer needed). This creates the game
-   as a **private draft** and starts the upload; nothing is visible on the store
-   yet. An admin reviews and approves the build — once approved, the game
-   publishes automatically and is playable from the platform. For later updates,
-   use **Manage builds** on the game's dashboard page instead (same review flow).
+   boly.cl, go to your **Developer Dashboard → Publish a new game**
+   (*Publicar un nuevo juego*), fill in the game's name/description/price,
+   optionally attach a banner image, and attach your zipped Windows build — the
+   desktop app extracts the zip itself, so **no installer is needed**; just make
+   sure the `.zip` contains the game's `.exe` (the server auto-rejects it
+   otherwise). Press **Create game & upload build** (*Crear juego y subir build*).
+   This creates the game as a **private draft** and starts the upload; nothing is
+   visible on the store yet. An admin reviews and approves the build — once
+   approved, the game publishes automatically and is playable from the platform.
+   For later updates, use **Manage builds** on the game's dashboard page instead
+   (same review flow).
+6. **Add the store art.** A freshly created game has no screenshots. From the
+   game's dashboard page open **Game Media** (*Archivos multimedia del juego*) and
+   upload the banner, screenshots and videos there. Do this before approval so the
+   store page looks finished the moment it goes live.
 
 ### Contract the script must follow (already implemented in the provided files)
 - Read `-game_id` and `-key`; **do not** read or require `-token`.
@@ -150,12 +189,22 @@ launches your build pointed at it, and checks the whole heartbeat contract
 transient tolerance) in seconds — so you can confirm the integration **before**
 uploading the build on the dev dashboard.
 
+Game developers run the prebuilt binary — no Node, no setup. `boly-verify-win.exe`
+sits at the **root of the kit** you shipped them, so from a PowerShell opened in
+that folder:
+
+```powershell
+.\boly-verify-win.exe --game "C:\path\to\YourGame.exe" --game-id 0
+```
+
+Boly maintainers working from this repo run it from source instead (Node ≥18):
+
 ```bash
 cd verifier
-# Game devs (Windows, no Node needed): just run the prebuilt binary
-verifier\dist\boly-verify-win.exe --game "C:\path\to\YourGame.exe" --game-id 0
-# (Boly maintainers with Node can also run: node verify.js --game ... --game-id 0)
+node verify.js --game "C:\path\to\YourGame.exe" --game-id 0
 ```
+
+`--game-id` can be any non-negative integer — the local mock ignores its value.
 
 It relies on two **test-only** command-line overrides the scripts in this folder
 now accept (the production launcher never sends them, so production behavior is

@@ -4,7 +4,9 @@ extends Node
 var game_id: int = 0
 
 # Clave de sesion recibida por -key. Es la UNICA credencial.
-# El JWT del usuario ya NO se recibe ni se usa (-token fue eliminado).
+# El launcher todavia envia -token (JWT) por compatibilidad con juegos antiguos,
+# pero este script lo IGNORA a proposito: no lo lee, no lo guarda y nunca lo
+# reenvia. No agregues codigo que lo use.
 var key: String = ""
 
 # Intervalo del heartbeat. Debe ser menor al TTL del servidor (~3 min).

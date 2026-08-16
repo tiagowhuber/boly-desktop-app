@@ -57,8 +57,11 @@ void UValidationSubsystem::ParseCommandLine()
 {
     // El launcher de Boly envia los argumentos separados por ESPACIO
     // ("-game_id <int> -key <hex>"), no en formato "-key=valor". FParse::Value
-    // solo entiende el formato con "=", asi que tokenizamos a mano. El JWT
-    // (-token) ya no se envia.
+    // solo entiende el formato con "=", asi que tokenizamos a mano.
+    //
+    // El launcher todavia envia -token (JWT) por compatibilidad con juegos
+    // antiguos, pero aqui lo IGNORAMOS a proposito: no se parsea, no se guarda
+    // y nunca se reenvia. No agregues codigo que lo use.
     TArray<FString> Tokens;
     FString CmdLine = FCommandLine::Get();
     CmdLine.ParseIntoArray(Tokens, TEXT(" "), /*CullEmpty=*/true);

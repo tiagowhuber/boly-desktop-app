@@ -1,111 +1,348 @@
-<template><div></div></template>
-<!-- <script>
-import { onMounted,watch,ref } from 'vue';
-import UnityWebgl from 'unity-webgl';
-import UnityVue from 'unity-webgl/vue';
-import { useRoute } from 'vue-router'
-import { useGames } from '@/stores/games.ts'
-import { storeToRefs } from 'pinia'
-import { useAuth } from '@/stores'
+<script setup lang="ts">
+import { onMounted, onUnmounted, watch, ref, computed } from 'vue'
+import UnityWebgl from 'unity-webgl'
+import UnityVue from 'unity-webgl/vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useAuth, useGames } from '@/stores'
+import { usePlayTimeTracking } from '@/composables/usePlayTimeTracking'
 
+// Browser-playable builds run inside this window rather than as a spawned
+// process, so everything here mirrors the web storefront's GamePlayer: the API
+// hands back four presigned Unity WebGL URLs and the engine is booted with
+// them. Access is decided server-side by /v1/games/url.
 
+const gamesStore = useGames()
+const route = useRoute()
+const router = useRouter()
+const auth = useAuth()
 
-export default {
-  components: {
-    UnityVue
-  },
-setup(){
-  const gamesStore = useGames()
-  // const unityContext = ref(gamesStore.unityPlayer)
-  const router = useRoute()
-  const auth = useAuth()
-  const onFullscreen = () => {
-    gamesStore.unityPlayer.setFullscreen(true);
-    };
+const isLoading = ref(true)
+const loadingProgress = ref(0)
+const loadingStatus = ref('Initializing...')
+const errorMessage = ref<string | null>(null)
 
-watch(()=> gamesStore.webGameData,(newVal) =>{
-  console.log("new val")
-  console.log(newVal)
+const { startPlayTimeTracking, cleanupTracking, initializeTracking } = usePlayTimeTracking()
 
-//   unityContext.value = new UnityWebgl({
-//   loaderUrl:
-//   newVal.loader,
-//   dataUrl:
-//   newVal.data,
-//   frameworkUrl:
-//   newVal.framework,
-//   codeUrl:
-//   newVal.wasm,
-// });
+// ?build=<id> plays a specific build instead of the game's live one, so an
+// admin (or the game's developer) can review it before approving. The API
+// restricts this to those roles.
+const previewBuildId = computed(() => {
+  const raw = route.query.build
+  const value = Number(Array.isArray(raw) ? raw[0] : raw)
+  return Number.isInteger(value) && value > 0 ? value : undefined
 })
 
+// Unity keeps its asset cache in IndexedDB. A half-written cache from an
+// interrupted download makes the engine fail to boot with an opaque error, so
+// we detect that and clear it rather than leaving the user stuck.
+const clearUnityCache = async () => {
+  try {
+    const databases = await indexedDB.databases()
+    const unityDatabases = databases.filter(
+      (db) => db.name && db.name.toLowerCase().includes('unity')
+    )
+    for (const db of unityDatabases) {
+      if (!db.name) continue
+      const deleteReq = indexedDB.deleteDatabase(db.name)
+      await new Promise((resolve) => {
+        deleteReq.onsuccess = () => resolve(true)
+        deleteReq.onerror = () => resolve(false)
+        deleteReq.onblocked = () => resolve(false)
+      })
+    }
+    if ('caches' in window) {
+      const cacheNames = await caches.keys()
+      await Promise.all(cacheNames.map((name) => caches.delete(name)))
+    }
+  } catch (error) {
+    console.warn('Error clearing Unity cache:', error)
+  }
+}
 
-watch(()=> gamesStore.unityPlayer,(newVal) =>{
-  // gamesStore.unityPlayer.reload({
-  //             loaderUrl:
-  //             "https://mem-testbuk-24092024.s3.us-east-2.amazonaws.com/AS/build.loader.js?response-content-disposition=inline&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEJb%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMiJHMEUCIQCc15S9QsxuclCNCYSTTLvu0gDJ8GpFoaV2JoVjzLp%2BXwIgcoZTKBWb4U4RwD6qe3pQI2UQ0A7UXy%2Bz8KuTqjztufUq8QII3%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAAGgw0NDI0MjY4NjU0MzMiDCg%2FFxZDD%2B9zzEzSnyrFAs62CR8tbXveXUgRQqB4opH8MIjLPRHypj79k1iYGEq6kg2MUPLZRh8x3QhUhMVTOQEre20z3fdxM%2BPrSuEQc4%2B3t56z4F38lGTEmvj0zSSyS8JvUhrYyhR3VX5c%2FxNSkzOS79rTlBuH1ehFBxLEgZrfRXMtKgMWV0XeUI%2BRl7BYs5ZdA9wQCYNgXuDi3Pd7%2F%2Bm76VaoeMmxRvatMbjNZWfwEh7lNE%2Fy4HuwbhhoFCc3zfZlyzGukgb2qZwPlkR6Qg9wM2rOptVTDGFENHEDZllyauLJRE6uJnHD1Q8actOKJuM%2FpaPlGirMYrrZipJ9U0wX1Nf043SmOV8aVD95WTtlomhwbfw82%2FuG4OFqIBTPtpHuBAq9hXp78sm6WR3nN2ke2CTJncJ%2FmDA4fZ8jXZEAwGUYN0VnPI6KErXGWHkh8fWAplow38SBuAY6swLQ7SDeKDIGw%2BDDpDCIqfNzcLPCqPVyeA4OAWSNQ5%2F5LEiQfVghOsaIQZarLpbLDXDnhVphOV7V4BOsc%2Bt0Gq3XInRWH1K3fSuXcOhD2A3NIMnCE9X5L543Cc6Ixx3MOupf4TXw%2BvqqpZyUYzqlbTXsWdqkqkQ35gNmGQP9X4spMRWuUa1aA%2FoVt0KyBgVQjt07KJ70Sp5LxAywUQutyCAHJNdbhEuXuGjvsJr3pArMsw72GvXcqShs0wgF63%2FTjH%2BoKjb7MvtDHlahuC%2BO7bUmbxbHgMTtbEK2kyTW5QF3l99%2FNRss7i%2FRWVa14cVMiYJz5JwTSw4sHUWIIXJ5HEbNmsVqCaqAAcYGxho8kzaQYwjh6xSFGjb%2BV0BQ6r6vZcFuvf7sToxXmWP%2BNHbGEJF0zIDh&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20241004T214930Z&X-Amz-SignedHeaders=host&X-Amz-Expires=43200&X-Amz-Credential=ASIAWOAVSG4M7ITNCRVC%2F20241004%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Signature=064030c921cf180fbd764130acb22e5a51bee62c387a724aea673bf10b823384",
-  //             dataUrl:
-  //             "https://mem-testbuk-24092024.s3.us-east-2.amazonaws.com/AS/build.data.unityweb?response-content-disposition=inline&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEJb%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMiJHMEUCIQCc15S9QsxuclCNCYSTTLvu0gDJ8GpFoaV2JoVjzLp%2BXwIgcoZTKBWb4U4RwD6qe3pQI2UQ0A7UXy%2Bz8KuTqjztufUq8QII3%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAAGgw0NDI0MjY4NjU0MzMiDCg%2FFxZDD%2B9zzEzSnyrFAs62CR8tbXveXUgRQqB4opH8MIjLPRHypj79k1iYGEq6kg2MUPLZRh8x3QhUhMVTOQEre20z3fdxM%2BPrSuEQc4%2B3t56z4F38lGTEmvj0zSSyS8JvUhrYyhR3VX5c%2FxNSkzOS79rTlBuH1ehFBxLEgZrfRXMtKgMWV0XeUI%2BRl7BYs5ZdA9wQCYNgXuDi3Pd7%2F%2Bm76VaoeMmxRvatMbjNZWfwEh7lNE%2Fy4HuwbhhoFCc3zfZlyzGukgb2qZwPlkR6Qg9wM2rOptVTDGFENHEDZllyauLJRE6uJnHD1Q8actOKJuM%2FpaPlGirMYrrZipJ9U0wX1Nf043SmOV8aVD95WTtlomhwbfw82%2FuG4OFqIBTPtpHuBAq9hXp78sm6WR3nN2ke2CTJncJ%2FmDA4fZ8jXZEAwGUYN0VnPI6KErXGWHkh8fWAplow38SBuAY6swLQ7SDeKDIGw%2BDDpDCIqfNzcLPCqPVyeA4OAWSNQ5%2F5LEiQfVghOsaIQZarLpbLDXDnhVphOV7V4BOsc%2Bt0Gq3XInRWH1K3fSuXcOhD2A3NIMnCE9X5L543Cc6Ixx3MOupf4TXw%2BvqqpZyUYzqlbTXsWdqkqkQ35gNmGQP9X4spMRWuUa1aA%2FoVt0KyBgVQjt07KJ70Sp5LxAywUQutyCAHJNdbhEuXuGjvsJr3pArMsw72GvXcqShs0wgF63%2FTjH%2BoKjb7MvtDHlahuC%2BO7bUmbxbHgMTtbEK2kyTW5QF3l99%2FNRss7i%2FRWVa14cVMiYJz5JwTSw4sHUWIIXJ5HEbNmsVqCaqAAcYGxho8kzaQYwjh6xSFGjb%2BV0BQ6r6vZcFuvf7sToxXmWP%2BNHbGEJF0zIDh&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20241004T214757Z&X-Amz-SignedHeaders=host&X-Amz-Expires=43199&X-Amz-Credential=ASIAWOAVSG4M7ITNCRVC%2F20241004%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Signature=87e488295c8d0114d6115240e86bd7c905455e63d6d16c12ddb69f698e16966e",
-  //             frameworkUrl:
-  //             "https://mem-testbuk-24092024.s3.us-east-2.amazonaws.com/AS/build.framework.js.unityweb?response-content-disposition=inline&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEJb%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMiJHMEUCIQCc15S9QsxuclCNCYSTTLvu0gDJ8GpFoaV2JoVjzLp%2BXwIgcoZTKBWb4U4RwD6qe3pQI2UQ0A7UXy%2Bz8KuTqjztufUq8QII3%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAAGgw0NDI0MjY4NjU0MzMiDCg%2FFxZDD%2B9zzEzSnyrFAs62CR8tbXveXUgRQqB4opH8MIjLPRHypj79k1iYGEq6kg2MUPLZRh8x3QhUhMVTOQEre20z3fdxM%2BPrSuEQc4%2B3t56z4F38lGTEmvj0zSSyS8JvUhrYyhR3VX5c%2FxNSkzOS79rTlBuH1ehFBxLEgZrfRXMtKgMWV0XeUI%2BRl7BYs5ZdA9wQCYNgXuDi3Pd7%2F%2Bm76VaoeMmxRvatMbjNZWfwEh7lNE%2Fy4HuwbhhoFCc3zfZlyzGukgb2qZwPlkR6Qg9wM2rOptVTDGFENHEDZllyauLJRE6uJnHD1Q8actOKJuM%2FpaPlGirMYrrZipJ9U0wX1Nf043SmOV8aVD95WTtlomhwbfw82%2FuG4OFqIBTPtpHuBAq9hXp78sm6WR3nN2ke2CTJncJ%2FmDA4fZ8jXZEAwGUYN0VnPI6KErXGWHkh8fWAplow38SBuAY6swLQ7SDeKDIGw%2BDDpDCIqfNzcLPCqPVyeA4OAWSNQ5%2F5LEiQfVghOsaIQZarLpbLDXDnhVphOV7V4BOsc%2Bt0Gq3XInRWH1K3fSuXcOhD2A3NIMnCE9X5L543Cc6Ixx3MOupf4TXw%2BvqqpZyUYzqlbTXsWdqkqkQ35gNmGQP9X4spMRWuUa1aA%2FoVt0KyBgVQjt07KJ70Sp5LxAywUQutyCAHJNdbhEuXuGjvsJr3pArMsw72GvXcqShs0wgF63%2FTjH%2BoKjb7MvtDHlahuC%2BO7bUmbxbHgMTtbEK2kyTW5QF3l99%2FNRss7i%2FRWVa14cVMiYJz5JwTSw4sHUWIIXJ5HEbNmsVqCaqAAcYGxho8kzaQYwjh6xSFGjb%2BV0BQ6r6vZcFuvf7sToxXmWP%2BNHbGEJF0zIDh&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20241004T214905Z&X-Amz-SignedHeaders=host&X-Amz-Expires=43200&X-Amz-Credential=ASIAWOAVSG4M7ITNCRVC%2F20241004%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Signature=1cf0d3d266537f81201862d981f68b071a3a1976cdaa4bf8c32a9bd69187e8e9",
-  //             codeUrl:
-  //             "https://mem-testbuk-24092024.s3.us-east-2.amazonaws.com/AS/build.wasm.unityweb?response-content-disposition=inline&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEJb%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMiJHMEUCIQCc15S9QsxuclCNCYSTTLvu0gDJ8GpFoaV2JoVjzLp%2BXwIgcoZTKBWb4U4RwD6qe3pQI2UQ0A7UXy%2Bz8KuTqjztufUq8QII3%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAAGgw0NDI0MjY4NjU0MzMiDCg%2FFxZDD%2B9zzEzSnyrFAs62CR8tbXveXUgRQqB4opH8MIjLPRHypj79k1iYGEq6kg2MUPLZRh8x3QhUhMVTOQEre20z3fdxM%2BPrSuEQc4%2B3t56z4F38lGTEmvj0zSSyS8JvUhrYyhR3VX5c%2FxNSkzOS79rTlBuH1ehFBxLEgZrfRXMtKgMWV0XeUI%2BRl7BYs5ZdA9wQCYNgXuDi3Pd7%2F%2Bm76VaoeMmxRvatMbjNZWfwEh7lNE%2Fy4HuwbhhoFCc3zfZlyzGukgb2qZwPlkR6Qg9wM2rOptVTDGFENHEDZllyauLJRE6uJnHD1Q8actOKJuM%2FpaPlGirMYrrZipJ9U0wX1Nf043SmOV8aVD95WTtlomhwbfw82%2FuG4OFqIBTPtpHuBAq9hXp78sm6WR3nN2ke2CTJncJ%2FmDA4fZ8jXZEAwGUYN0VnPI6KErXGWHkh8fWAplow38SBuAY6swLQ7SDeKDIGw%2BDDpDCIqfNzcLPCqPVyeA4OAWSNQ5%2F5LEiQfVghOsaIQZarLpbLDXDnhVphOV7V4BOsc%2Bt0Gq3XInRWH1K3fSuXcOhD2A3NIMnCE9X5L543Cc6Ixx3MOupf4TXw%2BvqqpZyUYzqlbTXsWdqkqkQ35gNmGQP9X4spMRWuUa1aA%2FoVt0KyBgVQjt07KJ70Sp5LxAywUQutyCAHJNdbhEuXuGjvsJr3pArMsw72GvXcqShs0wgF63%2FTjH%2BoKjb7MvtDHlahuC%2BO7bUmbxbHgMTtbEK2kyTW5QF3l99%2FNRss7i%2FRWVa14cVMiYJz5JwTSw4sHUWIIXJ5HEbNmsVqCaqAAcYGxho8kzaQYwjh6xSFGjb%2BV0BQ6r6vZcFuvf7sToxXmWP%2BNHbGEJF0zIDh&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20241004T214944Z&X-Amz-SignedHeaders=host&X-Amz-Expires=43200&X-Amz-Credential=ASIAWOAVSG4M7ITNCRVC%2F20241004%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Signature=c0a5df8aabe72938984177294cb233ef51c4d229d7e8921b0141362a3496b514",
-  //           })
-  console.log("unity updated")
-  gamesStore.unityPlayer.on('device', () => alert('click device ...'));
+const checkIndexedDBHealth = async (): Promise<boolean> => {
+  try {
+    const testDB = indexedDB.open('test-db-health', 1)
+    return await new Promise((resolve) => {
+      testDB.onsuccess = () => {
+        testDB.result.close()
+        indexedDB.deleteDatabase('test-db-health')
+        resolve(true)
+      }
+      testDB.onerror = () => resolve(false)
+      testDB.onblocked = () => resolve(false)
+      setTimeout(() => resolve(false), 2000)
+    })
+  } catch {
+    return false
+  }
+}
 
-})
+const onFullscreen = (): void => {
+  gamesStore.unityPlayer?.setFullscreen(true)
+}
+
+const cleanupUnityPlayer = async () => {
+  if (gamesStore.unityPlayer) {
+    try {
+      const player = gamesStore.unityPlayer as any
+      if (typeof player.destroy === 'function') await player.destroy()
+      else if (typeof player.quit === 'function') await player.quit()
+      else if (typeof player.clear === 'function') player.clear()
+    } catch (error) {
+      console.warn('Error destroying Unity player:', error)
+    }
+  }
+  gamesStore.setUnityPlayer(null)
+  gamesStore.setLoadingUnity(true)
+  await cleanupTracking()
+}
+
+const loadGame = async (gameId: number, retryCount = 0): Promise<void> => {
+  isLoading.value = true
+  errorMessage.value = null
+  loadingProgress.value = 0
+  loadingStatus.value = 'Initializing...'
+
+  try {
+    loadingStatus.value = 'Cleaning up previous game...'
+    loadingProgress.value = 10
+    await cleanupUnityPlayer()
+
+    loadingStatus.value = 'Checking cache health...'
+    loadingProgress.value = 20
+    const isDBHealthy = await checkIndexedDBHealth()
+    if (!isDBHealthy && retryCount === 0) {
+      loadingStatus.value = 'Clearing cache...'
+      await clearUnityCache()
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      return loadGame(gameId, 1)
+    }
+
+    // Legacy games embedded in the app itself stored a Vue ROUTE (e.g.
+    // "/sudoku-game") in file_name.desktop instead of a storage key. Only a
+    // leading slash identifies one — S3 keys never start with "/".
+    loadingStatus.value = 'Loading game data...'
+    loadingProgress.value = 30
+    const gameData = await gamesStore.getById(gameId)
+    const legacyRoute = gameData?.file_name?.desktop
+    if (typeof legacyRoute === 'string' && legacyRoute.startsWith('/')) {
+      router.push(legacyRoute)
+      isLoading.value = false
+      return
+    }
+
+    loadingStatus.value = 'Fetching game files...'
+    loadingProgress.value = 40
+    const urls = await gamesStore.getGameUrl(
+      gameId,
+      true,
+      { token: auth.token },
+      previewBuildId.value
+    )
+
+    if (!urls || !urls.loader || !urls.data || !urls.framework || !urls.wasm) {
+      console.error('Failed to fetch game URLs or URLs are invalid:', urls)
+      errorMessage.value = 'This game could not be loaded.'
+      isLoading.value = false
+      return
+    }
+
+    loadingStatus.value = 'Initializing Unity WebGL...'
+    loadingProgress.value = 60
+    try {
+      const unityInstance = new UnityWebgl({
+        loaderUrl: urls.loader,
+        dataUrl: urls.data,
+        frameworkUrl: urls.framework,
+        codeUrl: urls.wasm
+      })
+
+      unityInstance.on('progress', (progress: number) => {
+        const unityProgress = Math.round(progress * 100)
+        loadingProgress.value = 60 + unityProgress * 0.35
+        loadingStatus.value = `Loading game assets... ${unityProgress}%`
+      })
+
+      unityInstance.on('loaded', () => {
+        loadingProgress.value = 100
+        loadingStatus.value = 'Game loaded successfully!'
+        setTimeout(() => {
+          isLoading.value = false
+        }, 500)
+      })
+
+      unityInstance.on('error', (error: any) => {
+        console.error('Unity loading error:', error)
+        loadingStatus.value = 'Error loading game'
+        errorMessage.value = 'The game engine failed to start.'
+      })
+
+      gamesStore.setUnityPlayer(unityInstance)
+      startPlayTimeTracking(gameId)
+    } catch (unityError: any) {
+      const message = String(unityError?.message ?? '')
+      const isCacheError =
+        message.includes('IndexedDB') ||
+        message.includes('Could not connect to database') ||
+        message.includes('UnityCache')
+
+      if (isCacheError && retryCount === 0) {
+        await clearUnityCache()
+        await new Promise((resolve) => setTimeout(resolve, 1500))
+        return loadGame(gameId, 1)
+      }
+      throw unityError
+    }
+  } catch (error: any) {
+    console.error('Error loading web game:', error)
+    errorMessage.value =
+      error?.response?.data?.message || 'This game could not be loaded.'
+    isLoading.value = false
+  }
+}
+
+watch(
+  () => route.params.game,
+  async (newGameId, oldGameId) => {
+    if (!newGameId || newGameId === oldGameId) return
+    if (!auth.isLoggedIn || !auth.token) return
+    const gameId = parseInt(newGameId as string)
+    if (!isNaN(gameId)) await loadGame(gameId)
+  }
+)
 
 onMounted(async () => {
-if(auth.user != null){
-  const id = router.params.game
-  if(!id || id == "") $router.back()
-  gamesStore.getGameUrl(id,auth)
+  isLoading.value = true
+  initializeTracking()
 
+  if (!auth.isLoggedIn || !auth.token) {
+    router.push('/login')
+    isLoading.value = false
+    return
+  }
 
-}
+  const idParam = route.params.game
+  const gameId = parseInt(idParam as string)
+  if (!idParam || isNaN(gameId)) {
+    router.back()
+    isLoading.value = false
+    return
+  }
+
+  await loadGame(gameId)
 })
 
-return{
-  gamesStore,
-  onFullscreen
-}
-
-}
-}
-
+onUnmounted(async () => {
+  await cleanupUnityPlayer()
+})
 </script>
 
-
-
 <template>
-  <div v-if="gamesStore.loadingUnity" style="width: 768px; height: 432px; background-color: black;"></div>
-  <div v-else style="width: 768px; height: 432px; background-color: black;">
-    <UnityVue :unity="gamesStore.unityPlayer" tabindex="0" />
-    <div class="buttons">
-    <button :onclick="onFullscreen" class="buy-button text">Fullscreen</button>
+  <div class="player-shell">
+    <div v-if="errorMessage" class="player-frame player-message">
+      <p class="message-text">{{ errorMessage }}</p>
+      <button class="play-button" @click="router.back()">{{ $t('back') }}</button>
+    </div>
+
+    <div v-else-if="gamesStore.loadingUnity || isLoading" class="player-frame player-message">
+      <div class="message-text">Loading game {{ route.params.game }}...</div>
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress-fill" :style="{ width: loadingProgress + '%' }"></div>
+        </div>
+        <div class="progress-text">{{ Math.round(loadingProgress) }}% - {{ loadingStatus }}</div>
+      </div>
+    </div>
+
+    <div v-else class="player-frame">
+      <UnityVue
+        :key="`unity-${route.params.game}`"
+        :unity="gamesStore.unityPlayer as any"
+        tabindex="0"
+      />
+      <div class="buttons">
+        <button class="play-button" @click="onFullscreen">Fullscreen</button>
+      </div>
     </div>
   </div>
 </template>
 
-<style>
-.buy-button{
-  cursor: pointer;
+<style scoped>
+.player-shell {
+  display: flex;
+  justify-content: center;
+  padding: 1rem 0 2rem;
+}
+
+.player-frame {
+  width: 960px;
+  max-width: 100%;
+  aspect-ratio: 16 / 9;
+  background-color: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+}
+
+.player-message {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin: 16px 16px;
-  border-radius: 10px;
+  gap: 1.2rem;
+  color: #fff;
+}
 
-  gap: 0.5rem;
-  width: 200px;
-  height: 50px;
-  background-color: var(--lightGreen);
+.message-text {
+  font-size: 1.2rem;
+  text-align: center;
+  padding: 0 1.5rem;
+}
+
+.progress-container {
+  width: min(400px, 80%);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: #333;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4caf50, #8bc34a);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  color: #fff;
+  font-size: 0.85rem;
+  text-align: center;
+  opacity: 0.9;
+}
+
+.buttons {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+}
+
+.play-button {
+  cursor: pointer;
+  padding: 0.6rem 1.4rem;
   border: none;
   border-radius: 10px;
-
+  background-color: var(--lightGreen, #7dcb84);
+  font-family: inherit;
+  font-size: 0.9rem;
 }
 
-.buy-button:hover{
-  background-color: var(--lightCyan);
+.play-button:hover {
+  background-color: var(--lightCyan, #48ace4);
 }
-</style> -->
+</style>

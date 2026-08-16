@@ -296,6 +296,20 @@
             (request correcto, sin filtrar el token, cierre al revocar, tolerancia a fallos de red). No lo reescribas.</span>
           </div>
         </div>
+        <div class="callout tip"><span class="ico">🔢</span>
+          <div>
+            <span data-lang="en"><b>Where does the game id come from?</b> Leave <span class="gid">gameId</span> at
+            <span class="gid">0</span> — don't edit it. The launcher overwrites it via <span class="gid">-game_id</span>
+            when it starts your game, so a hardcoded value is ignored anyway. Boly assigns the real id when your game
+            record is created (Step&nbsp;5); from then on it's visible in your dashboard URL:
+            <span class="gid">boly.cl/developer/games/&lt;game_id&gt;/builds</span>.</span>
+            <span data-lang="es"><b>¿Dónde se asigna el gameID?</b> Deja <span class="gid">gameId</span> en
+            <span class="gid">0</span> y no lo edites. El launcher lo sobrescribe con <span class="gid">-game_id</span>
+            al arrancar tu juego, así que un valor fijo se ignora igual. Boly asigna el id real cuando se crea el
+            registro de tu juego (Paso&nbsp;5); desde ahí queda visible en la URL de tu panel:
+            <span class="gid">boly.cl/developer/games/&lt;game_id&gt;/builds</span>.</span>
+          </div>
+        </div>
         <div class="callout ai"><span class="ico">🤖</span>
           <div class="body">
             <div class="ai-head"><span data-lang="en">Or let an AI assistant do steps 1–2</span><span data-lang="es">O deja que un asistente de IA haga los pasos 1–2</span></div>
@@ -567,21 +581,40 @@ Deja el campo game_id en 0 — el launcher inyecta el id real en tiempo de ejecu
       <div class="step-body">
         <p data-lang="en">Once every verifier check passes, log in at <b>boly.cl</b> and go to your
            <b>Developer Dashboard → Publish a new game</b>. Fill in the game's name, description and
-           price, and attach your zipped Windows build (the desktop app extracts it — no installer
-           needed). This creates your game as a private draft and starts the upload; nothing is public
-           yet. A Boly admin reviews and approves the build — once approved, your game publishes
-           automatically and is playable from the app. Because the heartbeat is already verified, it
-           launches correctly the first time — no more blind back-and-forth. 🎉</p>
+           price, optionally add a banner image, and attach your zipped Windows build. Press
+           <b>Create game &amp; upload build</b>. This creates your game as a private draft and starts the
+           upload; nothing is public yet. A Boly admin reviews and approves the build — once approved,
+           your game publishes automatically and is playable from the app. Because the heartbeat is
+           already verified, it launches correctly the first time — no more blind back-and-forth. 🎉</p>
         <p data-lang="es">Una vez que todas las pruebas del verificador pasen, inicia sesión en <b>boly.cl</b> y ve a tu
-           <b>Panel de Desarrollador → Publicar un juego nuevo</b>. Completa el nombre, la descripción y
-           el precio del juego, y adjunta tu build de Windows en zip (la app de escritorio lo extrae
-           sola: sin instalador). Esto crea tu juego como borrador privado y empieza la subida; nada es
-           público todavía. Un admin de Boly revisa y aprueba el build — una vez aprobado, tu juego se
-           publica automáticamente y queda jugable desde la app.</p>
+           <b>Panel de Desarrollador → Publicar un nuevo juego</b>. Completa el nombre, la descripción y
+           el precio del juego, agrega una imagen de banner si quieres, y adjunta tu build de Windows en
+           zip. Presiona <b>Crear juego y subir build</b>. Esto crea tu juego como borrador privado y
+           empieza la subida; nada es público todavía. Un admin de Boly revisa y aprueba el build — una
+           vez aprobado, tu juego se publica automáticamente y queda jugable desde la app. 🎉</p>
+        <div class="callout warn"><span class="ico">📦</span>
+          <div>
+            <span data-lang="en">The build must be a <b><span class="gid">.zip</span> containing your game's
+            <span class="gid">.exe</span></b> — the desktop app extracts it itself, so <b>no installer is
+            needed</b>. The server inspects the zip on upload and <b>auto-rejects</b> it if it can't find an
+            executable inside, so double-check you zipped the build folder and not just the project.</span>
+            <span data-lang="es">El build tiene que ser un <b><span class="gid">.zip</span> que contenga el
+            <span class="gid">.exe</span> de tu juego</b>: la app de escritorio lo extrae sola, así que
+            <b>no necesitas instalador</b>. El servidor revisa el zip al subirlo y lo <b>rechaza
+            automáticamente</b> si no encuentra un ejecutable dentro, así que verifica que comprimiste la
+            carpeta del build y no el proyecto.</span>
+          </div>
+        </div>
+        <p data-lang="en">Finally, open <b>Game Media</b> on your game's dashboard page and upload the banner,
+           screenshots and videos. A newly created game has no store art — do this before approval so the
+           store page looks finished the moment it goes live.</p>
+        <p data-lang="es">Por último, abre <b>Archivos multimedia del juego</b> en la página de tu juego y sube el
+           banner, las capturas y los videos. Un juego recién creado no tiene imágenes de tienda: hazlo antes
+           de la aprobación para que la página se vea terminada apenas se publique.</p>
         <p class="hint" style="margin-top:12px" data-lang="en">For later updates, use <b>Manage builds</b> on
            your game's dashboard page — same review flow.</p>
-        <p class="hint" style="margin-top:12px" data-lang="es">Para actualizaciones futuras, usa <b>Manage builds</b>
-           (Gestionar builds) en la página de tu juego — mismo flujo de revisión.</p>
+        <p class="hint" style="margin-top:12px" data-lang="es">Para actualizaciones futuras, usa <b>Gestionar builds</b>
+           en la página de tu juego — mismo flujo de revisión.</p>
       </div>
     </div>
 

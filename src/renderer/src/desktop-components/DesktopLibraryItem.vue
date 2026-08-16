@@ -36,19 +36,22 @@ const showOptionsMenu = ref(false)
 
 console.log('LibraryItem received game:', props.item)
 
-// Legacy heuristic: web/HTML games store a route (e.g. "/sudoku-game") in
-// file_name.desktop instead of a binary key. Anything pointing at a real
-// binary (.exe installers or dev-uploaded .zip builds) is a desktop game.
-const isDesktopBinary = (key: unknown): boolean =>
-  typeof key === 'string' && (key.toLowerCase().endsWith('.exe') || key.toLowerCase().endsWith('.zip'))
+// game_type rows are seeded as 1 = DLC, 2 = Web, 3 = Downloadable
+const WEB_GAME_TYPE_ID = 2
 
-const isWebGame = computed(() => {
-  return (
-    props.item.file_name?.desktop &&
-    typeof props.item.file_name.desktop === 'string' &&
-    !isDesktopBinary(props.item.file_name.desktop)
-  )
+// Legacy heuristic: the first embedded games stored a Vue ROUTE (e.g.
+// "/sudoku-game") in file_name.desktop instead of a storage key, and predate
+// the game_type column being reliable. Only a leading slash identifies one —
+// S3 keys never start with "/", so uploaded builds are never mistaken for it.
+const legacyEmbeddedRoute = computed(() => {
+  const key = props.item.file_name?.desktop
+  return typeof key === 'string' && key.startsWith('/') ? key : null
 })
+
+// Browser-playable: either the game's declared type, or a legacy embedded one.
+const isWebGame = computed(
+  () => props.item.game_type_id === WEB_GAME_TYPE_ID || legacyEmbeddedRoute.value !== null
+)
 
 const displayedAchievements = computed(() => {
   return gameAchievements.value.slice(0, 4)
@@ -220,14 +223,14 @@ onMounted(() => {
 })
 
 async function Play() {
-  if (
-    props.item.file_name?.desktop &&
-    typeof props.item.file_name.desktop === 'string' &&
-    !isDesktopBinary(props.item.file_name.desktop)
-  ) {
-    // This is an HTML game, navigate to the route
+  if (legacyEmbeddedRoute.value) {
+    // Embedded in the app itself — just navigate to its route
     recordPlayed(props.item.game_id)
-    router.push(props.item.file_name.desktop)
+    router.push(legacyEmbeddedRoute.value)
+  } else if (isWebGame.value && props.item.game_id) {
+    // Browser-playable build: runs in the in-app player, no install needed
+    recordPlayed(props.item.game_id)
+    router.push(`/webgame/${props.item.game_id}`)
   } else if (props.item.game_id) {
     console.log('clicked')
     isLoading.value = true // Set loading while game is starting
