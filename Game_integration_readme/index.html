@@ -138,6 +138,10 @@
 
   .engine-only{display:none}
   .engine-only.show{display:block}
+  .htmlengine-only{display:none}
+  .htmlengine-only.show{display:block}
+  .track-only{display:none}
+  .track-only.show{display:block}
 
   /* ---------- Verifier scenario table ---------- */
   .scn{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px}
@@ -199,20 +203,45 @@
   <section class="hero">
     <span class="tag"><span data-lang="en">Developer Onboarding</span><span data-lang="es">Onboarding para Desarrolladores</span></span>
     <h1><span data-lang="en">Integrate your game<br>with Boly</span><span data-lang="es">Integra tu juego<br>con Boly</span></h1>
-    <p data-lang="en">Add the license heartbeat, then prove it works on your own machine — before
-       you ever send us a build. Tick each step as you go; your progress is saved
-       in this browser.</p>
-    <p data-lang="es">Agrega el heartbeat de licencia y comprueba que funciona en tu propia máquina,
-       antes de enviarnos un build. Marca cada paso a medida que avanzas; tu progreso
-       se guarda en este navegador.</p>
+    <p data-lang="en">Two kinds of game, two tracks below. A downloadable Windows game adds the
+       license heartbeat and proves it works before you send us a build. A browser-style game
+       (Unity WebGL, Godot HTML5, a plain web build) skips all of that — just export, zip and
+       upload. Tick each step as you go; your progress is saved in this browser.</p>
+    <p data-lang="es">Dos tipos de juego, dos vías abajo. Un juego de Windows descargable agrega el
+       heartbeat de licencia y comprueba que funciona antes de enviarnos un build. Un juego
+       tipo navegador (Unity WebGL, Godot HTML5, un build web plano) se salta todo eso: solo
+       exporta, comprime y sube. Marca cada paso a medida que avanzas; tu progreso se guarda
+       en este navegador.</p>
   </section>
 
-  <!-- Setup -->
+  <!-- Track -->
   <div class="panel">
-    <h2><span data-lang="en">Before you start</span><span data-lang="es">Antes de empezar</span></h2>
+    <h2><span data-lang="en">What are you building?</span><span data-lang="es">¿Qué tipo de juego es?</span></h2>
     <div class="setup">
       <div>
-        <label class="fld"><span data-lang="en">Your engine</span><span data-lang="es">Tu motor</span></label>
+        <div class="tabs" id="track">
+          <button data-track="desktop" class="active">
+            <span data-lang="en">Downloadable (.exe)</span><span data-lang="es">Descargable (.exe)</span>
+          </button>
+          <button data-track="html">
+            <span data-lang="en">Browser-style (Unity WebGL / Godot HTML5 / web)</span><span data-lang="es">Tipo navegador (Unity WebGL / Godot HTML5 / web)</span>
+          </button>
+        </div>
+        <div class="hint" data-lang="en">A browser-style game runs inside the Boly app's own player — no
+           heartbeat script, no verifier. If your export makes an <span class="gid">index.html</span>,
+           you're on the right track.</div>
+        <div class="hint" data-lang="es">Un juego tipo navegador corre dentro del reproductor propio de la
+           app de Boly: sin script de heartbeat, sin verificador. Si tu export genera un
+           <span class="gid">index.html</span>, esta es tu vía.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Setup (desktop track only) -->
+  <div class="panel track-only show" data-track="desktop">
+    <h2><span data-lang="en">Your engine</span><span data-lang="es">Tu motor</span></h2>
+    <div class="setup">
+      <div>
         <div class="tabs" id="tabs">
           <button data-engine="unity" class="active">Unity</button>
           <button data-engine="godot">Godot</button>
@@ -225,7 +254,27 @@
     </div>
   </div>
 
-  <div class="panel">
+  <!-- Setup (html track only) -->
+  <div class="panel track-only" data-track="html">
+    <h2><span data-lang="en">Your export tool</span><span data-lang="es">Tu herramienta de exportación</span></h2>
+    <div class="setup">
+      <div>
+        <div class="tabs" id="tabs-html">
+          <button data-htmlengine="unity" class="active">Unity WebGL</button>
+          <button data-htmlengine="godot">Godot HTML5</button>
+          <button data-htmlengine="other">
+            <span data-lang="en">Other</span><span data-lang="es">Otra</span>
+          </button>
+        </div>
+        <div class="hint" data-lang="en">Only changes the export instructions in Step 1. Packaging and
+           upload are identical for every tool.</div>
+        <div class="hint" data-lang="es">Solo cambia las instrucciones de exportación del Paso 1. Empaquetar
+           y subir es igual para cualquier herramienta.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel track-only show" data-track="desktop">
     <h2><span data-lang="en">What we sent you</span><span data-lang="es">Lo que te enviamos</span></h2>
     <ul style="margin-left:18px;color:var(--text-dim)">
       <li data-lang="en"><b>This guide</b> (the folder you received).</li>
@@ -237,8 +286,18 @@
     </ul>
   </div>
 
-  <!-- ============ STEPS ============ -->
-  <div id="steps">
+  <div class="panel track-only" data-track="html">
+    <h2><span data-lang="en">What you need</span><span data-lang="es">Lo que necesitas</span></h2>
+    <ul style="margin-left:18px;color:var(--text-dim)">
+      <li data-lang="en">Just your engine's <b>HTML5/WebGL export</b> — nothing from this kit gets added to your project.</li>
+      <li data-lang="es">Solo el <b>export HTML5/WebGL</b> de tu motor — no agregas nada de este kit a tu proyecto.</li>
+      <li data-lang="en">No ParamsCatcher script and no verifier: Boly's own player controls playback, so there's nothing to integrate or test on your side.</li>
+      <li data-lang="es">Sin script ParamsCatcher y sin verificador: el reproductor de Boly controla la reproducción, así que no hay nada que integrar ni probar de tu lado.</li>
+    </ul>
+  </div>
+
+  <!-- ============ STEPS — desktop track ============ -->
+  <div id="steps-desktop" class="track-only show" data-track="desktop">
 
     <!-- Step 1 -->
     <div class="step" data-step="1">
@@ -637,6 +696,151 @@ Deja el campo game_id en 0 — el launcher inyecta el id real en tiempo de ejecu
 
   </div>
 
+  <!-- ============ STEPS — html track ============ -->
+  <div id="steps-html" class="track-only" data-track="html">
+
+    <!-- HTML Step 1 -->
+    <div class="step" data-step="h1">
+      <div class="step-head">
+        <div class="num"><span>1</span></div>
+        <div class="step-title">
+          <h3><span data-lang="en">Export your build</span><span data-lang="es">Exporta tu build</span></h3>
+          <div class="sub"><span data-lang="en">Any tool works, as long as it produces an index.html</span><span data-lang="es">Sirve cualquier herramienta, mientras genere un index.html</span></div>
+        </div>
+        <div class="check"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#0d0719" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+      <div class="step-body">
+        <div class="htmlengine-only show" data-htmlengine="unity">
+          <p data-lang="en"><b>File ▸ Build Settings ▸ WebGL ▸ Switch Platform</b>, then <b>Build</b> to an empty
+             folder. Unity writes its own <span class="gid">index.html</span> plus a <span class="gid">Build/</span>
+             folder — you don't touch either. Any compression setting (Brotli, gzip, disabled) works, the app
+             detects it automatically.</p>
+          <p data-lang="es"><b>File ▸ Build Settings ▸ WebGL ▸ Switch Platform</b>, y luego <b>Build</b> a una
+             carpeta vacía. Unity escribe su propio <span class="gid">index.html</span> más una carpeta
+             <span class="gid">Build/</span> — no tocas ninguno de los dos. Cualquier compresión (Brotli, gzip,
+             desactivada) funciona, la app la detecta sola.</p>
+        </div>
+        <div class="htmlengine-only" data-htmlengine="godot">
+          <p data-lang="en"><b>Project ▸ Export ▸ Add... ▸ Web</b>, set an export path ending in
+             <span class="gid">index.html</span>, then <b>Export Project</b>. Godot writes the
+             <span class="gid">index.html</span> plus its <span class="gid">.wasm</span>/<span class="gid">.pck</span>
+             files alongside it — export everything into its own empty folder.</p>
+          <p data-lang="es"><b>Project ▸ Export ▸ Add... ▸ Web</b>, define una ruta de exportación que termine en
+             <span class="gid">index.html</span>, y luego <b>Export Project</b>. Godot escribe el
+             <span class="gid">index.html</span> junto a sus archivos <span class="gid">.wasm</span>/<span class="gid">.pck</span> —
+             exporta todo a su propia carpeta vacía.</p>
+        </div>
+        <div class="htmlengine-only" data-htmlengine="other">
+          <p data-lang="en">Whatever your toolchain (Vite, a plain static site, anything else), the only
+             requirement is that your build's output folder contains an <span class="gid">index.html</span> —
+             at the root or nested a few levels in, either works. If your bundler emits absolute asset paths
+             (Vite does by default, e.g. <span class="gid">/assets/app.js</span>), you don't need to change
+             that: Boly's player resolves them on its own.</p>
+          <p data-lang="es">Sea cual sea tu herramienta (Vite, un sitio estático plano, cualquier otra), el único
+             requisito es que la carpeta de salida contenga un <span class="gid">index.html</span> — en la raíz
+             o anidado unos niveles, ambos funcionan. Si tu bundler genera rutas absolutas (Vite lo hace por
+             defecto, ej. <span class="gid">/assets/app.js</span>), no hace falta que cambies nada: el
+             reproductor de Boly las resuelve solo.</p>
+        </div>
+        <div class="callout tip"><span class="ico">💡</span>
+          <div>
+            <span data-lang="en">No ParamsCatcher, no license heartbeat, no <span class="gid">-game_id</span>/<span class="gid">-key</span>
+            arguments to read. Those exist for the downloadable-game track; a browser-style build runs inside
+            Boly's own player, which controls access on its own.</span>
+            <span data-lang="es">Sin ParamsCatcher, sin heartbeat de licencia, sin argumentos <span class="gid">-game_id</span>/<span class="gid">-key</span>
+            que leer. Eso existe para la vía de juegos descargables; un build tipo navegador corre dentro del
+            reproductor propio de Boly, que controla el acceso por su cuenta.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HTML Step 2 -->
+    <div class="step" data-step="h2">
+      <div class="step-head">
+        <div class="num"><span>2</span></div>
+        <div class="step-title">
+          <h3><span data-lang="en">Package it as a zip</span><span data-lang="es">Empaquétalo en un zip</span></h3>
+          <div class="sub"><span data-lang="en">Zip the whole export folder — not the project</span><span data-lang="es">Comprime toda la carpeta exportada — no el proyecto</span></div>
+        </div>
+        <div class="check"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#0d0719" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+      <div class="step-body">
+        <p data-lang="en">Zip the folder from Step 1 — <span class="gid">index.html</span> and everything next
+           to it (or above it, if nested).</p>
+        <p data-lang="es">Comprime la carpeta del Paso 1 — el <span class="gid">index.html</span> y todo lo que
+           está junto a él (o por encima, si está anidado).</p>
+        <div class="callout warn"><span class="ico">🧰</span>
+          <div>
+            <span data-lang="en"><b>Do not use PowerShell's <span class="gid">Compress-Archive</span></b>. It
+            writes Windows backslashes as the path separator, which the ZIP format does not allow, and the
+            archive then unpacks flat — the game can't find its own files. The server <b>auto-rejects</b> zips
+            like this on upload. Use <b>7-Zip</b>, or open a terminal <b>inside the export folder</b> and run:</span>
+            <span data-lang="es"><b>No uses <span class="gid">Compress-Archive</span> de PowerShell</b>. Escribe
+            las rutas con backslash de Windows, algo que el formato ZIP no permite, y el archivo se descomprime
+            plano: el juego no encuentra sus propios archivos. El servidor <b>rechaza automáticamente</b> zips
+            así al subirlos. Usa <b>7-Zip</b>, o abre una terminal <b>dentro de la carpeta exportada</b> y ejecuta:</span>
+            <div class="code" style="margin-top:10px"><span class="cmd-line">tar <span class="flag">-a</span> <span class="flag">-c</span> <span class="flag">-f</span> <span class="str">build.zip</span> *</span></div>
+            <div class="hint" style="margin-top:2px">
+              <span data-lang="en"><span class="gid">tar</span> ships with Windows 10 and 11 — nothing to install.</span>
+              <span data-lang="es"><span class="gid">tar</span> viene incluido en Windows 10 y 11 — no hay que instalar nada.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HTML Step 3 -->
+    <div class="step" data-step="h3">
+      <div class="step-head">
+        <div class="num"><span>3</span></div>
+        <div class="step-title">
+          <h3><span data-lang="en">Upload your build on the dashboard</span><span data-lang="es">Sube tu build en el panel</span></h3>
+          <div class="sub"><span data-lang="en">Same dashboard, same review — nothing engine-specific from here</span><span data-lang="es">Mismo panel, misma revisión — nada específico del motor de aquí en adelante</span></div>
+        </div>
+        <div class="check"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#0d0719" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+      <div class="step-body">
+        <p data-lang="en">Log in at <b>boly.cl</b> and go to your <b>Developer Dashboard → Publish a new game</b>.
+           Fill in the game's name, description and price, optionally add a banner image, and attach your zipped
+           build. Press <b>Create game &amp; upload build</b>. This creates your game as a private draft and
+           starts the upload; nothing is public yet. The server inspects the zip and rejects it automatically
+           if it finds neither a Windows executable nor an <span class="gid">index.html</span> — so a successful
+           upload already confirms your build is structurally sound. A Boly admin reviews and approves it —
+           once approved, your game publishes automatically and is playable from the app. 🎉</p>
+        <p data-lang="es">Inicia sesión en <b>boly.cl</b> y ve a tu <b>Panel de Desarrollador → Publicar un nuevo
+           juego</b>. Completa el nombre, la descripción y el precio del juego, agrega una imagen de banner si
+           quieres, y adjunta tu build en zip. Presiona <b>Crear juego y subir build</b>. Esto crea tu juego
+           como borrador privado y empieza la subida; nada es público todavía. El servidor revisa el zip y lo
+           rechaza automáticamente si no encuentra ni un ejecutable de Windows ni un
+           <span class="gid">index.html</span> — así que una subida exitosa ya confirma que tu build está
+           bien formado. Un admin de Boly lo revisa y aprueba — una vez aprobado, tu juego se publica
+           automáticamente y queda jugable desde la app. 🎉</p>
+        <p data-lang="en">Finally, open <b>Game Media</b> on your game's dashboard page and upload the banner,
+           screenshots and videos. A newly created game has no store art — do this before approval so the
+           store page looks finished the moment it goes live.</p>
+        <p data-lang="es">Por último, abre <b>Archivos multimedia del juego</b> en la página de tu juego y sube
+           el banner, las capturas y los videos. Un juego recién creado no tiene imágenes de tienda: hazlo antes
+           de la aprobación para que la página se vea terminada apenas se publique.</p>
+        <p class="hint" style="margin-top:12px" data-lang="en">For later updates, use <b>Manage builds</b> on
+           your game's dashboard page — same review flow.</p>
+        <p class="hint" style="margin-top:12px" data-lang="es">Para actualizaciones futuras, usa <b>Gestionar builds</b>
+           en la página de tu juego — mismo flujo de revisión.</p>
+        <div class="callout tip"><span class="ico">📱</span>
+          <div>
+            <span data-lang="en"><b>Playable in the Boly desktop app right now.</b> Playing a browser-style
+            build directly on <b>boly.cl</b> in a regular browser isn't supported yet — it always runs through
+            the app.</span>
+            <span data-lang="es"><b>Jugable en la app de escritorio de Boly ahora mismo.</b> Jugar un build tipo
+            navegador directamente en <b>boly.cl</b> desde un navegador normal todavía no está soportado —
+            siempre corre a través de la app.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
   <div class="finish" id="finish">
     <h2><span data-lang="en">You're ready to ship 🚀</span><span data-lang="es">¡Listo para publicar! 🚀</span></h2>
     <p data-lang="en">Every step is checked off. Upload your verified build on your Developer Dashboard — a Boly admin approves it and it goes live.</p>
@@ -652,7 +856,10 @@ Deja el campo game_id en 0 — el launcher inyecta el id real en tiempo de ejecu
 <script>
 (function(){
   const KEY='boly-guide-v1';
-  const steps=[...document.querySelectorAll('.step')];
+  // Every step across both tracks, but progress (and "ready to ship") only
+  // ever counts the ones belonging to the active track — a desktop developer
+  // should never see 5/8 and wonder what the other three are.
+  const allSteps=[...document.querySelectorAll('.step')];
   const fill=document.getElementById('fill');
   const pct=document.getElementById('pct');
   const finish=document.getElementById('finish');
@@ -683,7 +890,7 @@ Deja el campo game_id en 0 — el launcher inyecta el id real en tiempo de ejecu
     state.lang=lang()==='es'?'en':'es';save();applyLang();
   });
 
-  // ---- engine tabs ----
+  // ---- engine tabs (desktop track) ----
   const tabs=document.getElementById('tabs');
   function applyEngine(){
     const e=state.engine||'unity';
@@ -696,15 +903,43 @@ Deja el campo game_id en 0 — el launcher inyecta el id real en tiempo de ejecu
     state.engine=b.dataset.engine;save();applyEngine();
   });
 
+  // ---- export-tool tabs (html track) ----
+  const tabsHtml=document.getElementById('tabs-html');
+  function applyHtmlEngine(){
+    const e=state.htmlengine||'unity';
+    tabsHtml.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.htmlengine===e));
+    document.querySelectorAll('.htmlengine-only').forEach(el=>
+      el.classList.toggle('show',el.dataset.htmlengine===e));
+  }
+  tabsHtml.addEventListener('click',ev=>{
+    const b=ev.target.closest('button');if(!b)return;
+    state.htmlengine=b.dataset.htmlengine;save();applyHtmlEngine();
+  });
+
+  // ---- track (desktop vs html) ----
+  const trackTabs=document.getElementById('track');
+  function track(){return state.track==='html'?'html':'desktop'}
+  function activeSteps(){return allSteps.filter(s=>s.closest('[data-track]').dataset.track===track())}
+  function applyTrack(){
+    const t=track();
+    trackTabs.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.track===t));
+    document.querySelectorAll('.track-only').forEach(el=>el.classList.toggle('show',el.dataset.track===t));
+  }
+  trackTabs.addEventListener('click',ev=>{
+    const b=ev.target.closest('button');if(!b)return;
+    state.track=b.dataset.track;save();applyTrack();refresh();
+  });
+
   // ---- steps ----
   function refresh(){
+    const steps=activeSteps();
     const total=steps.length;
     const done=steps.filter(s=>state[s.dataset.step]).length;
     const p=Math.round(done/total*100);
     fill.style.width=p+'%';pct.textContent=p+'%';
     finish.classList.toggle('show',done===total);
   }
-  steps.forEach(el=>{
+  allSteps.forEach(el=>{
     const id=el.dataset.step;
     if(state[id])el.classList.add('done');
     el.querySelector('.step-head').addEventListener('click',()=>{
@@ -740,11 +975,11 @@ Deja el campo game_id en 0 — el launcher inyecta el id real en tiempo de ejecu
     if(!confirm(T[lang()].confirm))return;
     const keepLang=state.lang;
     state={lang:keepLang};save();
-    steps.forEach(s=>s.classList.remove('done'));
-    applyEngine();refresh();
+    allSteps.forEach(s=>s.classList.remove('done'));
+    applyEngine();applyHtmlEngine();applyTrack();refresh();
   });
 
-  applyLang();applyEngine();refresh();
+  applyLang();applyEngine();applyHtmlEngine();applyTrack();refresh();
 })();
 </script>
 </body>

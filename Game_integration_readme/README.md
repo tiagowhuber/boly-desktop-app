@@ -2,8 +2,55 @@
 
 > **Game developers: open [`index.html`](./index.html) in a browser instead.** It's
 > the same content as an interactive, step-by-step checklist in Spanish/English,
-> with the code to paste and the verifier command ready to copy. This README is the
-> reference version, aimed at Boly maintainers.
+> with the code to paste and commands ready to copy, and it picks the right track
+> for you. This README is the reference version, aimed at Boly maintainers.
+
+Two tracks, depending on what you built:
+
+- **Downloadable (.exe)** — a native Windows build. Needs the license heartbeat
+  below (Part 1–3), because the game is a standalone process the platform has
+  to keep talking to.
+- **Browser-style (Unity WebGL / Godot HTML5 / a plain web build)** — anything
+  whose export is an `index.html`. See **[Part 0](#part-0--publishing-a-browser-style-game)**
+  just below: no heartbeat, no script to integrate, three steps total.
+
+---
+
+## Part 0 — Publishing a browser-style game
+
+Applies to a Unity WebGL export, a Godot HTML5 export, or any other build whose
+output is an `index.html` plus its assets. Nothing from this kit gets added to
+the game's own source — no ParamsCatcher script, no license heartbeat, no
+verifier. The build runs inside Boly's own player, which controls access on
+its own.
+
+1. **Export to HTML5/WebGL.** Unity: `File ▸ Build Settings ▸ WebGL ▸ Switch
+   Platform`, then `Build` to an empty folder — Unity writes its own
+   `index.html`. Godot: `Project ▸ Export ▸ Add... ▸ Web`, export path ending in
+   `index.html`. Any other tool: the only requirement is an `index.html`
+   somewhere in the output folder, at the root or nested a few levels in.
+   Absolute asset paths (Vite's default, e.g. `/assets/app.js`) work as-is —
+   nothing to configure for that.
+2. **Zip the export folder.** Don't use PowerShell's `Compress-Archive` — it
+   writes Windows backslashes as the path separator, which the ZIP format
+   forbids, and the archive unpacks flat. The server auto-rejects these on
+   upload. Use 7-Zip, or from inside the export folder:
+   ```
+   tar -a -c -f build.zip *
+   ```
+3. **Upload it — same dashboard as a desktop build.** Log in at boly.cl,
+   **Developer Dashboard → Publish a new game**, fill in name/description/price,
+   attach the zip, **Create game & upload build**. The server accepts a zip
+   containing either a Windows executable or an `index.html` — nothing to
+   choose on your end. An admin reviews and approves it; once approved the game
+   publishes and is playable from the desktop app.
+
+> Playing a browser-style build directly on boly.cl in a regular browser isn't
+> supported yet — it always runs through the desktop app.
+
+---
+
+## Downloadable games: the license heartbeat
 
 ### The script for your engine
 
