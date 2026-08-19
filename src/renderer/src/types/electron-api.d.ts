@@ -16,15 +16,18 @@ interface ElectronAPIExtended {
     uninstallerPath: string
   }) => Promise<{ success: boolean; message?: string; error?: string }>
   /**
-   * Make an installed browser-style build reachable over boly-game:// and get
-   * the URL of its entry point. Paths are validated in the main process against
-   * the real games library before anything becomes servable.
+   * Opens an installed browser-style build in its own window — the same
+   * shape as playGame, but for a build with no executable to spawn. Paths
+   * are validated in the main process against the real games library before
+   * anything becomes servable.
    */
-  prepareLocalGame: (appData: {
+  playLocalGame: (appData: {
     game_id: number
     root: string
     entryPath: string
-  }) => Promise<{ ok: true; url: string } | { ok: false; error: string }>
+    token: string
+    gameName?: string
+  }) => Promise<{ success?: boolean; error?: string }>
   isGameRunning: (gameId: number) => Promise<boolean>
   downloadGame: (appData: { game_id: number; token: string; gameName: string }) => Promise<void>
 

@@ -1,7 +1,9 @@
 import { spawn, exec } from 'child_process'
+import { BrowserWindow } from 'electron'
 import axios from 'axios'
 import { WindowManager } from './WindowManager'
 import { AuthService } from './AuthService'
+import { LocalGameServer } from './LocalGameServer'
 
 interface ActiveGameSession {
   pid: number
@@ -12,9 +14,22 @@ interface ActiveGameSession {
   intervalId?: NodeJS.Timeout
 }
 
+// A browser-style build (Unity WebGL, Godot HTML5, a plain web bundle),
+// running in its own real OS window instead of a spawned process — the
+// window itself IS the "process" for accounting purposes here.
+interface ActiveLocalGameSession {
+  window: BrowserWindow
+  game_id: number
+  token: string
+  sessionStartTime: number
+  lastRecordedPlayTimeMinutes: number
+  intervalId?: NodeJS.Timeout
+}
+
 export default class GameService {
   private static instance: GameService
   private activeGameSession: ActiveGameSession | null = null
+  private activeLocalGameSession: ActiveLocalGameSession | null = null
   private gameSessionLaunching = false
   private PLAYTIME_UPDATE_INTERVAL_MS = 60 * 1000 // every 1 minute
 
@@ -30,11 +45,14 @@ export default class GameService {
   }
 
   public isActive(gameId: number): boolean {
-    return this.activeGameSession !== null && this.activeGameSession.game_id === gameId
+    return (
+      (this.activeGameSession !== null && this.activeGameSession.game_id === gameId) ||
+      (this.activeLocalGameSession !== null && this.activeLocalGameSession.game_id === gameId)
+    )
   }
 
   public hasActiveSession(): boolean {
-    return this.activeGameSession !== null
+    return this.activeGameSession !== null || this.activeLocalGameSession !== null
   }
 
   public async fetchInitialPlayTime(token: string, game_id: number): Promise<number> {
@@ -300,6 +318,133 @@ export default class GameService {
       console.error(`[GameService] ✗ Unexpected error in playGame:`, error.message)
       this.gameSessionLaunching = false
       await this.cleanupActiveGameSession()
+      return { error: 'Failed to play game: ' + error.message }
+    }
+  }
+
+  public async cleanupActiveLocalGameSession(): Promise<void> {
+    const session = this.activeLocalGameSession
+    if (!session) return
+
+    console.log(`[GameService] Ending local game session for game ${session.game_id}`)
+
+    if (session.intervalId) {
+      clearInterval(session.intervalId)
+    }
+
+    try {
+      const sessionDurationMinutes = (Date.now() - session.sessionStartTime) / (1000 * 60)
+      await this.sendPlayTimeUpdate(
+        session.token,
+        session.game_id,
+        session.lastRecordedPlayTimeMinutes + sessionDurationMinutes
+      )
+    } catch (error) {
+      console.error('[GameService] Error sending final playtime for local game session:', error)
+    }
+
+    this.activeLocalGameSession = null
+    this.gameSessionLaunching = false
+
+    WindowManager.getInstance().send('game-stopped', { gameId: session.game_id })
+  }
+
+  // Browser-style build: opens its own real window (not spawned as a process,
+  // not embedded in the app's own window), matching how a native .exe game
+  // already gets its own window. Playtime accounting mirrors playGame's,
+  // keyed off the window's lifetime instead of a PID.
+  public async playLocalGame(appData: {
+    game_id: number
+    root: string
+    entryPath: string
+    token: string
+    gameName?: string
+  }): Promise<{ success?: boolean; error?: string }> {
+    const { game_id, root, entryPath, token, gameName } = appData
+
+    if (this.hasActiveSession()) {
+      console.warn('[GameService] Another game session is already active. Please stop it first.')
+      return { error: 'Another game session is active.' }
+    }
+    if (this.gameSessionLaunching) {
+      console.warn('[GameService] A game is already being launched. Please wait.')
+      return { error: 'A game is already being launched. Please wait.' }
+    }
+
+    this.gameSessionLaunching = true
+
+    try {
+      const registration = LocalGameServer.getInstance().register(game_id, root, entryPath)
+      if (!registration.ok) {
+        console.error(`[GameService] ✗ Could not register local game: ${registration.error}`)
+        this.gameSessionLaunching = false
+        return { error: registration.error }
+      }
+
+      const lastRecordedPlayTimeMinutes = await this.fetchInitialPlayTime(token, game_id)
+
+      const gameWindow = new BrowserWindow({
+        width: 1280,
+        height: 800,
+        show: false,
+        title: gameName || 'Boly',
+        webPreferences: {
+          // Third-party content: no Node, no preload, fully sandboxed —
+          // the same posture the embedded iframe used before this.
+          nodeIntegration: false,
+          contextIsolation: true,
+          sandbox: true
+        }
+      })
+      gameWindow.removeMenu()
+      gameWindow.once('ready-to-show', () => gameWindow.show())
+      await gameWindow.loadURL(registration.url)
+
+      this.activeLocalGameSession = {
+        window: gameWindow,
+        game_id,
+        token,
+        sessionStartTime: Date.now(),
+        lastRecordedPlayTimeMinutes
+      }
+      this.gameSessionLaunching = false
+
+      WindowManager.getInstance().send('game-started', { gameId: game_id })
+
+      this.activeLocalGameSession.intervalId = setInterval(async () => {
+        const session = this.activeLocalGameSession
+        if (!session) return
+
+        const isAuthenticated = await AuthService.getInstance().checkUserAuthentication()
+        if (!isAuthenticated) {
+          console.warn(`[GameService] ✗ User is no longer authenticated — closing local game window`)
+          session.window.close()
+          return
+        }
+
+        const sessionDurationMinutes = (Date.now() - session.sessionStartTime) / (1000 * 60)
+        const updateSuccess = await this.sendPlayTimeUpdate(
+          session.token,
+          session.game_id,
+          session.lastRecordedPlayTimeMinutes + sessionDurationMinutes
+        )
+        if (!updateSuccess) {
+          console.warn(`[GameService] ✗ Playtime update failed (auth rejected) — closing local game window`)
+          session.window.close()
+        }
+      }, this.PLAYTIME_UPDATE_INTERVAL_MS)
+
+      // The only way this session ends: the player closes the window. There
+      // is no child process to exit on its own.
+      gameWindow.on('closed', () => {
+        this.cleanupActiveLocalGameSession()
+      })
+
+      return { success: true }
+    } catch (error: any) {
+      console.error(`[GameService] ✗ Unexpected error in playLocalGame:`, error.message)
+      this.gameSessionLaunching = false
+      this.activeLocalGameSession = null
       return { error: 'Failed to play game: ' + error.message }
     }
   }

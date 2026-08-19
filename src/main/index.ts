@@ -190,13 +190,12 @@ function registerIpcHandlers() {
     return installerService.uninstallGame(appData.game_id, appData.uninstallerPath)
   })
 
-  // Make an installed browser-style build reachable over boly-game:// and hand
-  // back the URL of its entry point. The renderer owns the install registry, so
-  // it supplies the paths; LocalGameServer validates them against the real
-  // games library before serving anything.
-  ipcMain.handle('prepare-local-game', async (_event, appData) => {
-    const { game_id, root, entryPath } = appData ?? {}
-    return localGameServer.register(game_id, root, entryPath)
+  // Opens an installed browser-style build in its own window, the same way
+  // play-game opens a native .exe in its own process. The renderer owns the
+  // install registry, so it supplies the paths; LocalGameServer validates
+  // them against the real games library before anything is served.
+  ipcMain.handle('play-local-game', async (_event, appData) => {
+    return gameService.playLocalGame(appData)
   })
 
   // Test IPC
@@ -268,6 +267,7 @@ app.whenReady().then(() => {
   authService.on('session-invalidated', async () => {
     console.log('Session invalidated event received. Cleaning up games.')
     await gameService.cleanupActiveGameSession()
+    await gameService.cleanupActiveLocalGameSession()
   })
 
   const win = windowManager.getMainWindow()
@@ -293,6 +293,7 @@ app.on('open-url', (event, url) => {
 app.on('window-all-closed', async () => {
   console.log('Main window closed, cleaning up active game sessions...')
   await gameService.cleanupActiveGameSession()
+  await gameService.cleanupActiveLocalGameSession()
   if (process.platform !== 'darwin') {
     app.quit()
   }
@@ -303,6 +304,7 @@ app.on('before-quit', async (event) => {
     console.log('App quitting with active game session, cleaning up...')
     event.preventDefault()
     await gameService.cleanupActiveGameSession()
+    await gameService.cleanupActiveLocalGameSession()
 
     // Stop session monitoring
     authService.stopSessionMonitoring()

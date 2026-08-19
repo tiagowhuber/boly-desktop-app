@@ -268,10 +268,33 @@ async function Play() {
     recordPlayed(props.item.game_id)
     router.push(`/webgame/${props.item.game_id}`)
   } else if (isLocalHtmlBuild.value && props.item.game_id) {
-    // Installed web bundle: runs in the local player, served off boly-game://
-    // from the folder it was extracted into.
-    recordPlayed(props.item.game_id)
-    router.push(`/play/${props.item.game_id}`)
+    // Installed web bundle: opens in its own window, served off boly-game://
+    // from the folder it was extracted into — same shape as a native game
+    // launch below, just no .exe to spawn.
+    isLoading.value = true
+
+    try {
+      const gameName = props.item.name?.[i18n.locale.value] || props.item.name?.es || 'Boly'
+      const result = await window.electronAPI.playLocalGame({
+        game_id: props.item.game_id,
+        root: props.item.game_Root || props.item.game_Path,
+        entryPath: props.item.game_Path,
+        token: auth.token,
+        gameName
+      })
+
+      if (result && result.error) {
+        console.error('Failed to start local game:', result.error)
+        isLoading.value = false
+      } else {
+        recordPlayed(props.item.game_id)
+      }
+      // On success, loading is cleared by the game-started event, same as a
+      // native launch.
+    } catch (error) {
+      console.error('Error starting local game:', error)
+      isLoading.value = false
+    }
   } else if (props.item.game_id) {
     console.log('clicked')
     isLoading.value = true // Set loading while game is starting

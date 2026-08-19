@@ -452,11 +452,6 @@ export const es = {
   added_on: 'Añadida el',
   back: 'Volver',
 
-  // Reproductor local (builds web instalados)
-  local_player_loading: 'Cargando el juego…',
-  local_player_invalid_game: 'Juego no válido.',
-  local_player_not_installed: 'Este juego no está instalado, o no es un juego web. Descárgalo desde tu biblioteca.',
-  local_player_load_error: 'No se pudo abrir el juego.',
   confirm_delete: 'Confirmar Eliminación',
   redirecting_to_payment_setup: 'Redirigiendo a la configuración de pago...',
 

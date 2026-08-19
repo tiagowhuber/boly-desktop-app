@@ -107,13 +107,6 @@ export const router = createRouter({
       component: () => import('../views/WebGameView.vue')
     },
     {
-      // An installed build that runs in the local player, as opposed to
-      // /webgame/:game, which streams a browser-playable game from the API.
-      path: '/play/:game',
-      name: 'local-game',
-      component: () => import('../views/LocalGamePlayerView.vue')
-    },
-    {
       path: '/ach-pass',
       name: 'ach-pass',
       component: () => import('../views/AchievementsPassView.vue')
