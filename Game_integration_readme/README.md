@@ -38,6 +38,15 @@ its own.
    ```
    tar -a -c -f build.zip *
    ```
+   > Note the `*`, **not a dot**. `tar -a -c -f build.zip .` looks nearly
+   > identical but archives "the current directory" itself rather than its
+   > contents, prefixing every entry with `./` — a zip that still passes
+   > upload validation (an `index.html` is still found) but that the
+   > desktop app's installer refuses to extract. Also make sure you're
+   > zipping the **export/build output** and not the whole project folder —
+   > `node_modules` and source files don't belong in the zip, and a project
+   > root often has its own `index.html` (the one Vite/webpack serves in
+   > dev mode) that would get picked up instead of the real build's.
 3. **Upload it — same dashboard as a desktop build.** Log in at boly.cl,
    **Developer Dashboard → Publish a new game**, fill in name/description/price,
    attach the zip, **Create game & upload build**. The server accepts a zip

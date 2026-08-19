@@ -676,8 +676,12 @@ Deja el campo game_id en 0 — el launcher inyecta el id real en tiempo de ejecu
             Usa <b>7-Zip</b>, o abre una terminal <b>dentro de la carpeta del build</b> y ejecuta:</span>
             <div class="code" style="margin-top:10px"><span class="cmd-line">tar <span class="flag">-a</span> <span class="flag">-c</span> <span class="flag">-f</span> <span class="str">build.zip</span> *</span></div>
             <div class="hint" style="margin-top:2px">
-              <span data-lang="en"><span class="gid">tar</span> ships with Windows 10 and 11 — nothing to install.</span>
-              <span data-lang="es"><span class="gid">tar</span> viene incluido en Windows 10 y 11 — no hay que instalar nada.</span>
+              <span data-lang="en"><span class="gid">tar</span> ships with Windows 10 and 11 — nothing to install. Note the
+              <span class="gid">*</span> at the end, <b>not a dot</b> — <span class="gid">tar -a -c -f build.zip .</span>
+              looks almost identical but produces a zip the app's installer refuses to open.</span>
+              <span data-lang="es"><span class="gid">tar</span> viene incluido en Windows 10 y 11 — no hay que instalar nada.
+              Ojo con el <span class="gid">*</span> al final, <b>no un punto</b> — <span class="gid">tar -a -c -f build.zip .</span>
+              se ve casi igual pero genera un zip que el instalador de la app se niega a abrir.</span>
             </div>
           </div>
         </div>
@@ -741,6 +745,25 @@ Deja el campo game_id en 0 — el launcher inyecta el id real en tiempo de ejecu
              o anidado unos niveles, ambos funcionan. Si tu bundler genera rutas absolutas (Vite lo hace por
              defecto, ej. <span class="gid">/assets/app.js</span>), no hace falta que cambies nada: el
              reproductor de Boly las resuelve solo.</p>
+          <div class="callout warn"><span class="ico">📁</span>
+            <div>
+              <span data-lang="en"><b>Zip your build's output folder (e.g. <span class="gid">dist/</span>), never your
+              project's root.</b> A Vite/webpack project also has its <b>own</b> <span class="gid">index.html</span> at
+              the root, used only by the dev server — it loads raw, uncompiled source files
+              (<span class="gid">/src/main.ts</span>) that don't exist once you zip them, so the game would fail to
+              start. If you zip the whole project by mistake, that root file can get picked up instead of your real
+              build's, and the zip balloons with <span class="gid">node_modules</span> in it besides. Run your build
+              command first (e.g. <span class="gid">npm run build</span>), then zip only what it output.</span>
+              <span data-lang="es"><b>Comprime la carpeta de salida de tu build (ej. <span class="gid">dist/</span>),
+              nunca la raíz de tu proyecto.</b> Un proyecto de Vite/webpack también tiene su <b>propio</b>
+              <span class="gid">index.html</span> en la raíz, usado solo por el servidor de desarrollo — carga archivos
+              fuente sin compilar (<span class="gid">/src/main.ts</span>) que no existen una vez comprimidos, así que
+              el juego no arrancaría. Si comprimes el proyecto completo por error, ese archivo de la raíz puede
+              terminar siendo el elegido en vez del de tu build real, y además el zip se infla con
+              <span class="gid">node_modules</span> adentro. Corre tu comando de build primero (ej.
+              <span class="gid">npm run build</span>), y comprime solo lo que generó.</span>
+            </div>
+          </div>
         </div>
         <div class="callout tip"><span class="ico">💡</span>
           <div>
@@ -782,8 +805,12 @@ Deja el campo game_id en 0 — el launcher inyecta el id real en tiempo de ejecu
             así al subirlos. Usa <b>7-Zip</b>, o abre una terminal <b>dentro de la carpeta exportada</b> y ejecuta:</span>
             <div class="code" style="margin-top:10px"><span class="cmd-line">tar <span class="flag">-a</span> <span class="flag">-c</span> <span class="flag">-f</span> <span class="str">build.zip</span> *</span></div>
             <div class="hint" style="margin-top:2px">
-              <span data-lang="en"><span class="gid">tar</span> ships with Windows 10 and 11 — nothing to install.</span>
-              <span data-lang="es"><span class="gid">tar</span> viene incluido en Windows 10 y 11 — no hay que instalar nada.</span>
+              <span data-lang="en"><span class="gid">tar</span> ships with Windows 10 and 11 — nothing to install. Note the
+              <span class="gid">*</span> at the end, <b>not a dot</b> — <span class="gid">tar -a -c -f build.zip .</span>
+              looks almost identical but produces a zip the app's installer refuses to open.</span>
+              <span data-lang="es"><span class="gid">tar</span> viene incluido en Windows 10 y 11 — no hay que instalar nada.
+              Ojo con el <span class="gid">*</span> al final, <b>no un punto</b> — <span class="gid">tar -a -c -f build.zip .</span>
+              se ve casi igual pero genera un zip que el instalador de la app se niega a abrir.</span>
             </div>
           </div>
         </div>
