@@ -47,10 +47,21 @@ function setupLibraryDownloadHandlers() {
       allOwnedGames.value[gameIndex].isInstalled = true
       allOwnedGames.value[gameIndex].isInstalling = false
       allOwnedGames.value[gameIndex].game_Path = data.installPath
+      allOwnedGames.value[gameIndex].game_Kind = data.kind ?? 'exe'
+      allOwnedGames.value[gameIndex].game_Root = data.installRoot
       console.log('Setting game path to:', allOwnedGames.value[gameIndex].game_Path)
 
       updateDisplayedGames()
     }
+
+    // Recorded with the game id in hand, because the rescan below only finds
+    // .exe files — an html build has nothing for it to match on.
+    gameRoutesStore.recordInstalledGame({
+      gameId: data.gameId,
+      route: data.installPath,
+      kind: data.kind ?? 'exe',
+      root: data.installRoot
+    })
 
     loadGames()
   })
@@ -111,6 +122,10 @@ async function fetchOwnedGames() {
 
         if (found !== undefined) {
           game.game_Path = found.route
+          // Entries written before html builds existed carry no kind; those
+          // were all executables.
+          game.game_Kind = found.kind ?? 'exe'
+          game.game_Root = found.root
           game.isInstalled = true
         } else {
           game.isInstalled = false
@@ -144,6 +159,10 @@ async function fetchOwnedGames() {
 
           if (found !== undefined) {
             game.game_Path = found.route
+            // Entries written before html builds existed carry no kind; those
+            // were all executables.
+            game.game_Kind = found.kind ?? 'exe'
+            game.game_Root = found.root
             game.isInstalled = true
           } else {
             game.isInstalled = false

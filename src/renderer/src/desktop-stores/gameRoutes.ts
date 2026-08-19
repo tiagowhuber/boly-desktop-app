@@ -6,9 +6,18 @@ export interface LocalGameList {
   localUninstallers: LocalUninstaller[]
 }
 
+// How the app runs an installed build: spawn the executable, or open the
+// extracted index.html in the player.
+export type LocalGameKind = 'exe' | 'html'
+
 export interface LocalGame {
   gameId: number
+  /** What launching needs: the .exe, or the build's index.html. */
   route: string
+  /** Absent on entries written before html builds existed — those are all exes. */
+  kind?: LocalGameKind
+  /** Folder the build was extracted into; what uninstalling deletes. */
+  root?: string
 }
 
 export interface LocalUninstaller {
@@ -26,7 +35,7 @@ const useGameRoutes = defineStore('gameRoutes', {
     getUninstallerItems: (state) => state.localUninstallers
   },
   actions: {
-    addGameToRoute(game: { gameId: number; route: string }) {
+    addGameToRoute(game: LocalGame) {
       const existingGame = this.localGames.find(
         (g) => g.gameId === game.gameId || g.route === game.route
       )
@@ -58,8 +67,22 @@ const useGameRoutes = defineStore('gameRoutes', {
       )
       this.saveToLocalStorage()
     },
+    // Record an install the moment it finishes, with the game id already known.
+    // searchForExes() cannot recover html builds — it scans for .exe files and
+    // maps them back to a game by file name — so for those this is the only
+    // thing that puts them in the list. Upserts, so reinstalling to a new path
+    // replaces the old entry instead of leaving a stale duplicate.
+    recordInstalledGame(game: { gameId: number; route: string; kind: LocalGameKind; root?: string }) {
+      this.localGames = [...this.localGames.filter((g) => g.gameId !== game.gameId), game]
+      this.saveToLocalStorage()
+    },
+
+    // Drop what a disk rescan can rediscover, and keep what it cannot.
+    // searchForExes() rebuilds the exe entries right after this runs; html
+    // builds have no equivalent scan, so wiping them here would make an
+    // installed game look uninstalled on the next library refresh.
     clearRoute() {
-      this.localGames = []
+      this.localGames = this.localGames.filter((g) => g.kind === 'html')
       this.localUninstallers = []
       this.saveToLocalStorage()
     },
@@ -85,7 +108,7 @@ const useGameRoutes = defineStore('gameRoutes', {
             console.log('Game ID for file:', fileName, 'is', gameId)
 
             if (gameId) {
-              const game = { gameId, route: filePath }
+              const game: LocalGame = { gameId, route: filePath, kind: 'exe' }
               this.addGameToRoute(game)
               const uninstallerPath = directoryPath + 'unins000.exe'
               const uninstaller = { gameId, route: uninstallerPath }

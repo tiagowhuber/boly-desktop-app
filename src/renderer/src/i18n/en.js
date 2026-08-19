@@ -448,6 +448,12 @@ export const en = {
   delete: 'Delete',
   added_on: 'Added on',
   back: 'Back',
+
+  // Local player (installed web builds)
+  local_player_loading: 'Loading the game…',
+  local_player_invalid_game: 'Invalid game.',
+  local_player_not_installed: 'This game is not installed, or is not a web game. Download it from your library.',
+  local_player_load_error: 'Could not open the game.',
   confirm_delete: 'Confirm Deletion',
   redirecting_to_payment_setup: 'Redirecting to payment setup...',
 

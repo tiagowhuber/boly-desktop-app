@@ -195,7 +195,9 @@ export class InstallerService {
               this.deleteFile(installerRoute)
               WindowManager.getInstance().send('install-complete', {
                 gameId: game_id,
-                installPath: destExePath
+                installPath: destExePath,
+                installRoot: destinationRoute,
+                kind: 'exe'
               })
             } catch (copyErr) {
               console.error('Failed to copy standalone exe:', copyErr)
@@ -229,7 +231,9 @@ export class InstallerService {
 
           WindowManager.getInstance().send('install-complete', {
             gameId: game_id,
-            installPath: exePath
+            installPath: exePath,
+            installRoot: destinationRoute,
+            kind: 'exe'
           })
         }
       })
@@ -241,10 +245,17 @@ export class InstallerService {
   }
 
   // Dev-uploaded builds: a plain zip of the game folder. Extract it into the
-  // games library and locate the game exe. Emits the same install-started /
-  // install-complete events as installGame, so the renderer needs no changes;
-  // uninstall already falls back to deleting the folder when no Inno Setup
-  // uninstaller exists.
+  // games library, then work out how the app is meant to run it.
+  //
+  // Two shapes are supported, matching what the API accepts on upload:
+  //   - an executable  -> spawned as a process (kind 'exe')
+  //   - an index.html  -> opened in the app's player (kind 'html')
+  // An executable wins when a build somehow ships both, so a desktop game that
+  // also bundles web content keeps behaving as a desktop game.
+  //
+  // install-complete carries installRoot as well as installPath: the path is
+  // what launching needs, the root is the folder uninstalling has to delete,
+  // and for a nested index.html those are not the same directory.
   public async installGameFromZip(
     zipPath: string,
     destinationRoute: string,
@@ -276,21 +287,35 @@ export class InstallerService {
         )
       })
 
-      if (gameExeFiles.length === 0 && exeFiles.length === 0) {
-        WindowManager.getInstance().send('install-error', {
+      const exePath = gameExeFiles[0] ?? exeFiles[0]
+      if (exePath) {
+        WindowManager.getInstance().send('install-complete', {
           gameId: game_id,
-          error: 'No executable found in the extracted build',
-          installPath: destinationRoute
+          installPath: exePath,
+          installRoot: destinationRoute,
+          kind: 'exe'
         })
-        return false
+        return true
       }
 
-      const exePath = gameExeFiles.length > 0 ? gameExeFiles[0] : exeFiles[0]
-      WindowManager.getInstance().send('install-complete', {
+      const entryPoint = this.findEntryPointHtml(destinationRoute)
+      if (entryPoint) {
+        console.log('No executable found — treating build as a browser-style game:', entryPoint.path)
+        WindowManager.getInstance().send('install-complete', {
+          gameId: game_id,
+          installPath: entryPoint.path,
+          installRoot: destinationRoute,
+          kind: 'html'
+        })
+        return true
+      }
+
+      WindowManager.getInstance().send('install-error', {
         gameId: game_id,
-        installPath: exePath
+        error: 'No executable or index.html found in the extracted build',
+        installPath: destinationRoute
       })
-      return true
+      return false
     } catch (error) {
       const err = error as Error
       console.error('Zip install error:', err.message)
@@ -301,6 +326,35 @@ export class InstallerService {
       })
       return false
     }
+  }
+
+  // The index.html a browser-style build starts from. Engines nest their export
+  // as often as not (Vite emits dist/, Unity WebGL and Godot their own folders),
+  // and a build can contain several html files, so the shallowest index.html
+  // wins: it is the page that pulls in everything below it.
+  public findEntryPointHtml(dir: string, depth = 0): { path: string; depth: number } | null {
+    let best: { path: string; depth: number } | null = null
+    try {
+      for (const file of fs.readdirSync(dir)) {
+        const filePath = path.join(dir, file)
+        try {
+          if (fs.statSync(filePath).isDirectory()) {
+            const nested = this.findEntryPointHtml(filePath, depth + 1)
+            if (nested && (!best || nested.depth < best.depth)) {
+              best = nested
+            }
+          } else if (file.toLowerCase() === 'index.html') {
+            // Nothing above this level can be shallower — stop descending here.
+            return { path: filePath, depth }
+          }
+        } catch (err) {
+          console.error(`Error accessing ${filePath}:`, err)
+        }
+      }
+    } catch (err) {
+      console.error(`Error reading directory ${dir}:`, err)
+    }
+    return best
   }
 
   public searchForExecutablesRecursive(dir: string, fileList: string[] = []): string[] {
@@ -330,8 +384,21 @@ export class InstallerService {
     try {
       console.log('Uninstalling game:', game_id, 'using uninstaller:', uninstallerPath)
 
+      // Zip builds have no Inno Setup uninstaller, so the caller passes either
+      // the extracted folder itself or a file inside it; both mean "delete that
+      // folder". Only an existing FILE is treated as a real uninstaller to run.
+      const existsAsDirectory =
+        fs.existsSync(uninstallerPath) && fs.statSync(uninstallerPath).isDirectory()
+
+      if (existsAsDirectory) {
+        console.log('Uninstall target is a folder, deleting it:', uninstallerPath)
+        fs.rmSync(uninstallerPath, { recursive: true, force: true })
+        return { success: true, message: 'Game uninstalled successfully' }
+      }
+
       if (!fs.existsSync(uninstallerPath)) {
-        // No Inno Setup uninstaller — standalone exe, delete the game folder directly
+        // Standalone exe or a path that has already gone — fall back to the
+        // folder that contained it.
         const gameDir = path.dirname(uninstallerPath)
         console.log('No uninstaller found, deleting game folder:', gameDir)
         if (!fs.existsSync(gameDir)) {

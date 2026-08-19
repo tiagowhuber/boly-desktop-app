@@ -53,6 +53,13 @@ const isWebGame = computed(
   () => props.item.game_type_id === WEB_GAME_TYPE_ID || legacyEmbeddedRoute.value !== null
 )
 
+// A build that was downloaded and extracted and turned out to be a web bundle
+// (Unity WebGL, Godot HTML5, a plain Vite/Three.js export) rather than an
+// executable. Distinct from isWebGame above: those play without installing and
+// are served remotely, this one is an ordinary Downloadable that happens to run
+// in the player instead of as a process.
+const isLocalHtmlBuild = computed(() => props.item.game_Kind === 'html')
+
 const displayedAchievements = computed(() => {
   return gameAchievements.value.slice(0, 4)
 })
@@ -107,33 +114,46 @@ async function uninstallGame(event: Event) {
       (u) => u.gameId === props.item.game_id
     )
 
-    if (uninstaller && uninstaller.route) {
-      console.log('Uninstalling game:', props.item.game_id, 'using:', uninstaller.route)
+    // Inno Setup builds have a real uninstaller; zip builds (exe or html) do
+    // not, and for those the main process deletes the folder the path sits in.
+    // Passing the recorded install root matters for a nested index.html, where
+    // the file's own directory is not the folder that was extracted.
+    const localEntry = gameRoutesStore.localGames.find((g) => g.gameId === props.item.game_id)
+    const target =
+      uninstaller?.route || props.item.game_Root || localEntry?.root || props.item.game_Path
 
-      const result = await window.electronAPI.uninstallGame({
-        game_id: props.item.game_id,
-        uninstallerPath: uninstaller.route
+    if (!target) {
+      console.warn('Nothing to uninstall for game:', props.item.game_id)
+      return
+    }
+
+    console.log('Uninstalling game:', props.item.game_id, 'using:', target)
+
+    const result = await window.electronAPI.uninstallGame({
+      game_id: props.item.game_id,
+      uninstallerPath: target
+    })
+
+    if (result.success) {
+      console.log('Game uninstalled successfully:', result.message)
+
+      gameRoutesStore.removeGameFromRoute({
+        gameId: props.item.game_id,
+        route: props.item.game_Path || ''
       })
-
-      if (result.success) {
-        console.log('Game uninstalled successfully:', result.message)
-
-        gameRoutesStore.removeGameFromRoute({
-          gameId: props.item.game_id,
-          route: props.item.game_Path || ''
-        })
+      if (uninstaller?.route) {
         gameRoutesStore.removeUninstallerFromRoute({
           gameId: props.item.game_id,
           route: uninstaller.route
         })
-
-        props.item.isInstalled = false
-        props.item.game_Path = ''
-      } else {
-        console.error('Uninstall failed:', result.error)
       }
+
+      props.item.isInstalled = false
+      props.item.game_Path = ''
+      props.item.game_Kind = undefined
+      props.item.game_Root = undefined
     } else {
-      console.warn('No uninstaller found for game:', props.item.game_id)
+      console.error('Uninstall failed:', result.error)
     }
   } catch (error) {
     console.error('Error uninstalling game:', error)
@@ -197,7 +217,18 @@ onMounted(() => {
       isDownloading.value = false
       props.item.isInstalled = true
       props.item.game_Path = data.installPath
+      props.item.game_Kind = data.kind ?? 'exe'
+      props.item.game_Root = data.installRoot
       console.log('Setting game path to:', props.item.game_Path)
+
+      // Persist here rather than leaving it to the disk rescan: that only
+      // finds .exe files, so an html build would be forgotten on refresh.
+      gameRoutesStore.recordInstalledGame({
+        gameId: data.gameId,
+        route: data.installPath,
+        kind: data.kind ?? 'exe',
+        root: data.installRoot
+      })
     }
   })
 
@@ -231,6 +262,11 @@ async function Play() {
     // Browser-playable build: runs in the in-app player, no install needed
     recordPlayed(props.item.game_id)
     router.push(`/webgame/${props.item.game_id}`)
+  } else if (isLocalHtmlBuild.value && props.item.game_id) {
+    // Installed web bundle: runs in the local player, served off boly-game://
+    // from the folder it was extracted into.
+    recordPlayed(props.item.game_id)
+    router.push(`/play/${props.item.game_id}`)
   } else if (props.item.game_id) {
     console.log('clicked')
     isLoading.value = true // Set loading while game is starting

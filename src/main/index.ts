@@ -6,10 +6,15 @@ import { AuthService } from './services/AuthService'
 import { InstallerService } from './services/InstallerService'
 import GameService from './services/GameService'
 import { UpdaterService } from './services/UpdaterService'
+import { LocalGameServer } from './services/LocalGameServer'
 import axios from 'axios'
 import fs from 'fs'
 import path from 'path'
 require('dotenv').config()
+
+// Privileges have to be declared before the protocol layer starts, which
+// happens on app ready — this cannot move into whenReady().
+LocalGameServer.registerScheme()
 
 // Initialize singleton services
 const windowManager = WindowManager.getInstance()
@@ -17,6 +22,7 @@ const authService = AuthService.getInstance()
 const installerService = InstallerService.getInstance()
 const gameService = GameService.getInstance()
 const updaterService = UpdaterService.getInstance()
+const localGameServer = LocalGameServer.getInstance()
 
 // Handle single instance
 const gotTheLock = app.requestSingleInstanceLock()
@@ -180,7 +186,17 @@ function registerIpcHandlers() {
   })
 
   ipcMain.handle('uninstall-game', async (_event, appData) => {
+    localGameServer.unregister(appData.game_id)
     return installerService.uninstallGame(appData.game_id, appData.uninstallerPath)
+  })
+
+  // Make an installed browser-style build reachable over boly-game:// and hand
+  // back the URL of its entry point. The renderer owns the install registry, so
+  // it supplies the paths; LocalGameServer validates them against the real
+  // games library before serving anything.
+  ipcMain.handle('prepare-local-game', async (_event, appData) => {
+    const { game_id, root, entryPath } = appData ?? {}
+    return localGameServer.register(game_id, root, entryPath)
   })
 
   // Test IPC
@@ -190,6 +206,10 @@ function registerIpcHandlers() {
 // App Lifecycle
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.electron')
+
+  // Before any window exists, so the first navigation can already resolve
+  // boly-game:// requests.
+  localGameServer.start()
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)

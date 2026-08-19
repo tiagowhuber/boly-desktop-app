@@ -41,6 +41,10 @@ export interface Game {
   game_type_id: number
   game_type: GameType
   game_Path: string
+  /** How the installed build runs: spawn the exe, or open its index.html. */
+  game_Kind?: 'exe' | 'html'
+  /** Folder the build was extracted into; what uninstalling deletes. */
+  game_Root?: string
   file_name?: {
     desktop?: string
     web?: string
