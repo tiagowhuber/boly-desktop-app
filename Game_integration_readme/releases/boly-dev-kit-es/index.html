@@ -605,6 +605,23 @@ Deja el campo game_id en 0 — el launcher inyecta el id real en tiempo de ejecu
             carpeta del build y no el proyecto.</span>
           </div>
         </div>
+        <div class="callout warn"><span class="ico">🧰</span>
+          <div>
+            <span data-lang="en"><b>Do not use PowerShell's <span class="gid">Compress-Archive</span></b> to make
+            the zip. It writes Windows backslashes as the path separator, which the ZIP format does not allow, and
+            the build then unpacks flat — the game cannot find its own files. The server rejects these on upload.
+            Use <b>7-Zip</b>, or open a terminal <b>inside the build folder</b> and run:</span>
+            <span data-lang="es"><b>No uses <span class="gid">Compress-Archive</span> de PowerShell</b> para crear
+            el zip. Escribe las rutas con backslash de Windows, algo que el formato ZIP no permite, y el build se
+            descomprime plano: el juego no encuentra sus propios archivos. El servidor los rechaza al subirlos.
+            Usa <b>7-Zip</b>, o abre una terminal <b>dentro de la carpeta del build</b> y ejecuta:</span>
+            <div class="code" style="margin-top:10px"><span class="cmd-line">tar <span class="flag">-a</span> <span class="flag">-c</span> <span class="flag">-f</span> <span class="str">build.zip</span> *</span></div>
+            <div class="hint" style="margin-top:2px">
+              <span data-lang="en"><span class="gid">tar</span> ships with Windows 10 and 11 — nothing to install.</span>
+              <span data-lang="es"><span class="gid">tar</span> viene incluido en Windows 10 y 11 — no hay que instalar nada.</span>
+            </div>
+          </div>
+        </div>
         <p data-lang="en">Finally, open <b>Game Media</b> on your game's dashboard page and upload the banner,
            screenshots and videos. A newly created game has no store art — do this before approval so the
            store page looks finished the moment it goes live.</p>

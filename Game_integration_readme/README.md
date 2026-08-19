@@ -99,6 +99,16 @@ it with the script in this folder.
    server rejects the upload automatically if the zip has no `.exe` in it. An admin
    reviews and approves it; once approved it becomes the game's live version
    automatically. Users get it on their next install/update.
+
+   > **Don't build the zip with PowerShell's `Compress-Archive`.** It writes
+   > Windows backslashes as the path separator, which the ZIP format forbids;
+   > the archive then unpacks flat and the game cannot find its own files. The
+   > server rejects these on upload. Use 7-Zip, or run this from inside the
+   > build folder (`tar` ships with Windows 10 and 11):
+   >
+   > ```
+   > tar -a -c -f build.zip *
+   > ```
 9. **Mark the game as migrated** in your tracking list (needed for Part 2).
 
 When **every** game on the platform has completed steps 1–9, do Part 2.
