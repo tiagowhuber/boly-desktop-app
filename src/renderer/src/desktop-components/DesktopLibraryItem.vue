@@ -197,6 +197,10 @@ onMounted(() => {
 
   window.electronAPI.onDownloadError((data) => {
     if (data.gameId === props.item.game_id) {
+      // The only place this error is ever surfaced — main process console
+      // output isn't visible in a packaged app, so without this the failure
+      // is completely silent to both the player and whoever is debugging it.
+      console.error(`Download failed for game ${data.gameId}:`, data.error)
       isLoading.value = false
       isDownloading.value = false
       isInstalling.value = false
@@ -234,6 +238,7 @@ onMounted(() => {
 
   window.electronAPI.onInstallError((data) => {
     if (data.gameId === props.item.game_id) {
+      console.error(`Install failed for game ${data.gameId}:`, data.error)
       isLoading.value = false
       isInstalling.value = false
     }
