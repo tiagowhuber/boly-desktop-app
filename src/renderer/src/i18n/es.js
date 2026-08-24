@@ -143,6 +143,7 @@ export const es = {
   games_title: 'JUEGOS',
   already_owned: '¡Ya lo tienes!',
   subscription_access: 'Acceso por Suscripción',
+  pending_review_badge: 'Pendiente de revisión',
   add_to_cart: 'Añadir al carrito',
   already_in_cart: '¡Ya en el carrito!',
   remove_from_cart: '¿Quitar del carrito?',

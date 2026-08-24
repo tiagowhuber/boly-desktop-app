@@ -333,7 +333,10 @@ async function Download() {
       window.electronAPI.downloadGame({
         game_id: props.item.game_id,
         token: auth.token,
-        gameName: gameName
+        gameName: gameName,
+        // Not yet approved — install the specific build under review
+        // rather than whatever (if anything) is the game's live version.
+        build_id: props.item.pending_review ? props.item.pending_build_id : undefined
       })
     }
   } catch (error) {
@@ -371,6 +374,7 @@ async function Download() {
     <div class="game-info">
       <div class="title-section">
         <h3>{{ props.item.name[i18n.locale.value].toUpperCase() }}</h3>
+        <span v-if="props.item.pending_review" class="pending-review-badge">{{ $t('pending_review_badge') }}</span>
       </div>
 
       <div class="divider"></div>
@@ -564,6 +568,21 @@ async function Download() {
   color: black;
   font-weight: bold;
   margin: 0;
+}
+
+.pending-review-badge {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(240, 180, 41, 0.18);
+  color: #a86f00;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  width: fit-content;
 }
 
 .completion-indicator {

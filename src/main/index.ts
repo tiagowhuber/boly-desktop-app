@@ -172,12 +172,8 @@ function registerIpcHandlers() {
   })
 
   ipcMain.handle('download-game', async (_event, appData) => {
-    const { game_id, token, gameName } = appData
-    // Passing game_id (appData.game_id) to both token and game_id parameters?
-    // The original call was downloadTempFile(token, game_id, gameName)
-    // Wait, let me check InstallerService.ts signature.
-    // public async downloadTempFile(token: string, game_id: number, gameName: string)
-    return installerService.downloadTempFile(token, game_id, gameName)
+    const { game_id, token, gameName, build_id } = appData
+    return installerService.downloadTempFile(token, game_id, gameName, build_id)
   })
 
   ipcMain.handle('play-game', async (_event, appData) => {

@@ -142,6 +142,7 @@ export const en = {
   games_title: 'GAMES',
   already_owned: 'Already owned!',
   subscription_access: 'Subscription Access',
+  pending_review_badge: 'Pending review',
   add_to_cart: 'Add to cart',
   already_in_cart: 'Already in cart!',
   remove_from_cart: 'Remove from cart?',

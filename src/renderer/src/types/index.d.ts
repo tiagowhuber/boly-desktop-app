@@ -56,6 +56,10 @@ export interface Game {
   isInstalled?: boolean
   isInstalling?: boolean
   installError?: string
+  /** Not a real purchase — surfaced to admins/the studio's own developer so
+   *  a build can be installed and played for review before it's approved. */
+  pending_review?: boolean
+  pending_build_id?: number
 }
 
 export interface Achievement {

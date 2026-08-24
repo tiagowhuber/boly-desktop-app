@@ -29,7 +29,7 @@ interface ElectronAPIExtended {
     gameName?: string
   }) => Promise<{ success?: boolean; error?: string }>
   isGameRunning: (gameId: number) => Promise<boolean>
-  downloadGame: (appData: { game_id: number; token: string; gameName: string }) => Promise<void>
+  downloadGame: (appData: { game_id: number; token: string; gameName: string; build_id?: number }) => Promise<void>
 
   // Custom title-bar window controls
   windowMinimize: () => Promise<void>

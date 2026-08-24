@@ -42,8 +42,10 @@ export class InstallerService {
     return libPath
   }
 
-  public async downloadTempFile(token: string, game_id: number, gameName: string): Promise<any> {
-    const req = { token, game_id, is_web: false }
+  public async downloadTempFile(token: string, game_id: number, gameName: string, build_id?: number): Promise<any> {
+    // build_id previews a specific (possibly still-pending) build for review
+    // instead of the game's live one — see Game.controller.ts's getUrl.
+    const req = { token, game_id, is_web: false, ...(build_id != null ? { build_id } : {}) }
     const file_game_id = game_id
     try {
       WindowManager.getInstance().send('download-started', {
