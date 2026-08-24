@@ -136,6 +136,42 @@ async function fetchOwnedGames() {
 
         return game
       })
+
+      // getAll() only returns published games, so a subscribed admin
+      // (unlike an unsubscribed one, which already goes through the
+      // pending-review-aware branch below) would otherwise never see a
+      // build awaiting review. Merge those in from the same endpoint the
+      // other branch uses.
+      if (user.roleId === 1) {
+        try {
+          const pendingResponse = await axios.get(`/v1/games/user/${user.userId}`)
+          const pendingList: Game[] = pendingResponse.data?.[0]?.game || []
+          for (const pendingGame of pendingList) {
+            if (!pendingGame.pending_review) continue
+            const existing = allOwnedGames.value.find((g) => g.game_id === pendingGame.game_id)
+            if (existing) {
+              existing.pending_review = true
+              existing.pending_build_id = pendingGame.pending_build_id
+            } else {
+              if (!pendingGame.banner_url) pendingGame.banner_url = 'banner.jpg'
+              const found = localGames.find((localGame) => localGame.gameId === pendingGame.game_id)
+              if (found !== undefined) {
+                pendingGame.game_Path = found.route
+                pendingGame.game_Kind = found.kind ?? 'exe'
+                pendingGame.game_Root = found.root
+                pendingGame.isInstalled = true
+              } else {
+                pendingGame.isInstalled = false
+              }
+              pendingGame.isInstalling = false
+              pendingGame.installError = undefined
+              allOwnedGames.value.push(pendingGame)
+            }
+          }
+        } catch (err) {
+          console.error('Error merging pending-review games for admin:', err)
+        }
+      }
     } else {
       // Code path for users without active subscription
       const response = await axios.get(`/v1/games/user/${user.userId}`)
