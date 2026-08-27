@@ -45,6 +45,12 @@ export interface Game {
   game_Kind?: 'exe' | 'html'
   /** Folder the build was extracted into; what uninstalling deletes. */
   game_Root?: string
+  /**
+   * file_name.desktop of the build that is actually installed on disk. Differs
+   * from the game's current file_name.desktop once a newer build is approved,
+   * which is what surfaces the Update button.
+   */
+  installedBuildKey?: string
   file_name?: {
     desktop?: string
     web?: string

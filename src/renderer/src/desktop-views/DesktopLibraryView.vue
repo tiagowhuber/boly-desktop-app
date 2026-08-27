@@ -43,12 +43,19 @@ function setupLibraryDownloadHandlers() {
     console.log('Library detected install complete:', data)
 
     const gameIndex = allOwnedGames.value.findIndex((g) => g.game_id === data.gameId)
+    const installedBuildKey = gameIndex !== -1
+      ? allOwnedGames.value[gameIndex].file_name?.desktop
+      : undefined
+
     if (gameIndex !== -1) {
       allOwnedGames.value[gameIndex].isInstalled = true
       allOwnedGames.value[gameIndex].isInstalling = false
       allOwnedGames.value[gameIndex].game_Path = data.installPath
       allOwnedGames.value[gameIndex].game_Kind = data.kind ?? 'exe'
       allOwnedGames.value[gameIndex].game_Root = data.installRoot
+      // Remember which build this is, so a later approved build shows as an
+      // update rather than looking identical to what's already installed.
+      allOwnedGames.value[gameIndex].installedBuildKey = installedBuildKey
       console.log('Setting game path to:', allOwnedGames.value[gameIndex].game_Path)
 
       updateDisplayedGames()
@@ -60,7 +67,8 @@ function setupLibraryDownloadHandlers() {
       gameId: data.gameId,
       route: data.installPath,
       kind: data.kind ?? 'exe',
-      root: data.installRoot
+      root: data.installRoot,
+      buildKey: installedBuildKey
     })
 
     loadGames()
@@ -126,6 +134,7 @@ async function fetchOwnedGames() {
           // were all executables.
           game.game_Kind = found.kind ?? 'exe'
           game.game_Root = found.root
+          game.installedBuildKey = found.buildKey
           game.isInstalled = true
         } else {
           game.isInstalled = false
@@ -159,6 +168,7 @@ async function fetchOwnedGames() {
                 pendingGame.game_Path = found.route
                 pendingGame.game_Kind = found.kind ?? 'exe'
                 pendingGame.game_Root = found.root
+                pendingGame.installedBuildKey = found.buildKey
                 pendingGame.isInstalled = true
               } else {
                 pendingGame.isInstalled = false
@@ -199,6 +209,7 @@ async function fetchOwnedGames() {
             // were all executables.
             game.game_Kind = found.kind ?? 'exe'
             game.game_Root = found.root
+            game.installedBuildKey = found.buildKey
             game.isInstalled = true
           } else {
             game.isInstalled = false

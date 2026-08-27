@@ -4,6 +4,13 @@ import { useGames } from '../stores'
 export interface LocalGameList {
   localGames: LocalGame[]
   localUninstallers: LocalUninstaller[]
+  /**
+   * gameId -> buildKey, carried across a disk rescan. searchForExes() can
+   * rediscover an .exe on disk but has no way to know which build produced
+   * it, so without this the build key would be lost on every library refresh
+   * and no game would ever report an available update.
+   */
+  rediscoverableBuildKeys: Record<number, string>
 }
 
 // How the app runs an installed build: spawn the executable, or open the
@@ -18,6 +25,15 @@ export interface LocalGame {
   kind?: LocalGameKind
   /** Folder the build was extracted into; what uninstalling deletes. */
   root?: string
+  /**
+   * The game's file_name.desktop at install time — the S3 key of the build
+   * that was installed. Approving a new build changes that key, so comparing
+   * it against the current one is how the library knows an update exists.
+   * Absent on entries written before update detection, and on installs the
+   * disk rescan rediscovers (it only sees files, not which build they came
+   * from) — those simply don't claim an update either way.
+   */
+  buildKey?: string
 }
 
 export interface LocalUninstaller {
@@ -28,7 +44,8 @@ export interface LocalUninstaller {
 const useGameRoutes = defineStore('gameRoutes', {
   state: (): LocalGameList => ({
     localGames: JSON.parse(localStorage.getItem('localGames') || '[]'),
-    localUninstallers: JSON.parse(localStorage.getItem('localUninstallers') || '[]')
+    localUninstallers: JSON.parse(localStorage.getItem('localUninstallers') || '[]'),
+    rediscoverableBuildKeys: {}
   }),
   getters: {
     getRouteItems: (state) => state.localGames,
@@ -72,7 +89,13 @@ const useGameRoutes = defineStore('gameRoutes', {
     // maps them back to a game by file name — so for those this is the only
     // thing that puts them in the list. Upserts, so reinstalling to a new path
     // replaces the old entry instead of leaving a stale duplicate.
-    recordInstalledGame(game: { gameId: number; route: string; kind: LocalGameKind; root?: string }) {
+    recordInstalledGame(game: {
+      gameId: number
+      route: string
+      kind: LocalGameKind
+      root?: string
+      buildKey?: string
+    }) {
       this.localGames = [...this.localGames.filter((g) => g.gameId !== game.gameId), game]
       this.saveToLocalStorage()
     },
@@ -82,6 +105,13 @@ const useGameRoutes = defineStore('gameRoutes', {
     // builds have no equivalent scan, so wiping them here would make an
     // installed game look uninstalled on the next library refresh.
     clearRoute() {
+      // Stash the build each exe install came from before dropping it, so the
+      // rescan can put it back — see rediscoverableBuildKeys.
+      for (const game of this.localGames) {
+        if (game.kind !== 'html' && game.buildKey) {
+          this.rediscoverableBuildKeys[game.gameId] = game.buildKey
+        }
+      }
       this.localGames = this.localGames.filter((g) => g.kind === 'html')
       this.localUninstallers = []
       this.saveToLocalStorage()
@@ -108,7 +138,12 @@ const useGameRoutes = defineStore('gameRoutes', {
             console.log('Game ID for file:', fileName, 'is', gameId)
 
             if (gameId) {
-              const game: LocalGame = { gameId, route: filePath, kind: 'exe' }
+              const game: LocalGame = {
+                gameId,
+                route: filePath,
+                kind: 'exe',
+                buildKey: this.rediscoverableBuildKeys[gameId]
+              }
               this.addGameToRoute(game)
               const uninstallerPath = directoryPath + 'unins000.exe'
               const uninstaller = { gameId, route: uninstallerPath }

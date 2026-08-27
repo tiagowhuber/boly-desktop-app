@@ -177,6 +177,7 @@ export const en = {
   installing: 'Installing',
   running: 'Running',
   play: 'Play',
+  update_game: 'Update',
   completed: 'Completed',
   user_games: "{user}'s games",
   achievements_not_available: 'Achievements not available',

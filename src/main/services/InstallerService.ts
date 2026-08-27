@@ -269,11 +269,26 @@ export class InstallerService {
         installPath: destinationRoute
       })
 
-      if (!fs.existsSync(destinationRoute)) {
-        fs.mkdirSync(destinationRoute, { recursive: true })
+      // Extract into a staging folder and only then swap it in. Extracting
+      // straight over the previous install merged the two builds: extract-zip
+      // overwrites same-named files but leaves everything the new build
+      // renamed or dropped, so the exe search below could pick up the OLD
+      // executable while the data files around it were the new ones.
+      // Staging also means a failed extraction leaves the working install
+      // untouched instead of destroying it.
+      const stagingRoute = `${destinationRoute}.incoming`
+      if (fs.existsSync(stagingRoute)) {
+        fs.rmSync(stagingRoute, { recursive: true, force: true })
       }
-      await extract(zipPath, { dir: destinationRoute })
+      fs.mkdirSync(stagingRoute, { recursive: true })
+
+      await extract(zipPath, { dir: stagingRoute })
       this.deleteFile(zipPath)
+
+      if (fs.existsSync(destinationRoute)) {
+        fs.rmSync(destinationRoute, { recursive: true, force: true })
+      }
+      fs.renameSync(stagingRoute, destinationRoute)
 
       const exeFiles = this.searchForExecutablesRecursive(destinationRoute)
       console.log('Found executable files:', exeFiles)
@@ -321,6 +336,15 @@ export class InstallerService {
     } catch (error) {
       const err = error as Error
       console.error('Zip install error:', err.message)
+      // Don't leave a half-extracted staging folder behind (these are GBs).
+      try {
+        const stagingRoute = `${destinationRoute}.incoming`
+        if (fs.existsSync(stagingRoute)) {
+          fs.rmSync(stagingRoute, { recursive: true, force: true })
+        }
+      } catch (cleanupErr) {
+        console.error('Failed to clean up staging folder:', cleanupErr)
+      }
       WindowManager.getInstance().send('install-error', {
         gameId: game_id,
         error: err.message,

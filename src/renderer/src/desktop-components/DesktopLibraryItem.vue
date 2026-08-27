@@ -60,6 +60,63 @@ const isWebGame = computed(
 // in the player instead of as a process.
 const isLocalHtmlBuild = computed(() => props.item.game_Kind === 'html')
 
+// An approved build newer than the one on disk. Both keys must be known: an
+// install predating update tracking (or one the disk rescan rediscovered)
+// has no recorded build, and claiming an update there would be a guess.
+const needsUpdate = computed(() => {
+  const installed = props.item.installedBuildKey
+  const current = props.item.file_name?.desktop
+  return Boolean(props.item.isInstalled && installed && current && installed !== current)
+})
+
+// One place deciding what the main button is, instead of the same nested
+// ternary repeated across class, label and icon — adding the update state to
+// three parallel chains is how they drift apart.
+type ActionState = 'running' | 'downloading' | 'installing' | 'update' | 'play' | 'download'
+
+const actionState = computed<ActionState>(() => {
+  if (isRunning.value) return 'running'
+  if (isDownloading.value) return 'downloading'
+  if (isInstalling.value) return 'installing'
+  if (needsUpdate.value) return 'update'
+  if (props.item.isInstalled || isWebGame.value) return 'play'
+  return 'download'
+})
+
+const actionClass = computed(
+  () =>
+    ({
+      running: 'running-button',
+      downloading: 'downloading-button',
+      installing: 'installing-button',
+      update: 'update-button',
+      play: 'play-button',
+      download: 'download-button'
+    })[actionState.value]
+)
+
+const actionLabel = computed(
+  () =>
+    ({
+      running: i18n.t('running'),
+      downloading: i18n.t('downloading'),
+      installing: i18n.t('installing'),
+      update: i18n.t('update_game'),
+      play: i18n.t('play'),
+      download: i18n.t('download')
+    })[actionState.value]
+)
+
+function onActionClick() {
+  // Updating reinstalls: Download() re-fetches the game's current build and
+  // the installer replaces the folder wholesale.
+  if (actionState.value === 'play') {
+    Play()
+  } else if (actionState.value === 'update' || actionState.value === 'download') {
+    Download()
+  }
+}
+
 const displayedAchievements = computed(() => {
   return gameAchievements.value.slice(0, 4)
 })
@@ -227,11 +284,15 @@ onMounted(() => {
 
       // Persist here rather than leaving it to the disk rescan: that only
       // finds .exe files, so an html build would be forgotten on refresh.
+      // Remember which build this is, so a later approved build shows as an
+      // update rather than looking identical to what's already installed.
+      props.item.installedBuildKey = props.item.file_name?.desktop
       gameRoutesStore.recordInstalledGame({
         gameId: data.gameId,
         route: data.installPath,
         kind: data.kind ?? 'exe',
-        root: data.installRoot
+        root: data.installRoot,
+        buildKey: props.item.file_name?.desktop
       })
     }
   })
@@ -447,35 +508,16 @@ async function Download() {
 
       <div class="game-actions">
         <button
-          :class="[
-            'action-button',
-            props.item.isInstalled || isWebGame
-              ? isRunning
-                ? 'running-button'
-                : 'play-button'
-              : isDownloading
-                ? 'downloading-button'
-                : isInstalling
-                  ? 'installing-button'
-                  : 'download-button'
-          ]"
+          :class="['action-button', actionClass]"
           :disabled="isLoading || isDownloading || isInstalling || isRunning"
-          @click.stop="(props.item.isInstalled || isWebGame) && !isRunning ? Play() : Download()"
+          @click.stop="onActionClick"
         >
-          <span class="button-text">{{
-            props.item.isInstalled || isWebGame
-              ? isRunning
-                ? $t('running')
-                : $t('play')
-              : isDownloading
-                ? $t('downloading')
-                : isInstalling
-                  ? $t('installing')
-                  : $t('download')
-          }}</span>
-          <PlayIcon v-if="(props.item.isInstalled || isWebGame) && !isRunning" class="icon" />
-          <PlayIcon v-else-if="isRunning" class="icon" />
-          <LoadingSpinnerIcon v-else-if="isDownloading || isInstalling" class="icon" />
+          <span class="button-text">{{ actionLabel }}</span>
+          <PlayIcon v-if="actionState === 'play' || actionState === 'running'" class="icon" />
+          <LoadingSpinnerIcon
+            v-else-if="actionState === 'downloading' || actionState === 'installing'"
+            class="icon"
+          />
           <DownloadIcon v-else class="icon" />
         </button>
 
@@ -909,6 +951,20 @@ async function Download() {
   transform: translateY(-2px) scale(1.02);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
   background: var(--boly-button-pink);
+}
+
+/* Amber rather than the play blue: an update is available and worth noticing,
+   but the game is still playable, so it shouldn't read as an error. */
+.update-button {
+  font-family: 'Poppins', sans-serif;
+  background-color: #e0912f;
+  color: white;
+}
+
+.update-button:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 12px rgba(180, 110, 20, 0.4);
+  background-color: #f0a344;
 }
 
 .downloading-button {
